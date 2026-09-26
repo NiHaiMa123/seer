@@ -117,6 +117,8 @@ export class PersistedBattleHost {
     const beforeInternal = this.lastCommittedInternalSeq;
     const r = this.host.submit(playerId, cmd);
     if (!r.ok) return r;
+    // duplicate-replay：服务端已有同 key 记录——不重插 receipt，也不写新事件
+    if (r.receipt.status === "duplicate-replay") return r;
 
     // tx1: receipt + input-received 事件 + inbox 态
     const newInternal = this.host.state.internalEvents.filter((e) => e.seq > beforeInternal);

@@ -94,6 +94,7 @@ export function observe(state: BattleState, side: Side): Observation {
           deadlineMs: dec.deadlineMs,
         }
       : null,
+    terminal: state.terminal,
     legalActions: legalActions(state, side),
   };
 }

@@ -17,6 +17,7 @@ export const observationSchema: Record<string, unknown> = {
     "own",
     "opponent",
     "decision",
+    "terminal",
     "legalActions"
   ],
   "properties": {
@@ -58,6 +59,16 @@ export const observationSchema: Record<string, unknown> = {
       "anyOf": [
         {
           "$ref": "#/definitions/decisionInfo"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "terminal": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/terminalInfo"
         },
         {
           "type": "null"
@@ -284,6 +295,31 @@ export const observationSchema: Record<string, unknown> = {
         }
       }
     },
+    "terminalInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result",
+        "reason"
+      ],
+      "properties": {
+        "result": {
+          "enum": [
+            "p1",
+            "p2",
+            "draw"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "ko",
+            "concede",
+            "turn-limit",
+            "timeout"
+          ]
+        }
+      }
+    },
     "decisionInfo": {
       "type": "object",
       "additionalProperties": false,
@@ -432,6 +468,7 @@ export interface Observation {
   own: OwnUnit;
   opponent: VisibleOpponent;
   decision: DecisionInfo | null;
+  terminal: TerminalInfo | null;
   legalActions: LegalAction[];
 }
 export interface RulesRef {
@@ -490,6 +527,10 @@ export interface DecisionInfo {
    */
   actors: ("p1" | "p2")[];
   deadlineMs: number;
+}
+export interface TerminalInfo {
+  result: "p1" | "p2" | "draw";
+  reason: "ko" | "concede" | "turn-limit" | "timeout";
 }
 export interface LegalAction {
   actionId: string;

@@ -1,0 +1,11 @@
+{
+  "name": "@seer/host-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@seer/host": "workspace:*",
+    "@seer/battle-core": "workspace:*",
+    "@seer/contracts": "workspace:*"
+  }
+}

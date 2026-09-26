@@ -5,7 +5,7 @@
   "description": "Per-side public projection. Contains no internal seq, RNG, inbox, or hidden move data.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "battleId", "side", "viewCursor", "revision", "turn", "rules", "own", "opponent", "decision", "legalActions"],
+  "required": ["schemaVersion", "battleId", "side", "viewCursor", "revision", "turn", "rules", "own", "opponent", "decision", "terminal", "legalActions"],
   "properties": {
     "schemaVersion": { "const": 1 },
     "battleId": { "type": "string", "pattern": "^btl_[a-z0-9-]{1,60}$" },
@@ -17,6 +17,7 @@
     "own": { "$ref": "#/definitions/ownUnit" },
     "opponent": { "$ref": "#/definitions/visibleOpponent" },
     "decision": { "anyOf": [{ "$ref": "#/definitions/decisionInfo" }, { "type": "null" }] },
+    "terminal": { "anyOf": [{ "$ref": "#/definitions/terminalInfo" }, { "type": "null" }] },
     "legalActions": { "type": "array", "items": { "$ref": "#/definitions/legalAction" } }
   },
   "definitions": {
@@ -107,6 +108,15 @@
         },
         "stages": { "$ref": "#/definitions/stages" },
         "effects": { "type": "array", "items": { "$ref": "#/definitions/publicEffect" } }
+      }
+    },
+    "terminalInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "reason"],
+      "properties": {
+        "result": { "enum": ["p1", "p2", "draw"] },
+        "reason": { "enum": ["ko", "concede", "turn-limit", "timeout"] }
       }
     },
     "decisionInfo": {

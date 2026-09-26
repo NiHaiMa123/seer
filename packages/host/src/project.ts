@@ -90,6 +90,7 @@ export function projectObservation(state: BattleState, side: SideId): Observatio
           deadlineMs: decision.deadlineMs,
         }
       : null,
+    terminal: state.terminal,
     legalActions: legalActionFor(state, side),
   };
   return obs;

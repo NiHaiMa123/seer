@@ -56,6 +56,7 @@ const OBSERVATION = {
     actors: ["p1", "p2"],
     deadlineMs: 10000,
   },
+  terminal: null,
   legalActions: [
     {
       actionId: "act_syn-strike",
