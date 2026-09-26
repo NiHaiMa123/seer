@@ -19,7 +19,8 @@
     "test:privacy": "vitest run tests/contracts/privacy.test.ts",
     "test:plugin": "vitest run experiments/cordis/tests",
     "test:determinism": "vitest run experiments/determinism/tests/determinism.test.ts",
-    "test:determinism:browser": "node tools/build-det-bundle.ts && playwright test",
+    "test:determinism:browser": "node tools/build-det-bundle.ts && playwright test determinism",
+    "perf:render": "node tools/build-render-bundle.ts && playwright test render",
     "vectors:gen": "node experiments/determinism/scripts/gen-vectors.ts",
     "check:boundaries": "node tools/check-boundaries.ts"
   },

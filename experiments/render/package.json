@@ -1,0 +1,9 @@
+{
+  "name": "@seer/experiment-render",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "pixi.js": "8.21.0"
+  }
+}

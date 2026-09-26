@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "experiments/determinism/tests",
+  testDir: ".",
   testMatch: /\.spec\.ts$/,
   use: { browserName: "chromium" },
   workers: 1,
