@@ -156,6 +156,8 @@
               }
             },
             "revealedMoveIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+            "mode": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+            "revives": { "type": "integer", "minimum": 0 },
             "effects": {
               "type": "array",
               "items": {
@@ -166,6 +168,7 @@
                   "kind": { "type": "string", "minLength": 1 },
                   "effectInstanceId": { "type": "string", "minLength": 1 },
                   "remainingTurns": { "type": "integer", "minimum": 0 },
+                  "appliedTurn": { "type": "integer", "minimum": 0 },
                   "stack": { "type": "integer", "minimum": 1 },
                   "hidden": { "type": "boolean" }
                 }

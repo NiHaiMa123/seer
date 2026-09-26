@@ -30,6 +30,12 @@ export const eventInternalSchema: Record<string, unknown> = {
         "heal",
         "stat-stage",
         "effect-applied",
+        "effect-faded",
+        "control-immune",
+        "stages-transferred",
+        "stages-cleared",
+        "switch",
+        "revive",
         "action-failed",
         "struggle-used",
         "rng-draw",
@@ -98,6 +104,12 @@ export interface InternalEvent {
     | "heal"
     | "stat-stage"
     | "effect-applied"
+    | "effect-faded"
+    | "control-immune"
+    | "stages-transferred"
+    | "stages-cleared"
+    | "switch"
+    | "revive"
     | "action-failed"
     | "struggle-used"
     | "rng-draw"

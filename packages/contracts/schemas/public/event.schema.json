@@ -33,6 +33,7 @@
         "type": { "const": "damage" },
         "side": { "enum": ["p1", "p2"] },
         "amount": { "type": "integer", "minimum": 0 },
+        "damageKind": { "enum": ["standard", "fixed", "percent", "true"] },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,
@@ -82,7 +83,7 @@
       "properties": {
         "type": { "const": "action-failed" },
         "side": { "enum": ["p1", "p2"] },
-        "reason": { "enum": ["stage-at-cap", "hp-full", "invalid-action"] }
+        "reason": { "enum": ["stage-at-cap", "hp-full", "invalid-action", "controlled", "overlay_immune", "no-stages", "no-control"] }
       }
     },
     {
@@ -111,6 +112,95 @@
         "type": { "const": "battle-end" },
         "result": { "enum": ["p1", "p2", "draw"] },
         "reason": { "enum": ["ko", "concede", "turn-limit", "timeout"] }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "name", "turns"],
+      "properties": {
+        "type": { "const": "effect-applied" },
+        "side": { "enum": ["p1", "p2"] },
+        "name": { "type": "string", "minLength": 1 },
+        "turns": { "type": "integer", "minimum": 0 }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "name"],
+      "properties": {
+        "type": { "const": "effect-faded" },
+        "side": { "enum": ["p1", "p2"] },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "name"],
+      "properties": {
+        "type": { "const": "control-immune" },
+        "side": { "enum": ["p1", "p2"] },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "stages"],
+      "properties": {
+        "type": { "const": "stages-transferred" },
+        "side": { "enum": ["p1", "p2"] },
+        "stages": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["atk", "def", "spd"],
+          "properties": {
+            "atk": { "type": "integer", "minimum": 0, "maximum": 6 },
+            "def": { "type": "integer", "minimum": 0, "maximum": 6 },
+            "spd": { "type": "integer", "minimum": 0, "maximum": 6 }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side"],
+      "properties": {
+        "type": { "const": "stages-cleared" },
+        "side": { "enum": ["p1", "p2"] }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "outUnitId", "inUnitId", "via"],
+      "properties": {
+        "type": { "const": "switch" },
+        "side": { "enum": ["p1", "p2"] },
+        "outUnitId": { "type": "string", "minLength": 1 },
+        "inUnitId": { "type": "string", "minLength": 1 },
+        "via": { "enum": ["action", "replacement"] }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "hpAfter"],
+      "properties": {
+        "type": { "const": "revive" },
+        "side": { "enum": ["p1", "p2"] },
+        "hpAfter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["current", "max"],
+          "properties": {
+            "current": { "type": "integer", "minimum": 0 },
+            "max": { "type": "integer", "minimum": 1 }
+          }
+        }
       }
     }
   ]

@@ -52,7 +52,7 @@ v1 的 `damage` 无 `kind` 字段 → standard；v2 事件 detail 只在 kind≠
 
 ### 4.4 `control`（control）
 
-`{op:"control", name:"stun", turns:n, target}`：给目标施加 `control:stun` 效果（`remainingTurns:n`）。被控制方 BEFORE_ACTION 判定动作 → `action-failed`（reason:"controlled"，PP 照扣）。TURN_END 时 remainingTurns-1，归零移除。重复施加同名控制：刷新 remainingTurns 为较大者（不叠加）。
+`{op:"control", name:"stun", turns:n, target}`：给目标施加 `control:stun` 效果（`remainingTurns:n`）。被控制方 BEFORE_ACTION 判定动作 → `action-failed`（reason:"controlled"，PP 照扣），**每阻断一次行动 remainingTurns-1**，归零立即移除（发 `effect-faded`）——`turns=n` 阻断恰好 n 次行动（含施加当回合内后到的行动）。控制效果不走 TURN_END 递减。重复施加同名控制：刷新 remainingTurns 为较大者（不叠加）。**含 `cleanse` op 的动作穿透控制**（净化是被控方的反制手段），正常消耗 PP 并执行。
 
 ### 4.5 `cleanse`（control）
 
@@ -68,7 +68,7 @@ unit def 增加 `revives: integer ≥0`（默认 0）。CHECKPOINT KO 判定时�
 
 ### 4.8 `apply_effect`（mode_overlay）
 
-`{op:"apply_effect", name:<string>, turns:n, target}`：给目标挂公开效果 `{kind:name, remainingTurns:n}`——纯计数标签，供 BOSS 标记类机制使用。
+`{op:"apply_effect", name:<string>, turns:n, target}`：给目标挂公开效果 `{kind:"tag:"+name, remainingTurns:n}`——纯计数标签，供 BOSS 标记类机制使用。
 
 ## 5. Mode overlay（mode_overlay）
 

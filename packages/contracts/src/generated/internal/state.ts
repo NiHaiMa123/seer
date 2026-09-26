@@ -398,6 +398,14 @@ export const stateSchema: Record<string, unknown> = {
               },
               "uniqueItems": true
             },
+            "mode": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            },
+            "revives": {
+              "type": "integer",
+              "minimum": 0
+            },
             "effects": {
               "type": "array",
               "items": {
@@ -417,6 +425,10 @@ export const stateSchema: Record<string, unknown> = {
                     "minLength": 1
                   },
                   "remainingTurns": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "appliedTurn": {
                     "type": "integer",
                     "minimum": 0
                   },
@@ -560,10 +572,13 @@ export interface InternalSide {
       ppMax: number;
     }[];
     revealedMoveIds: string[];
+    mode?: string;
+    revives?: number;
     effects: {
       kind: string;
       effectInstanceId: string;
       remainingTurns?: number;
+      appliedTurn?: number;
       stack?: number;
       hidden?: boolean;
     }[];

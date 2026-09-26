@@ -5,7 +5,7 @@
  * 无 wall-clock/环境读取、全部整数运算、draw 只发生在 §6 平速组。
  */
 import { DeterministicRng } from "./rng.ts";
-import type { CompiledEffect, CompiledMove, FrozenPack } from "./loader.ts";
+import type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack } from "./loader.ts";
 import { EngineFault, OTHER, type CoreAction, type CoreEvent, type CoreResult, type CoreState, type SideId } from "./types.ts";
 
 type SideUnit = CoreState["sides"]["p1"]["unit"];
@@ -22,6 +22,11 @@ function effStat(base: number, stage: number): number {
 }
 
 const clamp = (v: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, v));
+
+/** §5/overlay：按 unit.mode 查 ruleset overlay；v1 pack 恒为 undefined。 */
+function overlayOf(pack: FrozenPack, unit: SideUnit): { immuneControl?: boolean; immuneClearStages?: boolean } | undefined {
+  return unit.mode === undefined ? undefined : pack.modeOverlays.get(unit.mode);
+}
 
 /** §9：合法 actionId 集 = pp>0 动作 ∪ {concede}；全 0 → {struggle, concede}。 */
 export function legalActions(state: CoreState, side: SideId): string[] {
@@ -72,6 +77,9 @@ export function initBattle(
         }),
         revealedMoveIds: [],
         effects: [],
+        // v2 additive 字段：仅当 pack 声明时才写入（v1 hash 不变靠"不写"）
+        ...(u.mode !== undefined ? { mode: u.mode } : {}),
+        ...(u.revives !== undefined ? { revives: u.revives } : {}),
       },
     };
   };
@@ -202,11 +210,44 @@ function applyTurnInner(
     slot.pp -= 1; // BEFORE_ACTION: 合法动作扣 PP，失败不退还
     events.push({ type: "pp-spent", detail: { side, moveId, ppAfter: slot.pp } });
 
+    // v2 §4.4：受控方 BEFORE_ACTION 判定失败；控制按"阻断次数"消耗（turns=n 阻断 n 次行动）
+    // 例外：含 cleanse 的动作穿透控制——净化是被控方的反制手段
+    const ctl = unit.effects.find((e) => e.kind.startsWith("control:"));
+    const bypasses = ctl !== undefined && move.effects.some((f) => f.op === "cleanse");
+    if (ctl && !bypasses) {
+      events.push({ type: "action-failed", detail: { side, reason: "controlled" } });
+      if (ctl.remainingTurns !== undefined) {
+        ctl.remainingTurns -= 1;
+        if (ctl.remainingTurns <= 0) {
+          unit.effects = unit.effects.filter((e) => e !== ctl);
+          events.push({ type: "effect-faded", detail: { side, name: ctl.kind } });
+        }
+      }
+      continue;
+    }
+
     for (const fx of move.effects) {
       if (++applications > pack.limits.maxEffectApplications) {
         return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
       }
-      if (applyEffect(next, events, side, unit, fx)) break outer; // CHECKPOINT 触发终局
+      if (applyEffect(pack, next, events, side, unit, fx)) break outer; // CHECKPOINT 触发终局
+    }
+  }
+
+  // TURN_END（v2 §4.4/§4.6）：剩余回合递减，归零移除并发 effect-faded。
+  // v1 pack 无任何 remainingTurns 效果 → 本段对该包是字节级 no-op。
+  if (!next.terminal) {
+    for (const s of ["p1", "p2"] as const) {
+      const u = next.sides[s].unit;
+      u.effects = u.effects.filter((e) => {
+        if (e.remainingTurns === undefined) return true;
+        if (e.kind.startsWith("control:")) return true; // 控制按阻断次数消耗，不走 TURN_END
+        if (e.appliedTurn === next.turn) return true; // 本回合新施加的效果不递减
+        e.remainingTurns -= 1;
+        if (e.remainingTurns > 0) return true;
+        events.push({ type: "effect-faded", detail: { side: s, name: e.kind } });
+        return false;
+      });
     }
   }
 
@@ -240,39 +281,130 @@ function applyDamage(
   return checkpoint(next, events);
 }
 
-function applyEffect(next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, fx: CompiledEffect): boolean {
+function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, fx: CompiledEffect): boolean {
+  const foe = next.sides[OTHER[side]].unit;
+  const targetSide = (fx as { target?: "self" | "opponent" }).target === "opponent" ? OTHER[side] : side;
+  const target = next.sides[targetSide].unit;
   switch (fx.op) {
     case "damage": {
-      const me = unit;
-      const foe = next.sides[OTHER[side]].unit;
-      const dmg = Math.max(1, Math.floor((fx.power * effStat(me.base.atk, me.stages.atk)) / (2 * effStat(foe.base.def, foe.stages.def))));
+      const kind = fx.kind ?? "standard";
+      const dmg = kind === "fixed"
+        ? fx.power
+        : kind === "percent"
+          ? Math.floor((fx.power * foe.base.hp) / 100)
+          : Math.max(1, Math.floor((fx.power * effStat(unit.base.atk, unit.stages.atk)) / (2 * effStat(foe.base.def, kind === "true" ? 0 : foe.stages.def))));
       foe.currentHp = Math.max(0, foe.currentHp - dmg);
-      events.push({ type: "damage", detail: { side: OTHER[side], amount: dmg, hpAfter: { current: foe.currentHp, max: foe.base.hp } } });
+      events.push({
+        type: "damage",
+        detail: { side: OTHER[side], amount: dmg, hpAfter: { current: foe.currentHp, max: foe.base.hp }, ...(kind !== "standard" ? { damageKind: kind } : {}) },
+      });
       return checkpoint(next, events);
     }
     case "apply_stat_stage": {
-      const before = unit.stages[fx.stat];
+      const t = fx.target === "opponent" ? foe : unit;
+      const before = t.stages[fx.stat];
       const after = clamp(before + fx.delta, -6, 6);
       if (after === before) {
         events.push({ type: "action-failed", detail: { side, reason: "stage-at-cap" } });
         return false;
       }
-      unit.stages[fx.stat] = after;
-      events.push({ type: "stat-stage", detail: { side, stat: fx.stat, deltaApplied: after - before, stageAfter: after } });
+      t.stages[fx.stat] = after;
+      events.push({ type: "stat-stage", detail: { side: fx.target === "opponent" ? OTHER[side] : side, stat: fx.stat, deltaApplied: after - before, stageAfter: after } });
       return false;
     }
     case "heal": {
-      if (unit.currentHp >= unit.base.hp) {
+      const t = fx.target === "opponent" ? foe : unit;
+      if (t.currentHp >= t.base.hp) {
         events.push({ type: "action-failed", detail: { side, reason: "hp-full" } });
         return false;
       }
-      const amount = Math.floor((unit.base.hp * fx.numerator) / fx.denominator);
-      unit.currentHp = Math.min(unit.base.hp, unit.currentHp + amount);
-      events.push({ type: "heal", detail: { side, amount, hpAfter: { current: unit.currentHp, max: unit.base.hp } } });
+      const amount = Math.floor((t.base.hp * fx.numerator) / fx.denominator);
+      t.currentHp = Math.min(t.base.hp, t.currentHp + amount);
+      events.push({ type: "heal", detail: { side: fx.target === "opponent" ? OTHER[side] : side, amount, hpAfter: { current: t.currentHp, max: t.base.hp } } });
+      return false;
+    }
+    case "transfer_stages": {
+      // §4.1 吸强：原子转移（源清零→目标加绝对值），overlay 免疫时整个 op 无效
+      if (overlayOf(pack, foe)?.immuneClearStages) {
+        events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
+        return false;
+      }
+      const moved = { atk: 0, def: 0, spd: 0 };
+      let any = false;
+      for (const stat of ["atk", "def", "spd"] as const) {
+        if (foe.stages[stat] === 0) continue;
+        any = true;
+        moved[stat] = Math.abs(foe.stages[stat]);
+        unit.stages[stat] = clamp(unit.stages[stat] + Math.abs(foe.stages[stat]), -6, 6);
+        foe.stages[stat] = 0;
+      }
+      if (!any) {
+        events.push({ type: "action-failed", detail: { side, reason: "no-stages" } });
+        return false;
+      }
+      events.push({ type: "stages-transferred", detail: { side, stages: moved } });
+      return false;
+    }
+    case "clear_stages": {
+      if (overlayOf(pack, target)?.immuneClearStages) {
+        events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
+        return false;
+      }
+      if (target.stages.atk === 0 && target.stages.def === 0 && target.stages.spd === 0) {
+        events.push({ type: "action-failed", detail: { side, reason: "no-stages" } });
+        return false;
+      }
+      target.stages = { atk: 0, def: 0, spd: 0 };
+      events.push({ type: "stages-cleared", detail: { side: targetSide } });
+      return false;
+    }
+    case "control": {
+      if (overlayOf(pack, target)?.immuneControl) {
+        events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
+        return false;
+      }
+      if (target.effects.some((e) => e.kind === "immune_control")) {
+        events.push({ type: "control-immune", detail: { side: targetSide, name: fx.name } });
+        return false;
+      }
+      const kind = `control:${fx.name}`;
+      const existing = target.effects.find((e) => e.kind === kind);
+      if (existing) {
+        existing.remainingTurns = Math.max(existing.remainingTurns ?? 0, fx.turns);
+        existing.appliedTurn = next.turn; // 刷新计为本回合新施加 → 本回合不减
+      } else {
+        target.effects.push({ kind, effectInstanceId: `efx_${targetSide}_${kind}`, remainingTurns: fx.turns, appliedTurn: next.turn });
+      }
+      events.push({ type: "effect-applied", detail: { side: targetSide, name: kind, turns: fx.turns } });
+      return false;
+    }
+    case "cleanse": {
+      const removed = target.effects.filter((e) => e.kind.startsWith("control:"));
+      if (removed.length === 0) {
+        events.push({ type: "action-failed", detail: { side, reason: "no-control" } });
+        return false;
+      }
+      target.effects = target.effects.filter((e) => !e.kind.startsWith("control:"));
+      for (const e of removed) {
+        events.push({ type: "effect-faded", detail: { side: targetSide, name: e.kind } });
+      }
+      return false;
+    }
+    case "apply_status":
+    case "apply_effect": {
+      const kind = fx.op === "apply_status" ? fx.name : `tag:${fx.name}`;
+      const existing = target.effects.find((e) => e.kind === kind);
+      if (existing) {
+        existing.remainingTurns = Math.max(existing.remainingTurns ?? 0, fx.turns);
+        existing.appliedTurn = next.turn;
+      } else {
+        target.effects.push({ kind, effectInstanceId: `efx_${targetSide}_${kind}`, remainingTurns: fx.turns, appliedTurn: next.turn });
+      }
+      events.push({ type: "effect-applied", detail: { side: targetSide, name: kind, turns: fx.turns } });
       return false;
     }
     default:
-      throw new EngineFault("UNSUPPORTED_OPERATOR", `op ${(fx as { op: string }).op} not in synthetic-v1`);
+      throw new EngineFault("UNSUPPORTED_OPERATOR", `op ${(fx as { op: string }).op} not in synthetic-v1/v2`);
   }
 }
 
