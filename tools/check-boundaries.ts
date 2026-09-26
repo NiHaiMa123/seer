@@ -22,6 +22,7 @@ const CONTRACTS_PKG = "@seer/contracts";
 const ALLOWED_INTERNAL_IMPORTERS = [
   "packages/contracts",
   "packages/battle-core",
+  "packages/host",
   "apps/host",
   "apps/headless",
   "tests",

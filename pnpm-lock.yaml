@@ -175,6 +175,9 @@ importers:
       '@seer/contracts':
         specifier: workspace:*
         version: link:packages/contracts
+      '@seer/host':
+        specifier: workspace:*
+        version: link:packages/host
       '@types/node':
         specifier: 24.13.5
         version: 24.13.5
@@ -229,6 +232,15 @@ importers:
         version: 8.17.1
 
   packages/contracts: {}
+
+  packages/host:
+    dependencies:
+      '@seer/battle-core':
+        specifier: workspace:*
+        version: link:../battle-core
+      '@seer/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
 packages:
 
