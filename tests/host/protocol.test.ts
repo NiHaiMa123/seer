@@ -166,10 +166,12 @@ describe("observation isolation", () => {
   it("A ack advances only A's cursor; B's observation canonical-unchanged", () => {
     const h = mk();
     const before = canonicalJson(h.observe("bob"));
-    h.ack("alice", h.state.battle.eventSeq);
+    h.ack("alice", h.state.publicSeq);
     const after = canonicalJson(h.observe("bob"));
     expect(after).toBe(before);
-    expect(h.state.battle.publicCursors.p1).toBe(h.state.battle.eventSeq);
+    // 公开 seq 只数白名单事件：eventSeq=2（turn-begin+decision-opened）但 cursor=1
+    expect(h.state.battle.eventSeq).toBe(2);
+    expect(h.state.battle.publicCursors.p1).toBe(1);
     expect(h.state.battle.publicCursors.p2).toBe(0);
   });
   it("own PP visible, opponent PP never projected", () => {

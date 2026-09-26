@@ -16,7 +16,7 @@
     "contracts:gen": "node tools/gen-contract-types.ts",
     "contracts:check": "node tools/gen-contract-types.ts --check",
     "test:contracts": "vitest run tests/contracts/contracts.test.ts",
-    "test:privacy": "vitest run tests/contracts/privacy.test.ts",
+    "test:privacy": "vitest run tests/contracts/privacy.test.ts tests/host/privacy.test.ts",
     "test:plugin": "vitest run experiments/cordis/tests",
     "test:determinism": "vitest run experiments/determinism/tests/determinism.test.ts",
     "test:core": "vitest run tests/battle-core",

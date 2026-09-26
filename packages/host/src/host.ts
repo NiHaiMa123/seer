@@ -9,7 +9,7 @@ import type { InternalEvent, ResolvedInput } from "@seer/contracts/internal";
 import { canonicalJson } from "@seer/contracts";
 import { applyTurn, initBattle, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
 import { HostError, type HostConfig, type HostState, type SubmissionRecord, type SubmitResult, toCore, fromCore } from "./types.ts";
-import { wrapEvent } from "./events.ts";
+import { wrapEvent, projectEvent } from "./events.ts";
 import { projectObservation, projectHistory } from "./project.ts";
 
 const SIDES: SideId[] = ["p1", "p2"];
@@ -50,6 +50,8 @@ export class BattleHost {
         terminal: null,
       },
       internalEvents: [],
+      publicStream: [],
+      publicSeq: 0,
       receipts: new Map(),
       resolvedInputs: [],
       seqCounter: 0,
@@ -70,6 +72,11 @@ export class BattleHost {
     const ev = wrapEvent(core, this.nextSeq(), revisionBefore, revisionAfter, causeId);
     this.state.internalEvents.push(ev);
     this.state.battle.eventSeq = ev.seq;
+    // 白名单事件 → 公开流（独立 seq）；内部专属事件不进公开流 → 不涨 view cursor
+    const projected = projectEvent(ev);
+    if (projected !== null) {
+      this.state.publicStream.push({ seq: ++this.state.publicSeq, event: projected });
+    }
     return ev;
   }
 
@@ -105,14 +112,23 @@ export class BattleHost {
 
   history(playerId: string, sinceSeq = 0): { cursor: number; events: BattleEvent[] } {
     this.sideFor(playerId); // 仅绑定侧可查
-    return projectHistory(this.state.internalEvents, sinceSeq);
+    return projectHistory(this.state.publicStream, sinceSeq);
   }
 
   ack(playerId: string, seq: number): number {
     const side = this.sideFor(playerId);
-    const max = this.state.battle.eventSeq;
+    const max = this.state.publicSeq;
     this.state.battle.publicCursors[side] = Math.min(Math.max(this.state.battle.publicCursors[side], seq), max);
     return this.state.battle.publicCursors[side];
+  }
+
+  /**
+   * 断线/丢包重同步入口：返回自 sinceSeq 起的公开事件 + 当前权威观察。
+   * 客户端据 seq 连续性可判定是否有缺口；相同 since → 相同输出。
+   */
+  resync(playerId: string, sinceSeq = 0): { cursor: number; events: BattleEvent[]; observation: Observation } {
+    const { cursor, events } = this.history(playerId, sinceSeq);
+    return { cursor, events, observation: this.observe(playerId) };
   }
 
   receiptFor(playerId: string, idempotencyKey: string): SubmissionRecord | undefined {

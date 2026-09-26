@@ -95,17 +95,13 @@ export function projectObservation(state: BattleState, side: SideId): Observatio
   return obs;
 }
 
-/** 公开历史：seq > since 的 internal events 经白名单投影；返回最新 seq。 */
+/** 公开历史：对已投影的公开流按 seq>since 过滤；seq 连续无缺口。 */
 export function projectHistory(
-  internalEvents: readonly InternalEvent[],
+  publicStream: readonly { seq: number; event: BattleEvent }[],
   since: number,
 ): { cursor: number; events: BattleEvent[] } {
-  const events = internalEvents
-    .filter((e) => e.seq > since)
-    .flatMap((e) => {
-      const p = projectEvent(e);
-      return p === null ? [] : [p];
-    });
-  const cursor = internalEvents.reduce((m, e) => Math.max(m, e.seq), since);
-  return { cursor, events };
+  return {
+    cursor: publicStream.length === 0 ? since : publicStream[publicStream.length - 1]!.seq,
+    events: publicStream.filter((e) => e.seq > since).map((e) => e.event),
+  };
 }

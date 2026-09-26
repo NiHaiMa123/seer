@@ -7,6 +7,7 @@ import type {
   InternalEvent,
   ResolvedAction,
 } from "@seer/contracts/internal";
+import type { BattleEvent } from "@seer/contracts";
 import type { CoreState, FrozenPack, SideId } from "@seer/battle-core";
 
 /** 玩家身份绑定：playerId → side（外部 session 抽象，Host 内只用确定性字符串 id）。 */
@@ -27,6 +28,9 @@ export interface SubmissionRecord {
 export interface HostState {
   battle: BattleState; // internal 完整权威态（含 inbox/decision/cursors）
   internalEvents: InternalEvent[];
+  /** 公开事件流：白名单投影后的公开事件 + 独立 seq；内部专属事件不进入 → 不涨 view cursor。 */
+  publicStream: { seq: number; event: BattleEvent }[];
+  publicSeq: number;
   /** idempotency key → 提交记录（决策关闭后仍可查取 receipt）。 */
   receipts: Map<string, SubmissionRecord>;
   /** 已 resolved 的输入（replay 重放源）。 */
