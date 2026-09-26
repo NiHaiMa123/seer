@@ -13,7 +13,9 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["tools/**/*.ts", "docs/examples/**/*.ts"]
+  "include": ["tools/**/*.ts", "packages/**/*.ts", "tests/**/*.ts", "docs/examples/**/*.ts"]
 }

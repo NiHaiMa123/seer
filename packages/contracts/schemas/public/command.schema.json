@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/public/command.schema.json",
+  "title": "Command",
+  "description": "Player action submission. Identity comes from the authenticated session; there is deliberately no actor/side field (see contracts.md §1).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "battleId", "decisionId", "baseRevision", "idempotencyKey", "actionId"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "battleId": { "type": "string", "pattern": "^btl_[a-z0-9-]{1,60}$" },
+    "decisionId": { "type": "string", "pattern": "^dec_[a-z0-9-]{1,60}$" },
+    "baseRevision": { "type": "integer", "minimum": 0 },
+    "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 128 },
+    "actionId": { "type": "string", "pattern": "^act_[a-z0-9-]{1,60}$" }
+  }
+}

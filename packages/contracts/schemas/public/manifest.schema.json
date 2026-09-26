@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/public/manifest.schema.json",
+  "title": "PluginManifest",
+  "description": "requestedCapabilities are requests, not grants; entrypoint paths must stay inside the installed bundle (no traversal).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "pluginId", "version", "name", "kind", "requestedCapabilities", "entrypoints"],
+  "properties": {
+    "manifestVersion": { "const": 1 },
+    "pluginId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.-]+)?$" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "kind": { "enum": ["content", "mechanic", "service", "presentation", "agent", "adapter"] },
+    "requestedCapabilities": {
+      "type": "array",
+      "items": { "enum": ["storage", "network", "telemetry", "battle.read", "battle.submit", "world.read", "world.write"] },
+      "uniqueItems": true
+    },
+    "entrypoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module"],
+      "properties": {
+        "module": {
+          "type": "string",
+          "maxLength": 200,
+          "pattern": "^(?!.*\\.\\.)[a-z0-9][a-z0-9._/-]*$"
+        },
+        "integrity": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["service", "versionRange"],
+        "properties": {
+          "service": { "type": "string", "pattern": "^[a-z0-9][a-z0-9.-]*$" },
+          "versionRange": { "type": "string", "minLength": 1 }
+        }
+      },
+      "uniqueItems": true
+    }
+  }
+}

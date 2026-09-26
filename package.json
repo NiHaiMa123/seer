@@ -12,11 +12,19 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "content:validate": "node tools/content-validate.ts content",
-    "content:validate:selftest": "node tools/content-validate.ts --selftest"
+    "content:validate:selftest": "node tools/content-validate.ts --selftest",
+    "contracts:gen": "node tools/gen-contract-types.ts",
+    "contracts:check": "node tools/gen-contract-types.ts --check",
+    "test:contracts": "vitest run tests/contracts/contracts.test.ts",
+    "test:privacy": "vitest run tests/contracts/privacy.test.ts",
+    "check:boundaries": "node tools/check-boundaries.ts"
   },
   "devDependencies": {
+    "@seer/contracts": "workspace:*",
     "@types/node": "24.13.5",
     "ajv": "8.17.1",
-    "typescript": "6.0.3"
+    "json-schema-to-typescript": "16.0.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.1"
   }
 }

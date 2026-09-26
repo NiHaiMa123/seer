@@ -1,0 +1,119 @@
+// Generated from schemas/internal/event-internal.schema.json — do not edit; run pnpm contracts:gen.
+export const eventInternalSchema: Record<string, unknown> = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/internal/event-internal.schema.json",
+  "title": "InternalEvent",
+  "description": "INTERNAL event with cause chain, internal seq, RNG draw refs and state patches. Whitelist-projected into public BattleEvent before leaving Authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "seq",
+    "type",
+    "causeId",
+    "revisionBefore",
+    "revisionAfter",
+    "detail"
+  ],
+  "properties": {
+    "seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "type": {
+      "enum": [
+        "turn-begin",
+        "decision-opened",
+        "input-received",
+        "action-declared",
+        "pp-spent",
+        "damage",
+        "heal",
+        "stat-stage",
+        "effect-applied",
+        "action-failed",
+        "struggle-used",
+        "rng-draw",
+        "ko",
+        "battle-end"
+      ]
+    },
+    "causeId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "revisionBefore": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "revisionAfter": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "detail": {
+      "type": "object"
+    },
+    "rngDraw": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "value"
+      ],
+      "properties": {
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "statePatch": {
+      "type": "object"
+    }
+  }
+};
+
+/**
+ * INTERNAL event with cause chain, internal seq, RNG draw refs and state patches. Whitelist-projected into public BattleEvent before leaving Authority.
+ */
+export interface InternalEvent {
+  seq: number;
+  type:
+    | "turn-begin"
+    | "decision-opened"
+    | "input-received"
+    | "action-declared"
+    | "pp-spent"
+    | "damage"
+    | "heal"
+    | "stat-stage"
+    | "effect-applied"
+    | "action-failed"
+    | "struggle-used"
+    | "rng-draw"
+    | "ko"
+    | "battle-end";
+  causeId: string | null;
+  revisionBefore: number;
+  revisionAfter: number;
+  detail: {
+    [k: string]: unknown;
+  };
+  rngDraw?: {
+    purpose: string;
+    value: number;
+  };
+  statePatch?: {
+    [k: string]: unknown;
+  };
+}
