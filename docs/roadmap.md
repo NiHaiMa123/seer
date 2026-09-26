@@ -1,143 +1,63 @@
-# 实施路线与阶段验收 v0.1
+# 实施路线与验收 v0.2
 
-## 总策略
+**本轮完成架构规划；下列产品任务均未开始。** 文档/契约示例检查不等于 M0 完成。所有命令是未来执行者必须建立的 script 名称，目前不能声称已存在。先按任务卡顺序完成可审查小提交，不一次铺满空包。
 
-采用纵向闭环而非一次铺满目录：每阶段都能演示、运行、重放、测试。最终目标是完整页游复刻及具备人类式战术推理的 LLM Agent，但初始只实现代表性机制测试池。12 只精灵只是第一批候选规模，不是硬指标；按机制覆盖率选择。
+## 1. 工作纪律与停止条件
 
-任一阶段若出现未核实的原作规则，记录 evidence gap 并在可用规则范围内推进，不能无限循环或臆造。
+每项交付必须包含 git SHA、环境、精确命令、exit code、fixture/hash 与结果路径。`NOT_RUN/BLOCKED/FAIL/PASS` 分开；pending 原作规则、跳过测试不能算通过。输入变更后重跑受影响 gate，不靠上次结果。执行者可以修实现，不能为通过而修改 golden expected、隐藏失败局或放宽冻结阈值。
 
-## M0 架构验证与目标版本锁定
+每项最多两轮“有明确假设→有证据修复→同 gate 复测”；仍失败输出根因类别、最小复现与建议，转下一可独立任务。主要实验时间盒见表，是工作量上限而非交付承诺。无原作资料继续 synthetic；性能缺实机明确 BLOCKED，不无限等待。不得把这些规则理解为禁止正常调试或强迫不可能的通过率。
 
-任务：
-- 明确原作规则快照和首批 1v1/PVP/PVE 范围，建立规则证据索引；
-- Cordis 直接使用 vs minimal registry 两个 PoC，比对 API、卸载、跨端和规则并存；
-- 定义 contract schemas、插件 manifest、snapshot/observation、command/event schema；
-- 小型无头性能基准，选 WebGL-first PixiJS 渲染路线；
-- 确认资源公开分发边界。
+## 2. M0：契约和关键风险验证
 
-完成定义：
-- 一个文档化规则快照、一个可执行 plugin activation/dispose 测试；
-- 完整 API 草案有示例与负向用例；
-- 记录 ADR：采用/不采用 Cordis 原因；不创建无消费者空包。
+依赖顺序：M0-01 → M0-02 → M0-03/M0-04/M0-05 → M0-06。编号只是切片，不要求多个 Agent 并行。
 
-## M1 战斗垂直切片
+| 任务 | 输入 / 范围 | 产物 | 自动验收 / 证据 | 时间盒与阻塞 |
+|---|---|---|---|---|
+| M0-01 工作区与规则边界 | 当前 docs、synthetic 默认、官方来源 | pnpm workspace/精确 lock、Node pin、TS strict 配置、`docs/rules/synthetic-v1.md`、原作 claim 模板；只建立有消费者目录 | `pnpm install --frozen-lockfile`、`pnpm typecheck`；`pnpm content:validate` 拒绝缺字段/未知 operator/不明 public license；报告原作 VERIFIED=0 | 1 工作日；外网依赖不可用即 BLOCKED，不造 lock |
+| M0-02 正式 contracts | contracts.ts 示例 + synthetic 规范 | public/internal 分入口；Command/Observation/Event/Manifest/Effect/Tool JSON Schema 真源、类型生成、错误表 | `pnpm test:contracts` ≥20 正/反样例；未知字段/越界/伪 actor 拒绝；`pnpm test:privacy` 两秘密状态的 observe/legal/history/trace 完全一致；`pnpm check:boundaries` 禁 internal→client/agent | 1–2 工作日；实现所有 schema，不仅示例 Command |
+| M0-03 Cordis 薄适配 PoC | 上游 rc.10 精确工件、ADR-001 | provider/consumer、require/register/own、无业务写入的 staged scope、`artifacts/m0/cordis-report.json` | `pnpm test:plugin` 覆盖缺依赖/冲突/循环/失败清理/异步重入/重复 dispose/cleanup 新注册拒绝；100 cycles owned 资源回基线；类型/API来源记录 | 2 工作日或两轮；失败按 ADR 降级，不能自研全插件平台 |
+| M0-04 确定性基础 | synthetic 数值/排序规范 | RNG算法/来源/测试向量、canonical encoder、最小 transition fixture；无真实游戏内容 | `pnpm test:determinism` ≥20 边界向量，Node 与 Playwright Chromium 同 seed 字节一致；输入 frozen 不变；含对象键排列、safe integer、抽样边界、排序与 fault 原子性 | 1–2 工作日；这是 tiny fixture，不能报真实 core 吞吐 |
+| M0-05 渲染/成本 PoC | Pixi 8.21.0、R1/R3、可用设备 | React mount+Pixi init/cleanup、占位 atlas、最小 Worker roundtrip 测量、原始性能 samples | `pnpm test:render` 验证重复 mount/unmount/ticker 归零；`pnpm bench:render`/`bench:resources`；记录真实硬件；无 D1 则标 BLOCKED | 1 工作日；不开发高保真 UI/资源市场 |
+| M0-06 收敛与进 M1 | 上述报告和 open questions | `docs/m0-results.md`、更新 ADR 状态、已冻结 synthetic-v1、M1 fixture 清单 | `pnpm verify:m0` 聚合前五项，任何硬 gate 非 PASS 返回非零；列未测性能/原作真实性，不能声称 M0 全通过 | 半工作日；功能 M1 可在明确性能 BLOCKED 时继续，但性能 gate 不豁免 |
 
-任务：
-- 原子状态转移、可复现 RNG、行动意图验证和两个玩家输入；
-- 基础伤害、属性、PP、先制/速度与少量基础状态；
-- Headless CLI、完整事件日志、snapshot、replay；
-- 最小 PixiJS 战斗场景与 React 技能按钮。
+M0-01 的 synthetic 规范必须明确：2 单位、各 4 动作（普通攻击/先制低伤/强化/回复）、HP/PP/速度/公式/舍入/平速/死亡/失败消耗/struggle/终局。所有数值为自制 fixture，不借原作名字暗示真实性。强化/回复先用最小封闭 IR 证明扩展，复杂魂印留 M2。
 
-完成定义：
-- 选定规则的 Golden Battles 全通过；
-- 同输入与 seed 得到逐事件一致的 hash；
-- UI 跳过/加速动画不改变结算；
-- 运行中无法提交旧状态或重复动作。
+M0 schema 非干扰测试可以先用独立投影 fixture 实现，随后 M1 集成真实状态；不能因“核心没完成”忽略 wire 边界。每个 M0 PoC 保持可删除，不永久作为第二套引擎。
 
-## M2 扩展机制与插件系统
+## 3. M1：第一个可玩、可重放 1v1
 
-任务：
-- Content DSL 编译、Effect Registry 与稳定阶段表；
-- 代表性强化/吸强/控制/免疫/资源/恢复/切换组合；
-- 新机制插件契约、权限、版本 pinned、回归；
-- 数据导入和规则证据管理后台最小形态。
+前置：M0 合同/确定性硬 gate 通过，Cordis 路线明确；性能 BLOCKED 有记录。M1 不包含正式多人账号、地图、全部精灵、云模型或第三方任意代码。
 
-完成定义：
-- 新增已有机制精灵不用编辑 battle-core；
-- 新机制以 handler + test 插件安装并被旧版 session 隔离；
-- 未支持的 operator 在 CI 中报错；
-- plugin install/dispose/rollback/依赖冲突测试通过。
-
-## M3 第一代智能对战
-
-任务：
-- observation/legal actions/knowledge/sim/submit 工具；
-- Skill：威胁识别、组合、反制候选、行动后复盘；
-- LLM candidate proposer + headless simulator + Beam Search；
-- belief state 与“不可偷看”的隐藏信息测试；
-- rule-based baseline 与 Agent 对照测试。
-
-完成定义：
-- 100% 提交合法 action（非法候选由接口拒绝并计入失败）；
-- 关键机制解释以规则与事件证据支撑；
-- Novel-mechanic 集没有内置专属攻略，仍可发现有效反制；
-- 统计胜率、机制正确率、决策 p95、token/局和模拟吞吐，并出评测报告；
-- 复杂机制失败必须标注根因：知识/规则/搜索/动作/感知。
-
-## M4 完整战斗模式与初级世界
-
-任务：
-- 队伍 6v6/正式规则（依目标版本核实）、替补切换与队伍资源；
-- PVE、Boss 例外与不同模式 ruleset；
-- World、Quest、Inventory、Save 最小闭环；
-- World Agent 目标编排和 Team Builder。
-
-完成定义：
-- 玩家和 Agent 可以完成一个端到端的任务→配队→战斗→奖励→存档流程；
-- 局内/局外状态事务边界清晰；
-- 规则版本更新不破坏旧存档和回放。
-
-## M5 扩容与性能验证
-
-任务：
-- 机制覆盖驱动的精灵/道具/关卡内容导入；
-- 纹理 atlas、资源缓存、UI 虚拟化与 GPU 资源回收；
-- Simulator worker pool、增量快照、效果索引；
-- 公开资产合规与版本交付工具。
-
-完成定义：
-- 在声明的目标机器和浏览器上完成帧率/长任务/内存/加载基准；
-- 扩容不显著改变单局结算成本（以 active effect 数量为主要量纲）；
-- 导入报告无 silent unknown rule；
-- 隔离测试证明第三方插件无法直接取得未授权系统能力。
-
-## M6 自我对战与模型优化（按实测收益决定）
-
-任务：经审核的日志训练候选排序/价值模型；对手策略池、自我对战、跨版本评测；高成本大模型留给关键局面，轻量本地模型负责常见局面。
-
-完成定义：与冻结的基线、不同测试对手在未见场景上比较，披露样本量、置信度、模型/Skill/规则版本。若性能没有可验证提高，停止训练路线而不是反复拟合旧样例。
-
-## 最小任务顺序
-
-1. 冻结 schema 和规则证据模板；
-2. 做 Cordis 适配 PoC（拒绝没有生命周期/隔离测试的插件框架）；
-3. pure battle-core + golden fixture；
-4. 1v1 UI + replay；
-5. Effect DSL/机制内容包；
-6. legal-actions/observe/simulate/submit；
-7. LLM Skill + planner + eval；
-8. 逐步增加复杂魂印、队伍和地图。
-
-## 风险台账
-
-| 风险 | 早期信号 | 缓解 |
+| 任务 / 依赖 | 实现与输出 | 自动验收 |
 |---|---|---|
-| 原作规则资料不完整 | 同技能不同来源互相矛盾 | 锁版本、标来源、pending、对照 fixture |
-| 插件过度设计 | 大量空包、改接口比实现功能多 | PoC + 最小内核 + 有消费者才建包 |
-| 插件顺序影响战斗 | 不同加载次序不同结果 | 纯 reducer、排序表、固定 hash、重放测试 |
-| AI 看似聪明但规则错 | 相似度高而实战无效 | 精确工具+模拟，封闭未见机制评测 |
-| Agent 延迟导致卡顿 | UI 主线程受阻/对战超时 | 独立进程、deadline、fallback |
-| 资产许可不清 | 资源不能公开分发 | placeholder、自制/获授权素材、分离研究环境 |
-| 无限修复循环 | 多轮改动无客观指标 | 验收阈值、时间/尝试预算、停止条件 |
+| M1-01 / M0-02,04 | pure battle-core、synthetic-v1 loader、阶段表、整数伤害/PP/先制/强化/回复/struggle、基础控制失败 fixture | `pnpm test:core` ≥24 独立 golden；≥10000 seeded 属性用例验证 HP/PP/输入不变/确定性；默认 fixture 循环上限不触发，恶意 fixture 确定触发且原状态不变 |
+| M1-02 / 01 | Host 单局队列、身份绑定、decision/private inbox、idempotency、Timeout policy | `pnpm test:protocol` ≥16 场景；A/B 交换顺序结果一致；同时首提交均成功；重复只一次生效；异内容 key 冲突；A ACK 不改 B observation；过期/伪 side 拒绝；精确重复在过期后仍取回 receipt |
+| M1-03 / 01,02 | public projection、view cursor/WS reconnect、无真实状态的只读工具入口 | `pnpm test:privacy` 接真实 core；改秘密配招/RNG 不改公开响应；隐藏事件不增 view cursor；断线/重复/丢包重同步得到同视角状态；无内部 hash/trace 出网 |
+| M1-04 / 02 | SQLite 事务 inbox/receipt/state/log；headless replay；crash recovery | `pnpm test:recovery` 在收 A 后、收 B 提交前、结算 commit 后 ACK 前杀进程；恢复不丢已 ACK 意图/不重复 transition；`pnpm replay:verify` ≥20 局逐事件/state hash 一致；篡改 manifest/旧工件缺失明确失败 |
+| M1-05 / 03 | React 技能按钮、Pixi 占位战斗、规则 AI、连 Host；动画倍速/跳过 | `pnpm test:e2e` 两浏览器上下文输入及玩家对基线完整终局；跳动画与正常播放 authoritative hash 相同；UI 在 mock 慢工具时可操作；socket/scene cleanup 无重复 listener |
+| M1-06 / 04,05 | 可启动 demo、CLI、基准、演示说明与已知局限 | `pnpm verify:m1` 串联 typecheck/content/core/protocol/privacy/recovery/e2e/replay；`bench:core B1`、R1/R3/H1 真实报告；每 gate 单列 PASS/FAIL/BLOCKED |
 
-## 不应提前做的事
+首批 24 golden 至少：伤害/舍入 4、PP/struggle 3、先制/速度/平速 4、强化/回复 4、失败动作 2、KO/终局 3、RNG/排序 2、故障回滚 2。它们来自 synthetic 规范；原作测试另册。更高数量不能补偿关键类别缺失。
 
-- 一次导入全部精灵、全部地图或复杂商业化系统；
-- UI 高保真先于规则测试；
-- 为单一精灵写不可复用机制补丁；
-- 在未证明基础 Agent 有效前进行大规模模型微调；
-- 同时维护浏览器和服务端两套战斗结算；
-- 把真实秘密/原作资产打包进入公开 Git 仓库。
+M1 完成的用户可见结果：一条启动命令进入本地网页，选择动作打一局，有胜负和公开回放；关闭重启可恢复已持久化局；headless 能复跑同局。报告明确“工程测试规则”，不冒充已完成赛尔号全部战斗。
 
-## 规划完成后推荐的第一批 Issues
+## 4. M2–M6
 
-A. Rule Snapshot & Evidence Register；
-B. Plugin Runtime PoC；
-C. Battle State/Command/Event Schemas；
-D. Deterministic 1v1 Core；
-E. Replay & Golden Test Harness；
-F. Content DSL Validation；
-G. Agent Observation/Action Tool Contract；
-H. Headless Simulator Benchmarks。
+| 阶段 | 范围 | 完成定义 / 止损 |
+|---|---|---|
+| M2 机制与插件 | 后备切换、checkpoint/复活、吸强/消强、控制/反控、伤害分类、mode overlay、content compiler、runtime generations | 新普通单位只加数据，至少 3 种复杂交互链 + 反例；未知 operator fail；v1/v2 同时运行旧局 hash 不变；新 phase 升契约有 ADR；每机制正/负/边界 fixture；原作未证继续隔离 |
+| M3 智能对战 | 受限 tools/Skill、模型 adapter、belief、模拟池、joint-action beam、fallback | agent.md 的 60 状态/dev-holdout、6 组消融、paired 200局×3重复、安全/预算/增益 gate；两轮 dev 后无增益保留 search-only，不能直接跳微调 |
+| M4 模式与初级世界 | 目标版本队伍规模、PVE/BOSS、world/quest/inventory/save、奖励 outbox；联网 PVP 可选 | 一个任务→配队→战斗→奖励→存档闭环；重试/崩溃不重复发奖；模式可见性与原作规则有证据；公网前加鉴权/配额/房主接管/fencing/重连及 Q13 密码学随机流测试 |
+| M5 扩容与交付 | 机制覆盖驱动导入、atlas/缓存、正式最低设备预算、内容编辑工具 | B2/B3/R2/R3 等基准达标；公开资产清单完整；扩容不扫描全图鉴；未知/冲突报告可追踪；第三方执行仍须另过 sandbox gate |
+| M6 学习与优化 | 经审核对局、自我对战、多对手池、轻模型蒸馏 | 未见场景相对冻结基线有统计增益并满足成本预算；没有增益停止，保持现有可用策略 |
 
-每个 Issue 应有输入、输出、验收用例、依赖、停止条件和证据路径。先评审架构再开大范围执行任务。
+视觉点击 Agent、纯浏览器离线、WebGPU/WASM、微服务、全量素材高保真、插件市场均为后续独立需求，不塞进 M0/M1。
+
+## 5. 可直接交给执行 Agent 的第一项任务
+
+> 只执行 M0-01，并为 M0-02 准备输入。先拉取最新 main/已合并规划分支，读 README、contracts、battle-engine、ADR-001/004。建立 pnpm+TS strict 的最小 workspace 与精确依赖锁，创建 synthetic-v1 工程规则和 claim 模板、内容验证脚本；不实现完整战斗、不接云模型、不导入原作资产、不建无消费者包。运行 frozen install/typecheck/content validate，提交命令和结果到 artifacts/m0。遇到依赖不可安装或规范冲突，记录 BLOCKED 与最小原因；禁止修改验收来假装完成。完成后交付一个小提交及后续 M0-02 的输入清单。
+
+## 6. 证据路径约定
+
+后续工程结果：`artifacts/m0/`、`artifacts/m1/`、`artifacts/perf/`、`artifacts/eval/`；大型/private replay 不直接入 public Git，用摘要清单与受控存储引用。报告中不要记录模型密钥、内部隐藏战局数据或未经许可资料。README 进度只在对应 gate 真实运行后更新。

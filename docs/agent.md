@@ -1,124 +1,88 @@
-# Agent 架构：人类式理解、配合和破解 v0.1
+# Agent v0.2：规则理解、搜索与反制
 
-## 成功定义
+目标是接近人类高手的机制理解与博弈；这是待验证的长期目标，不能由“能调用 Skill”直接推出。M3 首先证明在有限、封闭的工程机制池里，组合泛化优于固定基线。世界操作到 M4+。
 
-在未针对测试精灵写专属攻略的前提下，Agent 读取合法可见的状态和规则，能解释并验证关键魂印/技能交互，生成候选战术，多回合推演，执行合法操作，并在失败后更新对手认知。不是仅靠 RAG 查“某精灵克制谁”，也不是逐帧让 LLM 点击 UI。
+## 1. 组件与可替换边界
 
-## 组件分工
+流程：Observation → 版本化规则查询 → threat/interaction graph → 候选 → 信息集搜索 → 最终合法校验 → submit → 可见结果更新 belief。
 
-~~~text
-Game Observation (按玩家视角过滤)
-   -> Perception / structured state
-   -> Knowledge Query (宠物/技能/魂印/效果/规则版本)
-   -> Threat & Mechanic Graph
-   -> Candidate Proposer (LLM/Skill)
-   -> Legal-action filter (engine)
-   -> Planner/Search (headless simulator + opponent belief)
-   -> Policy selector (收益/风险/时限)
-   -> submit_action (authoritative validation)
-   -> Event analysis + memory update
-~~~
-
-- LLM：语义理解、解释、对手意图假设、组合候选、关键回合分析。
-- Skills：工具使用流程、检查清单、机制反制工作流、PVE/PVP 特有决策协议；不是精灵逻辑源码。
-- Rule/Knowledge Store：权威结构化效果和版本证据；RAG 仅辅助检索自然语言和案例。
-- Battle Core：可执行规则的唯一事实来源，负责伤害/触发/随机/合法性。
-- Planner：Beam Search 起步，后续对比 Expectimax、MCTS 等；评测驱动选择。
-- Opponent Model：依据已公开行为维护 belief，不访问真实隐藏配置。
-- Memory：本局摘要、验证过的机制关系、条件化经验和复盘；过期或失败推断可撤销。
-
-## 允许的工具与 Schema 原则
-
-| Tool | 用途 | 安全性 |
+| 组件 | 输出 | 不承担 |
 |---|---|---|
-| get_battle_observation | 当前公开战局 | 绝不返回 TrueState |
-| get_legal_actions | 引擎计算可选行动 | 绑定 actor/turn |
-| get_pet / get_move / get_effect | 版本化机制及证据 | 可按已知图鉴权限访问 |
-| explain_event_trace | 本回合因果和规则引用 | 对隐藏信息脱敏 |
-| calculate_damage | 对给定假设算伤害分布 | 标记未知输入 |
-| simulate_turn / simulate_batch | 反事实推演 | 无真实战局写权 |
-| search_counterplay | 按机制寻找可行干预 | 返回候选+证据，不当权威 |
-| get_battle_history | 公开历史与记忆 | 视角过滤 |
-| submit_action | 唯一执行入口 | ACL + legal + expected version + 幂等 |
+| LLM / Skill | 威胁假设、候选与短证据摘要 | 权威规则解释、伤害结算、改状态 |
+| Knowledge | canonical IR/规则表/证据；攻略仅为待验证提示 | 把自然语言补成已证实机制 |
+| Planner | 候选联合动作、假设采样、风险/价值统计 | 读取真实隐藏队伍/未来 RNG |
+| Simulator | 指定假设下的合法 transition 和 trace | 当前局真实世界查询 |
+| Belief | 与公开历史一致的对手配置/策略分布 | 将单次未触发认定机制不存在 |
+| Policy | 在预算内选 actionId；超时 fallback | 让迟到回复覆盖新 decision |
+| Memory | rulesetHash、可见历史、假设与验证结果 | 永久保存过期的无条件克制关系 |
 
-禁止工具直接 set_hp、edit_opponent_moves、peek_rng、mutate_rules。工具参数用 JSON Schema 校验。决策日志记录 tool params（脱敏）、规则 hash、模型版本、候选与最终决策。
+首选 TS Agent 独立进程。`ModelProvider.generate(request, signal)` 统一模型能力、输出、usage 和错误；OpenAI/其他云模型/本地模型各自实现 adapter，endpoint/model/credentialRef 由配置给出。能力探测包括工具调用、JSON 输出、上下文大小、取消支持；“OpenAI-compatible”不等于所有参数语义相同。无工具调用时可输出 JSON 建议，仍走同一 schema/合法校验。
 
-## 不完全信息
+Seer 工具默认 HTTP/进程 RPC；接现有编码 Agent 时可外包一层 MCP 和 Skill。核心领域接口不依赖 MCP；不把 shell/filesystem/admin 暴露给对战 Skill。Skill 是有限决策流程与证据规范，不是每只精灵的专属攻略。[contracts](contracts.md)、[来源 S11](sources.md)。
 
-内部 TrueState 包括双方实际配招、隐藏资源、RNG；Observation 仅暴露玩家当前能够知道的字段。BeliefState 维护可能的隐藏配招、资源、对手风格及其置信度，随可见事件更新。
+## 2. 观察边界不能只过滤一次 state
 
-模拟时从 belief 采样可能对手配置和应对策略，不能借用真实对象做模拟泄漏。PVE 对 BOSS 机制、脚本和隐藏规则按游戏模式明确可见性。评测必须在对手未知配招测试中测出能力，而非“开全图”。
+Agent 只接收与同席真人一致的公开 Observation、公开规则库、己方合法动作。public trace/history 由白名单事件重新构建；隐藏触发不暴露 effectId、内部 seq、cause chain、状态 hash 或 RNG draw refs。对手未提交/已提交状态默认也不发。
 
-## 机制理解和反制流程
+get_legal_actions 依据己方可知条件；隐藏免疫造成执行时无效，不造成查询时动作缺失。calculate_damage 和 simulate 都基于显式假设，不能隐式去服务器查真实对手。provider 日志、调试 endpoint、模型提示、缓存 key 也走同样边界。用两份只在秘密字段不同的状态验证整套工具输出相同；时间/长度差异也纳入检查，但不宣称已做到形式化侧信道防护。
 
-1. 提取敌方威胁：触发时点、条件、效果、持续时间、可避免/可消除/可绕过的限制；
-2. 分析我方合法动作的前置条件与副作用；
-3. 构建 cause graph：produces、requires、consumes、blocks、amplifies、alternative；
-4. 按“阻止触发 / 绕开依赖 / 打断执行 / 吞下代价 / 改变对位”产生候选；
-5. 通过真实规则引擎检查；无效候选必须剔除，并记录失败原因；
-6. 结合对手行为与后备精灵价值模拟多个回合；行动后依据新事件修正计划。
+## 3. Belief 与搜索的具体做法
 
-结构化机制例如“自身 HP 低于对手时本回合先制增加”应直接检索 DSL 条件和时点，而不是让 LLM 根据文字猜哪个阶段生效。单个特定精灵的经验只形成有前提的案例，不上升为无条件攻略。
+M3 初始：最多 16 个与历史一致的隐藏配置样本；候选己方动作上限 8、对手回应上限 8、rollout 深度 2 个决策窗口，beam width 8，总预算最多 2048 次 transition。超出预算先削分支/深度；不保证上述全组合都遍历。搜索日志记录实际计数和截断原因。
 
-## 决策循环与预算
+1. 公开规则库列举机制可能性；未知配招建立稀疏 prior，未见动作保留非零概率。新揭示动作更新后验，矛盾样本淘汰；样本全空则显式 reset 到宽 prior，记录模型错误。
+2. 当前决策双方同时选招，枚举 joint actions，不假装已知对手本回合行动。对手策略含 aggressive/resource/control 等固定基线混合，另给保守 worst-case 评分。
+3. 每个 root action 使用相同 belief samples 和 simulation seeds 比较，降低估计噪声，但绝不使用真实 RNG。
+4. 后续策略只依赖模拟中当时已揭示的 Observation。不同隐藏世界如有同一可见历史，必须选择同一信息集策略，不能在每个世界“提前知道”隐藏技能再选下一步（strategy fusion）。
+5. 缓存 key 包含 ruleset/content/handler hash、Observation 历史摘要、belief version、评估器版本、搜索预算。缓存只有假设结果，不能跨玩家共用秘密数据。
 
-- 每回合固定 Observe → Retrieve → Generate → Validate → Search → Decide → Act → Reflect。
-- 普通局面缓存策略/小模型；高价值转折点调用高能力 LLM。
-- 总时间/令牌/模拟次数/分支数有明确上限，超限回退到合法基线行动而非卡死。
-- LLM 失败或输出格式错误：重试次数受限，进行合法化检查，必要时使用 deterministic fallback。
-- 绝不能在事件触发链内调用远程 LLM，避免对局延迟取决于外部 API。
-- 双方同步对战需战斗时限和超时默认策略，客户端显示 Agent 正在决策但仍保持响应。
+初始价值：终局 ±1；非终局按己方/敌方 HP 比例差、可用资源、控制与换位价值归一化，系数在 dev 集调整后冻结。报告 mean、较差分位数与样本数；“置信度”表示采样不确定性，不把模型自报分数当统计置信区间。Beam 是有界启发式，并非最优博弈保证；MCTS/信息集搜索仅在同预算评测胜出后替换。
 
-## 搜索初步设计
+## 4. 如何发现没见过的组合反制
 
-MVP：LLM 产生少量不同战术的候选，始终保留引擎合法行动集用于 fallback，Beam Search 在代表性的对手行动/隐藏状态采样上跑短深度。比较 win/loss、队伍 HP、资源、行动权、状态与风险；评价函数参数化，不能只按当前伤害选。
+以自制机制例子说明（非原作技能）：敌人只在回合末仍有强化时施加控制；我方可以直接攻击、清除强化、免疫控制或切换。Agent 应从 trigger/condition/produces 查询提出干预，再模拟验证：清除强化是否发生在检查前、是否被免清除、免疫是否持续到该时点、换位是否触发额外效果。
 
-指标：合法动作率、胜率（注明对手/规则版本/样本量）、未知机制测试正确率、counterplay discovery、每局 token、决策延迟 p50/p95、每秒模拟回合、失败模式分布。对比 random、规则基线、仅 LLM、LLM+检索、LLM+simulation 四组消融。
+反制候选按五种干预生成：移除前提、改变触发时点、阻止执行、绕过目标/类别、承担代价换取终局收益。必须提供 **一个有效分支和一个前提不满足的反例**；没有可行反制时允许报告无解，不能编攻略。
 
-## 长期学习
+“未知组合”测试由已实现 operator 的未见组合构成；未知执行语义的 operator 仍须先研究/编译，不能让 LLM 自行运行。任意 handler 机制图可能不完整，标记 opaque 并靠有界模拟补证，不夸口能静态解析所有程序。
 
-阶段 1：保存可重放对局，归纳有证据的失败/成功案例；检索时匹配适用条件。
-阶段 2：利用经过审核的对局生成候选排序/价值数据，防止自我确认偏误。
-阶段 3：Self-play + 人类测试对手 + 不同策略池，防止只针对单个基线过拟合。
-阶段 4：必要时蒸馏本地较小模型负责高频决策；不影响高能力模型参与关键战术推理。
+## 5. 工具清单
 
-任何记忆必须标明规则 hash、对位、可见信息、条件和结果；随着机制版本更新自动失效或重新验证。
+| 工具 | 输入/输出重点 | 限制 |
+|---|---|---|
+| observe / history | battleId、cursor → 公共视角 | 连接绑定 side；无 TrueState |
+| legal_actions | decisionId → actionId/解释 | 非公开对手条件不得影响动作列表 |
+| lookup_rule | rulesetHash、ID → 可见规则/证据 | 图鉴可见策略按模式固定 |
+| explain_trace | view cursor → 公开因果摘要 | 不返回内部 trigger 日志 |
+| simulate_batch | observation、假设、candidate actions、budget | 无 battle DB；响应带 assumptions/hash/cost |
+| calculate_damage | 明确双方假设 → 分布 | 是 simulate 的受限包装 |
+| search_counterplay | 机制干预请求 → 候选和可重跑分支 | 是 planner 工具，不是权威 oracle |
+| submit_action | decisionId/baseRevision/actionId/key | Host 再验权/时限/幂等/合法性 |
 
-## 世界 Agent 与视觉操作（后期）
+严格参数 Schema，未知字段拒绝。内容文本/攻略/技能描述视为不可信资料；其中“忽略规则/调用管理员”的指令不能扩大工具权限。
 
-World Agent 负责目标分解、任务前置、寻路、道具/精灵培养，Battle Agent 只负责局内决策。一个高层任务例如获取某精灵可编排 Quest → Team Builder → Battle → Review，但要限定资源预算、尝试次数、停止条件和用户许可范围。
+## 6. Deadline、失败与降级
 
-优先结构化 API 操作，让决策和 UI 感知误差分开测。后加视觉 Adapter 以截图/控件观察与点击操作；二者共享同一决策核，不允许视觉模式透传隐藏状态。
+M3 local 默认 10 秒 decision 总预算：模型生成上限 4 秒、搜索上限 3 秒、校验/提交保留 1 秒，余量用于 IO/排队；远程云延迟不能保证达标，超时必须取消并 fallback。最多 1 次格式修复，且只能花剩余预算；不用另起一个完整 10 秒窗口。最多 2 次模型请求、16 次工具调用、2048 transitions、输入 12000/输出 2000 tokens（模型 tokenizer 不同，记录计量来源）。
 
-## 评测测试集
+Host 用本机 monotonic deadline 计时，wire 返回剩余预算；不假定两进程/两机器单调时钟同源。Agent 预先计算当前 decision 的 deterministic baseline（优先规则胜招，否则固定排序的合法动作），在剩 1 秒时发出；没有合法动作由规则处理 replacement/terminal，不伪造 action。迟到/中断/429/断网/非法 JSON 回退，旧 decision 回复直接丢弃。PVP 实际时限待定，10 秒是工程模式参数，不是原作规则。
 
-- Basic：属性、强化、先制、伤害和合法性。
-- Synergy：两到三种技能/魂印连锁；资源保留 vs 消耗。
-- Counterplay：阻止触发、绕过免疫、切换与后备资源。
-- Hidden-info：未公开配招、多种对手意图与错误预测修正。
-- Novel-mechanic：仅提供新机制规则，不提供专属攻略。
-- Adversarial：对手故意诱导、异常/中断、超时和无解局面。
-- Transfer：同一个机制变化目标、顺序和精灵时能否泛化。
+## 7. 评测与“能过/不能过”
 
-预先划分训练/调参/封闭测试集；不能在封闭评测失败后将专属解答加入 Skill 再宣称零样本泛化。每项结论须报告样本、规则覆盖与置信区间。
+测试数据先固定，再调参。M3 建 60 个自制战术状态：basic/synergy/counterplay/hidden/novel/adversarial 各 10；每类 5 dev、5 holdout，共 30/30。holdout 不提供专属 Skill/攻略；泄露或针对失败样例改提示后，该集只能改名 regression，另建未见集。
 
-## Agent 插件契约（示意）
+消融至少 random、deterministic rule、LLM-only、LLM+retrieval、search-only、LLM+retrieval+search。相同规则/对手/seed/时限/工具权限；策略质量和花费一起报告。对固定对手池每组 200 局，配对 seed 并换边；每个随机配置/模型重复 3 次。胜率附 Wilson 95% 区间，差值用配对 bootstrap；平局/超时单列，不通过删失败局提高胜率。
 
-~~~typescript
-interface BattleAgent {
-  decide(input: {
-    observation: BattleObservation;
-    legalActions: BattleAction[];
-    deadlineMs: number;
-    rulesetHash: string;
-  }): Promise<{
-    action: BattleAction;
-    rationale?: string;
-    evidenceIds?: string[];
-  }>;
-}
-~~~
+| Gate | M3 验收 |
+|---|---|
+| 安全/执行 | ≥1000 次 adversarial tool 调用零秘密泄露；非法请求零落地；已接受动作均合法；过期/超时正确 fallback |
+| 机制 | holdout 的有效反制/无解判断 ≥24/30，错误归因到规则/知识/候选/搜索/动作；每题判定由独立 fixture |
+| 泛化 | novel 和 counterplay holdout 各 ≥4/5；更换名称/单位/数值后仍通过对应 transfer fixture |
+| 增益 | 完整方案相对最强无 LLM 基线胜率差点估计 ≥5pp 且配对 95% CI 下界 >0；未达标不宣称 LLM 增强成功 |
+| 预算 | 决策 p95 ≤10 秒含 fallback；按时自主完成率 ≥95%；token/cost/局与 provider/version 有报告 |
 
-模型适配器、Skill、Planner、Memory、Evaluator 都是独立插件。允许切换模型并在同样 replay/评测上比较。Skill 来源、版本和工具权限一并记录。模型的自然语言解释不替代 simulation/canonical rules。
+上述样本量只能支持有限范围结论，不代表达到全赛尔号人类高手。最多两轮 dev 调整；若增益门禁失败，保留可用 search-only，输出主要失败类型与下一实验，不无限循环优化，也不直接开始微调。
 
-参考：https://modelcontextprotocol.io/ ；https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md
+## 8. 世界 Agent 与后续学习
+
+M4 的 world service 暴露任务前置、寻路、背包、配队、奖励查询；World Agent 编排、Battle Agent 局内执行。操作预算、不可逆道具消耗策略与停止条件绑定会话。先结构化操作，再加视觉输入/点击 adapter，分别测视觉误差与战术误差。自我对战/蒸馏到 M6，须先有可信规则、无泄露日志和明确增益，版本更新使旧经验失效或重新验证。
