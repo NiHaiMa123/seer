@@ -1,0 +1,16 @@
+{
+  "packId": "synthetic-v2",
+  "version": "2.0.0",
+  "schemaVersion": 1,
+  "rulesetId": "synthetic-v2",
+  "verification": "SYNTHETIC",
+  "license": {
+    "identifier": "CC0-1.0",
+    "public": true
+  },
+  "files": {
+    "units": "units.json",
+    "moves": "moves.json"
+  },
+  "assets": []
+}

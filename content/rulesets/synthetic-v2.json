@@ -1,0 +1,33 @@
+{
+  "rulesetId": "synthetic-v2",
+  "rulesetVersion": "2.0.0",
+  "schemaVersion": 1,
+  "verification": "SYNTHETIC",
+  "features": ["bench", "damage_kinds", "control", "revive", "stat_ops", "mode_overlay"],
+  "operatorAllowlist": [
+    "damage",
+    "apply_stat_stage",
+    "heal",
+    "transfer_stages",
+    "clear_stages",
+    "control",
+    "cleanse",
+    "apply_status",
+    "apply_effect"
+  ],
+  "stats": ["hp", "atk", "def", "spd"],
+  "statStageRange": [-6, 6],
+  "damageKinds": ["standard", "fixed", "percent", "true"],
+  "modeOverlays": {
+    "boss": { "immuneControl": true, "immuneClearStages": true }
+  },
+  "limits": {
+    "maxEffectApplications": 4096,
+    "maxCauseDepth": 64,
+    "maxTurns": 200
+  },
+  "rng": {
+    "algorithmId": "xoshiro128**",
+    "usage": ["order_tiebreak"]
+  }
+}

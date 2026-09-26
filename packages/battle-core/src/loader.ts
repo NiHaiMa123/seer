@@ -29,16 +29,34 @@ export interface CompiledMove {
   effects: CompiledEffect[];
 }
 
+export type DamageKind = "standard" | "fixed" | "percent" | "true";
+
 export type CompiledEffect =
-  | { op: "damage"; power: number }
-  | { op: "apply_stat_stage"; stat: "atk" | "def" | "spd"; delta: number; target: "self" }
-  | { op: "heal"; numerator: number; denominator: number; target: "self" };
+  | { op: "damage"; power: number; kind?: DamageKind }
+  | { op: "apply_stat_stage"; stat: "atk" | "def" | "spd"; delta: number; target: "self" | "opponent" }
+  | { op: "heal"; numerator: number; denominator: number; target: "self" | "opponent" }
+  | { op: "transfer_stages" }
+  | { op: "clear_stages"; target: "self" | "opponent" }
+  | { op: "control"; name: string; turns: number; target: "self" | "opponent" }
+  | { op: "cleanse"; target: "self" | "opponent" }
+  | { op: "apply_status"; name: string; turns: number; target: "self" | "opponent" }
+  | { op: "apply_effect"; name: string; turns: number; target: "self" | "opponent" };
 
 export interface CompiledUnit {
   id: string;
   base: { hp: number; atk: number; def: number; spd: number };
   moveIds: string[];
+  revives?: number;
+  mode?: string;
 }
+
+export type FeatureFlag =
+  | "bench"
+  | "damage_kinds"
+  | "control"
+  | "revive"
+  | "stat_ops"
+  | "mode_overlay";
 
 export interface FrozenPack {
   rules: BattleState["rules"];
@@ -47,6 +65,8 @@ export interface FrozenPack {
   limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number };
   stageRange: { min: number; max: number };
   operatorAllowlist: readonly string[];
+  features: ReadonlySet<FeatureFlag>;
+  modeOverlays: ReadonlyMap<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
 }
 
 const ajv = new Ajv({ allErrors: true, strict: true });
@@ -77,6 +97,9 @@ export function compilePack(raw: RawContent): FrozenPack {
     rulesetId: string;
     rulesetVersion: string;
     operatorAllowlist: string[];
+    features?: string[];
+    damageKinds?: string[];
+    modeOverlays?: Record<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
     statStageRange: [number, number];
     limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number };
   };
@@ -88,12 +111,31 @@ export function compilePack(raw: RawContent): FrozenPack {
     fail(`pack rulesetId "${pack.rulesetId}" != ruleset "${ruleset.rulesetId}"`);
   }
 
+  const features = new Set((ruleset.features ?? []) as FeatureFlag[]);
+  // op → 所需 feature（v1 ruleset 无 features → 新 op 语义级拒绝）
+  const OP_FEATURE: Partial<Record<CompiledEffect["op"], FeatureFlag>> = {
+    transfer_stages: "stat_ops",
+    clear_stages: "stat_ops",
+    control: "control",
+    cleanse: "control",
+    apply_status: "control",
+    apply_effect: "mode_overlay",
+  };
   const allow = new Set(ruleset.operatorAllowlist);
+  const damageKinds = new Set(ruleset.damageKinds ?? ["standard"]);
   const movesById = new Map<string, CompiledMove>();
   for (const m of moves) {
     if (movesById.has(m.id)) fail(`duplicate move id ${m.id}`);
     for (const fx of m.effects) {
       if (!allow.has(fx.op)) fail(`move ${m.id} uses op "${fx.op}" not in allowlist`);
+      const need = OP_FEATURE[fx.op];
+      if (need && !features.has(need)) fail(`move ${m.id} op "${fx.op}" requires feature "${need}"`);
+      if (fx.op === "damage" && fx.kind !== undefined && fx.kind !== "standard" && !features.has("damage_kinds")) {
+        fail(`move ${m.id} damage kind "${fx.kind}" requires feature "damage_kinds"`);
+      }
+      if (fx.op === "damage" && fx.kind !== undefined && !damageKinds.has(fx.kind)) {
+        fail(`move ${m.id} damage kind "${fx.kind}" not in ruleset damageKinds`);
+      }
     }
     movesById.set(m.id, { id: m.id, pp: m.pp, priority: m.priority, effects: m.effects });
   }
@@ -104,7 +146,16 @@ export function compilePack(raw: RawContent): FrozenPack {
     for (const mid of u.moveIds) {
       if (!movesById.has(mid)) fail(`unit ${u.id} references unknown move ${mid}`);
     }
-    unitsById.set(u.id, { id: u.id, base: u.base, moveIds: u.moveIds });
+    if (u.revives !== undefined && u.revives > 0 && !features.has("revive")) {
+      fail(`unit ${u.id} sets revives but feature "revive" not enabled`);
+    }
+    if (u.mode !== undefined && !features.has("mode_overlay")) {
+      fail(`unit ${u.id} sets mode but feature "mode_overlay" not enabled`);
+    }
+    if (u.mode !== undefined && ruleset.modeOverlays !== undefined && !(u.mode in ruleset.modeOverlays)) {
+      fail(`unit ${u.id} mode "${u.mode}" has no ruleset overlay entry`);
+    }
+    unitsById.set(u.id, { id: u.id, base: u.base, moveIds: u.moveIds, ...(u.revives !== undefined ? { revives: u.revives } : {}), ...(u.mode !== undefined ? { mode: u.mode } : {}) });
   }
 
   const rulesetHash = `sha256:${sha256hex(canonicalJson(raw.ruleset))}`;
@@ -125,6 +176,8 @@ export function compilePack(raw: RawContent): FrozenPack {
     limits: ruleset.limits,
     stageRange: { min: ruleset.statStageRange[0], max: ruleset.statStageRange[1] },
     operatorAllowlist: ruleset.operatorAllowlist,
+    features,
+    modeOverlays: new Map(Object.entries(ruleset.modeOverlays ?? {})),
   };
   Object.freeze(frozen.rules);
   Object.freeze(frozen.limits);

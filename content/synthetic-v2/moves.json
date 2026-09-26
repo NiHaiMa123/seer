@@ -1,0 +1,88 @@
+{
+  "moves": [
+    {
+      "id": "syn-strike",
+      "name": "Strike",
+      "pp": 35,
+      "priority": 0,
+      "effects": [{ "op": "damage", "power": 40 }]
+    },
+    {
+      "id": "syn-jab",
+      "name": "Jab",
+      "pp": 30,
+      "priority": 1,
+      "effects": [{ "op": "damage", "power": 20 }]
+    },
+    {
+      "id": "syn-bolster",
+      "name": "Bolster",
+      "pp": 20,
+      "priority": 0,
+      "effects": [{ "op": "apply_stat_stage", "stat": "atk", "delta": 1, "target": "self" }]
+    },
+    {
+      "id": "syn-recover",
+      "name": "Recover",
+      "pp": 10,
+      "priority": 0,
+      "effects": [{ "op": "heal", "numerator": 1, "denominator": 2, "target": "self" }]
+    },
+    {
+      "id": "syn-drain",
+      "name": "Drain",
+      "pp": 15,
+      "priority": 0,
+      "effects": [{ "op": "transfer_stages" }]
+    },
+    {
+      "id": "syn-purge",
+      "name": "Purge",
+      "pp": 15,
+      "priority": 0,
+      "effects": [{ "op": "clear_stages", "target": "opponent" }]
+    },
+    {
+      "id": "syn-slam",
+      "name": "Slam",
+      "pp": 20,
+      "priority": 0,
+      "effects": [{ "op": "damage", "kind": "true", "power": 30 }]
+    },
+    {
+      "id": "syn-blast",
+      "name": "Blast",
+      "pp": 20,
+      "priority": 0,
+      "effects": [{ "op": "damage", "kind": "percent", "power": 25 }]
+    },
+    {
+      "id": "syn-hex",
+      "name": "Hex",
+      "pp": 10,
+      "priority": 0,
+      "effects": [{ "op": "control", "name": "stun", "turns": 1, "target": "opponent" }]
+    },
+    {
+      "id": "syn-purge-mind",
+      "name": "Purge Mind",
+      "pp": 10,
+      "priority": 0,
+      "effects": [{ "op": "cleanse", "target": "self" }]
+    },
+    {
+      "id": "syn-ward",
+      "name": "Ward",
+      "pp": 10,
+      "priority": 0,
+      "effects": [{ "op": "apply_status", "name": "immune_control", "turns": 2, "target": "self" }]
+    },
+    {
+      "id": "syn-brand",
+      "name": "Brand",
+      "pp": 10,
+      "priority": 0,
+      "effects": [{ "op": "apply_effect", "name": "marked", "turns": 3, "target": "opponent" }]
+    }
+  ]
+}

@@ -31,7 +31,10 @@
                 "delta": { "type": "integer", "not": { "const": 0 } },
                 "target": { "enum": ["self", "opponent"] },
                 "numerator": { "type": "integer", "minimum": 1 },
-                "denominator": { "type": "integer", "minimum": 1 }
+                "denominator": { "type": "integer", "minimum": 1 },
+                "kind": { "enum": ["standard", "fixed", "percent", "true"] },
+                "name": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+                "turns": { "type": "integer", "minimum": 1, "maximum": 10 }
               },
               "allOf": [
                 {
@@ -44,6 +47,24 @@
                     "required": ["stat", "delta", "target"],
                     "properties": { "stat": true, "delta": true, "target": true }
                   }
+                },
+                {
+                  "if": { "required": ["op"], "properties": { "op": { "const": "transfer_stages" } } },
+                  "then": {
+                    "properties": { "power": false, "stat": false, "delta": false, "target": false, "kind": false, "name": false, "turns": false, "numerator": false, "denominator": false }
+                  }
+                },
+                {
+                  "if": { "required": ["op"], "properties": { "op": { "const": "clear_stages" } } },
+                  "then": { "required": ["target"], "properties": { "target": true } }
+                },
+                {
+                  "if": { "required": ["op"], "properties": { "op": { "enum": ["control", "apply_status", "apply_effect"] } } },
+                  "then": { "required": ["name", "turns", "target"], "properties": { "name": true, "turns": true, "target": true } }
+                },
+                {
+                  "if": { "required": ["op"], "properties": { "op": { "const": "cleanse" } } },
+                  "then": { "required": ["target"], "properties": { "target": true } }
                 },
                 {
                   "if": { "required": ["op"], "properties": { "op": { "const": "heal" } } },

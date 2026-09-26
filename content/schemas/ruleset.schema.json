@@ -11,6 +11,22 @@
     "schemaVersion": { "type": "integer", "minimum": 1 },
     "verification": { "enum": ["SYNTHETIC", "UNVERIFIED", "VERIFIED", "CONFLICTED"] },
     "operatorAllowlist": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
+    "features": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "damageKinds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "modeOverlays": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z][a-z0-9-]*$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "immuneControl": { "type": "boolean" },
+            "immuneClearStages": { "type": "boolean" }
+          }
+        }
+      }
+    },
     "stats": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
     "statStageRange": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
     "limits": {
