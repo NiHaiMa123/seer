@@ -1,0 +1,18 @@
+{
+  "env": {
+    "node": "v24.18.0",
+    "platform": "win32",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor           "
+  },
+  "battles": 40,
+  "totalTurns": 240,
+  "elapsedMs": 2490,
+  "turnsPerSec": 96,
+  "turnCommitLatencyMs": {
+    "mean": 9.37,
+    "p50": 9.34,
+    "p95": 9.98,
+    "p99": 10.58
+  },
+  "note": "Host 层 resolve + SQLite 提交延迟；非网络、非浏览器、不代表低端机。"
+}

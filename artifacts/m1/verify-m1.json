@@ -1,0 +1,87 @@
+{
+  "gates": [
+    {
+      "name": "typecheck",
+      "exit": 0,
+      "ms": 1271
+    },
+    {
+      "name": "contracts:check",
+      "exit": 0,
+      "ms": 241
+    },
+    {
+      "name": "check:boundaries",
+      "exit": 0,
+      "ms": 126
+    },
+    {
+      "name": "test:contracts",
+      "exit": 0,
+      "ms": 538
+    },
+    {
+      "name": "test:privacy",
+      "exit": 0,
+      "ms": 589
+    },
+    {
+      "name": "test:core",
+      "exit": 0,
+      "ms": 35545
+    },
+    {
+      "name": "test:protocol",
+      "exit": 0,
+      "ms": 627
+    },
+    {
+      "name": "test:recovery",
+      "exit": 0,
+      "ms": 2180
+    },
+    {
+      "name": "test:plugin",
+      "exit": 0,
+      "ms": 554
+    },
+    {
+      "name": "test:determinism",
+      "exit": 0,
+      "ms": 519
+    },
+    {
+      "name": "test:determinism:browser",
+      "exit": 0,
+      "ms": 1030
+    },
+    {
+      "name": "replay:verify",
+      "exit": 0,
+      "ms": 1141
+    },
+    {
+      "name": "perf:render",
+      "exit": 0,
+      "ms": 5354
+    },
+    {
+      "name": "demo:m1",
+      "exit": 0,
+      "ms": 952
+    },
+    {
+      "name": "test:e2e",
+      "exit": 0,
+      "ms": 19084
+    },
+    {
+      "name": "git-diff-check",
+      "exit": 0,
+      "ms": 29
+    }
+  ],
+  "passed": 16,
+  "total": 16,
+  "ok": true
+}

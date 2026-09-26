@@ -2,7 +2,7 @@
 
 > 用途：在 ChatGPT Work 模式中选择用户可用的 Astra High（如有该选项），将本文件作为执行任务。当前文档由现有对话整理，不代表已经由 Astra High 审查或运行。仓库为 https://github.com/NiHaiMa123/seer ，默认分支 main。
 >
-> **状态更新（2026-09-26）**：本交接任务的产出（架构审查与 M0–M1 计划）已落地为当前 docs；**M0 已全部完成并验证**（`pnpm verify:m0` = 13/13 gate，见 `docs/m0-results.md` 与 `artifacts/m0/`）。下一切片为 M1-01（battle-core 骨架 + 固定走线）。
+> **状态更新（2026-09-26）**：**M0 已全部完成并验证**（`verify:m0` = 13/13 gate）；**M1 已全部完成并验证**（`pnpm verify:m1` = 16/16 gate 全绿，见 `artifacts/m1/`：battle-core 29 golden+10k property、host 协议 21 场景、公开流游标与隐私、SQLite 恢复/replay、双浏览器 e2e 到 KO、demo 全序列证据、bench 96 turns/s）。下一切片为 M2（多局/装配/正式 transport）或按 AGENT.md 进入 M3 预研——以用户指令为准。
 
 ## 你的角色与目标
 
