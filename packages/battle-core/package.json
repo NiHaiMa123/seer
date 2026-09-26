@@ -1,0 +1,15 @@
+{
+  "name": "@seer/battle-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./rng": "./src/rng.ts",
+    "./sha256": "./src/sha256.ts"
+  },
+  "dependencies": {
+    "@seer/contracts": "workspace:*",
+    "ajv": "8.17.1"
+  }
+}

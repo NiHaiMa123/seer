@@ -19,6 +19,7 @@ export const stateSchema: Record<string, unknown> = {
     "inbox",
     "eventSeq",
     "publicCursors",
+    "speedTiebreak",
     "terminal"
   ],
   "properties": {
@@ -227,6 +228,20 @@ export const stateSchema: Record<string, unknown> = {
           "minimum": 0
         }
       }
+    },
+    "speedTiebreak": {
+      "description": "Memoized once-per-battle speed-tie outcome (synthetic-v1 §6: at most one tiebreak draw per battle).",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        }
+      ]
     },
     "terminal": {
       "anyOf": [
@@ -511,6 +526,10 @@ export interface BattleState {
     p1: number;
     p2: number;
   };
+  /**
+   * Memoized once-per-battle speed-tie outcome (synthetic-v1 §6: at most one tiebreak draw per battle).
+   */
+  speedTiebreak: null | ("p1" | "p2");
   terminal: null | {
     result: "p1" | "p2" | "draw";
     reason: "ko" | "concede" | "turn-limit" | "timeout";

@@ -3,8 +3,8 @@
  * Bundled by tools/build-det-bundle.ts (esbuild iife); exposes window.__det.
  */
 import { canonicalJson } from "../../../packages/contracts/src/canonical.ts";
-import { DeterministicRng } from "./rng.ts";
-import { sha256hex } from "./sha256.ts";
+import { DeterministicRng } from "@seer/battle-core/rng";
+import { sha256hex } from "@seer/battle-core/sha256";
 import { transition, type FxInput, type FxState } from "./transition-fixture.ts";
 
 export interface DetRun {

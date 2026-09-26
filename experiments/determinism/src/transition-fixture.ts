@@ -3,7 +3,7 @@
  * 证明 — 输入与旧 state 不被修改、fault 时原子性（整次 transition 不落盘）、
  * 排序/平速用命名 RNG draw、输出可 canonical 编码。
  */
-import { DeterministicRng } from "./rng.ts";
+import { DeterministicRng } from "@seer/battle-core/rng";
 
 export class EngineFault extends Error {
   readonly code = "ENGINE_FAULT";

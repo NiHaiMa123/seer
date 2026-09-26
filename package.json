@@ -19,6 +19,7 @@
     "test:privacy": "vitest run tests/contracts/privacy.test.ts",
     "test:plugin": "vitest run experiments/cordis/tests",
     "test:determinism": "vitest run experiments/determinism/tests/determinism.test.ts",
+    "test:core": "vitest run tests/battle-core",
     "test:determinism:browser": "node tools/build-det-bundle.ts && playwright test determinism",
     "perf:render": "node tools/build-render-bundle.ts && playwright test render",
     "verify:m0": "node tools/verify-m0.ts",
@@ -26,6 +27,7 @@
     "check:boundaries": "node tools/check-boundaries.ts"
   },
   "devDependencies": {
+    "@seer/battle-core": "workspace:*",
     "@seer/contracts": "workspace:*",
     "@types/node": "24.13.5",
     "@playwright/test": "1.63.0",

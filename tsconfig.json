@@ -17,5 +17,5 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["tools/**/*.ts", "packages/**/*.ts", "tests/**/*.ts", "docs/examples/**/*.ts"]
+  "include": ["tools/**/*.ts", "packages/**/*.ts", "tests/**/*.ts", "experiments/**/*.ts", "docs/examples/**/*.ts"]
 }

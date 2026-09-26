@@ -6,8 +6,8 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { canonicalJson } from "@seer/contracts";
-import { DeterministicRng } from "../src/rng.ts";
-import { sha256hex } from "../src/sha256.ts";
+import { DeterministicRng } from "@seer/battle-core/rng";
+import { sha256hex } from "@seer/battle-core/sha256";
 import { damageOf, EngineFault, transition, type FxInput, type FxState } from "../src/transition-fixture.ts";
 import vectors from "../vectors.json" with { type: "json" };
 
@@ -15,19 +15,19 @@ const SEED_A = "0123456789abcdef0123456789abcdef";
 
 /** Independent BigInt reference implementation of xoshiro128** (different arithmetic path). */
 function refXoshiro(seedHex: string, count: number): number[] {
-  const w = [0, 1, 2, 3].map((i) => BigInt("0x" + seedHex.slice(i * 8, i * 8 + 8)));
+  const w: bigint[] = [0, 1, 2, 3].map((i) => BigInt("0x" + seedHex.slice(i * 8, i * 8 + 8)));
   const M = 0xffffffffn;
   const rotl = (x: bigint, k: bigint) => ((x << k) | (x >> (32n - k))) & M;
   const out: number[] = [];
   for (let i = 0; i < count; i++) {
-    const res = Number((rotl((w[1] * 5n) & M, 7n) * 9n) & M);
-    const t = (w[1] << 17n) & M;
-    w[2] ^= w[0];
-    w[3] ^= w[1];
-    w[1] ^= w[2];
-    w[0] ^= w[3];
-    w[2] ^= t;
-    w[3] = rotl(w[3], 11n);
+    const res = Number((rotl((w[1]! * 5n) & M, 7n) * 9n) & M);
+    const t = (w[1]! << 17n) & M;
+    w[2] = w[2]! ^ w[0]!;
+    w[3] = w[3]! ^ w[1]!;
+    w[1] = w[1]! ^ w[2]!;
+    w[0] = w[0]! ^ w[3]!;
+    w[2] = w[2]! ^ t;
+    w[3] = rotl(w[3]!, 11n);
     out.push(res);
   }
   return out;

@@ -5,7 +5,7 @@
   "description": "INTERNAL authoritative state. Contains secrets (full movesets, PP, RNG, inbox); never serialized to wire.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "battleId", "rules", "revision", "turn", "phase", "rng", "sides", "decision", "inbox", "eventSeq", "publicCursors", "terminal"],
+  "required": ["schemaVersion", "battleId", "rules", "revision", "turn", "phase", "rng", "sides", "decision", "inbox", "eventSeq", "publicCursors", "speedTiebreak", "terminal"],
   "properties": {
     "schemaVersion": { "const": 1 },
     "battleId": { "type": "string", "pattern": "^btl_[a-z0-9-]{1,60}$" },
@@ -86,6 +86,10 @@
         "p1": { "type": "integer", "minimum": 0 },
         "p2": { "type": "integer", "minimum": 0 }
       }
+    },
+    "speedTiebreak": {
+      "description": "Memoized once-per-battle speed-tie outcome (synthetic-v1 §6: at most one tiebreak draw per battle).",
+      "anyOf": [{ "type": "null" }, { "enum": ["p1", "p2"] }]
     },
     "terminal": {
       "anyOf": [

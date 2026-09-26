@@ -22,7 +22,7 @@ test("Chromium produces byte-identical canonical output and hash", async ({ page
   for (const seed of SEEDS) {
     const browser = await page.evaluate(
       (s) =>
-        (globalThis as { __det: { runDeterministicPayload: (x: string, n: number) => { canonical: string; hash: string } } }).__det.runDeterministicPayload(
+        (globalThis as unknown as { __det: { runDeterministicPayload: (x: string, n: number) => { canonical: string; hash: string } } }).__det.runDeterministicPayload(
           s,
           4,
         ),

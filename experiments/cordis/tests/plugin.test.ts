@@ -185,7 +185,7 @@ describe("plugin host (cordis rc.10 adapter)", () => {
     const host = new PluginHost();
     await expect(
       host.loadPlugin(
-        { manifest: { ...manifest("p-badmanifest"), kind: "executable" } as PluginManifest, setup: () => {} },
+        { manifest: { ...manifest("p-badmanifest"), kind: "executable" } as unknown as PluginManifest, setup: () => {} },
         GRANT_ALL,
       ),
     ).rejects.toMatchObject({ code: "INVALID_SCHEMA" });

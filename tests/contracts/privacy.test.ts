@@ -86,6 +86,7 @@ function makeState(s: Secrets): BattleState {
     inbox: { p1: s.p1Inbox, p2: s.p2Inbox },
     eventSeq: s.eventSeq,
     publicCursors: { p1: 7, p2: 7 },
+    speedTiebreak: null,
     terminal: null,
   };
 }

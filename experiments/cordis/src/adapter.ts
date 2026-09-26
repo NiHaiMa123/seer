@@ -60,7 +60,7 @@ export interface PluginSpec {
 
 export interface PluginHandle {
   readonly pluginId: string;
-  readonly fiber: Fiber;
+  fiber: Fiber;
   readonly ownedServices: Set<string>;
   disposed: boolean;
   get state(): string;
@@ -119,7 +119,11 @@ export class PluginHost {
   async loadPlugin(spec: PluginSpec, policy: LoadPolicy): Promise<PluginHandle> {
     const { manifest } = spec;
     if (!validators.manifest(manifest)) {
-      throw new PluginError("INVALID_SCHEMA", `manifest "${manifest.pluginId}" failed schema`);
+      const first = validators.manifest.errors?.[0];
+      throw new PluginError(
+        "INVALID_SCHEMA",
+        `manifest "${spec.manifest?.pluginId ?? "?"}" failed schema: ${first?.instancePath ?? "/"} ${first?.message ?? "invalid"}`,
+      );
     }
     if (this.plugins.has(manifest.pluginId)) {
       throw new PluginError("SERVICE_CONFLICT", `plugin "${manifest.pluginId}" already loaded`);
@@ -160,7 +164,7 @@ export class PluginHost {
     // provide() cleanup and effect() registration are released on fiber dispose.
     const pluginDef = {
       name: manifest.pluginId,
-      provide: spec.provides,
+      ...(spec.provides !== undefined ? { provide: spec.provides } : {}),
       inject: (manifest.requires ?? []).map((r) => r.service),
       apply: (ctx: Context) => {
         const scoped: SeerPluginContext = {

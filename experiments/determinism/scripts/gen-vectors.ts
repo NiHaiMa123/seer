@@ -7,8 +7,8 @@ import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { canonicalJson } from "../../../packages/contracts/src/canonical.ts";
-import { DeterministicRng } from "../src/rng.ts";
-import { sha256hex } from "../src/sha256.ts";
+import { DeterministicRng } from "@seer/battle-core/rng";
+import { sha256hex } from "@seer/battle-core/sha256";
 import { transition, type FxInput, type FxState } from "../src/transition-fixture.ts";
 
 const dir = fileURLToPath(new URL("..", import.meta.url));

@@ -15,7 +15,7 @@ const rotl = (x: number, k: number): number => ((x << k) | (x >>> (32 - k))) >>>
 
 export class DeterministicRng {
   readonly algorithmId = "xoshiro128**";
-  private readonly s: [number, number, number, number];
+  private s: [number, number, number, number];
   private counter = 0;
   readonly draws: RngDraw[] = [];
 
