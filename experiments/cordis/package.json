@@ -1,0 +1,15 @@
+{
+  "name": "@seer/experiment-cordis",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/adapter.ts"
+  },
+  "dependencies": {
+    "cordis": "4.0.0-rc.10"
+  },
+  "devDependencies": {
+    "@seer/contracts": "workspace:*"
+  }
+}

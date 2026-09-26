@@ -1,0 +1,47 @@
+{
+  "task": "M0-03 Cordis 薄适配 PoC",
+  "executedAt": "2026-09-26",
+  "environment": "Windows, Node v24.18.0, pnpm 12.6.0",
+  "upstreamArtifact": {
+    "package": "cordis",
+    "version": "4.0.0-rc.10",
+    "integrity": "sha512-xG90nPNQxR272cC4lR/m5LHevegIJvdddQBlKdEAdGz3n+zgH5lsgkg8o9fc2P3T/f+pO5D7FN1HZvkNBiABnw==",
+    "source": "npm registry (docs/sources.md S03)",
+    "note": "DSH vendor 基于 rc.7 另有生命周期修复；本次只验证上游 rc.10，未引入 DSH vendor。"
+  },
+  "apiSurfaceUsed": [
+    "new Context()",
+    "ctx.plugin({name, provide, inject, apply})",
+    "ctx.provide(name, value)",
+    "ctx.get(name, strict)",
+    "ctx.effect(execute)",
+    "fiber.dispose()",
+    "fiber.state (FiberState)",
+    "ctx.registry.size / .counter",
+    "await fiber (PromiseLike)"
+  ],
+  "probedSemantics": [
+    { "behavior": "plugin setup 抛错", "observed": "await fiber rejects；state=FAILED(3)", "adapterPolicy": "包装为 SETUP_FAILED 并回滚登记" },
+    { "behavior": "inject 声明缺依赖", "observed": "fiber 停 PENDING(0) 静默等待，不报错", "adapterPolicy": "loadPlugin 前置校验，缺依赖直接 MISSING_DEPENDENCY" },
+    { "behavior": "同名二次 provide", "observed": "上游抛 'service has been registered'，保留先注册者", "adapterPolicy": "providers map 前置检查抛 SERVICE_CONFLICT" },
+    { "behavior": "重复 dispose", "observed": "幂等 resolve，disposer 只跑一次", "adapterPolicy": "handle.disposed 标记 + unload 幂等" },
+    { "behavior": "cleanup 中注册 effect", "observed": "抛 CordisError INACTIVE_EFFECT", "adapterPolicy": "透传上游拒绝" },
+    { "behavior": "dispose 进行中（setup pending）", "observed": "state=DISPOSED，setup 后续代码不产生可见副作用", "adapterPolicy": "plugins 表先登记 pending；await 后复查 state 非 ACTIVE 即失败" },
+    { "behavior": "依赖消失/恢复", "observed": "dep 被释放→插件挂起；重新提供→插件 restart（实测 restart 计数 1→2）", "adapterPolicy": "记录为上游语义；mechanics 插件按 generation pin 不在局中承受 restart（plugin-system §5）" },
+    { "behavior": "100 load/dispose cycles", "observed": "registry.size 回基线 (delta 0)；counter +101 为单调计数非泄漏", "adapterPolicy": "providers/plugins 计数亦回基线" },
+    { "behavior": "ctx.set 未 provide", "observed": "抛 'cannot set property without provide'", "adapterPolicy": "适配层只暴露 provide/require" }
+  ],
+  "gateResults": {
+    "pnpm test:plugin": { "exitCode": 0, "tests": 11, "passed": 11, "covering": ["missing-dependency", "service-conflict", "cycle(self)", "setup-failure rollback", "async reentry (dispose during pending)", "double dispose", "register-during-cleanup INACTIVE_EFFECT", "invalid manifest", "capability denied", "dep-loss restart semantics (recorded)", "100 cycles baseline"] }
+  },
+  "decision": "ADOPT-PENDING：上游 rc.10 满足薄适配全部窄合同；M0-06 汇总时才可标最终采纳",
+  "limitations": [
+    "requires.versionRange 未做 semver 匹配（运行时按 lockfile 精确工件，publish 前解析策略 M2 定）",
+    "scope 不构成恶意代码沙箱（首期仅可信代码，plugin-system §4）",
+    "inject 依赖消失→restart 是上游行为；规则/mechanic 插件依赖该语义前需 M2 评估"
+  ],
+  "repoEvidence": {
+    "adapter": "experiments/cordis/src/adapter.ts",
+    "tests": "experiments/cordis/tests/plugin.test.ts"
+  }
+}

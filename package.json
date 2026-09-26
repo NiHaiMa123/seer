@@ -17,6 +17,7 @@
     "contracts:check": "node tools/gen-contract-types.ts --check",
     "test:contracts": "vitest run tests/contracts/contracts.test.ts",
     "test:privacy": "vitest run tests/contracts/privacy.test.ts",
+    "test:plugin": "vitest run experiments/cordis/tests",
     "check:boundaries": "node tools/check-boundaries.ts"
   },
   "devDependencies": {
