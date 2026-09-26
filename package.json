@@ -18,11 +18,16 @@
     "test:contracts": "vitest run tests/contracts/contracts.test.ts",
     "test:privacy": "vitest run tests/contracts/privacy.test.ts",
     "test:plugin": "vitest run experiments/cordis/tests",
+    "test:determinism": "vitest run experiments/determinism/tests/determinism.test.ts",
+    "test:determinism:browser": "node tools/build-det-bundle.ts && playwright test",
+    "vectors:gen": "node experiments/determinism/scripts/gen-vectors.ts",
     "check:boundaries": "node tools/check-boundaries.ts"
   },
   "devDependencies": {
     "@seer/contracts": "workspace:*",
     "@types/node": "24.13.5",
+    "@playwright/test": "1.63.0",
+    "esbuild": "0.28.2",
     "ajv": "8.17.1",
     "json-schema-to-typescript": "16.0.0",
     "typescript": "6.0.3",

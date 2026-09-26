@@ -15,8 +15,8 @@ function ser(v: unknown): string {
   if (v === null) return "null";
   if (typeof v === "boolean") return v ? "true" : "false";
   if (typeof v === "number") {
-    if (!Number.isFinite(v) || Object.is(v, -0)) {
-      throw new TypeError("canonicalJson: non-finite number or -0");
+    if (!Number.isFinite(v) || Object.is(v, -0) || !Number.isSafeInteger(v)) {
+      throw new TypeError("canonicalJson: number must be a safe integer");
     }
     return JSON.stringify(v);
   }

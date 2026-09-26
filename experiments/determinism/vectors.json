@@ -1,0 +1,123 @@
+{
+  "rng": [
+    {
+      "seed": "00000000000000000000000000000001",
+      "draws": [
+        "00000000",
+        "00000000",
+        "00001680",
+        "00b41680",
+        "cdb41680",
+        "cd002e68",
+        "ce6844e8",
+        "c8680171"
+      ]
+    },
+    {
+      "seed": "0123456789abcdef0123456789abcdef",
+      "draws": [
+        "99998498",
+        "99998498",
+        "1afff5b0",
+        "42998d9b",
+        "4b03548b",
+        "1a122c52",
+        "249afb3d",
+        "b7e61796"
+      ]
+    },
+    {
+      "seed": "ffffffffffffffffffffffffffffffff",
+      "draws": [
+        "ffffedf7",
+        "ffffedf7",
+        "d3000477",
+        "2cffe980",
+        "ffffedf7",
+        "00b3ec98",
+        "730b2980",
+        "d2ffd45f"
+      ]
+    }
+  ],
+  "transitions": [
+    {
+      "seed": "0123456789abcdef0123456789abcdef",
+      "state": {
+        "turn": 0,
+        "units": {
+          "a": {
+            "id": "a",
+            "hp": 100,
+            "maxHp": 100,
+            "atk": 40,
+            "def": 30,
+            "spd": 50
+          },
+          "b": {
+            "id": "b",
+            "hp": 100,
+            "maxHp": 100,
+            "atk": 35,
+            "def": 30,
+            "spd": 50
+          }
+        },
+        "ko": null
+      },
+      "input": {
+        "actions": {
+          "a": {
+            "kind": "attack",
+            "power": 40
+          },
+          "b": {
+            "kind": "attack",
+            "power": 55
+          }
+        }
+      },
+      "canonical": "{\"events\":[{\"first\":\"a\",\"type\":\"order\"},{\"amount\":26,\"by\":\"a\",\"targetHp\":74,\"type\":\"damage\"},{\"amount\":32,\"by\":\"b\",\"targetHp\":68,\"type\":\"damage\"}],\"state\":{\"ko\":null,\"turn\":1,\"units\":{\"a\":{\"atk\":40,\"def\":30,\"hp\":68,\"id\":\"a\",\"maxHp\":100,\"spd\":50},\"b\":{\"atk\":35,\"def\":30,\"hp\":74,\"id\":\"b\",\"maxHp\":100,\"spd\":50}}}}",
+      "sha256": "9820bfb85e2c36bdfc99528847643199f2abfea070d10a7217ef1d475feb6f51"
+    },
+    {
+      "seed": "ffffffffffffffffffffffffffffffff",
+      "state": {
+        "turn": 0,
+        "units": {
+          "a": {
+            "id": "a",
+            "hp": 100,
+            "maxHp": 100,
+            "atk": 40,
+            "def": 30,
+            "spd": 50
+          },
+          "b": {
+            "id": "b",
+            "hp": 30,
+            "maxHp": 100,
+            "atk": 35,
+            "def": 30,
+            "spd": 50
+          }
+        },
+        "ko": null
+      },
+      "input": {
+        "actions": {
+          "a": {
+            "kind": "attack",
+            "power": 80
+          },
+          "b": {
+            "kind": "attack",
+            "power": 20
+          }
+        }
+      },
+      "canonical": "{\"events\":[{\"first\":\"b\",\"type\":\"order\"},{\"amount\":11,\"by\":\"b\",\"targetHp\":89,\"type\":\"damage\"},{\"amount\":53,\"by\":\"a\",\"targetHp\":0,\"type\":\"damage\"},{\"loser\":\"b\",\"type\":\"ko\"}],\"state\":{\"ko\":\"a\",\"turn\":1,\"units\":{\"a\":{\"atk\":40,\"def\":30,\"hp\":89,\"id\":\"a\",\"maxHp\":100,\"spd\":50},\"b\":{\"atk\":35,\"def\":30,\"hp\":0,\"id\":\"b\",\"maxHp\":100,\"spd\":50}}}}",
+      "sha256": "8ca8615c4426688392339f26e216081e162c62b949e35db37830c7cb5dccaa6a"
+    }
+  ]
+}
