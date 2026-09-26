@@ -21,6 +21,7 @@
     "test:determinism": "vitest run experiments/determinism/tests/determinism.test.ts",
     "test:determinism:browser": "node tools/build-det-bundle.ts && playwright test determinism",
     "perf:render": "node tools/build-render-bundle.ts && playwright test render",
+    "verify:m0": "node tools/verify-m0.ts",
     "vectors:gen": "node experiments/determinism/scripts/gen-vectors.ts",
     "check:boundaries": "node tools/check-boundaries.ts"
   },

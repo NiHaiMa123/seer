@@ -1,28 +1,28 @@
 {
   "task": "M0-05 render PoC",
-  "executedAt": "2026-09-26T11:04:06.136Z",
+  "executedAt": "2026-09-26T11:05:43.731Z",
   "scene": "pixi.js 8.21.0, 10000 procedural sprites (8x8 generated texture), 1280x720, headless chromium",
   "stats": {
     "spriteCount": 10000,
     "renderer": "type=1",
-    "coldStartMs": 140.90000000037253,
+    "coldStartMs": 138,
     "frames": {
       "count": 240,
-      "meanMs": 16.669166666665113,
+      "meanMs": 16.61958333333411,
       "p50ms": 16.59999999962747,
-      "p95ms": 17.600000000558794,
-      "p99ms": 17.899999999441206,
-      "fpsMean": 59.99100134980312
+      "p95ms": 17.699999999254942,
+      "p99ms": 17.90000000037253,
+      "fpsMean": 60.16998019404538
     },
     "workerRoundTrip": {
       "count": 500,
-      "meanMs": 0.01980000000074506,
+      "meanMs": 0.019799999998882413,
       "p50ms": 0,
       "p95ms": 0.10000000055879354
     },
     "structuredClone10kState": {
       "count": 500,
-      "meanMs": 0.05159999999962747,
+      "meanMs": 0.049199999999254944,
       "p95ms": 0.10000000055879354
     },
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",

@@ -1,6 +1,8 @@
 # Work / Astra High 交接任务：Seer 架构独立审查与定稿
 
 > 用途：在 ChatGPT Work 模式中选择用户可用的 Astra High（如有该选项），将本文件作为执行任务。当前文档由现有对话整理，不代表已经由 Astra High 审查或运行。仓库为 https://github.com/NiHaiMa123/seer ，默认分支 main。
+>
+> **状态更新（2026-09-26）**：本交接任务的产出（架构审查与 M0–M1 计划）已落地为当前 docs；**M0 已全部完成并验证**（`pnpm verify:m0` = 13/13 gate，见 `docs/m0-results.md` 与 `artifacts/m0/`）。下一切片为 M1-01（battle-core 骨架 + 固定走线）。
 
 ## 你的角色与目标
 
