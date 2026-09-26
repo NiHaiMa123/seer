@@ -9,7 +9,11 @@ import type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack } from "./l
 import { EngineFault, OTHER, type CoreAction, type CoreEvent, type CoreResult, type CoreState, type SideId } from "./types.ts";
 
 type SideUnit = CoreState["sides"]["p1"]["unit"];
-type MoveAction = { kind: "move"; moveId: string } | { kind: "struggle" } | { kind: "concede" };
+type MoveAction =
+  | { kind: "move"; moveId: string }
+  | { kind: "struggle" }
+  | { kind: "concede" }
+  | { kind: "switch"; benchIndex: number };
 
 function fault(reason: string, msg: string): CoreResult {
   return { ok: false, fault: new EngineFault(reason, msg) };
@@ -28,11 +32,21 @@ function overlayOf(pack: FrozenPack, unit: SideUnit): { immuneControl?: boolean;
   return unit.mode === undefined ? undefined : pack.modeOverlays.get(unit.mode);
 }
 
-/** §9：合法 actionId 集 = pp>0 动作 ∪ {concede}；全 0 → {struggle, concede}。 */
+/** §9：合法 actionId 集 = pp>0 动作 ∪ {bench 存活者 switch} ∪ {concede}；全 0 → {struggle, concede}。 */
 export function legalActions(state: CoreState, side: SideId): string[] {
-  const unit = state.sides[side].unit;
+  const s = state.sides[side];
+  // v2 suspension：仅阵亡方可动，且只能选存活替补或认输
+  if (state.suspension !== undefined && state.suspension !== null) {
+    if (state.suspension.koSide !== side) return [];
+    const repl = (s.bench ?? []).map((b, i) => (b.currentHp > 0 ? `act_switch-${i}` : null)).filter((x): x is string => x !== null);
+    repl.push("act_concede");
+    return repl;
+  }
+  const unit = s.unit;
   const acts = unit.moves.filter((m) => m.pp > 0).map((m) => `act_${m.moveId}`);
-  if (acts.length === 0) acts.push("act_struggle");
+  const switches = (s.bench ?? []).map((b, i) => (b.currentHp > 0 ? `act_switch-${i}` : null)).filter((x): x is string => x !== null);
+  acts.push(...switches);
+  if (!unit.moves.some((m) => m.pp > 0)) acts.push("act_struggle");
   acts.push("act_concede");
   return acts;
 }
@@ -48,39 +62,56 @@ export function defaultAction(state: CoreState, side: SideId): string {
   return moves[0] ?? "act_struggle";
 }
 
+/** replacement 决策的默认：bench 下标最小的存活者。 */
+export function defaultReplacement(state: CoreState, side: SideId): string {
+  const bench = state.sides[side].bench ?? [];
+  const i = bench.findIndex((b) => b.currentHp > 0);
+  return i >= 0 ? `act_switch-${i}` : "act_concede";
+}
+
 /** resolved/null → 内部动作项；非法 actionId 返回 invalid 标记。 */
 function resolveAction(state: CoreState, side: SideId, action: CoreAction): MoveAction | { kind: "invalid"; actionId: string } {
   const actionId = action?.actionId ?? defaultAction(state, side);
   if (actionId === "act_struggle") return { kind: "struggle" };
   if (actionId === "act_concede") return { kind: "concede" };
+  const sw = /^act_switch-(\d+)$/.exec(actionId);
+  if (sw) return { kind: "switch", benchIndex: parseInt(sw[1]!, 10) };
   if (actionId.startsWith("act_")) return { kind: "move", moveId: actionId.slice(4) };
   return { kind: "invalid", actionId };
 }
 
+const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string): CoreState["sides"]["p1"]["unit"] => ({
+  unitId,
+  speciesId: u.id,
+  base: { ...u.base },
+  currentHp: u.base.hp,
+  stages: { atk: 0, def: 0, spd: 0 },
+  moves: u.moveIds.map((moveId) => {
+    const m = pack.movesById.get(moveId)!;
+    return { moveId, pp: m.pp, ppMax: m.pp };
+  }),
+  revealedMoveIds: [],
+  effects: [],
+  // v2 additive 字段：仅当 pack 声明时才写入（v1 hash 不变靠"不写"）
+  ...(u.mode !== undefined ? { mode: u.mode } : {}),
+  ...(u.revives !== undefined ? { revives: u.revives } : {}),
+});
+
 export function initBattle(
   pack: FrozenPack,
-  opts: { battleId: string; seedHex: string; p1: string; p2: string },
+  opts: { battleId: string; seedHex: string; p1: string; p2: string; bench?: { p1?: string[]; p2?: string[] } },
 ): CoreState {
-  const side = (s: SideId, speciesId: string): CoreState["sides"]["p1"] => {
+  const side = (s: SideId, speciesId: string, benchIds: string[] | undefined): CoreState["sides"]["p1"] => {
     const u = pack.unitsById.get(speciesId);
     if (!u) throw new EngineFault("UNKNOWN_SPECIES", `species ${speciesId} not in pack`);
+    const benchUnits = (benchIds ?? []).map((bid, i) => {
+      const bu = pack.unitsById.get(bid);
+      if (!bu) throw new EngineFault("UNKNOWN_SPECIES", `bench species ${bid} not in pack`);
+      return mkUnit(pack, bu, `unit_${s}-b${i}`);
+    });
     return {
-      unit: {
-        unitId: `unit_${s}`,
-        speciesId,
-        base: { ...u.base },
-        currentHp: u.base.hp,
-        stages: { atk: 0, def: 0, spd: 0 },
-        moves: u.moveIds.map((moveId) => {
-          const m = pack.movesById.get(moveId)!;
-          return { moveId, pp: m.pp, ppMax: m.pp };
-        }),
-        revealedMoveIds: [],
-        effects: [],
-        // v2 additive 字段：仅当 pack 声明时才写入（v1 hash 不变靠"不写"）
-        ...(u.mode !== undefined ? { mode: u.mode } : {}),
-        ...(u.revives !== undefined ? { revives: u.revives } : {}),
-      },
+      unit: mkUnit(pack, u, `unit_${s}`),
+      ...(benchUnits.length > 0 ? { bench: benchUnits } : {}),
     };
   };
   return {
@@ -91,7 +122,7 @@ export function initBattle(
     turn: 1,
     phase: "collect",
     rng: { algorithmId: "xoshiro128**", seedHex: opts.seedHex, drawCounter: 0 },
-    sides: { p1: side("p1", opts.p1), p2: side("p2", opts.p2) },
+    sides: { p1: side("p1", opts.p1, opts.bench?.p1), p2: side("p2", opts.p2, opts.bench?.p2) },
     speedTiebreak: null,
     terminal: null,
   };
@@ -146,14 +177,16 @@ function applyTurnInner(
     return { ok: true, state: finish(next, rng), events };
   }
 
-  // ORDER：priority desc → effSpd desc → §6 平速 draw
+  // ORDER：switch 组先于一切 move；组内 priority desc → effSpd desc → §6 平速 draw
+  const isSwitch = (s: SideId) => resolved[s].kind === "switch";
   const prio = (s: SideId): number =>
     resolved[s].kind === "move"
       ? (pack.movesById.get((resolved[s] as { moveId: string }).moveId)?.priority ?? -Infinity)
       : -Infinity;
   const spdOf = (s: SideId): number => effStat(next.sides[s].unit.base.spd, next.sides[s].unit.stages.spd);
   let order: [SideId, SideId];
-  if (prio("p1") !== prio("p2")) order = prio("p1") > prio("p2") ? ["p1", "p2"] : ["p2", "p1"];
+  if (isSwitch("p1") !== isSwitch("p2")) order = isSwitch("p1") ? ["p1", "p2"] : ["p2", "p1"];
+  else if (prio("p1") !== prio("p2")) order = prio("p1") > prio("p2") ? ["p1", "p2"] : ["p2", "p1"];
   else if (spdOf("p1") !== spdOf("p2")) order = spdOf("p1") > spdOf("p2") ? ["p1", "p2"] : ["p2", "p1"];
   else if (next.speedTiebreak !== null) {
     // §6：每局至多一次平速判定，memoize 后复用
@@ -166,22 +199,51 @@ function applyTurnInner(
     order = [winner, OTHER[winner]];
   }
 
+  // 已行动集合 → suspend 时写 remaining（阵亡者行动作废，未行动者保留）
+  const acted = new Set<SideId>();
+  const actionIdOf = (a: MoveAction | { kind: "invalid"; actionId: string }): string =>
+    a.kind === "move" ? `act_${a.moveId}`
+    : a.kind === "switch" ? `act_switch-${a.benchIndex}`
+    : a.kind === "struggle" ? "act_struggle"
+    : a.kind === "concede" ? "act_concede"
+    : a.actionId;
+  const writeSuspension = (koSide: SideId) => {
+    next.suspension = {
+      koSide,
+      remaining: {
+        p1: acted.has("p1") || koSide === "p1" ? null : actionIdOf(resolved.p1),
+        p2: acted.has("p2") || koSide === "p2" ? null : actionIdOf(resolved.p2),
+      },
+    };
+    next.phase = "checkpoint";
+  };
+
   outer: for (const side of order) {
     const unit = next.sides[side].unit;
     const act = resolved[side];
-    if (unit.currentHp <= 0) continue; // BEFORE_ACTION: KO 跳过，不耗 PP
+    if (unit.currentHp <= 0) { acted.add(side); continue; } // BEFORE_ACTION: KO 跳过，不耗 PP
     if (act.kind === "invalid") {
       events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: act.actionId } });
+      acted.add(side);
+      continue;
+    }
+    if (act.kind === "switch") {
+      acted.add(side);
+      if (doSwitch(next, events, side, act.benchIndex, "action")) continue;
+      events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: `act_switch-${act.benchIndex}` } });
       continue;
     }
     if (act.kind === "struggle") {
+      acted.add(side);
       const anyPp = unit.moves.some((m) => m.pp > 0);
       if (anyPp) {
         events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: "act_struggle" } });
         continue;
       }
       events.push({ type: "struggle-used", detail: { side } });
-      if (applyDamage(pack, next, events, side, Math.floor(unit.base.hp / 4), "struggle")) break outer;
+      const cp1 = applyDamage(pack, next, events, side, Math.floor(unit.base.hp / 4), "struggle");
+      if (cp1 === "terminal") break outer;
+      if (cp1 !== "continue") { writeSuspension(cp1.suspend); break outer; }
       if (++applications > pack.limits.maxEffectApplications) {
         return fault("EFFECT_LIMIT", "maxEffectApplications exceeded");
       }
@@ -191,12 +253,15 @@ function applyTurnInner(
         const recoil = Math.floor(unit.base.hp / 8);
         unit.currentHp = Math.max(0, unit.currentHp - recoil);
         events.push({ type: "damage", detail: { side, amount: recoil, hpAfter: { current: unit.currentHp, max: unit.base.hp }, recoil: true } });
-        if (checkpoint(next, events)) break outer;
+        const cp2 = checkpoint(next, events);
+        if (cp2 === "terminal") break outer;
+        if (cp2 !== "continue") { writeSuspension(cp2.suspend); break outer; }
       }
       continue;
     }
 
-    if (act.kind === "concede") continue; // concede 已在排序前处理
+    if (act.kind === "concede") { acted.add(side); continue; } // concede 已在排序前处理
+    acted.add(side);
     const moveId = act.moveId;
     const move: CompiledMove | undefined = pack.movesById.get(moveId);
     const slot = unit.moves.find((m) => m.moveId === moveId);
@@ -230,13 +295,16 @@ function applyTurnInner(
       if (++applications > pack.limits.maxEffectApplications) {
         return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
       }
-      if (applyEffect(pack, next, events, side, unit, fx)) break outer; // CHECKPOINT 触发终局
+      const cp = applyEffect(pack, next, events, side, unit, fx);
+      if (cp === "terminal") break outer;
+      if (cp !== "continue") { writeSuspension(cp.suspend); break outer; }
     }
   }
 
   // TURN_END（v2 §4.4/§4.6）：剩余回合递减，归零移除并发 effect-faded。
   // v1 pack 无任何 remainingTurns 效果 → 本段对该包是字节级 no-op。
-  if (!next.terminal) {
+  // 挂起（replacement 待决策）时不递减、不推进 turn——由 applyReplacement 收尾。
+  if (!next.terminal && next.suspension === undefined) {
     for (const s of ["p1", "p2"] as const) {
       const u = next.sides[s].unit;
       u.effects = u.effects.filter((e) => {
@@ -251,7 +319,7 @@ function applyTurnInner(
     }
   }
 
-  if (!next.terminal) {
+  if (!next.terminal && next.suspension === undefined) {
     if (next.turn >= pack.limits.maxTurns) {
       next.terminal = { result: "draw", reason: "turn-limit" };
       events.push({ type: "battle-end", detail: { result: "draw", reason: "turn-limit" } });
@@ -260,13 +328,16 @@ function applyTurnInner(
       next.turn += 1;
       next.phase = "collect";
     }
-  } else {
+  } else if (next.terminal) {
     next.phase = "end";
   }
+  // 挂起态：phase 保持 writeSuspension 写入的 "checkpoint"
   return { ok: true, state: finish(next, rng), events };
 }
 
-/** damage op + CHECKPOINT；返回 true = 终局已判。 */
+type CpResult = "continue" | "terminal" | { suspend: SideId };
+
+/** damage op + CHECKPOINT */
 function applyDamage(
   pack: FrozenPack,
   next: CoreState,
@@ -274,14 +345,27 @@ function applyDamage(
   attackerSide: SideId,
   amount: number,
   kind: "move" | "struggle",
-): boolean {
+): CpResult {
   const foe = next.sides[OTHER[attackerSide]].unit;
   foe.currentHp = Math.max(0, foe.currentHp - amount);
   events.push({ type: "damage", detail: { side: OTHER[attackerSide], amount, hpAfter: { current: foe.currentHp, max: foe.base.hp }, ...(kind === "struggle" ? { cause: "struggle" } : {}) } });
   return checkpoint(next, events);
 }
 
-function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, fx: CompiledEffect): boolean {
+/** v2 §2：active↔bench[i] 交换；合法返回 true（emit switch），非法返回 false。 */
+function doSwitch(next: CoreState, events: CoreEvent[], side: SideId, benchIndex: number, via: "action" | "replacement"): boolean {
+  const s = next.sides[side];
+  const bench = s.bench;
+  const b = bench?.[benchIndex];
+  if (!b || b.currentHp <= 0) return false;
+  const out = s.unit;
+  bench[benchIndex] = out;
+  s.unit = b;
+  events.push({ type: "switch", detail: { side, outUnitId: out.unitId, inUnitId: b.unitId, via } });
+  return true;
+}
+
+function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, fx: CompiledEffect): CpResult {
   const foe = next.sides[OTHER[side]].unit;
   const targetSide = (fx as { target?: "self" | "opponent" }).target === "opponent" ? OTHER[side] : side;
   const target = next.sides[targetSide].unit;
@@ -306,28 +390,28 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
       const after = clamp(before + fx.delta, -6, 6);
       if (after === before) {
         events.push({ type: "action-failed", detail: { side, reason: "stage-at-cap" } });
-        return false;
+        return "continue";
       }
       t.stages[fx.stat] = after;
       events.push({ type: "stat-stage", detail: { side: fx.target === "opponent" ? OTHER[side] : side, stat: fx.stat, deltaApplied: after - before, stageAfter: after } });
-      return false;
+      return "continue";
     }
     case "heal": {
       const t = fx.target === "opponent" ? foe : unit;
       if (t.currentHp >= t.base.hp) {
         events.push({ type: "action-failed", detail: { side, reason: "hp-full" } });
-        return false;
+        return "continue";
       }
       const amount = Math.floor((t.base.hp * fx.numerator) / fx.denominator);
       t.currentHp = Math.min(t.base.hp, t.currentHp + amount);
       events.push({ type: "heal", detail: { side: fx.target === "opponent" ? OTHER[side] : side, amount, hpAfter: { current: t.currentHp, max: t.base.hp } } });
-      return false;
+      return "continue";
     }
     case "transfer_stages": {
       // §4.1 吸强：原子转移（源清零→目标加绝对值），overlay 免疫时整个 op 无效
       if (overlayOf(pack, foe)?.immuneClearStages) {
         events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
-        return false;
+        return "continue";
       }
       const moved = { atk: 0, def: 0, spd: 0 };
       let any = false;
@@ -340,32 +424,32 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
       }
       if (!any) {
         events.push({ type: "action-failed", detail: { side, reason: "no-stages" } });
-        return false;
+        return "continue";
       }
       events.push({ type: "stages-transferred", detail: { side, stages: moved } });
-      return false;
+      return "continue";
     }
     case "clear_stages": {
       if (overlayOf(pack, target)?.immuneClearStages) {
         events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
-        return false;
+        return "continue";
       }
       if (target.stages.atk === 0 && target.stages.def === 0 && target.stages.spd === 0) {
         events.push({ type: "action-failed", detail: { side, reason: "no-stages" } });
-        return false;
+        return "continue";
       }
       target.stages = { atk: 0, def: 0, spd: 0 };
       events.push({ type: "stages-cleared", detail: { side: targetSide } });
-      return false;
+      return "continue";
     }
     case "control": {
       if (overlayOf(pack, target)?.immuneControl) {
         events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
-        return false;
+        return "continue";
       }
       if (target.effects.some((e) => e.kind === "immune_control")) {
         events.push({ type: "control-immune", detail: { side: targetSide, name: fx.name } });
-        return false;
+        return "continue";
       }
       const kind = `control:${fx.name}`;
       const existing = target.effects.find((e) => e.kind === kind);
@@ -376,19 +460,19 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
         target.effects.push({ kind, effectInstanceId: `efx_${targetSide}_${kind}`, remainingTurns: fx.turns, appliedTurn: next.turn });
       }
       events.push({ type: "effect-applied", detail: { side: targetSide, name: kind, turns: fx.turns } });
-      return false;
+      return "continue";
     }
     case "cleanse": {
       const removed = target.effects.filter((e) => e.kind.startsWith("control:"));
       if (removed.length === 0) {
         events.push({ type: "action-failed", detail: { side, reason: "no-control" } });
-        return false;
+        return "continue";
       }
       target.effects = target.effects.filter((e) => !e.kind.startsWith("control:"));
       for (const e of removed) {
         events.push({ type: "effect-faded", detail: { side: targetSide, name: e.kind } });
       }
-      return false;
+      return "continue";
     }
     case "apply_status":
     case "apply_effect": {
@@ -401,25 +485,170 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
         target.effects.push({ kind, effectInstanceId: `efx_${targetSide}_${kind}`, remainingTurns: fx.turns, appliedTurn: next.turn });
       }
       events.push({ type: "effect-applied", detail: { side: targetSide, name: kind, turns: fx.turns } });
-      return false;
+      return "continue";
     }
     default:
       throw new EngineFault("UNSUPPORTED_OPERATOR", `op ${(fx as { op: string }).op} not in synthetic-v1/v2`);
   }
 }
 
-/** CHECKPOINT：HP≤0 → KO → 终局。返回 true 终止本回合后续行动。 */
-function checkpoint(next: CoreState, events: CoreEvent[]): boolean {
+/**
+ * CHECKPOINT：HP≤0 → revive → KO。
+ * v2：先消耗 revive（floor(max/2) 原地复活）；仍死且有存活 bench → suspend（replacement decision）；
+ * 双死 → draw；单死无 bench → KO 终局。
+ */
+function checkpoint(next: CoreState, events: CoreEvent[]): CpResult {
+  const dead: SideId[] = [];
   for (const s of ["p1", "p2"] as const) {
-    if (next.sides[s].unit.currentHp <= 0 && !next.terminal) {
-      events.push({ type: "ko", detail: { side: s } });
-      const result = OTHER[s];
-      next.terminal = { result, reason: "ko" };
-      events.push({ type: "battle-end", detail: { result, reason: "ko" } });
-      return true;
+    const u = next.sides[s].unit;
+    if (u.currentHp > 0) continue;
+    if ((u.revives ?? 0) > 0) {
+      u.revives = (u.revives ?? 0) - 1;
+      u.currentHp = Math.floor(u.base.hp / 2);
+      events.push({ type: "revive", detail: { side: s, hpAfter: { current: u.currentHp, max: u.base.hp } } });
+      continue;
     }
+    dead.push(s);
   }
-  return false;
+  if (dead.length === 0) return "continue";
+  if (dead.length === 2) {
+    for (const s of dead) events.push({ type: "ko", detail: { side: s } });
+    next.terminal = { result: "draw", reason: "ko" };
+    events.push({ type: "battle-end", detail: { result: "draw", reason: "ko" } });
+    next.phase = "end";
+    return "terminal";
+  }
+  const s = dead[0]!;
+  events.push({ type: "ko", detail: { side: s } });
+  if ((next.sides[s].bench ?? []).some((b) => b.currentHp > 0)) {
+    return { suspend: s }; // bench 有存活者 → replacement decision
+  }
+  const result = OTHER[s];
+  next.terminal = { result, reason: "ko" };
+  events.push({ type: "battle-end", detail: { result, reason: "ko" } });
+  next.phase = "end";
+  return "terminal";
+}
+
+/**
+ * v2：replacement decision 结算——KO 方提交 act_switch-<i>（或 concede）；
+ * 执行换入后继续悬挂中保留的剩余行动，随后 TURN_END → 下一 collect。
+ */
+export function applyReplacement(
+  pack: FrozenPack,
+  state: CoreState,
+  actions: { p1: CoreAction | null; p2: CoreAction | null },
+): CoreResult {
+  if (state.terminal !== null) return fault("TERMINAL_STATE", "replacement on terminal battle");
+  const susp = state.suspension;
+  if (!susp) return fault("BAD_PHASE", "applyReplacement requires suspended battle");
+
+  const rng = new DeterministicRng(state.rng.seedHex);
+  for (let i = 0; i < state.rng.drawCounter; i++) rng.next("replay");
+  try {
+    const events: CoreEvent[] = [];
+    const next = structuredClone(state) as CoreState;
+    next.revision += 1;
+    let applications = 0;
+
+    const koSide = susp.koSide;
+    const sub = actions[koSide];
+    const choice = sub?.actionId ?? defaultReplacement(next, koSide);
+
+    if (choice === "act_concede") {
+      const result = OTHER[koSide];
+      events.push({ type: "battle-end", detail: { result, reason: "concede" } });
+      next.terminal = { result, reason: "concede" };
+      next.phase = "end";
+      delete next.suspension;
+      return { ok: true, state: finish(next, rng), events };
+    }
+    const m = /^act_switch-(\d+)$/.exec(choice);
+    const benchIndex = m ? parseInt(m[1]!, 10) : -1;
+    if (benchIndex < 0 || !doSwitch(next, events, koSide, benchIndex, "replacement")) {
+      return fault("INVALID_ACTION", `replacement action ${choice} is not a live bench switch`);
+    }
+    delete next.suspension;
+
+    // 继续剩余行动（若存）
+    for (const side of ["p1", "p2"] as const) {
+      const rem = susp.remaining[side];
+      if (rem === null) continue;
+      const act = resolveAction(next, side, { actionId: rem, origin: "player", idempotencyKey: "resume" });
+      const unit = next.sides[side].unit;
+      if (unit.currentHp <= 0 || act.kind !== "move") {
+        if (act.kind === "invalid") events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: act.actionId } });
+        continue;
+      }
+      const move = pack.movesById.get(act.moveId);
+      const slot = unit.moves.find((mv) => mv.moveId === act.moveId);
+      if (!move || !slot || slot.pp <= 0) {
+        events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: rem } });
+        continue;
+      }
+      events.push({ type: "action-declared", detail: { side, actionId: rem, moveId: act.moveId } });
+      if (!unit.revealedMoveIds.includes(act.moveId)) unit.revealedMoveIds.push(act.moveId);
+      slot.pp -= 1;
+      events.push({ type: "pp-spent", detail: { side, moveId: act.moveId, ppAfter: slot.pp } });
+      const ctl = unit.effects.find((e) => e.kind.startsWith("control:"));
+      const bypasses = ctl !== undefined && move.effects.some((f) => f.op === "cleanse");
+      if (ctl && !bypasses) {
+        events.push({ type: "action-failed", detail: { side, reason: "controlled" } });
+        if (ctl.remainingTurns !== undefined) {
+          ctl.remainingTurns -= 1;
+          if (ctl.remainingTurns <= 0) {
+            unit.effects = unit.effects.filter((e) => e !== ctl);
+            events.push({ type: "effect-faded", detail: { side, name: ctl.kind } });
+          }
+        }
+        continue;
+      }
+      let suspendedAgain = false;
+      for (const fx of move.effects) {
+        if (++applications > pack.limits.maxEffectApplications) {
+          return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
+        }
+        const cp = applyEffect(pack, next, events, side, unit, fx);
+        if (cp === "terminal") { suspendedAgain = false; break; }
+        if (cp !== "continue") {
+          // 剩余行动方自己也死了且有替补——再次挂起（continuation 为空）
+          next.suspension = { koSide: cp.suspend, remaining: { p1: null, p2: null } };
+          next.phase = "checkpoint";
+          suspendedAgain = true;
+          break;
+        }
+      }
+      if (suspendedAgain || next.terminal) break;
+    }
+
+    if (!next.terminal && next.suspension === undefined) {
+      // TURN_END
+      for (const s of ["p1", "p2"] as const) {
+        const u = next.sides[s].unit;
+        u.effects = u.effects.filter((e) => {
+          if (e.remainingTurns === undefined) return true;
+          if (e.kind.startsWith("control:")) return true;
+          if (e.appliedTurn === next.turn) return true;
+          e.remainingTurns -= 1;
+          if (e.remainingTurns > 0) return true;
+          events.push({ type: "effect-faded", detail: { side: s, name: e.kind } });
+          return false;
+        });
+      }
+      if (next.turn >= pack.limits.maxTurns) {
+        next.terminal = { result: "draw", reason: "turn-limit" };
+        events.push({ type: "battle-end", detail: { result: "draw", reason: "turn-limit" } });
+        next.phase = "end";
+      } else {
+        next.turn += 1;
+        next.phase = "collect";
+      }
+    }
+    return { ok: true, state: finish(next, rng), events };
+  } catch (e) {
+    if (e instanceof EngineFault) return { ok: false, fault: e };
+    throw e;
+  }
 }
 
 function finish(next: CoreState, rng: DeterministicRng): CoreState {

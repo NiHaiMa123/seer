@@ -89,9 +89,11 @@ export class PersistedBattleHost {
     w.lastCommittedPublicSeq = publicStream.length === 0 ? 0 : publicStream[publicStream.length - 1]!.seq;
     w.lastCommittedResolved = resolvedInputs.length;
 
-    // 崩溃恢复：decision 开着 + inbox 已收齐 + 无 resolvedInput → 补 resolve
+    // 崩溃恢复：decision 开着 + actor inbox 已收齐 + 无 resolvedInput → 补 resolve
+    // （replacement 决策只有单 actor——只要求该侧 inbox）
     const pending = store.pendingDecisionId(battleId, battle);
-    const inboxComplete = battle.inbox.p1 !== null && battle.inbox.p2 !== null;
+    const actors = battle.decision?.actors ?? ["p1", "p2"];
+    const inboxComplete = actors.every((a) => battle.inbox[a as "p1" | "p2"] !== null);
     if (pending !== null && inboxComplete) {
       w.resolveAndCommit();
     }

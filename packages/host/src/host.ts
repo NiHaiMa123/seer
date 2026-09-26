@@ -7,7 +7,7 @@
 import type { Command, Observation, BattleEvent } from "@seer/contracts";
 import type { InternalEvent, ResolvedInput } from "@seer/contracts/internal";
 import { canonicalJson } from "@seer/contracts";
-import { applyTurn, initBattle, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
+import { applyReplacement, applyTurn, initBattle, legalActions as coreLegalActions, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
 import { HostError, type HostConfig, type HostState, type SubmissionRecord, type SubmitResult, toCore, fromCore } from "./types.ts";
 import { wrapEvent, projectEvent } from "./events.ts";
 import { projectObservation, projectHistory } from "./project.ts";
@@ -35,6 +35,7 @@ export class BattleHost {
       seedHex: cfg.seedHex,
       p1: cfg.species.p1,
       p2: cfg.species.p2,
+      ...(cfg.bench !== undefined ? { bench: cfg.bench } : {}),
     });
     this.state = {
       battle: {
@@ -88,6 +89,19 @@ export class BattleHost {
     const b = this.state.battle;
     if (b.terminal) {
       b.decision = null;
+      return;
+    }
+    // v2 挂起：replacement decision（仅阵亡方 actor）
+    if (b.suspension !== undefined && b.suspension !== null) {
+      b.decision = {
+        decisionId: `dec_${b.battleId.slice(4)}-r${b.turn}-${b.revision}`,
+        kind: "replacement",
+        baseRevision: b.revision,
+        actors: [b.suspension.koSide],
+        deadlineMs: this.deadlineMs,
+      };
+      b.inbox = { p1: null, p2: null };
+      this.emit({ type: "decision-opened", detail: { decisionId: b.decision.decisionId, actors: b.decision.actors, deadlineMs: b.decision.deadlineMs, kind: "replacement" } }, b.revision, b.revision);
       return;
     }
     b.decision = {
@@ -201,7 +215,8 @@ export class BattleHost {
     };
     this.emit({ type: "input-received", detail: { side, decisionId: dec.decisionId } }, b.revision, b.revision);
 
-    if (b.inbox.p1 !== null && b.inbox.p2 !== null) this.resolve();
+    // 收齐条件：decision.actors 各自的 inbox 都非空（replacement 是单 actor 决策）
+    if (dec.actors.every((a) => b.inbox[a] !== null)) this.resolve();
     return { ok: true, receipt: { decisionId: rec.decisionId, side, actionId: rec.actionId, baseRevision: rec.baseRevision, status: "accepted", resolved: b.decision === null } };
   }
 
@@ -253,7 +268,9 @@ export class BattleHost {
       },
     };
     const revBefore = b.revision;
-    const r = applyTurn(this.pack, toCore(b), resolved.actions);
+    const r = b.suspension !== undefined && b.suspension !== null
+      ? applyReplacement(this.pack, toCore(b), resolved.actions)
+      : applyTurn(this.pack, toCore(b), resolved.actions);
     if (!r.ok) throw new HostError("ENGINE_FAULT", `engine fault: ${r.fault.reason}`);
     fromCore(b, r.state);
     this.state.resolvedInputs.push(resolved);
@@ -267,14 +284,7 @@ export class BattleHost {
 
 const dec_actors = (b: HostState["battle"]): SideId[] => b.decision?.actors ?? [];
 
-/** Host 视角 legality：与 core legalActions 同规则，输出 Set。 */
+/** Host 视角 legality：直接复用 core legalActions（switch/suspension 语义已内建）。 */
 export function legalActionIds(battle: HostState["battle"], side: SideId): Set<string> {
-  const unit = battle.sides[side].unit;
-  const ids = new Set<string>();
-  unit.moves.forEach((m) => {
-    if (m.pp > 0) ids.add(`act_${m.moveId}`);
-  });
-  if (!unit.moves.some((m) => m.pp > 0)) ids.add("act_struggle");
-  ids.add("act_concede");
-  return ids;
+  return new Set(coreLegalActions(toCore(battle), side));
 }

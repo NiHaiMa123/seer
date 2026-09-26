@@ -25,7 +25,7 @@ const ok = (r: ReturnType<typeof applyTurn>) => {
   if (!r.ok) throw new Error(`fault: ${r.fault.reason} ${r.fault.message}`);
   return r;
 };
-const act = (id: string) => ({ actionId: id });
+const act = (id: string) => ({ actionId: id, origin: "player" as const, idempotencyKey: `k-${id}-xxxxxxx` });
 const evs = (r: ReturnType<typeof applyTurn>, type: string) => (r.ok ? r.events.filter((e) => e.type === type) : []);
 
 describe("transfer_stages（吸强）", () => {

@@ -5,65 +5,229 @@
   "description": "INTERNAL authoritative state. Contains secrets (full movesets, PP, RNG, inbox); never serialized to wire.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "battleId", "rules", "revision", "turn", "phase", "rng", "sides", "decision", "inbox", "eventSeq", "publicCursors", "speedTiebreak", "terminal"],
+  "required": [
+    "schemaVersion",
+    "battleId",
+    "rules",
+    "revision",
+    "turn",
+    "phase",
+    "rng",
+    "sides",
+    "decision",
+    "inbox",
+    "eventSeq",
+    "publicCursors",
+    "speedTiebreak",
+    "terminal"
+  ],
   "properties": {
-    "schemaVersion": { "const": 1 },
-    "battleId": { "type": "string", "pattern": "^btl_[a-z0-9-]{1,60}$" },
+    "schemaVersion": {
+      "const": 1
+    },
+    "battleId": {
+      "type": "string",
+      "pattern": "^btl_[a-z0-9-]{1,60}$"
+    },
     "rules": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["rulesetId", "rulesetVersion", "rulesetHash", "contentHash", "executableHash", "irVersion"],
+      "required": [
+        "rulesetId",
+        "rulesetVersion",
+        "rulesetHash",
+        "contentHash",
+        "executableHash",
+        "irVersion"
+      ],
       "properties": {
-        "rulesetId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-        "rulesetVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-        "rulesetHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
-        "contentHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
-        "executableHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
-        "irVersion": { "const": 1 }
+        "rulesetId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "rulesetVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "rulesetHash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "contentHash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "executableHash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "irVersion": {
+          "const": 1
+        }
       }
     },
-    "revision": { "type": "integer", "minimum": 0 },
-    "turn": { "type": "integer", "minimum": 0 },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "turn": {
+      "type": "integer",
+      "minimum": 0
+    },
     "phase": {
-      "enum": ["init", "collect", "order", "before_action", "resolve_hit", "checkpoint", "after_action", "turn_end", "next", "end"]
+      "enum": [
+        "init",
+        "collect",
+        "order",
+        "before_action",
+        "resolve_hit",
+        "checkpoint",
+        "after_action",
+        "turn_end",
+        "next",
+        "end"
+      ]
     },
     "rng": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["algorithmId", "seedHex", "drawCounter"],
+      "required": [
+        "algorithmId",
+        "seedHex",
+        "drawCounter"
+      ],
       "properties": {
-        "algorithmId": { "type": "string", "minLength": 1 },
-        "seedHex": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
-        "drawCounter": { "type": "integer", "minimum": 0 }
+        "algorithmId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seedHex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "drawCounter": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "sides": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["p1", "p2"],
+      "required": [
+        "p1",
+        "p2"
+      ],
       "properties": {
-        "p1": { "$ref": "#/definitions/internalSide" },
-        "p2": { "$ref": "#/definitions/internalSide" }
+        "p1": {
+          "$ref": "#/definitions/internalSide"
+        },
+        "p2": {
+          "$ref": "#/definitions/internalSide"
+        }
       }
     },
-    "decision": {
+    "suspension": {
+      "description": "v2 mid-turn KO suspend: KO 方有待替补且未终局。含未执行完的另一方 actionId（阵亡者原行动作废）。",
       "anyOf": [
-        { "type": "null" },
+        {
+          "type": "null"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["decisionId", "kind", "baseRevision", "actors", "deadlineMs"],
+          "required": [
+            "koSide",
+            "remaining"
+          ],
           "properties": {
-            "decisionId": { "type": "string", "pattern": "^dec_[a-z0-9-]{1,60}$" },
-            "kind": { "enum": ["turn", "replacement"] },
-            "baseRevision": { "type": "integer", "minimum": 0 },
+            "koSide": {
+              "enum": [
+                "p1",
+                "p2"
+              ]
+            },
+            "remaining": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "p1",
+                "p2"
+              ],
+              "properties": {
+                "p1": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^act_[a-z0-9-]{1,60}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "p2": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^act_[a-z0-9-]{1,60}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decisionId",
+            "kind",
+            "baseRevision",
+            "actors",
+            "deadlineMs"
+          ],
+          "properties": {
+            "decisionId": {
+              "type": "string",
+              "pattern": "^dec_[a-z0-9-]{1,60}$"
+            },
+            "kind": {
+              "enum": [
+                "turn",
+                "replacement"
+              ]
+            },
+            "baseRevision": {
+              "type": "integer",
+              "minimum": 0
+            },
             "actors": {
               "type": "array",
-              "items": { "enum": ["p1", "p2"] },
+              "items": {
+                "enum": [
+                  "p1",
+                  "p2"
+                ]
+              },
               "minItems": 1,
               "uniqueItems": true
             },
-            "deadlineMs": { "type": "integer", "minimum": 0 }
+            "deadlineMs": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         }
       ]
@@ -71,36 +235,97 @@
     "inbox": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["p1", "p2"],
+      "required": [
+        "p1",
+        "p2"
+      ],
       "properties": {
-        "p1": { "anyOf": [{ "type": "null" }, { "$ref": "#/definitions/inboxSubmission" }] },
-        "p2": { "anyOf": [{ "type": "null" }, { "$ref": "#/definitions/inboxSubmission" }] }
+        "p1": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/inboxSubmission"
+            }
+          ]
+        },
+        "p2": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/inboxSubmission"
+            }
+          ]
+        }
       }
     },
-    "eventSeq": { "type": "integer", "minimum": 0 },
+    "eventSeq": {
+      "type": "integer",
+      "minimum": 0
+    },
     "publicCursors": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["p1", "p2"],
+      "required": [
+        "p1",
+        "p2"
+      ],
       "properties": {
-        "p1": { "type": "integer", "minimum": 0 },
-        "p2": { "type": "integer", "minimum": 0 }
+        "p1": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "p2": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "speedTiebreak": {
       "description": "Memoized once-per-battle speed-tie outcome (synthetic-v1 §6: at most one tiebreak draw per battle).",
-      "anyOf": [{ "type": "null" }, { "enum": ["p1", "p2"] }]
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        }
+      ]
     },
     "terminal": {
       "anyOf": [
-        { "type": "null" },
+        {
+          "type": "null"
+        },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["result", "reason"],
+          "required": [
+            "result",
+            "reason"
+          ],
           "properties": {
-            "result": { "enum": ["p1", "p2", "draw"] },
-            "reason": { "enum": ["ko", "concede", "turn-limit", "timeout"] }
+            "result": {
+              "enum": [
+                "p1",
+                "p2",
+                "draw"
+              ]
+            },
+            "reason": {
+              "enum": [
+                "ko",
+                "concede",
+                "turn-limit",
+                "timeout"
+              ]
+            }
           }
         }
       ]
@@ -110,84 +335,214 @@
     "internalSide": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["unit"],
+      "required": [
+        "unit"
+      ],
       "properties": {
-        "unit": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["unitId", "speciesId", "base", "currentHp", "stages", "moves", "revealedMoveIds", "effects"],
-          "properties": {
-            "unitId": { "type": "string", "pattern": "^unit_[a-z0-9-]{1,60}$" },
-            "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-            "base": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["hp", "atk", "def", "spd"],
-              "properties": {
-                "hp": { "type": "integer", "minimum": 1 },
-                "atk": { "type": "integer", "minimum": 1 },
-                "def": { "type": "integer", "minimum": 1 },
-                "spd": { "type": "integer", "minimum": 1 }
-              }
-            },
-            "currentHp": { "type": "integer", "minimum": 0 },
-            "stages": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["atk", "def", "spd"],
-              "properties": {
-                "atk": { "type": "integer", "minimum": -6, "maximum": 6 },
-                "def": { "type": "integer", "minimum": -6, "maximum": 6 },
-                "spd": { "type": "integer", "minimum": -6, "maximum": 6 }
-              }
-            },
-            "moves": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["moveId", "pp", "ppMax"],
-                "properties": {
-                  "moveId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-                  "pp": { "type": "integer", "minimum": 0 },
-                  "ppMax": { "type": "integer", "minimum": 1 }
-                }
-              }
-            },
-            "revealedMoveIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
-            "mode": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
-            "revives": { "type": "integer", "minimum": 0 },
-            "effects": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["kind", "effectInstanceId"],
-                "properties": {
-                  "kind": { "type": "string", "minLength": 1 },
-                  "effectInstanceId": { "type": "string", "minLength": 1 },
-                  "remainingTurns": { "type": "integer", "minimum": 0 },
-                  "appliedTurn": { "type": "integer", "minimum": 0 },
-                  "stack": { "type": "integer", "minimum": 1 },
-                  "hidden": { "type": "boolean" }
-                }
-              }
-            }
+        "bench": {
+          "description": "v2 bench：后备单位数组；v1 包不写该字段（hash 不变靠不写）。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internalUnit"
           }
+        },
+        "unit": {
+          "$ref": "#/definitions/internalUnit"
         }
       }
     },
     "inboxSubmission": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["actionId", "idempotencyKey", "canonicalDigest", "receiptId", "receivedSeq"],
+      "required": [
+        "actionId",
+        "idempotencyKey",
+        "canonicalDigest",
+        "receiptId",
+        "receivedSeq"
+      ],
       "properties": {
-        "actionId": { "type": "string", "pattern": "^act_[a-z0-9-]{1,60}$" },
-        "idempotencyKey": { "type": "string", "minLength": 8, "maxLength": 128 },
-        "canonicalDigest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
-        "receiptId": { "type": "string", "pattern": "^rcpt_[a-z0-9-]{1,60}$" },
-        "receivedSeq": { "type": "integer", "minimum": 0 }
+        "actionId": {
+          "type": "string",
+          "pattern": "^act_[a-z0-9-]{1,60}$"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128
+        },
+        "canonicalDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "receiptId": {
+          "type": "string",
+          "pattern": "^rcpt_[a-z0-9-]{1,60}$"
+        },
+        "receivedSeq": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "internalUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unitId",
+        "speciesId",
+        "base",
+        "currentHp",
+        "stages",
+        "moves",
+        "revealedMoveIds",
+        "effects"
+      ],
+      "properties": {
+        "unitId": {
+          "type": "string",
+          "pattern": "^unit_[a-z0-9-]{1,60}$"
+        },
+        "speciesId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "base": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hp",
+            "atk",
+            "def",
+            "spd"
+          ],
+          "properties": {
+            "hp": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "atk": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "def": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "spd": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "currentHp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stages": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "atk",
+            "def",
+            "spd"
+          ],
+          "properties": {
+            "atk": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            },
+            "def": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            },
+            "spd": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            }
+          }
+        },
+        "moves": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "moveId",
+              "pp",
+              "ppMax"
+            ],
+            "properties": {
+              "moveId": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "pp": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ppMax": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "revealedMoveIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "mode": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "revives": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "effectInstanceId"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "effectInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "remainingTurns": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "appliedTurn": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stack": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "hidden": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
       }
     }
   }

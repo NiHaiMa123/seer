@@ -15,11 +15,12 @@ export interface CoreState {
   rules: BattleState["rules"];
   revision: number;
   turn: number;
-  /** 静止相位只允许 init/collect/end；中间 phase 存在于单次 transition 内部。 */
-  phase: "init" | "collect" | "end";
+  /** 静止相位：init/collect/end + v2 挂起的 checkpoint（replacement 待决策）。 */
+  phase: "init" | "collect" | "checkpoint" | "end";
   rng: BattleState["rng"];
   sides: BattleState["sides"];
   speedTiebreak: BattleState["speedTiebreak"];
+  suspension?: BattleState["suspension"];
   terminal: BattleState["terminal"];
 }
 

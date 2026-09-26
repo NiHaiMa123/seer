@@ -2,7 +2,7 @@
  * headless replay：从 init 快照 + 已提交 resolved_inputs 重放，
  * 逐 transition 比对 core 口径 state_hash。工件不匹配/篡改/缺失 → 明确失败码。
  */
-import { applyTurn, type CoreState, type FrozenPack } from "@seer/battle-core";
+import { applyReplacement, applyTurn, type CoreState, type FrozenPack } from "@seer/battle-core";
 import { canonicalJson } from "@seer/contracts";
 import { sha256hex } from "@seer/battle-core";
 import type { BattleState } from "@seer/contracts/internal";
@@ -43,7 +43,10 @@ export function replayBattle(store: BattleStore, pack: FrozenPack, battleId: str
 
   const inputs = store.loadResolvedInputs(battleId);
   for (const { resolved, stateHash } of inputs) {
-    const r = applyTurn(pack, state, resolved.actions);
+    // 挂起态 → replacement transition；否则常规回合 transition
+    const r = state.suspension !== undefined && state.suspension !== null
+      ? applyReplacement(pack, state, resolved.actions)
+      : applyTurn(pack, state, resolved.actions);
     if (!r.ok) return { ok: false, code: "REPLAY_MISMATCH", detail: `engine fault on replay @${resolved.decisionId}: ${r.fault.reason}` };
     state = r.state;
     const actual = `sha256:${sha256hex(canonicalJson(state))}`;

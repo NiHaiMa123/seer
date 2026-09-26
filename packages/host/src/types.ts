@@ -43,6 +43,8 @@ export interface HostConfig {
   battleId: string;
   seedHex: string;
   species: { p1: string; p2: string };
+  /** v2 bench：每方后备 speciesId 列表（v1 局不传 → bench 字段不出现） */
+  bench?: { p1?: string[]; p2?: string[] };
   players: { p1: string; p2: string }; // side → playerId
   deadlineMs: number; // 逻辑 deadline（不接 wall-clock）
 }
@@ -85,6 +87,7 @@ export function toCore(battle: BattleState): CoreState {
     rng: battle.rng,
     sides: battle.sides,
     speedTiebreak: battle.speedTiebreak,
+    ...(battle.suspension !== undefined && battle.suspension !== null ? { suspension: battle.suspension } : {}),
     terminal: battle.terminal,
   };
 }
@@ -96,5 +99,7 @@ export function fromCore(battle: BattleState, core: CoreState): void {
   battle.rng = core.rng;
   battle.sides = core.sides;
   battle.speedTiebreak = core.speedTiebreak;
+  if (core.suspension !== undefined && core.suspension !== null) battle.suspension = core.suspension;
+  else delete (battle as { suspension?: unknown }).suspension;
   battle.terminal = core.terminal;
 }

@@ -9,7 +9,7 @@ export {
   IR_VERSION,
 } from "./loader.ts";
 export type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack } from "./loader.ts";
-export { applyTurn, defaultAction, initBattle, legalActions } from "./engine.ts";
+export { applyReplacement, applyTurn, defaultAction, defaultReplacement, initBattle, legalActions } from "./engine.ts";
 export {
   EngineFault,
   OTHER,

@@ -128,6 +128,62 @@ export const stateSchema: Record<string, unknown> = {
         }
       }
     },
+    "suspension": {
+      "description": "v2 mid-turn KO suspend: KO 方有待替补且未终局。含未执行完的另一方 actionId（阵亡者原行动作废）。",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "koSide",
+            "remaining"
+          ],
+          "properties": {
+            "koSide": {
+              "enum": [
+                "p1",
+                "p2"
+              ]
+            },
+            "remaining": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "p1",
+                "p2"
+              ],
+              "properties": {
+                "p1": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^act_[a-z0-9-]{1,60}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "p2": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^act_[a-z0-9-]{1,60}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "decision": {
       "anyOf": [
         {
@@ -284,165 +340,15 @@ export const stateSchema: Record<string, unknown> = {
         "unit"
       ],
       "properties": {
-        "unit": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "unitId",
-            "speciesId",
-            "base",
-            "currentHp",
-            "stages",
-            "moves",
-            "revealedMoveIds",
-            "effects"
-          ],
-          "properties": {
-            "unitId": {
-              "type": "string",
-              "pattern": "^unit_[a-z0-9-]{1,60}$"
-            },
-            "speciesId": {
-              "type": "string",
-              "pattern": "^[a-z0-9][a-z0-9-]*$"
-            },
-            "base": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "hp",
-                "atk",
-                "def",
-                "spd"
-              ],
-              "properties": {
-                "hp": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "atk": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "def": {
-                  "type": "integer",
-                  "minimum": 1
-                },
-                "spd": {
-                  "type": "integer",
-                  "minimum": 1
-                }
-              }
-            },
-            "currentHp": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "stages": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "atk",
-                "def",
-                "spd"
-              ],
-              "properties": {
-                "atk": {
-                  "type": "integer",
-                  "minimum": -6,
-                  "maximum": 6
-                },
-                "def": {
-                  "type": "integer",
-                  "minimum": -6,
-                  "maximum": 6
-                },
-                "spd": {
-                  "type": "integer",
-                  "minimum": -6,
-                  "maximum": 6
-                }
-              }
-            },
-            "moves": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "moveId",
-                  "pp",
-                  "ppMax"
-                ],
-                "properties": {
-                  "moveId": {
-                    "type": "string",
-                    "pattern": "^[a-z0-9][a-z0-9-]*$"
-                  },
-                  "pp": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "ppMax": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                }
-              }
-            },
-            "revealedMoveIds": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "uniqueItems": true
-            },
-            "mode": {
-              "type": "string",
-              "pattern": "^[a-z][a-z0-9-]*$"
-            },
-            "revives": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "effects": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "kind",
-                  "effectInstanceId"
-                ],
-                "properties": {
-                  "kind": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "effectInstanceId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "remainingTurns": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "appliedTurn": {
-                    "type": "integer",
-                    "minimum": 0
-                  },
-                  "stack": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "hidden": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
+        "bench": {
+          "description": "v2 bench：后备单位数组；v1 包不写该字段（hash 不变靠不写）。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internalUnit"
           }
+        },
+        "unit": {
+          "$ref": "#/definitions/internalUnit"
         }
       }
     },
@@ -477,6 +383,166 @@ export const stateSchema: Record<string, unknown> = {
         "receivedSeq": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "internalUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unitId",
+        "speciesId",
+        "base",
+        "currentHp",
+        "stages",
+        "moves",
+        "revealedMoveIds",
+        "effects"
+      ],
+      "properties": {
+        "unitId": {
+          "type": "string",
+          "pattern": "^unit_[a-z0-9-]{1,60}$"
+        },
+        "speciesId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "base": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "hp",
+            "atk",
+            "def",
+            "spd"
+          ],
+          "properties": {
+            "hp": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "atk": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "def": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "spd": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "currentHp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stages": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "atk",
+            "def",
+            "spd"
+          ],
+          "properties": {
+            "atk": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            },
+            "def": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            },
+            "spd": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            }
+          }
+        },
+        "moves": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "moveId",
+              "pp",
+              "ppMax"
+            ],
+            "properties": {
+              "moveId": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "pp": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "ppMax": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        "revealedMoveIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "mode": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "revives": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "effectInstanceId"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "effectInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "remainingTurns": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "appliedTurn": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "stack": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "hidden": {
+                "type": "boolean"
+              }
+            }
+          }
         }
       }
     }
@@ -519,6 +585,16 @@ export interface BattleState {
     p1: InternalSide;
     p2: InternalSide;
   };
+  /**
+   * v2 mid-turn KO suspend: KO 方有待替补且未终局。含未执行完的另一方 actionId（阵亡者原行动作废）。
+   */
+  suspension?: null | {
+    koSide: "p1" | "p2";
+    remaining: {
+      p1: string | null;
+      p2: string | null;
+    };
+  };
   decision: null | {
     decisionId: string;
     kind: "turn" | "replacement";
@@ -548,41 +624,46 @@ export interface BattleState {
   };
 }
 export interface InternalSide {
-  unit: {
-    unitId: string;
-    speciesId: string;
-    base: {
-      hp: number;
-      atk: number;
-      def: number;
-      spd: number;
-    };
-    currentHp: number;
-    stages: {
-      atk: number;
-      def: number;
-      spd: number;
-    };
-    /**
-     * @minItems 1
-     */
-    moves: {
-      moveId: string;
-      pp: number;
-      ppMax: number;
-    }[];
-    revealedMoveIds: string[];
-    mode?: string;
-    revives?: number;
-    effects: {
-      kind: string;
-      effectInstanceId: string;
-      remainingTurns?: number;
-      appliedTurn?: number;
-      stack?: number;
-      hidden?: boolean;
-    }[];
+  /**
+   * v2 bench：后备单位数组；v1 包不写该字段（hash 不变靠不写）。
+   */
+  bench?: InternalUnit[];
+  unit: InternalUnit;
+}
+export interface InternalUnit {
+  unitId: string;
+  speciesId: string;
+  base: {
+    hp: number;
+    atk: number;
+    def: number;
+    spd: number;
   };
+  currentHp: number;
+  stages: {
+    atk: number;
+    def: number;
+    spd: number;
+  };
+  /**
+   * @minItems 1
+   */
+  moves: {
+    moveId: string;
+    pp: number;
+    ppMax: number;
+  }[];
+  revealedMoveIds: string[];
+  mode?: string;
+  revives?: number;
+  effects: {
+    kind: string;
+    effectInstanceId: string;
+    remainingTurns?: number;
+    appliedTurn?: number;
+    stack?: number;
+    hidden?: boolean;
+  }[];
 }
 export interface InboxSubmission {
   actionId: string;

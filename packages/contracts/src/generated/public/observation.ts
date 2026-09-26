@@ -218,6 +218,47 @@ export const observationSchema: Record<string, unknown> = {
           "items": {
             "$ref": "#/definitions/publicEffect"
           }
+        },
+        "mode": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "revives": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bench": {
+          "description": "v2：己方后备单位（含血量/PP——自身秘密可知）；v1 局不出现该字段。",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/benchEntry"
+          }
+        }
+      }
+    },
+    "benchEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unitId",
+        "speciesId",
+        "hp",
+        "alive"
+      ],
+      "properties": {
+        "unitId": {
+          "type": "string",
+          "pattern": "^unit_[a-z0-9-]{1,60}$"
+        },
+        "speciesId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "hp": {
+          "$ref": "#/definitions/hp"
+        },
+        "alive": {
+          "type": "boolean"
         }
       }
     },
@@ -292,6 +333,14 @@ export const observationSchema: Record<string, unknown> = {
           "items": {
             "$ref": "#/definitions/publicEffect"
           }
+        },
+        "mode": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "benchAlive": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -487,6 +536,12 @@ export interface OwnUnit {
   };
   stages: Stages;
   effects: PublicEffect[];
+  mode?: string;
+  revives?: number;
+  /**
+   * v2：己方后备单位（含血量/PP——自身秘密可知）；v1 局不出现该字段。
+   */
+  bench?: BenchEntry[];
 }
 export interface Hp {
   current: number;
@@ -501,6 +556,12 @@ export interface PublicEffect {
   kind: string;
   remainingTurns?: number;
   stack?: number;
+}
+export interface BenchEntry {
+  unitId: string;
+  speciesId: string;
+  hp: Hp;
+  alive: boolean;
 }
 export interface VisibleOpponent {
   unitId: string;
@@ -517,6 +578,8 @@ export interface VisibleOpponent {
       };
   stages: Stages;
   effects: PublicEffect[];
+  mode?: string;
+  benchAlive?: number;
 }
 export interface DecisionInfo {
   decisionId: string;
