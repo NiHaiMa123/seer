@@ -1,0 +1,16 @@
+{
+  "units": [
+    {
+      "id": "syn-alpha",
+      "name": "Alpha",
+      "base": { "hp": 120, "atk": 40, "def": 30, "spd": 50 },
+      "moveIds": ["syn-strike", "syn-jab", "syn-bolster", "syn-recover"]
+    },
+    {
+      "id": "syn-beta",
+      "name": "Beta",
+      "base": { "hp": 140, "atk": 35, "def": 35, "spd": 40 },
+      "moveIds": ["syn-strike", "syn-jab", "syn-bolster", "syn-recover"]
+    }
+  ]
+}

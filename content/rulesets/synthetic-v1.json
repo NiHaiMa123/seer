@@ -1,0 +1,18 @@
+{
+  "rulesetId": "synthetic-v1",
+  "rulesetVersion": "1.0.0",
+  "schemaVersion": 1,
+  "verification": "SYNTHETIC",
+  "operatorAllowlist": ["damage", "apply_stat_stage", "heal"],
+  "stats": ["hp", "atk", "def", "spd"],
+  "statStageRange": [-6, 6],
+  "limits": {
+    "maxEffectApplications": 4096,
+    "maxCauseDepth": 64,
+    "maxTurns": 200
+  },
+  "rng": {
+    "algorithmId": "xoshiro128**",
+    "usage": ["order_tiebreak"]
+  }
+}

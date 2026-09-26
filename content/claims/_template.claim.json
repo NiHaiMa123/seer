@@ -1,0 +1,16 @@
+{
+  "claimId": "CLAIM-EXAMPLE",
+  "targetSnapshot": "seer-YYYY-MM-DD-<mode>",
+  "mode": "<battle mode, e.g. pvp-1v1>",
+  "statement": "<one falsifiable proposition about the original game rule, one mechanism per claim>",
+  "boundaries": "<when/where the claim applies: phase, conditions, exceptions>",
+  "source": {
+    "kind": "observation",
+    "uri": "<official page / video / packet log reference>"
+  },
+  "observedAt": "YYYY-MM-DD",
+  "evidenceDigest": "sha256:<64 hex chars of the raw evidence file>",
+  "reviewer": "<who evaluated the evidence>",
+  "verification": "UNVERIFIED",
+  "fixtureIds": []
+}

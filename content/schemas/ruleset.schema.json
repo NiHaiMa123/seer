@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/ruleset.schema.json",
+  "title": "Frozen ruleset artifact (M0 minimal form)",
+  "type": "object",
+  "required": ["rulesetId", "rulesetVersion", "schemaVersion", "verification", "operatorAllowlist", "stats", "statStageRange", "limits", "rng"],
+  "additionalProperties": false,
+  "properties": {
+    "rulesetId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "rulesetVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "schemaVersion": { "type": "integer", "minimum": 1 },
+    "verification": { "enum": ["SYNTHETIC", "UNVERIFIED", "VERIFIED", "CONFLICTED"] },
+    "operatorAllowlist": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
+    "stats": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
+    "statStageRange": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+    "limits": {
+      "type": "object",
+      "required": ["maxEffectApplications", "maxCauseDepth", "maxTurns"],
+      "additionalProperties": false,
+      "properties": {
+        "maxEffectApplications": { "type": "integer", "minimum": 1 },
+        "maxCauseDepth": { "type": "integer", "minimum": 1 },
+        "maxTurns": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "rng": {
+      "type": "object",
+      "required": ["algorithmId"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithmId": { "type": "string", "minLength": 1 },
+        "usage": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

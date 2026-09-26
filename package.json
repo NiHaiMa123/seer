@@ -1,0 +1,22 @@
+{
+  "name": "seer-reborn",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Seer Reborn — synthetic-v1 engineering slice. See README.md and docs/roadmap.md.",
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": "24.18.0",
+    "pnpm": "12.6.0"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "content:validate": "node tools/content-validate.ts content",
+    "content:validate:selftest": "node tools/content-validate.ts --selftest"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.5",
+    "ajv": "8.17.1",
+    "typescript": "6.0.3"
+  }
+}

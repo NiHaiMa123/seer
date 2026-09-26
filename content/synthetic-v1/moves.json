@@ -1,0 +1,32 @@
+{
+  "moves": [
+    {
+      "id": "syn-strike",
+      "name": "Strike",
+      "pp": 35,
+      "priority": 0,
+      "effects": [{ "op": "damage", "power": 40 }]
+    },
+    {
+      "id": "syn-jab",
+      "name": "Jab",
+      "pp": 30,
+      "priority": 1,
+      "effects": [{ "op": "damage", "power": 20 }]
+    },
+    {
+      "id": "syn-bolster",
+      "name": "Bolster",
+      "pp": 20,
+      "priority": 0,
+      "effects": [{ "op": "apply_stat_stage", "stat": "atk", "delta": 1, "target": "self" }]
+    },
+    {
+      "id": "syn-recover",
+      "name": "Recover",
+      "pp": 10,
+      "priority": 0,
+      "effects": [{ "op": "heal", "numerator": 1, "denominator": 2, "target": "self" }]
+    }
+  ]
+}
