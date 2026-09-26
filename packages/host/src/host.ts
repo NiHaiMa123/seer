@@ -21,11 +21,15 @@ export class BattleHost {
   private readonly deadlineMs: number;
   private readonly byPlayer: Map<string, SideId>;
 
-  constructor(cfg: HostConfig) {
+  constructor(cfg: HostConfig, restored?: HostState) {
     this.pack = cfg.pack;
     this.players = { p1: cfg.players.p1, p2: cfg.players.p2 };
     this.byPlayer = new Map(SIDES.map((s) => [cfg.players[s], s]));
     this.deadlineMs = cfg.deadlineMs;
+    if (restored !== undefined) {
+      this.state = restored;
+      return;
+    }
     const core = initBattle(cfg.pack, {
       battleId: cfg.battleId,
       seedHex: cfg.seedHex,
@@ -230,6 +234,11 @@ export class BattleHost {
 
   // ---------- 内部 ----------
 
+  /** 供持久层/恢复路径调用：当前决策已收齐（或强制 resolve）时执行 transition。 */
+  resolveNow(): void {
+    this.resolve();
+  }
+
   private resolve(): void {
     const b = this.state.battle;
     const dec = b.decision!;
@@ -248,17 +257,9 @@ export class BattleHost {
     if (!r.ok) throw new HostError("ENGINE_FAULT", `engine fault: ${r.fault.reason}`);
     fromCore(b, r.state);
     this.state.resolvedInputs.push(resolved);
-    // 事件包装 + revealedMoveIds 维护（action-declared 揭示 moveId）
+    // 事件包装（revealedMoveIds 由 core transition 维护——确定性状态的一部分）
     for (const ce of r.events) {
       this.emit(ce, revBefore, b.revision);
-      if (ce.type === "action-declared") {
-        const side = ce.detail["side"] as SideId;
-        const moveId = ce.detail["moveId"] as string | undefined;
-        if (moveId) {
-          const u = b.sides[side].unit;
-          if (!u.revealedMoveIds.includes(moveId)) u.revealedMoveIds.push(moveId);
-        }
-      }
     }
     this.openDecision();
   }

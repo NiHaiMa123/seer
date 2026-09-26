@@ -44,12 +44,11 @@ export interface CoreEvent {
 
 export class EngineFault extends Error {
   readonly code = "ENGINE_FAULT";
-  constructor(
-    public readonly reason: string,
-    message: string,
-  ) {
+  readonly reason: string;
+  constructor(reason: string, message: string) {
     super(message);
     this.name = "EngineFault";
+    this.reason = reason;
   }
 }
 

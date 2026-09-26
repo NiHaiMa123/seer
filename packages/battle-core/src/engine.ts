@@ -197,6 +197,8 @@ function applyTurnInner(
       continue;
     }
     events.push({ type: "action-declared", detail: { side, actionId: `act_${moveId}`, moveId } });
+    // 公开揭示：该 moveId 对对手可见（revealedMoveIds 是 transition 的确定性产物）
+    if (!unit.revealedMoveIds.includes(moveId)) unit.revealedMoveIds.push(moveId);
     slot.pp -= 1; // BEFORE_ACTION: 合法动作扣 PP，失败不退还
     events.push({ type: "pp-spent", detail: { side, moveId, ppAfter: slot.pp } });
 

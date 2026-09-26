@@ -47,24 +47,24 @@ export interface HostConfig {
   deadlineMs: number; // 逻辑 deadline（不接 wall-clock）
 }
 
+export type HostErrorCode =
+  | "INVALID_SCHEMA"
+  | "UNAUTHORIZED"
+  | "NOT_FOUND"
+  | "STALE_DECISION"
+  | "ILLEGAL_ACTION"
+  | "ALREADY_SUBMITTED"
+  | "IDEMPOTENCY_CONFLICT"
+  | "DEADLINE_EXCEEDED"
+  | "ENGINE_FAULT";
+
 export class HostError extends Error {
   readonly retryable: boolean;
-  constructor(
-    public readonly code:
-      | "INVALID_SCHEMA"
-      | "UNAUTHORIZED"
-      | "NOT_FOUND"
-      | "STALE_DECISION"
-      | "ILLEGAL_ACTION"
-      | "ALREADY_SUBMITTED"
-      | "IDEMPOTENCY_CONFLICT"
-      | "DEADLINE_EXCEEDED"
-      | "ENGINE_FAULT",
-    message: string,
-    retryable = false,
-  ) {
+  readonly code: HostErrorCode;
+  constructor(code: HostErrorCode, message: string, retryable = false) {
     super(message);
     this.name = "HostError";
+    this.code = code;
     this.retryable = retryable;
   }
 }
