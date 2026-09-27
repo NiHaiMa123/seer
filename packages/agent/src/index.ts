@@ -14,6 +14,8 @@ export { EchoProvider, OpenAiProvider, ProviderError } from "./provider.ts";
 export type { ModelProvider, ModelRequest, ModelResponse, ModelUsage, ProviderCapabilities, OpenAiConfig } from "./provider.ts";
 export { LlmPolicy, DecisionClock, LOCAL_BUDGET } from "./llm.ts";
 export type { BudgetSpec, LlmProposal, LlmOutcome } from "./llm.ts";
+export { mkPolicy, playGame, wilson, pairedBootstrap, oraclePickSet } from "./eval.ts";
+export type { ArmId, ArmSpec, Policy, GameResult, BattleConfig } from "./eval.ts";
 export { mechanismOf, counterplayFor } from "./knowledge.ts";
 export type { MoveMechanism } from "./knowledge.ts";
 export type { AgentView, SubmitFn, SubmitOutcome } from "./views.ts";

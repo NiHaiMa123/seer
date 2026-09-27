@@ -40,7 +40,8 @@
     "verify:m0": "node tools/verify-m0.ts",
     "vectors:gen": "node experiments/determinism/scripts/gen-vectors.ts",
     "check:boundaries": "node tools/check-boundaries.ts",
-    "test:agent": "vitest run tests/agent/"
+    "test:agent": "vitest run tests/agent/",
+    "eval:m3": "node tools/eval-m3.ts"
   },
   "dependencies": {
     "@types/react": "19.2.18",

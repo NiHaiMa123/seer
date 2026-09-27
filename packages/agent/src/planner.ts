@@ -26,6 +26,10 @@ export interface RootScore {
   actionId: string;
   meanMilli: number;   // 混合均值 ×1000 整数
   worstMilli: number;  // worst-case ×1000 整数
+  /** 完整评估的样本数（<样本总数=被预算截断） */
+  evaluated: number;
+  /** 混合分 = mean×0.5 + worst×0.5（选根依据；spec 混合+保守折中） */
+  mixedMilli: number;
 }
 
 export interface PlanResult {
@@ -195,23 +199,28 @@ export function plan(
       }
       if (vals.length === 0) continue;
       const worst = Math.min(...vals);
-      // mean：对手策略回应与全回应均匀各占一半（混合 + 保守折中）
+      // mean：按 policyClass 一致性回应求均（对手机会模型）；
+      // 对手弱自残/无关回应不进均值——隐藏招响应仍由 worst 覆盖
       const meanUniform = vals.reduce((x, y) => x + y, 0) / vals.length;
       const meanPolicy = policyVals.length > 0 ? policyVals.reduce((x, y) => x + y, 0) / policyVals.length : meanUniform;
-      means.push((meanUniform + meanPolicy) / 2);
+      means.push(meanPolicy);
       worsts.push(worst);
     }
     if (means.length === 0) {
-      scores.push({ actionId: a, meanMilli: -999000, worstMilli: -999000 });
+      scores.push({ actionId: a, meanMilli: -999000, worstMilli: -999000, evaluated: 0, mixedMilli: -999000 });
       continue;
     }
-    const meanMilli = Math.round((means.reduce((x, y) => x + y, 0) / means.length) * 1000);
-    const worstMilli = Math.round(Math.min(...worsts) * 1000);
-    scores.push({ actionId: a, meanMilli, worstMilli });
+    // 截断公平：未评估样本按 worst-case -1 计入 mean——防止少评样本的动作
+    // 靠乐观 worst 压过满评动作（"同 belief 样本比较"语义）
+    const uneval = samples.length - means.length;
+    const meanMilli = Math.round(((means.reduce((x, y) => x + y, 0) + uneval * -1) / samples.length) * 1000);
+    const worstMilli = Math.round(Math.min(...worsts, uneval > 0 ? -1 : Infinity) * 1000);
+    scores.push({ actionId: a, meanMilli, worstMilli, evaluated: means.length, mixedMilli: Math.floor((meanMilli * 7 + worstMilli * 3) / 10) });
   }
 
-  // 选择：worst-case 优先、mean 破平——保守 baseline 语义
-  scores.sort((x, y) => y.worstMilli - x.worstMilli || y.meanMilli - x.meanMilli || (x.actionId < y.actionId ? -1 : 1));
+  // 选择：混合分（mean×0.7+worst×0.3）——mean 主导、worst 折中；
+  // 未评估动作（evaluated=0）排最后（不可证者不选）
+  scores.sort((x, y) => y.mixedMilli - x.mixedMilli || y.worstMilli - x.worstMilli || (x.actionId < y.actionId ? -1 : 1));
   return {
     actionId: scores[0]!.actionId,
     scores,
