@@ -144,6 +144,41 @@ export function parseClaimReward(value: unknown): { playerId: string; battleId: 
   };
 }
 
+const SESSION_ID = /^ses_[a-f0-9]{16}$/;
+
+export function parseSessionId(value: string | null): string {
+  return text(value, "sessionId", SESSION_ID);
+}
+
+export function parseOpenSession(value: unknown): { playerId: string; ops: number; irreversible: boolean } {
+  const input = asRecord(value, "session body");
+  exact(input, ["playerId", "ops", "irreversible"], "session body");
+  return {
+    playerId: worldPlayer(input.playerId, "playerId"),
+    ops: input.ops === undefined ? 32 : integer(input.ops, "ops", 1, 500),
+    irreversible: input.irreversible === true,
+  };
+}
+
+export interface WorldOpRequest {
+  sessionId: string;
+  op: "move" | "act";
+  nodeId?: string;
+  actionId?: string;
+}
+
+export function parseWorldOp(value: unknown): WorldOpRequest {
+  const input = asRecord(value, "world op body");
+  exact(input, ["sessionId", "op", "nodeId", "actionId"], "world op body");
+  const op = input.op;
+  if (op !== "move" && op !== "act") throw new TransportError(400, "op must be move|act");
+  const sessionId = parseSessionId(input.sessionId as string);
+  if (op === "move") {
+    return { sessionId, op, nodeId: text(input.nodeId, "nodeId", /^[a-z0-9][a-z0-9-]{0,60}$/) };
+  }
+  return { sessionId, op, actionId: text(input.actionId, "actionId", /^[a-z][a-z0-9-]{0,60}$/) };
+}
+
 export function parseSubmit(battleId: string, value: unknown): { token: string; command: Omit<Command, "schemaVersion"> } {
   const input = asRecord(value, "submit body");
   exact(input, ["player", "decisionId", "actionId", "baseRevision", "idempotencyKey"], "submit body");

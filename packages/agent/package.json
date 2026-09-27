@@ -9,6 +9,7 @@
   "dependencies": {
     "@seer/battle-core": "workspace:*",
     "@seer/contracts": "workspace:*",
+    "@seer/world": "workspace:*",
     "ajv": "8.17.1"
   }
 }

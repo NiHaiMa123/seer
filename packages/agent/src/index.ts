@@ -19,3 +19,5 @@ export type { ArmId, ArmSpec, Policy, GameResult, BattleConfig } from "./eval.ts
 export { mechanismOf, counterplayFor } from "./knowledge.ts";
 export type { MoveMechanism } from "./knowledge.ts";
 export type { AgentView, SubmitFn, SubmitOutcome } from "./views.ts";
+export { WorldAgent } from "./world-agent.ts";
+export type { WorldOps, WorldGoal, WorldStepResult } from "./world-agent.ts";

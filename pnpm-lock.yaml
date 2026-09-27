@@ -287,6 +287,9 @@ importers:
       '@seer/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@seer/world':
+        specifier: workspace:*
+        version: link:../world
       ajv:
         specifier: 8.17.1
         version: 8.17.1

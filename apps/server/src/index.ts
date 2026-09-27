@@ -19,6 +19,9 @@ import {
   parseAck,
   parseClaimReward,
   parseCreateBattle,
+  parseOpenSession,
+  parseSessionId,
+  parseWorldOp,
   parseCursor,
   parseDelay,
   parseRegisterPlayer,
@@ -248,6 +251,64 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
           return json(res, 200, { teams: world.teams(playerId) });
         }
         return json(res, 200, world.profile(playerId));
+      }
+
+      // ---- 世界探索 op：会话预算 + move/act（M4-04） ----
+      if (path === "/api/world/session") {
+        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
+        const input = parseOpenSession(await readJsonBody(req));
+        const s = world.openSession(input.playerId, { ops: input.ops, allowIrreversible: input.irreversible });
+        return json(res, 200, { sessionId: s.sessionId, opsLeft: s.opsLeft, irreversible: s.irreversible });
+      }
+
+      const stopMatch = path.match(/^\/api\/world\/session\/([^/]+)\/stop$/);
+      if (stopMatch) {
+        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
+        world.stopSession(parseSessionId(stopMatch[1]!));
+        return json(res, 200, { ok: true });
+      }
+
+      const mapMatch = path.match(/^\/api\/world\/player\/([^/]+)\/map$/);
+      if (mapMatch) {
+        if (req.method !== "GET") return json(res, 405, { code: "INVALID_SCHEMA" });
+        return json(res, 200, world.map(parseWorldPlayer(mapMatch[1]!)));
+      }
+
+      if (path === "/api/world/op") {
+        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
+        const input = parseWorldOp(await readJsonBody(req));
+        if (input.op === "move") {
+          return json(res, 200, world.move(input.sessionId, input.nodeId!));
+        }
+        const actRes = world.act(input.sessionId, input.actionId!);
+        // challenge：翻译成真实 pve 建局（玩家队取存档 main，boss 队由动作给）
+        const ch = actRes.result["challenge"] as { pack: string; bossTeam: string[] } | undefined;
+        if (ch !== undefined) {
+          const sess = world.session(input.sessionId);
+          const pack = PACKS[ch.pack];
+          const generationId = generationByPackId.get(ch.pack);
+          if (pack === undefined || generationId === undefined) throw new TransportError(400, `unknown pack ${ch.pack}`);
+          const saved = world.teams(sess.playerId).find((t) => t.name === "main" && t.pack === ch.pack)?.species;
+          const t1 = teamToConfig(pack, saved ?? [[...pack.unitsById.keys()][0]!]);
+          const t2 = teamToConfig(pack, ch.bossTeam);
+          const battleId = `btl_${(++battleCounter).toString(16)}`;
+          const players = { p1: `p1_${battleId}`, p2: `bot_${battleId}` };
+          battles.create({
+            battleId, seedHex: randomBytes(16).toString("hex"),
+            species: { p1: t1.species, p2: t2.species },
+            ...(t1.bench !== undefined || t2.bench !== undefined
+              ? { bench: { ...(t1.bench !== undefined ? { p1: t1.bench } : {}), ...(t2.bench !== undefined ? { p2: t2.bench } : {}) } }
+              : {}),
+            generationId, players, deadlineMs: 30_000,
+          });
+          const tok = `tok_${randomBytes(16).toString("hex")}`;
+          tokens.set(tok, { battleId, playerId: players.p1 });
+          pveSeats.set(battleId, { boss: players.p2, packId: ch.pack });
+          worldMeta.set(battleId, { owners: { p1: sess.playerId }, species: { p1: t1.species, p2: t2.species } });
+          drivePve(battleId);
+          return json(res, 200, { ...actRes, battle: { battleId, token: tok } });
+        }
+        return json(res, 200, actRes);
       }
 
       if (path === "/api/world/reward") {

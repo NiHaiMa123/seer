@@ -4,7 +4,9 @@
  *   - claimReward 在单事务里写 outbox + 入账——崩溃安全、重复幂等；
  *   - 败方也得参与奖（合成奖励表），奖励内容由 battle 终局决定，不由调用方指定。
  */
-import type { WorldStore, RewardRow } from "./store.ts";
+import { randomBytes } from "node:crypto";
+import type { WorldStore, RewardRow, SessionRow } from "./store.ts";
+import { WORLD_MAP, worldNode, pathTo, type WorldNode } from "./map.ts";
 
 export interface BattleOutcomeLike {
   battleId: string;
@@ -54,6 +56,89 @@ export class WorldService {
   private readonly store: WorldStore;
   constructor(store: WorldStore) { this.store = store; }
 
+  // ---- 世界探索：会话预算 + 结构化 op（AGENT.md §8） ----
+
+  /** 开会话：ops=操作预算上限，allowIrreversible=不可逆道具策略开关 */
+  openSession(playerId: string, opts: { ops: number; allowIrreversible?: boolean }): SessionRow {
+    this.store.ensurePlayer(playerId, playerId);
+    const s = { sessionId: `ses_${randomBytes(8).toString("hex")}`, playerId, opsLeft: Math.max(1, Math.min(500, opts.ops)), irreversible: opts.allowIrreversible === true };
+    this.store.createSession(s);
+    return { ...s, stopped: false };
+  }
+
+  session(sessionId: string): SessionRow {
+    const s = this.store.getSession(sessionId);
+    if (s === null) throw new WorldError("NOT_FOUND", "session");
+    return s;
+  }
+
+  stopSession(sessionId: string): void {
+    this.session(sessionId);
+    this.store.stopSession(sessionId);
+  }
+
+  /** 地图视图：当前位置 + 每节点动作（读操作不计预算） */
+  map(playerId: string): { location: string; nodes: WorldNode[] } {
+    return { location: this.store.getLocation(playerId), nodes: WORLD_MAP };
+  }
+
+  private spendGuard(sessionId: string, op: string): SessionRow {
+    const s = this.session(sessionId);
+    if (s.stopped) throw new WorldError("SESSION_STOPPED", "session stopped");
+    if (this.store.spendOp(sessionId) < 0) throw new WorldError("BUDGET_EXHAUSTED", `op ${op} over budget`);
+    return s;
+  }
+
+  /** move：邻接边校验（1 op）；不可达/未知节点拒绝且不计预算 */
+  move(sessionId: string, nodeId: string): { location: string; opsLeft: number } {
+    if (worldNode(nodeId) === undefined) throw new WorldError("INVALID_SCHEMA", `unknown node ${nodeId}`);
+    const s = this.session(sessionId);
+    if (s.stopped) throw new WorldError("SESSION_STOPPED", "session stopped");
+    const cur = this.store.getLocation(s.playerId);
+    if (cur === nodeId) return { location: cur, opsLeft: s.opsLeft }; // 原地不动不耗预算
+    const path = pathTo(cur, nodeId);
+    if (path === null || path.length !== 2) throw new WorldError("NOT_ADJACENT", `${cur} → ${nodeId} 非邻接`);
+    this.store.tx(() => {
+      this.spendGuard(sessionId, "move");
+      this.store.setLocation(s.playerId, nodeId);
+    });
+    return { location: nodeId, opsLeft: this.session(sessionId).opsLeft };
+  }
+
+  /** act：执行当前节点动作（1 op）；irreversible 动作受会话策略门控 */
+  act(sessionId: string, actionId: string): { result: Record<string, unknown>; opsLeft: number } {
+    const s = this.session(sessionId);
+    const node = worldNode(this.store.getLocation(s.playerId));
+    const action = node?.actions.find((a) => a.id === actionId);
+    if (node === undefined || action === undefined) {
+      throw new WorldError("ILLEGAL_ACTION", `${actionId} 在当前位置不可用`);
+    }
+    if (action.irreversible === true && !s.irreversible) {
+      throw new WorldError("POLICY_DENIED", `irreversible op ${actionId} 未被会话授权`);
+    }
+    let result: Record<string, unknown> = {};
+    this.store.tx(() => {
+      this.spendGuard(sessionId, actionId);
+      const e = action.effect;
+      if (e.kind === "gain") {
+        this.store.grantItem(s.playerId, e.item, e.qty);
+        result = { gained: { [e.item]: e.qty } };
+      } else if (e.kind === "spend") {
+        if (!this.store.takeItem(s.playerId, e.item, e.qty)) {
+          throw new WorldError("INSUFFICIENT", `${e.item} 不足`);
+        }
+        this.store.grantItem(s.playerId, e.gain, e.gainQty);
+        result = { spent: { [e.item]: e.qty }, gained: { [e.gain]: e.gainQty } };
+      } else if (e.kind === "challenge") {
+        // 返回挑战规格——由 transport 翻译成真实建局（world 层不持有 battle 句柄）
+        result = { challenge: { pack: e.pack, bossTeam: e.bossTeam } };
+      } else {
+        result = { rested: true };
+      }
+    });
+    return { result, opsLeft: this.session(sessionId).opsLeft };
+  }
+
   registerPlayer(playerId: string, name: string): void {
     this.store.ensurePlayer(playerId, name);
   }
@@ -69,6 +154,10 @@ export class WorldService {
   }
 
   teams(playerId: string) { return this.store.listTeams(playerId); }
+
+  inventory(playerId: string): Record<string, number> {
+    return this.store.getInventory(playerId);
+  }
 
   quests(playerId: string) {
     const rows = new Map(this.store.getQuests(playerId).map((q) => [q.questId, q]));
