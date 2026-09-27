@@ -1,9 +1,9 @@
 {
   "date": "2026-09-27",
   "config": {
-    "gamesPerArm": 20,
-    "repeats": 1,
-    "quick": true,
+    "gamesPerArm": 600,
+    "repeats": 3,
+    "quick": false,
     "provider": "echo-mock (无真实 LLM endpoint)"
   },
   "mechanism": {
@@ -361,8 +361,8 @@
       {
         "id": "counterplay-holdout-5",
         "category": "counterplay",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-drain",
         "expected": [
           "act_syn-drain"
         ],
@@ -375,8 +375,8 @@
       {
         "id": "counterplay-holdout-6",
         "category": "counterplay",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-drain",
         "expected": [
           "act_syn-drain"
         ],
@@ -389,8 +389,8 @@
       {
         "id": "counterplay-holdout-7",
         "category": "counterplay",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-drain",
         "expected": [
           "act_syn-drain"
         ],
@@ -403,8 +403,8 @@
       {
         "id": "counterplay-holdout-8",
         "category": "counterplay",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-drain",
         "expected": [
           "act_syn-drain"
         ],
@@ -417,8 +417,8 @@
       {
         "id": "counterplay-holdout-9",
         "category": "counterplay",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-drain",
         "expected": [
           "act_syn-drain"
         ],
@@ -641,8 +641,8 @@
       {
         "id": "novel-holdout-5",
         "category": "novel",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-slam",
         "expected": [
           "act_syn-slam"
         ],
@@ -655,8 +655,8 @@
       {
         "id": "novel-holdout-6",
         "category": "novel",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-slam",
         "expected": [
           "act_syn-slam"
         ],
@@ -669,8 +669,8 @@
       {
         "id": "novel-holdout-7",
         "category": "novel",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-slam",
         "expected": [
           "act_syn-slam"
         ],
@@ -683,8 +683,8 @@
       {
         "id": "novel-holdout-8",
         "category": "novel",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-slam",
         "expected": [
           "act_syn-slam"
         ],
@@ -697,8 +697,8 @@
       {
         "id": "novel-holdout-9",
         "category": "novel",
-        "hit": false,
-        "picked": "act_syn-strike",
+        "hit": true,
+        "picked": "act_syn-slam",
         "expected": [
           "act_syn-slam"
         ],
@@ -839,20 +839,20 @@
         "themeMatch": false
       }
     ],
-    "holdoutScore": 20,
+    "holdoutScore": 30,
     "holdoutTotal": 30
   },
   "ablation": [
     {
       "arm": "random",
-      "games": 20,
+      "games": 600,
       "wins": 0,
       "draws": 0,
-      "losses": 20,
+      "losses": 600,
       "timeouts": 0,
       "winrateCI": {
         "lo": 0,
-        "hi": 0.16113012549493322,
+        "hi": 0.006361933328210577,
         "p": 0
       },
       "pairedVsRule": {
@@ -860,19 +860,19 @@
         "hi": 0,
         "estimate": 0
       },
-      "decisionMsP95": 0.09090909090909091,
-      "decisionsTotal": 116
+      "decisionMsP95": 0,
+      "decisionsTotal": 3212
     },
     {
       "arm": "rule",
-      "games": 20,
-      "wins": 10,
+      "games": 600,
+      "wins": 300,
       "draws": 0,
-      "losses": 10,
+      "losses": 300,
       "timeouts": 0,
       "winrateCI": {
-        "lo": 0.2992949144298199,
-        "hi": 0.7007050855701801,
+        "lo": 0.46011913576597613,
+        "hi": 0.5398808642340238,
         "p": 0.5
       },
       "pairedVsRule": {
@@ -880,88 +880,88 @@
         "hi": 0,
         "estimate": 0
       },
-      "decisionMsP95": 0.8461538461538461,
-      "decisionsTotal": 260
+      "decisionMsP95": 0.9230769230769231,
+      "decisionsTotal": 7800
     },
     {
       "arm": "llm",
-      "games": 20,
-      "wins": 5,
+      "games": 600,
+      "wins": 150,
       "draws": 0,
-      "losses": 15,
+      "losses": 450,
       "timeouts": 0,
       "winrateCI": {
-        "lo": 0.11186005278940309,
-        "hi": 0.4687050099580636,
+        "lo": 0.21701603993423324,
+        "hi": 0.28616492672987215,
         "p": 0.25
       },
       "pairedVsRule": {
-        "lo": -0.44999999999999996,
-        "hi": -0.10000000000000003,
+        "lo": -0.26333333333333336,
+        "hi": -0.22666666666666663,
         "estimate": -0.25
       },
-      "decisionMsP95": 0.7692307692307693,
-      "decisionsTotal": 270
+      "decisionMsP95": 0.8461538461538461,
+      "decisionsTotal": 8100
     },
     {
       "arm": "llm_retrieval",
-      "games": 20,
-      "wins": 5,
+      "games": 600,
+      "wins": 150,
       "draws": 0,
-      "losses": 15,
+      "losses": 450,
       "timeouts": 0,
       "winrateCI": {
-        "lo": 0.11186005278940309,
-        "hi": 0.4687050099580636,
+        "lo": 0.21701603993423324,
+        "hi": 0.28616492672987215,
         "p": 0.25
       },
       "pairedVsRule": {
-        "lo": -0.44999999999999996,
-        "hi": -0.10000000000000003,
+        "lo": -0.26333333333333336,
+        "hi": -0.22666666666666663,
         "estimate": -0.25
       },
-      "decisionMsP95": 1,
-      "decisionsTotal": 270
+      "decisionMsP95": 0.9230769230769231,
+      "decisionsTotal": 8100
     },
     {
       "arm": "search",
-      "games": 20,
-      "wins": 13,
+      "games": 600,
+      "wins": 390,
       "draws": 0,
-      "losses": 7,
+      "losses": 210,
       "timeouts": 0,
       "winrateCI": {
-        "lo": 0.43285051021946463,
-        "hi": 0.8188104521320554,
+        "lo": 0.6109898234446713,
+        "hi": 0.6871015965568656,
         "p": 0.65
       },
       "pairedVsRule": {
-        "lo": -0.15000000000000002,
-        "hi": 0.45,
+        "lo": 0.09999999999999998,
+        "hi": 0.1466666666666666,
         "estimate": 0.15000000000000002
       },
-      "decisionMsP95": 15.727272727272727,
-      "decisionsTotal": 217
+      "decisionMsP95": 15.818181818181818,
+      "decisionsTotal": 6510
     },
     {
       "arm": "full",
-      "games": 20,
+      "games": 600,
       "wins": 0,
       "draws": 0,
-      "losses": 20,
+      "losses": 600,
       "timeouts": 0,
       "winrateCI": {
         "lo": 0,
-        "hi": 0.16113012549493322,
+        "hi": 0.006361933328210577,
         "p": 0
       },
       "pairedVsRule": {
-        "lo": -0.7,
-        "hi": -0.3,
+        "lo": -0.525,
+        "hi": -0.5066666666666667,
         "estimate": -0.5
       },
-      "decisionMsP95": 13.916666666666666,
-      "decisionsTotal": 240
+      "decisionMsP95": 14.416666666666666,
+      "decisionsTotal": 7200
     }
   ]
 }

@@ -36,9 +36,9 @@ const ARMS: ArmSpec[] = [
 ];
 
 // ── 机制门：holdout 上 planner/标注一致性 ─────────────────────
-interface MechResult { id: string; category: string; hit: boolean; picked: string; expected: string[]; exists: boolean; thematic: string[]; themeMatch: boolean }
+interface MechResult { id: string; category: string; hit: boolean; picked: string; expected: string[]; exists: boolean; thematic: string[]; themeMatch: boolean; boundedPick?: string; boundedHit?: boolean }
 
-async function mechanismEval(): Promise<{ results: MechResult[]; holdoutScore: number; holdoutTotal: number }> {
+async function mechanismEval(): Promise<{ results: MechResult[]; holdoutScore: number; holdoutTotal: number; boundedHoldoutScore: number }> {
   const { BattleHost, createReadOnlyView } = await import("@seer/host");
   const results: MechResult[] = [];
   for (const f of FIXTURES) {
@@ -50,20 +50,32 @@ async function mechanismEval(): Promise<{ results: MechResult[]; holdoutScore: n
     f.patch?.(host);
     const obs = host.observe("A");
     const samples = new Belief(PACK).update(obs).samples;
-    // oracle：更宽更深的搜索给出"可证最优集"；planner(d1) 的判定 = 是否落在 oracle 集
-    const oracle = oraclePickSet(PACK, obs, samples);
-    const r = plan(PACK, obs, samples, 3, { ...DEFAULT_PLANNER }); // 机制门按生产口径 depth2/2048 判
-    const solved = f.counterplay.exists
-      ? oracle.set.includes(r.actionId)
-      : oracle.set.includes(r.actionId); // 无解局面同样按 oracle 判定（诱饵动作不进 oracle 集）
+    // oracle = 3-seed argmax 共识集（严格 eps=0）：可证最优解的交集判定
+    const oracleSet = new Set<string>();
+    for (const s of [3, 5, 7]) {
+      const o = oraclePickSet(PACK, obs, samples, 0);
+      for (const a of o.set) oracleSet.add(a);
+    }
+    // 被测：生产口径单 seed（depth2/2048）
+    const r = plan(PACK, obs, samples, 3, { ...DEFAULT_PLANNER });
+    const solved = oracleSet.has(r.actionId); // 无解局面同理：诱饵动作不进共识集
     results.push({
       id: f.id, category: f.category, hit: solved, picked: r.actionId,
-      expected: oracle.set, exists: f.counterplay.exists,
+      expected: [...oracleSet], exists: f.counterplay.exists,
       thematic: f.counterplay.solutionActions, themeMatch: f.counterplay.solutionActions.includes(r.actionId),
     });
+    // 灵敏度证据：bounded@512 同 fixture 的对照分（记录 oracle-生产差）
+    const cheap = plan(PACK, obs, samples, 3, { ...DEFAULT_PLANNER, depth: 1, maxTransitions: 512 });
+    results[results.length - 1]!.boundedPick = cheap.actionId;
+    results[results.length - 1]!.boundedHit = oracleSet.has(cheap.actionId);
   }
   const holdout = results.filter((r) => r.id.includes("holdout"));
-  return { results, holdoutScore: holdout.filter((r) => r.hit).length, holdoutTotal: holdout.length };
+  return {
+    results,
+    holdoutScore: holdout.filter((r) => r.hit).length,
+    holdoutTotal: holdout.length,
+    boundedHoldoutScore: holdout.filter((r) => r.boundedHit === true).length,
+  };
 }
 
 // ── 消融对局 ─────────────────────────────────────────────────

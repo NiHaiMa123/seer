@@ -1,0 +1,55 @@
+{
+  "date": "2026-09-27T11:43:27.815Z",
+  "gates": [
+    {
+      "gate": "regression:typecheck",
+      "status": "PASS",
+      "evidence": "tsc -p tsconfig.json"
+    },
+    {
+      "gate": "regression:boundaries",
+      "status": "PASS",
+      "evidence": "public/internal 边界扫描"
+    },
+    {
+      "gate": "regression:test-agent",
+      "status": "PASS",
+      "evidence": "44 用例"
+    },
+    {
+      "gate": "regression:host-contracts",
+      "status": "PASS",
+      "evidence": "host+contracts 套件"
+    },
+    {
+      "gate": "safety",
+      "status": "PASS",
+      "evidence": "≥1024 adversarial 调用零泄漏零副作用"
+    },
+    {
+      "gate": "mechanism",
+      "status": "PASS",
+      "evidence": "holdout 30/30（bounded@512 灵敏度 ?/30）"
+    },
+    {
+      "gate": "generalization",
+      "status": "PASS",
+      "evidence": "novel 5/5、counterplay 5/5（各需 ≥4）"
+    },
+    {
+      "gate": "gain:search-vs-rule",
+      "status": "PASS",
+      "evidence": "paired Δ 15.0pp CI[10.0,14.7pp]"
+    },
+    {
+      "gate": "gain:llm-vs-rule",
+      "status": "N/A",
+      "evidence": "echo-mock (无真实 LLM endpoint)——无真实 LLM endpoint，不可宣称增益"
+    },
+    {
+      "gate": "budget",
+      "status": "PASS",
+      "evidence": "最差 arm 决策 p95 15.8ms"
+    }
+  ]
+}
