@@ -8,6 +8,8 @@ export { BattleAgent } from "./agent.ts";
 export type { AgentResult, AgentOptions } from "./agent.ts";
 export { Belief } from "./belief.ts";
 export type { BeliefSample, BeliefState } from "./belief.ts";
+export { plan, DEFAULT_PLANNER, heuristic } from "./planner.ts";
+export type { PlanResult, RootScore, PlannerConfig } from "./planner.ts";
 export { mechanismOf, counterplayFor } from "./knowledge.ts";
 export type { MoveMechanism } from "./knowledge.ts";
 export type { AgentView, SubmitFn, SubmitOutcome } from "./views.ts";

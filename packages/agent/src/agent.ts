@@ -10,6 +10,7 @@ import { ToolServer } from "./tools.ts";
 import type { AgentView, SubmitFn } from "./views.ts";
 import { decideBaseline } from "./baseline.ts";
 import { Belief } from "./belief.ts";
+import { plan, DEFAULT_PLANNER, type PlannerConfig } from "./planner.ts";
 
 export interface AgentOptions {
   maxTurns?: number;
@@ -26,11 +27,19 @@ export class BattleAgent {
   private readonly pack: FrozenPack;
   private readonly decided = new Set<string>();
   private readonly belief: Belief | null;
+  private readonly policy: "baseline" | "planner";
+  private readonly plannerCfg: PlannerConfig;
 
-  constructor(deps: { view: AgentView; pack: FrozenPack; submit: SubmitFn; useBelief?: boolean }) {
+  constructor(deps: {
+    view: AgentView; pack: FrozenPack; submit: SubmitFn;
+    useBelief?: boolean; policy?: "baseline" | "planner"; planner?: Partial<PlannerConfig>;
+  }) {
     this.tools = new ToolServer(deps);
     this.pack = deps.pack;
-    this.belief = deps.useBelief === true ? new Belief(deps.pack) : null;
+    // planner 必然需要 belief（joint 枚举依赖假设世界）
+    this.belief = deps.useBelief === true || deps.policy === "planner" ? new Belief(deps.pack) : null;
+    this.policy = deps.policy ?? "baseline";
+    this.plannerCfg = { ...DEFAULT_PLANNER, ...deps.planner };
   }
 
   /** 单步：若当前有未处理的 open decision → 决策并提交。返回是否提交了动作。 */
@@ -41,10 +50,12 @@ export class BattleAgent {
     if (dec === null || this.decided.has(dec.decisionId)) {
       return { submitted: false, observation };
     }
-    const hypotheses = this.belief === null ? undefined : this.belief.update(observation).samples;
-    const decision = decideBaseline(this.pack, observation, {
-      ...(hypotheses !== undefined ? { hypotheses } : {}),
-    });
+    const samples = this.belief === null ? null : this.belief.update(observation).samples;
+    const decision = this.policy === "planner"
+      ? { actionId: plan(this.pack, observation, samples ?? [{}], dec.baseRevision).actionId, rationale: "planner" }
+      : decideBaseline(this.pack, observation, {
+          ...(samples !== null ? { hypotheses: samples } : {}),
+        });
     // key 含 side——两侧同决策同动作时 key 不能撞（Host 按 key 查所属侧）
     const key = `agt_${observation.side}_${sha256hex(`${dec.decisionId}:${decision.actionId}`).slice(0, 20)}`;
     const r = this.tools.call({
