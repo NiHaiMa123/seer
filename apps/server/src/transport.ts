@@ -16,6 +16,8 @@ export interface CreateBattleRequest {
   seedHex: string;
   species: { p1: string; p2: string };
   bench?: { p1?: string[]; p2?: string[] };
+  /** 有序队伍（[0]首发，余下 bench）——与 species/bench 互斥 */
+  team?: { p1: string[]; p2: string[] };
   pack?: string;
   deadlineMs: number;
 }
@@ -67,12 +69,22 @@ const bench = (value: unknown): { p1?: string[]; p2?: string[] } => {
   };
 };
 
+const teamPair = (value: unknown): { p1: string[]; p2: string[] } => {
+  const input = asRecord(value, "team");
+  exact(input, ["p1", "p2"], "team");
+  return { p1: benchSide(input.p1, "team.p1"), p2: benchSide(input.p2, "team.p2") };
+};
+
 export function parseCreateBattle(value: unknown): CreateBattleRequest {
   const input = asRecord(value, "create battle body");
-  exact(input, ["seedHex", "species", "bench", "pack", "deadlineMs"], "create battle body");
+  exact(input, ["seedHex", "species", "bench", "team", "pack", "deadlineMs"], "create battle body");
+  if (input.team !== undefined && (input.species !== undefined || input.bench !== undefined)) {
+    throw new TransportError(400, "team is mutually exclusive with species/bench");
+  }
   return {
     seedHex: input.seedHex === undefined ? "f".repeat(32) : text(input.seedHex, "seedHex", /^[0-9a-f]{32}$/),
     species: input.species === undefined ? { p1: "syn-alpha", p2: "syn-beta" } : speciesPair(input.species),
+    ...(input.team !== undefined ? { team: teamPair(input.team) } : {}),
     ...(input.bench !== undefined ? { bench: bench(input.bench) } : {}),
     ...(input.pack !== undefined ? { pack: text(input.pack, "pack", /^[a-z0-9][a-z0-9-]*$/) } : {}),
     deadlineMs: input.deadlineMs === undefined ? 30_000 : integer(input.deadlineMs, "deadlineMs", 1, 300_000),

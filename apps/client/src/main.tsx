@@ -215,8 +215,57 @@ function App() {
   );
 }
 
+/** 队伍编辑器：有序点选——先点的是首发，其余进 bench（≤ pack 上限）。 */
+function TeamBuilder() {
+  const [pack, setPack] = useState("synthetic-v2");
+  const [meta, setMeta] = useState<PackMeta | null>(null);
+  const [team, setTeam] = useState<string[]>([]);
+  const [err, setErr] = useState("");
+  useEffect(() => { setMeta(null); void loadMetaPack(pack).then(setMeta); setTeam([]); }, [pack]);
+  const species = meta === null ? [] : Object.keys(meta.units).sort();
+  const toggle = (id: string) => {
+    setErr("");
+    setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length >= 3 ? t : [...t, id]);
+  };
+  const start = async () => {
+    if (team.length === 0) { setErr("选至少 1 只"); return; }
+    const foe = species.filter((s) => s !== team[0]);
+    const r = await fetch("/api/battle", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        pack, team: { p1: team, p2: foe.length > 0 ? foe.slice(0, 2) : team },
+      }),
+    });
+    const body = await r.json() as { battleId?: string; tokens?: { p1: string }; message?: string };
+    if (body.battleId === undefined || body.tokens === undefined) { setErr(body.message ?? "create failed"); return; }
+    location.assign(`/?battle=${body.battleId}&player=${body.tokens.p1}`);
+  };
+  return (
+    <div data-testid="team-builder" style={{ fontFamily: "monospace", color: "#ddd", padding: 16 }}>
+      <h3>队伍编辑 <select data-testid="pack-select" value={pack} onChange={(e) => setPack(e.target.value)}>
+        <option value="synthetic-v2">synthetic-v2</option><option value="synthetic-v1">synthetic-v1</option>
+      </select></h3>
+      <div>{species.map((id) => (
+        <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)}
+          style={{ margin: 4, padding: "6px 10px", border: team.includes(id) ? "2px solid #4af" : "1px solid #555" }}>
+          {id} {team.includes(id) ? `(#${team.indexOf(id) + 1})` : ""}
+        </button>
+      ))}</div>
+      <div style={{ margin: "8px 0", fontSize: 12 }}>
+        首发={team[0] ?? "-"} bench=[{team.slice(1).join(", ")}] （点选顺序即上场序，bench ≤2）
+      </div>
+      <button data-testid="btn-start" onClick={() => void start()}>开战</button>
+      {err && <div style={{ color: "#f66" }}>{err}</div>}
+    </div>
+  );
+}
+
+function loadMetaPack(packId: string): Promise<PackMeta> {
+  return fetch(`/api/content/${packId}`).then((r) => r.json() as Promise<PackMeta>);
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    {BATTLE && TOKEN ? <App /> : <TeamBuilder />}
   </StrictMode>,
 );

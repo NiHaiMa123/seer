@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { loadPackFromDir } from "@seer/battle-core";
-import { BattleManager, BattleStore, HostError, RuntimeArtifactCatalog, RuntimeGenerationRegistry, generationIdOf } from "@seer/host";
+import { BattleManager, BattleStore, HostError, RuntimeArtifactCatalog, RuntimeGenerationRegistry, TeamError, generationIdOf, teamToConfig } from "@seer/host";
 import {
   BATTLE_MANAGER_POLICY,
   BATTLE_MANAGER_SERVICE,
@@ -106,15 +106,25 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
         if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
         const input = parseCreateBattle(await readJsonBody(req));
         const packId = input.pack ?? DEFAULT_PACK_ID;
+        const pack = PACKS[packId];
         const generationId = generationByPackId.get(packId);
-        if (generationId === undefined) throw new TransportError(400, `unknown pack ${packId}`);
+        if (generationId === undefined || pack === undefined) throw new TransportError(400, `unknown pack ${packId}`);
+        // team（有序）→ species+bench 展开；缺省 species 走默认
+        let species = input.species;
+        let bench = input.bench;
+        if (input.team !== undefined) {
+          const t1 = teamToConfig(pack, input.team.p1);
+          const t2 = teamToConfig(pack, input.team.p2);
+          species = { p1: t1.species, p2: t2.species };
+          bench = { ...(t1.bench !== undefined ? { p1: t1.bench } : {}), ...(t2.bench !== undefined ? { p2: t2.bench } : {}) };
+        }
         const battleId = `btl_${(++battleCounter).toString(16)}`;
         const players = { p1: `p1_${battleId}`, p2: `p2_${battleId}` };
         battles.create({
           battleId,
           seedHex: input.seedHex,
-          species: input.species,
-          ...(input.bench !== undefined ? { bench: input.bench } : {}),
+          species,
+          ...(bench !== undefined ? { bench } : {}),
           generationId,
           players,
           deadlineMs: input.deadlineMs,
@@ -176,6 +186,7 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
       res.end("not found");
     } catch (error) {
       if (error instanceof TransportError) return json(res, error.status, { code: error.code, message: error.message });
+      if (error instanceof TeamError) return json(res, 400, { code: error.code, message: error.message });
       if (error instanceof HostError) {
         const status = error.code === "UNAUTHORIZED" ? 401 : error.code === "NOT_FOUND" ? 404 : 400;
         return json(res, status, { code: error.code, message: error.message });

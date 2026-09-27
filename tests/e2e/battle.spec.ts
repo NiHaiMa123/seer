@@ -203,6 +203,29 @@ test("v2 机制 UI：bench 面板 + replacement 横幅 + 徽标", async () => {
   }
 });
 
+test("队伍编辑器：点选→建局→进战局", async () => {
+  test.setTimeout(60_000);
+  const browser = await chromium.launch();
+  try {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    page.on("pageerror", (e) => { throw new Error(`pageerror: ${e.message}`); });
+    await page.goto(`${server!.url}/`, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("team-builder")).toBeVisible({ timeout: 15_000 });
+    // 点选 gamma 首发 + epsilon bench
+    await page.getByTestId("pick-syn-gamma").click();
+    await page.getByTestId("pick-syn-epsilon").click();
+    await page.getByTestId("btn-start").click();
+    // 跳转进战局页：bench 面板应显示 epsilon
+    await expect(page.getByTestId("battle-status")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("bench-0")).toBeVisible();
+    await expect(page.getByTestId("bench-0")).toContainText("syn-epsilon");
+    await ctx.close();
+  } finally {
+    await browser.close();
+  }
+});
+
 test("cleanup/幂等：连击按钮不产生重复生效；页面销毁后重新进入可 resync", async () => {
   test.setTimeout(60_000);
   const browser = await chromium.launch();

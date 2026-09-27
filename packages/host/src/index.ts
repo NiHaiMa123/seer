@@ -4,6 +4,7 @@ export type { HostConfig, HostState, SubmissionRecord, SubmitResult, PlayerBindi
 export { wrapEvent, projectEvent } from "./events.ts";
 export { projectObservation, projectHistory } from "./project.ts";
 export { createReadOnlyView } from "./readonly.ts";
+export { teamToConfig, TeamError } from "./team.ts";
 export type { ReadOnlyView } from "./readonly.ts";
 export { PersistedBattleHost } from "./persisted.ts";
 export { BattleStore, StoreError, coreHashOf } from "./store.ts";
