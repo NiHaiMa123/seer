@@ -30,7 +30,7 @@ const cmd = (decisionId: string, actionId: string, key: string, baseRevision = 0
   decisionId,
   actionId,
   baseRevision,
-  idempotencyKey: key,
+  idempotencyKey: key.padEnd(8, "x"),
 });
 const openDecisionId = (h: BattleHost) => h.state.battle.decision!.decisionId;
 
@@ -127,6 +127,11 @@ describe("rejection paths", () => {
   it("malformed actionId → INVALID_SCHEMA", () => {
     const h = mk();
     const r = h.submit("alice", cmd(openDecisionId(h), "nope", "k-bad-1"));
+    expect(!r.ok && r.error.code).toBe("INVALID_SCHEMA");
+  });
+  it("short idempotencyKey → INVALID_SCHEMA", () => {
+    const h = mk();
+    const r = h.submit("alice", { ...cmd(openDecisionId(h), "act_syn-strike", "valid-key"), idempotencyKey: "short" });
     expect(!r.ok && r.error.code).toBe("INVALID_SCHEMA");
   });
   it("illegal action for side (struggle with PP left) → ILLEGAL_ACTION", () => {

@@ -7,7 +7,16 @@
 import type { Command, Observation, BattleEvent } from "@seer/contracts";
 import type { InternalEvent, ResolvedInput } from "@seer/contracts/internal";
 import { canonicalJson } from "@seer/contracts";
-import { applyReplacement, applyTurn, initBattle, legalActions as coreLegalActions, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
+import { legalActions as coreLegalActions, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
+import {
+  ExecutorError,
+  InProcessTransitionExecutor,
+  assertCoreState,
+  assertExecutorBinding,
+  assertLegalActionIds,
+  assertTransitionResult,
+  type TransitionExecutor,
+} from "./executor.ts";
 import { HostError, type HostConfig, type HostState, type SubmissionRecord, type SubmitResult, toCore, fromCore } from "./types.ts";
 import { wrapEvent, projectEvent } from "./events.ts";
 import { projectObservation, projectHistory } from "./project.ts";
@@ -17,26 +26,32 @@ const SIDES: SideId[] = ["p1", "p2"];
 export class BattleHost {
   readonly state: HostState;
   private readonly pack: FrozenPack;
+  private readonly executor: TransitionExecutor;
   private readonly players: Readonly<Record<SideId, string>>;
   private readonly deadlineMs: number;
   private readonly byPlayer: Map<string, SideId>;
 
   constructor(cfg: HostConfig, restored?: HostState) {
     this.pack = cfg.pack;
+    this.executor = cfg.executor ?? new InProcessTransitionExecutor(cfg.pack.rules.executableHash);
+    assertExecutorBinding(this.executor, cfg.pack);
     this.players = { p1: cfg.players.p1, p2: cfg.players.p2 };
     this.byPlayer = new Map(SIDES.map((s) => [cfg.players[s], s]));
     this.deadlineMs = cfg.deadlineMs;
     if (restored !== undefined) {
+      assertCoreState(toCore(restored.battle), cfg.pack, cfg.battleId);
       this.state = restored;
       return;
     }
-    const core = initBattle(cfg.pack, {
+    const core = this.executor.init(cfg.pack, {
       battleId: cfg.battleId,
       seedHex: cfg.seedHex,
       p1: cfg.species.p1,
       p2: cfg.species.p2,
       ...(cfg.bench !== undefined ? { bench: cfg.bench } : {}),
     });
+    assertCoreState(core, cfg.pack, cfg.battleId);
+    if (core.revision !== 0 || core.turn !== 1) throw new ExecutorError("executor init state is malformed");
     this.state = {
       battle: {
         schemaVersion: 1,
@@ -66,6 +81,28 @@ export class BattleHost {
 
   private nextSeq(): number {
     return ++this.state.seqCounter;
+  }
+
+  private snapshotProtocolState() {
+    return {
+      battle: structuredClone(this.state.battle),
+      receipts: new Map(this.state.receipts),
+      internalLength: this.state.internalEvents.length,
+      publicLength: this.state.publicStream.length,
+      resolvedLength: this.state.resolvedInputs.length,
+      publicSeq: this.state.publicSeq,
+      seqCounter: this.state.seqCounter,
+    };
+  }
+
+  private rollbackProtocolState(snapshot: ReturnType<BattleHost["snapshotProtocolState"]>): void {
+    this.state.battle = snapshot.battle;
+    this.state.receipts = snapshot.receipts;
+    this.state.internalEvents.length = snapshot.internalLength;
+    this.state.publicStream.length = snapshot.publicLength;
+    this.state.resolvedInputs.length = snapshot.resolvedLength;
+    this.state.publicSeq = snapshot.publicSeq;
+    this.state.seqCounter = snapshot.seqCounter;
   }
 
   private emit(
@@ -116,6 +153,25 @@ export class BattleHost {
     this.emit({ type: "decision-opened", detail: { decisionId: b.decision.decisionId, actors: b.decision.actors, deadlineMs: b.decision.deadlineMs } }, b.revision, b.revision);
   }
 
+  private executeLegalActions(side: SideId): string[] {
+    try {
+      const actions = this.executor.legalActions(this.pack, toCore(this.state.battle), side);
+      assertLegalActionIds(actions);
+      const state = this.state.battle.sides[side];
+      for (const actionId of actions) {
+        if (actionId === "act_concede" || actionId === "act_struggle") continue;
+        const switched = /^act_switch-(\d+)$/.exec(actionId);
+        if (switched && state.bench?.[Number(switched[1])] !== undefined) continue;
+        if (actionId.startsWith("act_") && state.unit.moves.some((move) => move.moveId === actionId.slice(4))) continue;
+        throw new ExecutorError(`executor legal action ${actionId} cannot be projected`);
+      }
+      return actions;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new HostError("ENGINE_FAULT", `executor fault: ${message}`);
+    }
+  }
+
   private sideFor(playerId: string): SideId {
     const s = this.byPlayer.get(playerId);
     if (!s) throw new HostError("UNAUTHORIZED", `player not bound to battle`);
@@ -125,7 +181,11 @@ export class BattleHost {
   // ---------- 公开 API ----------
 
   observe(playerId: string): Observation {
-    return projectObservation(this.state.battle, this.sideFor(playerId));
+    const side = this.sideFor(playerId);
+    const battle = this.state.battle;
+    const eligible = battle.decision?.actors.includes(side) === true && battle.inbox[side] === null;
+    const allowed = eligible ? this.executeLegalActions(side) : [];
+    return projectObservation(battle, side, allowed);
   }
 
   history(playerId: string, sinceSeq = 0): { cursor: number; events: BattleEvent[] } {
@@ -188,11 +248,13 @@ export class BattleHost {
     if (cmd.baseRevision !== dec.baseRevision) return fail("STALE_DECISION", "baseRevision mismatch");
     if (!dec.actors.includes(side)) return fail("UNAUTHORIZED", "side not an actor of this decision");
     if (b.inbox[side] !== null) return fail("ALREADY_SUBMITTED", "side already submitted for this decision");
+    if (typeof cmd.idempotencyKey !== "string" || cmd.idempotencyKey.length < 8 || cmd.idempotencyKey.length > 128) return fail("INVALID_SCHEMA", "bad idempotencyKey");
     if (!/^act_[a-z0-9-]{1,60}$/.test(cmd.actionId)) return fail("INVALID_SCHEMA", "bad actionId");
     // Host 侧合法性：actionId ∈ 当前 legal set（双保险；core 仍独立校验）
-    const legal = legalActionIds(this.state.battle, side);
+    const legal = new Set(this.executeLegalActions(side));
     if (!legal.has(cmd.actionId)) return fail("ILLEGAL_ACTION", `${cmd.actionId} not legal for ${side}`);
 
+    const snapshot = this.snapshotProtocolState();
     const canonicalDigest = `sha256:${sha256hex(canonicalJson({ decisionId: dec.decisionId, baseRevision: cmd.baseRevision, actionId: cmd.actionId, idempotencyKey: cmd.idempotencyKey }))}`;
     const rec: SubmissionRecord = {
       decisionId: dec.decisionId,
@@ -216,7 +278,14 @@ export class BattleHost {
     this.emit({ type: "input-received", detail: { side, decisionId: dec.decisionId } }, b.revision, b.revision);
 
     // 收齐条件：decision.actors 各自的 inbox 都非空（replacement 是单 actor 决策）
-    if (dec.actors.every((a) => b.inbox[a] !== null)) this.resolve();
+    if (dec.actors.every((a) => b.inbox[a] !== null)) {
+      try {
+        this.resolve();
+      } catch (error) {
+        this.rollbackProtocolState(snapshot);
+        throw error;
+      }
+    }
     return { ok: true, receipt: { decisionId: rec.decisionId, side, actionId: rec.actionId, baseRevision: rec.baseRevision, status: "accepted", resolved: b.decision === null } };
   }
 
@@ -227,24 +296,30 @@ export class BattleHost {
   expireDecision(): void {
     const b = this.state.battle;
     if (b.decision === null || b.terminal !== null) return;
-    for (const s of dec_actors(b)) {
-      if (b.inbox[s] === null) {
-        const seq = this.nextSeq();
-        this.state.receipts.set(`timeout_${b.decision!.decisionId}_${s}`, {
-          decisionId: b.decision!.decisionId,
-          side: s,
-          actionId: "(timeout)",
-          origin: "timeout_default",
-          idempotencyKey: `timeout_${b.decision!.decisionId}_${s}`,
-          baseRevision: b.decision!.baseRevision,
-          receiptId: `rcpt_${seq}`,
-          canonicalDigest: `sha256:${sha256hex(canonicalJson({ decisionId: b.decision!.decisionId, side: s, timedOut: true }))}`,
-          acceptedSeq: seq,
-        });
-        this.emit({ type: "input-received", detail: { side: s, decisionId: b.decision!.decisionId, timedOut: true } }, b.revision, b.revision);
+    const snapshot = this.snapshotProtocolState();
+    try {
+      for (const s of dec_actors(b)) {
+        if (b.inbox[s] === null) {
+          const seq = this.nextSeq();
+          this.state.receipts.set(`timeout_${b.decision!.decisionId}_${s}`, {
+            decisionId: b.decision!.decisionId,
+            side: s,
+            actionId: "(timeout)",
+            origin: "timeout_default",
+            idempotencyKey: `timeout_${b.decision!.decisionId}_${s}`,
+            baseRevision: b.decision!.baseRevision,
+            receiptId: `rcpt_${seq}`,
+            canonicalDigest: `sha256:${sha256hex(canonicalJson({ decisionId: b.decision!.decisionId, side: s, timedOut: true }))}`,
+            acceptedSeq: seq,
+          });
+          this.emit({ type: "input-received", detail: { side: s, decisionId: b.decision!.decisionId, timedOut: true } }, b.revision, b.revision);
+        }
       }
+      this.resolve();
+    } catch (error) {
+      this.rollbackProtocolState(snapshot);
+      throw error;
     }
-    this.resolve();
   }
 
   // ---------- 内部 ----------
@@ -268,9 +343,17 @@ export class BattleHost {
       },
     };
     const revBefore = b.revision;
-    const r = b.suspension !== undefined && b.suspension !== null
-      ? applyReplacement(this.pack, toCore(b), resolved.actions)
-      : applyTurn(this.pack, toCore(b), resolved.actions);
+    let r;
+    try {
+      const previous = toCore(b);
+      r = b.suspension !== undefined && b.suspension !== null
+        ? this.executor.applyReplacement(this.pack, previous, resolved.actions)
+        : this.executor.applyTurn(this.pack, previous, resolved.actions);
+      assertTransitionResult(r, this.pack, previous);
+    } catch (error) {
+      const message = error instanceof ExecutorError ? error.message : (error as Error).message;
+      throw new HostError("ENGINE_FAULT", `executor fault: ${message}`);
+    }
     if (!r.ok) throw new HostError("ENGINE_FAULT", `engine fault: ${r.fault.reason}`);
     fromCore(b, r.state);
     this.state.resolvedInputs.push(resolved);

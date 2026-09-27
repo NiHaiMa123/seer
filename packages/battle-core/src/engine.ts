@@ -102,9 +102,16 @@ export function initBattle(
   opts: { battleId: string; seedHex: string; p1: string; p2: string; bench?: { p1?: string[]; p2?: string[] } },
 ): CoreState {
   const side = (s: SideId, speciesId: string, benchIds: string[] | undefined): CoreState["sides"]["p1"] => {
+    const requestedBench = benchIds ?? [];
+    if (requestedBench.length > 0 && !pack.features.has("bench")) {
+      throw new EngineFault("FEATURE_DISABLED", `bench is not enabled for ${pack.rules.rulesetId}`);
+    }
+    if (requestedBench.length > (pack.limits.maxBenchSize ?? 0)) {
+      throw new EngineFault("BENCH_LIMIT", `bench size ${requestedBench.length} exceeds ${pack.limits.maxBenchSize ?? 0}`);
+    }
     const u = pack.unitsById.get(speciesId);
     if (!u) throw new EngineFault("UNKNOWN_SPECIES", `species ${speciesId} not in pack`);
-    const benchUnits = (benchIds ?? []).map((bid, i) => {
+    const benchUnits = requestedBench.map((bid, i) => {
       const bu = pack.unitsById.get(bid);
       if (!bu) throw new EngineFault("UNKNOWN_SPECIES", `bench species ${bid} not in pack`);
       return mkUnit(pack, bu, `unit_${s}-b${i}`);
@@ -571,13 +578,52 @@ export function applyReplacement(
     delete next.suspension;
 
     // 继续剩余行动（若存）
+    const stopAtCheckpoint = (cp: CpResult): boolean => {
+      if (cp === "continue") return false;
+      if (cp !== "terminal") {
+        // 续跑中再次触发有替补的 KO——重新挂起（continuation 为空）
+        next.suspension = { koSide: cp.suspend, remaining: { p1: null, p2: null } };
+        next.phase = "checkpoint";
+      }
+      return true;
+    };
     for (const side of ["p1", "p2"] as const) {
       const rem = susp.remaining[side];
       if (rem === null) continue;
       const act = resolveAction(next, side, { actionId: rem, origin: "player", idempotencyKey: "resume" });
       const unit = next.sides[side].unit;
-      if (unit.currentHp <= 0 || act.kind !== "move") {
-        if (act.kind === "invalid") events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: act.actionId } });
+      if (unit.currentHp <= 0) continue;
+      if (act.kind === "invalid") {
+        events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: act.actionId } });
+        continue;
+      }
+      if (act.kind === "concede") {
+        const result = OTHER[side];
+        events.push({ type: "battle-end", detail: { result, reason: "concede" } });
+        next.terminal = { result, reason: "concede" };
+        next.phase = "end";
+        break;
+      }
+      if (act.kind === "switch") {
+        if (!doSwitch(next, events, side, act.benchIndex, "action")) {
+          events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: rem } });
+        }
+        continue;
+      }
+      if (act.kind === "struggle") {
+        if (unit.moves.some((mv) => mv.pp > 0)) {
+          events.push({ type: "action-failed", detail: { side, reason: "invalid-action", actionId: rem } });
+          continue;
+        }
+        events.push({ type: "struggle-used", detail: { side } });
+        if (stopAtCheckpoint(applyDamage(pack, next, events, side, Math.floor(unit.base.hp / 4), "struggle"))) break;
+        if (++applications > pack.limits.maxEffectApplications) return fault("EFFECT_LIMIT", "maxEffectApplications exceeded");
+        if (next.sides[OTHER[side]].unit.currentHp > 0) {
+          const recoil = Math.floor(unit.base.hp / 8);
+          unit.currentHp = Math.max(0, unit.currentHp - recoil);
+          events.push({ type: "damage", detail: { side, amount: recoil, hpAfter: { current: unit.currentHp, max: unit.base.hp }, recoil: true } });
+          if (stopAtCheckpoint(checkpoint(next, events))) break;
+        }
         continue;
       }
       const move = pack.movesById.get(act.moveId);
@@ -603,22 +649,17 @@ export function applyReplacement(
         }
         continue;
       }
-      let suspendedAgain = false;
+      let halted = false;
       for (const fx of move.effects) {
         if (++applications > pack.limits.maxEffectApplications) {
           return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
         }
-        const cp = applyEffect(pack, next, events, side, unit, fx);
-        if (cp === "terminal") { suspendedAgain = false; break; }
-        if (cp !== "continue") {
-          // 剩余行动方自己也死了且有替补——再次挂起（continuation 为空）
-          next.suspension = { koSide: cp.suspend, remaining: { p1: null, p2: null } };
-          next.phase = "checkpoint";
-          suspendedAgain = true;
+        if (stopAtCheckpoint(applyEffect(pack, next, events, side, unit, fx))) {
+          halted = true;
           break;
         }
       }
-      if (suspendedAgain || next.terminal) break;
+      if (halted || next.terminal) break;
     }
 
     if (!next.terminal && next.suspension === undefined) {

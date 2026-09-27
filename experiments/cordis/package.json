@@ -1,15 +1,15 @@
 {
-  "name": "@seer/experiment-cordis",
+  "name": "@seer/plugin-runtime",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/adapter.ts"
+    ".": "./src/index.ts",
+    "./adapter": "./src/adapter.ts"
   },
   "dependencies": {
+    "@seer/contracts": "workspace:*",
+    "@seer/host": "workspace:*",
     "cordis": "4.0.0-rc.10"
-  },
-  "devDependencies": {
-    "@seer/contracts": "workspace:*"
   }
 }

@@ -32,8 +32,8 @@
 
 - core 层 `switching-v2.test.ts` **11/11**：init bench 字段存在性（v1 hash）、switch 合法集/挂起隔离、via:"action" 换入保自身 stage、死 bench 拒绝、KO 挂起、applyReplacement 全链路（turn+1/phase collect/阵亡者进 bench）、concede、无 bench 直接终局（v1 兼容）、revive 复活/耗尽转挂起
 - host 层 `replacement.test.ts` **2/2**：单 actor 决策 + 非 actor UNAUTHORIZED + 幂等重放 receipt + timeout 默认替补
-- 全回归：core 68/68（含 10k 属性）、replay:verify 22/22、protocol 21+privacy 9、recovery 9、contracts drift 0、boundaries PASS
+- 全回归：typecheck PASS、contracts 45/45、core 68/68（含 10k 属性）、protocol 32/32（21 protocol + 9 host privacy + 2 replacement）、privacy 16/16、recovery 9/9、replay:verify 22/22、e2e 4/4、contracts drift 0、boundaries PASS
 
 ## 边界
 
-suspension.remaining 至多保存"一个未行动方"的 actionId（行动串行执行，KO 时另一侧只可能未动或已动）；再挂起（continuation 自己也死）用 `{p1:null,p2:null}` 兜底——由测试 golden 覆盖。bench 不设上限（ruleset.limits 后续可加 benchSize）。
+suspension.remaining 至多保存"一个未行动方"的 actionId（行动串行执行，KO 时另一侧只可能未动或已动）；再挂起（continuation 再次触发 KO）用 `{p1:null,p2:null}` 兜底——由测试 golden 覆盖。M2 收口已将 synthetic-v2 bench 上限冻结为 `limits.maxBenchSize=2`，v1 feature gate 拒绝 bench。

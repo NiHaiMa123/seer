@@ -17,6 +17,7 @@ import movesSchemaJson from "../../../content/schemas/moves.schema.json" with { 
 
 export const ENGINE_VERSION = "0.1.0";
 export const IR_VERSION = 1;
+export const ENGINE_EXECUTABLE_HASH = `sha256:${sha256hex(canonicalJson({ engine: "@seer/battle-core", engineVersion: ENGINE_VERSION, irVersion: IR_VERSION }))}`;
 
 export class PackLoadError extends Error {
   readonly code = "PACK_LOAD_ERROR";
@@ -62,7 +63,7 @@ export interface FrozenPack {
   rules: BattleState["rules"];
   unitsById: ReadonlyMap<string, CompiledUnit>;
   movesById: ReadonlyMap<string, CompiledMove>;
-  limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number };
+  limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   stageRange: { min: number; max: number };
   operatorAllowlist: readonly string[];
   features: ReadonlySet<FeatureFlag>;
@@ -101,7 +102,7 @@ export function compilePack(raw: RawContent): FrozenPack {
     damageKinds?: string[];
     modeOverlays?: Record<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
     statStageRange: [number, number];
-    limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number };
+    limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   };
   const pack = raw.pack as { packId: string; rulesetId: string };
   const units = (raw.units as { units: CompiledUnit[] }).units;
@@ -112,6 +113,8 @@ export function compilePack(raw: RawContent): FrozenPack {
   }
 
   const features = new Set((ruleset.features ?? []) as FeatureFlag[]);
+  if (features.has("bench") && ruleset.limits.maxBenchSize === undefined) fail('feature "bench" requires limits.maxBenchSize');
+  if (!features.has("bench") && ruleset.limits.maxBenchSize !== undefined) fail('limits.maxBenchSize requires feature "bench"');
   // op → 所需 feature（v1 ruleset 无 features → 新 op 语义级拒绝）
   const OP_FEATURE: Partial<Record<CompiledEffect["op"], FeatureFlag>> = {
     transfer_stages: "stat_ops",
@@ -160,7 +163,7 @@ export function compilePack(raw: RawContent): FrozenPack {
 
   const rulesetHash = `sha256:${sha256hex(canonicalJson(raw.ruleset))}`;
   const contentHash = `sha256:${sha256hex(canonicalJson({ pack: raw.pack, units: raw.units, moves: raw.moves }))}`;
-  const executableHash = `sha256:${sha256hex(canonicalJson({ engine: "@seer/battle-core", engineVersion: ENGINE_VERSION, irVersion: IR_VERSION }))}`;
+  const executableHash = ENGINE_EXECUTABLE_HASH;
 
   const frozen: FrozenPack = {
     rules: {

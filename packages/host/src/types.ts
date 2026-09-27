@@ -9,6 +9,7 @@ import type {
 } from "@seer/contracts/internal";
 import type { BattleEvent } from "@seer/contracts";
 import type { CoreState, FrozenPack, SideId } from "@seer/battle-core";
+import type { TransitionExecutor } from "./executor.ts";
 
 /** 玩家身份绑定：playerId → side（外部 session 抽象，Host 内只用确定性字符串 id）。 */
 export type PlayerBinding = Readonly<Record<string, SideId>>;
@@ -40,6 +41,7 @@ export interface HostState {
 
 export interface HostConfig {
   pack: FrozenPack;
+  executor?: TransitionExecutor;
   battleId: string;
   seedHex: string;
   species: { p1: string; p2: string };

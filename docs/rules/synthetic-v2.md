@@ -1,6 +1,6 @@
 # synthetic-v2 工程规则规范（M2）
 
-**状态**：自制合成规则集，不声称对应任何原作。版本化 ID `synthetic-v2`，语义版本 `2.0.0`，IR version `2`。
+**状态**：自制合成规则集，不声称对应任何原作。版本化 ID `synthetic-v2`，语义版本 `2.0.0`，IR version `1`（feature-gated additive 扩展，不改变 handler ABI）。
 
 v2 在 v1 之上增加机制；**v1 包在 v2 引擎下运行时行为逐字节不变**——所有 v2 特性由 ruleset `features` 显式开启，v1 ruleset 无该字段即全部关闭。v1 全部数值规则（公式、PP、平速、struggle、200 回合上限）沿用不重复定义。
 
@@ -17,14 +17,14 @@ bench | damage_kinds | control | revive | stat_ops | mode_overlay
 ## 2. 后备（bench）
 
 - 每方除 active unit 外可有 `bench: UnitDef[]`（0..2）。v1 内容无 bench → 引擎不写 `sides.bench` 字段（保持旧 hash）。
-- `act_switch_<i>`（i 为 bench 下标）当 bench[i].hp>0 时合法；占用本侧整回合行动。
+- `act_switch-<i>`（i 为 bench 下标）当 bench[i].hp>0 时合法；占用本侧整回合行动。
 - 动作组：switch 属于 **switch 组**，在 ORDER 中先于一切 move（含先制）。同回合双 switch 各自生效。
 - 换入单位 stages/effects 为自身值（不继承换下者）。换下单位保留 HP/PP/stages/effects。
 
 ## 3. 替代（replacement decision）
 
 - CHECKPOINT 判 KO 且该方 bench 有存活单位 → transition 挂起，开 `kind:"replacement"` decision（仅阵亡方 actor，其余方视为已提交）。
-- 该方提交 `act_switch_<i>` → 换入 bench[i]，turn 继续执行**尚未执行的另一方动作**（阵亡者原行动作废，不消耗其 PP——v1 规则已如此）。
+- 该方提交 `act_switch-<i>` → 换入 bench[i]，turn 继续执行**尚未执行的另一方动作**（阵亡者原行动作废，不消耗其 PP——v1 规则已如此）。
 - 超时默认：bench 下标最小存活者。
 - 双方同 transition 内同时 KO → draw（terminal 立即判定，不开 replacement）。
 - 阵亡方 bench 全灭 → 正常 KO 终局。

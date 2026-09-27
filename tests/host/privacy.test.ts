@@ -30,7 +30,7 @@ const cmd = (dec: string, actionId: string, key: string, rev: number) => ({
   decisionId: dec,
   actionId,
   baseRevision: rev,
-  idempotencyKey: key,
+  idempotencyKey: key.padEnd(8, "x"),
 });
 const submitBoth = (h: BattleHost, a: string, b: string) => {
   const rev = h.state.battle.decision!.baseRevision;

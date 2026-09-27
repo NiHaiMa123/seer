@@ -8,6 +8,7 @@ import { applyReplacement, applyTurn, initBattle, legalActions, loadPackFromDir,
 
 const CONTENT = join(fileURLToPath(new URL("..", import.meta.url)), "..", "content");
 const PACK = loadPackFromDir(CONTENT, "synthetic-v2");
+const PACK_V1 = loadPackFromDir(CONTENT, "synthetic-v1");
 const SEED = "00000000000000000000000000000001";
 
 // p1=gamma(150hp 首发)+bench delta；p2=epsilon(boss 110hp)+bench gamma
@@ -34,6 +35,17 @@ describe("bench + switch", () => {
     expect(withBench.sides.p1.bench![0]!.speciesId).toBe("syn-delta");
     const noBench = initBattle(PACK, { battleId: "btl_t", seedHex: SEED, p1: "syn-gamma", p2: "syn-epsilon" });
     expect("bench" in noBench.sides.p1).toBe(false); // 字段不存在 → v1 hash 不变
+  });
+  it("bench feature/size boundary：v1 拒绝 bench，v2 接受 2 个并拒绝第 3 个", () => {
+    expect(() => initBattle(PACK_V1, {
+      battleId: "btl_t", seedHex: SEED, p1: "syn-alpha", p2: "syn-beta", bench: { p1: ["syn-beta"] },
+    })).toThrow(/bench is not enabled/);
+    expect(initBattle(PACK, {
+      battleId: "btl_t", seedHex: SEED, p1: "syn-gamma", p2: "syn-epsilon", bench: { p1: ["syn-delta", "syn-epsilon"] },
+    }).sides.p1.bench).toHaveLength(2);
+    expect(() => initBattle(PACK, {
+      battleId: "btl_t", seedHex: SEED, p1: "syn-gamma", p2: "syn-epsilon", bench: { p1: ["syn-delta", "syn-epsilon", "syn-gamma"] },
+    })).toThrow(/exceeds 2/);
   });
   it("legal：switch 进入合法集；suspend 时非阵亡方合法集为空", () => {
     const s = mk();
@@ -96,18 +108,22 @@ describe("KO → replacement 挂起/续跑", () => {
     expect(r2.state.turn).toBe(2);
   });
   it("未行动方：其 suspended remaining 在 replacement 后执行（未行动方剩余伤害结算）", () => {
-    // gamma 先手打死 epsilon？不行——epsilon 有 bench 会挂起。换成：p2 先动 KO p1 →
-    // 此时 p1 的行动还没跑 → remaining.p1 保留其 actionId。要 p2 先动：给 epsilon spd+6。
+    // 双方 PP 耗尽且 gamma 更快：p1 struggle 后被反伤 KO，p2 的 struggle 尚未行动。
+    // replacement 换入 delta 后必须继续 p2 的 remaining action，而不是静默丢弃。
     const s = mk();
-    s.sides.p1.unit.currentHp = 20; // epsilon strike=27 伤害 → 致命
-    s.sides.p2.unit.stages.spd = 6; // 45×(2+6)/2=180 > 60 → epsilon 先动
-    const r = ok(applyTurn(PACK, s, { p1: act("act_syn-blast"), p2: act("act_syn-strike") }));
+    for (const move of s.sides.p1.unit.moves) move.pp = 0;
+    for (const move of s.sides.p2.unit.moves) move.pp = 0;
+    s.sides.p1.unit.currentHp = 1;
+    const r = ok(applyTurn(PACK, s, { p1: act("act_struggle"), p2: act("act_struggle") }));
     expect(r.state.suspension?.koSide).toBe("p1");
-    // p2 已行动 → remaining.p2=null；p1 阵亡但其 queued action 作废（koSide 分支记 null）
-    expect(r.state.suspension!.remaining.p2).toBeNull();
-    expect(r.state.suspension!.remaining.p1).toBeNull(); // 阵亡者原行动作废
+    expect(r.state.suspension!.remaining.p1).toBeNull();
+    expect(r.state.suspension!.remaining.p2).toBe("act_struggle");
+    expect(r.state.sides.p2.unit.currentHp).toBe(73);
     const r2 = ok(applyReplacement(PACK, r.state, { p1: act("act_switch-0"), p2: null }));
     expect(r2.state.sides.p1.unit.speciesId).toBe("syn-delta");
+    expect(r2.state.sides.p1.unit.currentHp).toBe(63);
+    expect(r2.state.sides.p2.unit.currentHp).toBe(60);
+    expect(evs(r2, "struggle-used")).toHaveLength(1);
     expect(r2.state.phase).toBe("collect");
     expect(r2.state.turn).toBe(2);
   });

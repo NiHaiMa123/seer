@@ -36,7 +36,8 @@
       "properties": {
         "maxEffectApplications": { "type": "integer", "minimum": 1 },
         "maxCauseDepth": { "type": "integer", "minimum": 1 },
-        "maxTurns": { "type": "integer", "minimum": 1 }
+        "maxTurns": { "type": "integer", "minimum": 1 },
+        "maxBenchSize": { "type": "integer", "minimum": 0 }
       }
     },
     "rng": {

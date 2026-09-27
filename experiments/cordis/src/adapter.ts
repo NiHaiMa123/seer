@@ -1,5 +1,5 @@
 /**
- * Cordis 薄适配层 PoC（M0-03）。本包是唯一允许 import "cordis" 的位置。
+ * Cordis 薄适配层（M0-03 验证，M2-04 接入真实 Host）。本包是唯一允许 import "cordis" 的位置。
  *
  * Seer 面：provide/require/own + manifest 策略。语义对应 plugin-system.md：
  * - 依赖在执行入口前失败（缺依赖直接拒绝，因为上游 inject 缺依赖是挂起等待）
@@ -23,12 +23,12 @@ export type PluginErrorCode =
   | "NOT_FOUND";
 
 export class PluginError extends Error {
-  constructor(
-    public readonly code: PluginErrorCode,
-    message: string,
-  ) {
+  readonly code: PluginErrorCode;
+
+  constructor(code: PluginErrorCode, message: string) {
     super(message);
     this.name = "PluginError";
+    this.code = code;
   }
 }
 

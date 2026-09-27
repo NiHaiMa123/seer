@@ -1,6 +1,6 @@
 # ADR-005：多版本轴、工件固定与非破坏迁移
 
-状态：采纳；M1 禁活跃局升级，M2 实现 generation 并存。日期：2026-09-26。
+状态：采纳；M2-05 已实现同 executableHash generations，M2-06 已实现三 hash 工件恢复，M2-08 已实现不同 executableHash 的独立进程执行域。日期：2026-09-26，2026-09-27 落地。
 
 ## 决策
 
@@ -23,4 +23,4 @@ Match manifest 记录所有逻辑工件摘要及 runtime/toolchain。semver 是�
 
 ## 可逆性与验证
 
-存档迁移 source→target 链：dry-run→新数据→完整性校验→备份→事务切换；失败不覆盖原件，未知 plugin namespace 保留。回滚用旧数据/旧程序，不假设所有 forward migration 都能自动逆转。M2 做 v1 局运行中装 v2、卸载被拒/第三代等待、旧 replay 不变；M4 测迁移中断/重复执行/回滚/未知 namespace。
+存档迁移 source→target 链：dry-run→新数据→完整性校验→备份→事务切换；失败不覆盖原件，未知 plugin namespace 保留。M2-05 已覆盖 v1 局运行中装 v2、使用中卸载被拒、第三代等待 drain、旧 replay 不变；M2-06 以 catalog 按三类 hash 恢复绑定，缺失/错误/篡改工件均 `ARTIFACT_UNAVAILABLE`；M2-08 让可信 catalog 为不同 executableHash 指定独立进程 entrypoint，Host 的 init/legal/transition/restore/replay 全部经该执行域。M4 测迁移中断、重复执行、回滚与未知 namespace。

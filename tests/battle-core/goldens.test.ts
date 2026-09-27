@@ -317,8 +317,7 @@ describe("terminal / atomicity / determinism", () => {
   it("state hash golden (freeze content+engine identity)", () => {
     const s = st();
     const h = sha256hex(canonicalJson(s));
-    expect(h).toMatch(/^[0-9a-f]{64}$/);
-    // 记录在报告里；故意不断言固定值 → 由 vectors/property 做回归断言
+    expect(h).toBe("80663066c492c40bbf164726a36bcf84c62d6ebbe2ded80bbe66d62e5d677c26");
     expect(s.rules.rulesetId).toBe("synthetic-v1");
   });
 });

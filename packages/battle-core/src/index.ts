@@ -6,6 +6,7 @@ export {
   loadPackFromDir,
   PackLoadError,
   ENGINE_VERSION,
+  ENGINE_EXECUTABLE_HASH,
   IR_VERSION,
 } from "./loader.ts";
 export type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack } from "./loader.ts";

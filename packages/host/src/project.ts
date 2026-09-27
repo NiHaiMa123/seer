@@ -27,41 +27,27 @@ function publicEffects(effects: InternalEffects, self: boolean) {
     }));
 }
 
-function legalActionFor(state: BattleState, side: SideId): LegalAction[] {
-  const s = state.sides[side];
-  const unit = s.unit;
-  const out: LegalAction[] = [];
-  // replacement 决策：仅 act_switch + concede
-  const isRepl = state.suspension !== undefined && state.suspension !== null && state.suspension.koSide === side;
-  if (!isRepl || true) {
-    (s.bench ?? []).forEach((b, i) => {
-      if (b.currentHp > 0) {
-        out.push({
-          actionId: `act_switch-${i}`,
-          action: { kind: "switch", unitId: b.unitId },
-          label: `Switch → ${b.speciesId}`,
-        });
-      }
-    });
-  }
-  if (!isRepl) {
-    unit.moves.forEach((m, idx) => {
-      if (m.pp > 0) {
-        out.push({
-          actionId: `act_${m.moveId}`,
-          action: { kind: "move", moveSlot: idx, target: "opponent" },
-          label: MOVE_LABEL[m.moveId] ?? m.moveId,
-        });
-      }
-    });
-    const anyPp = unit.moves.some((m) => m.pp > 0);
-    if (!anyPp) out.push({ actionId: "act_struggle", action: { kind: "struggle" }, label: "Struggle" });
-  }
-  out.push({ actionId: "act_concede", action: { kind: "concede" }, label: "Concede" });
-  return out;
+function legalActionFor(state: BattleState, side: SideId, allowed: readonly string[]): LegalAction[] {
+  if (state.decision === null || !state.decision.actors.includes(side) || state.inbox[side] !== null) return [];
+  const current = state.sides[side];
+  return allowed.map((actionId): LegalAction => {
+    if (actionId === "act_concede") return { actionId, action: { kind: "concede" }, label: "Concede" };
+    if (actionId === "act_struggle") return { actionId, action: { kind: "struggle" }, label: "Struggle" };
+    const switched = /^act_switch-(\d+)$/.exec(actionId);
+    if (switched) {
+      const unit = current.bench?.[Number(switched[1])];
+      if (unit) return { actionId, action: { kind: "switch", unitId: unit.unitId }, label: `Switch → ${unit.speciesId}` };
+    }
+    const moveId = actionId.slice(4);
+    const moveSlot = current.unit.moves.findIndex((move) => move.moveId === moveId);
+    if (moveSlot >= 0) {
+      return { actionId, action: { kind: "move", moveSlot, target: "opponent" }, label: MOVE_LABEL[moveId] ?? moveId };
+    }
+    throw new Error(`legal action ${actionId} cannot be projected`);
+  });
 }
 
-export function projectObservation(state: BattleState, side: SideId): Observation {
+export function projectObservation(state: BattleState, side: SideId, allowedActions: readonly string[]): Observation {
   const sMe = state.sides[side];
   const sFoe = state.sides[OTHER[side]];
   const me = sMe.unit;
@@ -97,6 +83,11 @@ export function projectObservation(state: BattleState, side: SideId): Observatio
               unitId: b.unitId,
               speciesId: b.speciesId,
               hp: { current: b.currentHp, max: b.base.hp },
+              ppByMoveId: Object.fromEntries(b.moves.map((m) => [m.moveId, m.pp])),
+              stages: { ...b.stages },
+              effects: publicEffects(b.effects, true),
+              ...(b.mode !== undefined ? { mode: b.mode } : {}),
+              ...(b.revives !== undefined ? { revives: b.revives } : {}),
               alive: b.currentHp > 0,
             })),
           }
@@ -123,7 +114,7 @@ export function projectObservation(state: BattleState, side: SideId): Observatio
         }
       : null,
     terminal: state.terminal,
-    legalActions: legalActionFor(state, side),
+    legalActions: legalActionFor(state, side, allowedActions),
   };
   return obs;
 }

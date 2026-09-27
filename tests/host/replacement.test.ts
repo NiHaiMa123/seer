@@ -54,19 +54,25 @@ describe("replacement decision 协议", () => {
     // 己方 bench 可见 + 合法集是 act_switch-0 + concede
     expect(oR.own.bench).toHaveLength(1);
     expect(oR.own.bench![0]!.speciesId).toBe("syn-epsilon");
+    expect(oR.own.bench![0]!.ppByMoveId).toEqual({ "syn-strike": 35, "syn-bolster": 20, "syn-purge": 15, "syn-ward": 10, "syn-brand": 10 });
+    expect(oR.own.bench![0]!.stages).toEqual({ atk: 0, def: 0, spd: 0 });
+    expect(oR.own.bench![0]!.effects).toEqual([]);
     expect(oR.legalActions.some((a) => a.actionId === "act_switch-0")).toBe(true);
     // A 不是 actor
     const oA = h.observe("A");
     expect(oA.decision).toBeNull();
+    expect(oA.legalActions).toEqual([]);
+    expect(oA.opponent.benchAlive).toBe(1);
     const rBad = h.submit("A", cmd(decR.decisionId, decR.baseRevision, "act_switch-0", "k-aaaa9999"));
-    expect(rBad.ok).toBe(false);
+    if (rBad.ok) throw new Error("non-actor submission unexpectedly succeeded");
+    expect(rBad.error.code).toBe("UNAUTHORIZED");
 
     // B 提交换入 epsilon
     const rOK = h.submit("B", cmd(decR.decisionId, decR.baseRevision, "act_switch-0", "k-bbbb9000"));
     expect(rOK.ok).toBe(true);
     // 幂等重放
     const rDup = h.submit("B", cmd(decR.decisionId, decR.baseRevision, "act_switch-0", "k-bbbb9000"));
-    expect(rDup.ok).toBe(true);
+    if (!rDup.ok) throw rDup.error;
     expect(rDup.receipt.status).toBe("duplicate-replay");
     // 换入完成，回到 collect
     const oAfter = h.observe("B");

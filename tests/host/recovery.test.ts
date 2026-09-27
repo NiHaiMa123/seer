@@ -32,7 +32,7 @@ const cmd = (dec: string, actionId: string, key: string, rev: number, battleId =
   decisionId: dec,
   actionId,
   baseRevision: rev,
-  idempotencyKey: key,
+  idempotencyKey: key.padEnd(8, "x"),
 });
 const openDec = (h: PersistedBattleHost) => h.host.state.battle.decision!;
 
@@ -49,7 +49,7 @@ describe("crash recovery", () => {
 
       const store2 = new BattleStore(path);
       const h2 = PersistedBattleHost.restore(store2, { pack: PACK, species: CFG.species, players: CFG.players, deadlineMs: CFG.deadlineMs }, "btl_rec");
-      expect(h2.receiptFor("alice", "k-a-1")?.actionId).toBe("act_syn-strike");
+      expect(h2.receiptFor("alice", "k-a-1xxx")?.actionId).toBe("act_syn-strike");
       expect(h2.host.state.battle.inbox.p1?.actionId).toBe("act_syn-strike");
       expect(h2.host.state.battle.inbox.p2).toBeNull();
       expect(h2.host.state.battle.decision?.decisionId).toBe(dec);
@@ -79,13 +79,13 @@ describe("crash recovery", () => {
         side: "p2" as const,
         actionId: "act_syn-jab",
         origin: "player" as const,
-        idempotencyKey: "k-b-1",
+        idempotencyKey: "k-b-1xxx",
         baseRevision: 0,
         receiptId: "rcpt_9",
         canonicalDigest: "sha256:" + "0".repeat(64),
         acceptedSeq: b.eventSeq + 1,
       };
-      b.inbox.p2 = { actionId: "act_syn-jab", idempotencyKey: "k-b-1", canonicalDigest: bRec.canonicalDigest, receiptId: "rcpt_9", receivedSeq: bRec.acceptedSeq };
+      b.inbox.p2 = { actionId: "act_syn-jab", idempotencyKey: "k-b-1xxx", canonicalDigest: bRec.canonicalDigest, receiptId: "rcpt_9", receivedSeq: bRec.acceptedSeq };
       store.recordReceiptTx("btl_rec", bRec, canonicalJson(b), [], { seqCounter: h1.host.state.seqCounter, publicSeq: h1.host.state.publicSeq });
       store.close();
 
@@ -193,7 +193,7 @@ describe("replay", () => {
       h.submit("bob", cmd(dec, "act_syn-jab", "k-b-1", 0));
       // 篡改 resolved input：把 p1 的 actionId 换掉
       store.db.prepare("UPDATE resolved_inputs SET json=? WHERE battle_id=?").run(
-        canonicalJson({ decisionId: dec, baseRevision: 0, resolvedSeq: 99, actions: { p1: { actionId: "act_syn-jab", origin: "player", idempotencyKey: "k-a-1" }, p2: { actionId: "act_syn-jab", origin: "player", idempotencyKey: "k-b-1" } } }),
+        canonicalJson({ decisionId: dec, baseRevision: 0, resolvedSeq: 99, actions: { p1: { actionId: "act_syn-jab", origin: "player", idempotencyKey: "k-a-1xxx" }, p2: { actionId: "act_syn-jab", origin: "player", idempotencyKey: "k-b-1xxx" } } }),
         "btl_rec",
       );
       const r = replayBattle(store, PACK, "btl_rec");

@@ -1,0 +1,203 @@
+{
+  "gate": "verify:m2",
+  "executedAt": "2026-09-27T10:00:05.747Z",
+  "gitSha": "10dfbf3317b3689af2c60ba9b7d51dab0fe6e78b",
+  "node": "v24.18.0",
+  "pnpm": "12.6.0",
+  "workingTree": [
+    "M README.md",
+    " M apps/server/package.json",
+    " M apps/server/src/index.ts",
+    " M artifacts/m2/m2-03-report.md",
+    " M content/rulesets/synthetic-v2.json",
+    " M content/schemas/ruleset.schema.json",
+    " M docs/adr/001-plugin-runtime.md",
+    " M docs/adr/005-versions-and-migrations.md",
+    " M docs/rules/synthetic-v2.md",
+    " M experiments/cordis/package.json",
+    " M experiments/cordis/src/adapter.ts",
+    " M package.json",
+    " M packages/battle-core/src/engine.ts",
+    " M packages/battle-core/src/index.ts",
+    " M packages/battle-core/src/loader.ts",
+    " M packages/contracts/schemas/public/observation.schema.json",
+    " M packages/contracts/src/generated/public/observation.ts",
+    " M packages/host/src/host.ts",
+    " M packages/host/src/index.ts",
+    " M packages/host/src/persisted.ts",
+    " M packages/host/src/project.ts",
+    " M packages/host/src/replay.ts",
+    " M packages/host/src/types.ts",
+    " M pnpm-lock.yaml",
+    " M tests/battle-core/goldens.test.ts",
+    " M tests/battle-core/loader-v2.test.ts",
+    " M tests/battle-core/mechanics-v2.test.ts",
+    " M tests/battle-core/switching-v2.test.ts",
+    " M tests/host/privacy.test.ts",
+    " M tests/host/protocol.test.ts",
+    " M tests/host/recovery.test.ts",
+    " M tests/host/replacement.test.ts",
+    " M tools/demo-m1.ts",
+    "?? apps/server/src/transport.ts",
+    "?? artifacts/m2/m2-04-report.md",
+    "?? artifacts/m2/m2-05-report.md",
+    "?? artifacts/m2/m2-06-report.md",
+    "?? artifacts/m2/m2-07-audit.md",
+    "?? artifacts/m2/m2-08-report.md",
+    "?? artifacts/m2/verify-m2.json",
+    "?? experiments/cordis/src/battle.ts",
+    "?? experiments/cordis/src/index.ts",
+    "?? packages/host/src/artifacts.ts",
+    "?? packages/host/src/executor.ts",
+    "?? packages/host/src/generations.ts",
+    "?? packages/host/src/manager.ts",
+    "?? packages/host/src/process-runner.ts",
+    "?? tests/battle-core/interactions-v2.test.ts",
+    "?? tests/host/artifacts.test.ts",
+    "?? tests/host/assembly.test.ts",
+    "?? tests/host/executable-isolation.test.ts",
+    "?? tests/host/generations.test.ts",
+    "?? tests/host/legacy-executable.ts",
+    "?? tools/verify-m2.ts"
+  ],
+  "results": [
+    {
+      "command": "pnpm install --frozen-lockfile",
+      "exitCode": 0,
+      "durationMs": 61,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm typecheck",
+      "exitCode": 0,
+      "durationMs": 1638,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm content:validate",
+      "exitCode": 0,
+      "durationMs": 172,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm contracts:check",
+      "exitCode": 0,
+      "durationMs": 246,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm check:boundaries",
+      "exitCode": 0,
+      "durationMs": 117,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:contracts",
+      "exitCode": 0,
+      "durationMs": 523,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:privacy",
+      "exitCode": 0,
+      "durationMs": 654,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:core",
+      "exitCode": 0,
+      "durationMs": 42210,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:interactions",
+      "exitCode": 0,
+      "durationMs": 573,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:protocol",
+      "exitCode": 0,
+      "durationMs": 655,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:recovery",
+      "exitCode": 0,
+      "durationMs": 2146,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:plugin",
+      "exitCode": 0,
+      "durationMs": 582,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:assembly",
+      "exitCode": 0,
+      "durationMs": 839,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:generations",
+      "exitCode": 0,
+      "durationMs": 688,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:artifacts",
+      "exitCode": 0,
+      "durationMs": 794,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:executables",
+      "exitCode": 0,
+      "durationMs": 6020,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:determinism",
+      "exitCode": 0,
+      "durationMs": 538,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:determinism:browser",
+      "exitCode": 0,
+      "durationMs": 1043,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm replay:verify",
+      "exitCode": 0,
+      "durationMs": 1188,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm demo:m1",
+      "exitCode": 0,
+      "durationMs": 1037,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:e2e",
+      "exitCode": 0,
+      "durationMs": 19240,
+      "status": "PASS"
+    },
+    {
+      "command": "worktree whitespace check",
+      "exitCode": 0,
+      "durationMs": 72,
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "pass": 22,
+    "fail": 0
+  },
+  "status": "PASS"
+}

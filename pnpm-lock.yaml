@@ -191,6 +191,9 @@ importers:
       '@seer/host':
         specifier: workspace:*
         version: link:packages/host
+      '@seer/plugin-runtime':
+        specifier: workspace:*
+        version: link:experiments/cordis
       '@types/node':
         specifier: 24.13.5
         version: 24.13.5
@@ -233,16 +236,21 @@ importers:
       '@seer/host':
         specifier: workspace:*
         version: link:../../packages/host
+      '@seer/plugin-runtime':
+        specifier: workspace:*
+        version: link:../../experiments/cordis
 
   experiments/cordis:
     dependencies:
-      cordis:
-        specifier: 4.0.0-rc.10
-        version: 4.0.0-rc.10
-    devDependencies:
       '@seer/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@seer/host':
+        specifier: workspace:*
+        version: link:../../packages/host
+      cordis:
+        specifier: 4.0.0-rc.10
+        version: 4.0.0-rc.10
 
   experiments/determinism:
     devDependencies:

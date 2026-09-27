@@ -10,13 +10,13 @@
  * INSERT OR IGNORE 保证幂等）。
  */
 import type { Command, Observation, BattleEvent } from "@seer/contracts";
-import type { InternalEvent, ResolvedInput } from "@seer/contracts/internal";
+import { internalValidators, type InternalEvent, type ResolvedInput } from "@seer/contracts/internal";
 import { canonicalJson } from "@seer/contracts";
-import type { FrozenPack } from "@seer/battle-core";
+import type { CoreState, FrozenPack } from "@seer/battle-core";
+import { assertCoreState } from "./executor.ts";
 import { BattleHost } from "./host.ts";
 import { BattleStore, StoreError, coreHashOf } from "./store.ts";
 import { HostError, type HostConfig, type HostState, type SubmitResult, type SubmissionRecord } from "./types.ts";
-import type { BattleState } from "@seer/contracts/internal";
 import type { BattleEvent as PublicEv } from "@seer/contracts";
 
 export class PersistedBattleHost {
@@ -65,7 +65,18 @@ export class PersistedBattleHost {
   static restore(store: BattleStore, cfg: Omit<HostConfig, "battleId" | "seedHex">, battleId: string): PersistedBattleHost {
     const row = store.loadBattle(battleId);
     if (!row) throw new StoreError(`battle ${battleId} not found`);
-    const battle = JSON.parse(row.stateJson) as BattleState;
+    const battle = JSON.parse(row.stateJson) as unknown;
+    const init = JSON.parse(row.initJson) as unknown;
+    if (!internalValidators.state(battle)) throw new StoreError(`battle ${battleId} state is malformed`);
+    try {
+      assertCoreState(init, cfg.pack, battleId);
+    } catch (error) {
+      throw new StoreError(`battle ${battleId} init is malformed: ${(error as Error).message}`);
+    }
+    const coreInit = init as CoreState;
+    if (battle.battleId !== battleId || battle.rng.seedHex !== coreInit.rng.seedHex) {
+      throw new StoreError(`battle ${battleId} snapshot identity mismatch`);
+    }
     const receipts = new Map(store.loadReceipts(battleId).map((r) => [r.idempotencyKey, r]));
     const internalEvents = store.loadInternalEvents(battleId);
     const publicStream = store.loadPublicStream(battleId).map((p) => ({ seq: p.seq, event: JSON.parse(p.json) as PublicEv }));

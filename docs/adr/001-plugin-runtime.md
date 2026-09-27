@@ -1,6 +1,6 @@
 # ADR-001：Cordis core + 薄 Seer 适配层
 
-状态：**已采纳（薄适配路线，M1 范围生效）**。日期：2026-09-26；M0-03 PoC 于同日通过 11 项生命周期门禁（`artifacts/m0/cordis-report.json`）；上游 `inject` 缺依赖静默挂起，依赖检查由适配层前置；dep 消失触发上游 restart 语义已记录但不在局中依赖。
+状态：**已采纳（薄适配路线，M2-04 已接入真实 Host）**。日期：2026-09-26；M0-03 PoC 通过 11 项生命周期门禁（`artifacts/m0/cordis-report.json`），M2-04 将同一窄适配提升为 `@seer/plugin-runtime` 并装配 `battle.manager` 服务；上游 `inject` 缺依赖静默挂起，依赖检查仍由适配层前置，dep 消失 restart 不用于局中机制。
 
 ## 问题与证据
 
@@ -21,4 +21,4 @@
 
 ## 可逆性与验证
 
-适配层不得复制 Cordis 全 API；只有这一包 import Cordis。M0 用 provider/consumer 验证失败清理/重入卸载/依赖失效/100 cycles。两轮或 2 工作日仍不达标：禁动态 reload，使用静态 composition + 显式资源释放，记录新 ADR；保留未来替换点，不无止境 fork 修框架。本轮没安装或执行该 PoC，不能标运行时验证通过。
+适配层不得复制 Cordis 全 API；只有 `@seer/plugin-runtime` import Cordis。M0 用 provider/consumer 验证失败清理、重入卸载、依赖失效与 100 cycles；M2-04 另以真实 `BattleManager` 验证多局隔离、服务卸载和 HTTP transport 边界。战斗 core/dispatcher 仍不依赖 Cordis，动态 reload 仍不用于运行中对局。

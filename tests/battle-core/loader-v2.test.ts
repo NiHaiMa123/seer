@@ -33,6 +33,7 @@ describe("v2 compile", () => {
     expect(PACK_V2.movesById.get("syn-hex")!.effects[0]).toEqual({ op: "control", name: "stun", turns: 1, target: "opponent" });
     expect(PACK_V2.unitsById.get("syn-delta")!.revives).toBe(1);
     expect(PACK_V2.unitsById.get("syn-epsilon")!.mode).toBe("boss");
+    expect(PACK_V2.limits.maxBenchSize).toBe(2);
   });
 
   it("v1 pack unchanged: no features, no overlays", () => {
@@ -92,6 +93,13 @@ describe("feature gating (v1 ruleset rejects v2 semantics)", () => {
     (c.units.units[0] as Record<string, unknown>)["mode"] = "ghost";
     c.moves.moves = [mkMove([{ op: "damage", power: 1 }])];
     expect(() => compilePack(c)).toThrow(/mode "ghost"/);
+  });
+  it("bench feature without maxBenchSize → fail", () => {
+    const ruleset = V2_RULESET();
+    delete ruleset.limits.maxBenchSize;
+    const c = base(ruleset, "synthetic-v2");
+    c.moves.moves = [mkMove([{ op: "damage", power: 1 }])];
+    expect(() => compilePack(c)).toThrow(/maxBenchSize/);
   });
 });
 

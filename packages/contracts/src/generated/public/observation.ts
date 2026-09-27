@@ -243,6 +243,9 @@ export const observationSchema: Record<string, unknown> = {
         "unitId",
         "speciesId",
         "hp",
+        "ppByMoveId",
+        "stages",
+        "effects",
         "alive"
       ],
       "properties": {
@@ -256,6 +259,30 @@ export const observationSchema: Record<string, unknown> = {
         },
         "hp": {
           "$ref": "#/definitions/hp"
+        },
+        "ppByMoveId": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "stages": {
+          "$ref": "#/definitions/stages"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/publicEffect"
+          }
+        },
+        "mode": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "revives": {
+          "type": "integer",
+          "minimum": 0
         },
         "alive": {
           "type": "boolean"
@@ -561,6 +588,13 @@ export interface BenchEntry {
   unitId: string;
   speciesId: string;
   hp: Hp;
+  ppByMoveId: {
+    [k: string]: number;
+  };
+  stages: Stages;
+  effects: PublicEffect[];
+  mode?: string;
+  revives?: number;
   alive: boolean;
 }
 export interface VisibleOpponent {

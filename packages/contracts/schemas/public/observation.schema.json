@@ -88,11 +88,19 @@
     "benchEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["unitId", "speciesId", "hp", "alive"],
+      "required": ["unitId", "speciesId", "hp", "ppByMoveId", "stages", "effects", "alive"],
       "properties": {
         "unitId": { "type": "string", "pattern": "^unit_[a-z0-9-]{1,60}$" },
         "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
         "hp": { "$ref": "#/definitions/hp" },
+        "ppByMoveId": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "stages": { "$ref": "#/definitions/stages" },
+        "effects": { "type": "array", "items": { "$ref": "#/definitions/publicEffect" } },
+        "mode": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "revives": { "type": "integer", "minimum": 0 },
         "alive": { "type": "boolean" }
       }
     },

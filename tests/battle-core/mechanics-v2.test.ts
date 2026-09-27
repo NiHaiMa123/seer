@@ -190,4 +190,15 @@ describe("control 三件套", () => {
     expect(r.state.sides.p1.unit.effects.some((e) => e.kind === "tag:marked" && e.remainingTurns === 3)).toBe(true);
     expect(evs(r, "effect-applied").some((e) => e.detail.name === "tag:marked")).toBe(true);
   });
+  it("apply_effect 边界：施加回合不递减，三个后续 TURN_END 后 fade", () => {
+    const r1 = ok(applyTurn(PACK, ge(), { p1: act("act_syn-bolster"), p2: act("act_syn-brand") }));
+    expect(r1.state.sides.p1.unit.effects.find((e) => e.kind === "tag:marked")?.remainingTurns).toBe(3);
+    const r2 = ok(applyTurn(PACK, r1.state, { p1: act("act_syn-recover"), p2: act("act_syn-bolster") }));
+    expect(r2.state.sides.p1.unit.effects.find((e) => e.kind === "tag:marked")?.remainingTurns).toBe(2);
+    const r3 = ok(applyTurn(PACK, r2.state, { p1: act("act_syn-recover"), p2: act("act_syn-bolster") }));
+    expect(r3.state.sides.p1.unit.effects.find((e) => e.kind === "tag:marked")?.remainingTurns).toBe(1);
+    const r4 = ok(applyTurn(PACK, r3.state, { p1: act("act_syn-recover"), p2: act("act_syn-bolster") }));
+    expect(r4.state.sides.p1.unit.effects.some((e) => e.kind === "tag:marked")).toBe(false);
+    expect(evs(r4, "effect-faded").some((e) => e.detail.name === "tag:marked")).toBe(true);
+  });
 });

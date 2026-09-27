@@ -24,7 +24,8 @@
   "limits": {
     "maxEffectApplications": 4096,
     "maxCauseDepth": 64,
-    "maxTurns": 200
+    "maxTurns": 200,
+    "maxBenchSize": 2
   },
   "rng": {
     "algorithmId": "xoshiro128**",
