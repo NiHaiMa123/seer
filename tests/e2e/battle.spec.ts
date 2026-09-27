@@ -255,3 +255,43 @@ test("cleanup/幂等：连击按钮不产生重复生效；页面销毁后重新
     await browser.close();
   }
 });
+
+test("世界闭环：进世界→跑图→挑战boss→认输→领奖→回世界背包入账", async () => {
+  test.setTimeout(90_000);
+  const browser = await chromium.launch();
+  try {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    page.on("pageerror", (e) => { throw new Error(`pageerror: ${e.message}`); });
+    await page.goto(`${server!.url}/`, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("world-screen")).toBeVisible({ timeout: 15_000 });
+    await page.getByTestId("btn-enter").click();
+    await expect(page.getByTestId("world-map")).toBeVisible({ timeout: 10_000 });
+    // 先存档一队（挑战用默认首单位兜底也行，这里显式存）
+    await page.getByTestId("pick-syn-gamma").click();
+    await page.getByTestId("btn-save-team").click();
+    // 跑图到 arena
+    for (const n of ["route-1", "route-2", "arena"]) {
+      await page.getByTestId(`node-${n}`).click();
+      await page.waitForTimeout(120);
+    }
+    // 挑战 → 自动进战局
+    await page.getByTestId("act-challenge").click();
+    await expect(page.getByTestId("battle-status")).toBeVisible({ timeout: 15_000 });
+    // 认输 → bot 自动回应 → 终局
+    await page.getByTestId("btn-act_concede").click();
+    await expect(page.getByTestId("btn-claim")).toBeVisible({ timeout: 15_000 });
+    await page.getByTestId("btn-claim").click();
+    // 再点一次——回执重放，不重复入账
+    await page.waitForTimeout(300);
+    await page.getByTestId("btn-claim").click();
+    await page.waitForTimeout(300);
+    // 回世界：背包应有 item-shard（败方参与奖）且只入账一次
+    await page.getByTestId("back-world").click();
+    await expect(page.getByTestId("world-profile")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("world-profile")).toContainText("item-shard×1");
+    await ctx.close();
+  } finally {
+    await browser.close();
+  }
+});

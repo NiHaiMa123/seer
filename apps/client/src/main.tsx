@@ -213,6 +213,11 @@ function App() {
       </div>
       <pre data-testid="battle-log" style={{ fontSize: 11, height: 140, overflow: "auto" }}>{log.join("\n")}</pre>
       {obs.terminal !== null && qs.get("wpl") !== null && <ClaimReward battleId={BATTLE} playerId={qs.get("wpl")!} />}
+      {qs.get("wpl") !== null && (
+        <div style={{ padding: 8 }}>
+          <a data-testid="back-world" href={`/?wpl=${qs.get("wpl")}`} style={{ color: "#8af" }}>← 返回世界</a>
+        </div>
+      )}
     </div>
   );
 }
@@ -242,94 +247,153 @@ function ClaimReward({ battleId, playerId }: { battleId: string; playerId: strin
   );
 }
 
-/** 队伍编辑器：有序点选——先点的是首发，其余进 bench（≤ pack 上限）。 */
-function TeamBuilder() {
+/** 世界入口页：注册→会话→地图导航/节点动作/队伍编辑/挑战→战斗 闭环。 */
+function World() {
+  const [playerId, setPlayerId] = useState(qs.get("wpl") ?? "wpl_trainer1");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [opsLeft, setOpsLeft] = useState(0);
+  const [allowIrr, setAllowIrr] = useState(true);
   const [pack, setPack] = useState("synthetic-v2");
   const [meta, setMeta] = useState<PackMeta | null>(null);
+  const [map, setMap] = useState<{ location: string; nodes: { id: string; label: string; actions: { id: string; desc: string; irreversible?: boolean }[] }[] } | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [team, setTeam] = useState<string[]>([]);
-  const [pve, setPve] = useState(true);
-  const [err, setErr] = useState("");
-  const [playerId, setPlayerId] = useState("");
-  const [profile, setProfile] = useState<{ wins: number; losses: number; inventory: Record<string, number>; quests: { id: string; desc: string; progress: number; target: number; done: boolean }[]; teams: { name: string; species: string[] }[] } | null>(null);
-  useEffect(() => { setMeta(null); void loadMetaPack(pack).then(setMeta); setTeam([]); }, [pack]);
+  const [log, setLog] = useState<string[]>([]);
+  const say = (s: string) => setLog((l) => [...l.slice(-30), s]);
+  const wplOk = /^wpl_[a-z0-9-]{1,60}$/.test(playerId);
+
+  const refresh = async () => {
+    const [p, m] = await Promise.all([
+      fetch(`/api/world/player/${playerId}`).then((r) => (r.status === 200 ? r.json() : null)),
+      fetch(`/api/world/player/${playerId}/map`).then((r) => (r.status === 200 ? r.json() : null)),
+    ]);
+    setProfile(p); setMap(m);
+  };
+
+  const enter = async () => {
+    if (!wplOk) { say("玩家ID 需 wpl_ 开头"); return; }
+    await fetch("/api/world/player", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ playerId, name: playerId }) });
+    const s = await fetch("/api/world/session", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ playerId, ops: 128, irreversible: allowIrr }),
+    }).then((r) => r.json());
+    setSessionId(s.sessionId); setOpsLeft(s.opsLeft);
+    await refresh();
+    say(`进入世界 — 会话 ${s.sessionId} 预算 ${s.opsLeft}${allowIrr ? "（允许消耗道具）" : ""}`);
+  };
+
+  useEffect(() => { void loadMetaPack(pack).then(setMeta); }, [pack]);
+  useEffect(() => { if (qs.get("wpl") !== null && wplOk) void enter(); }, []); // 战斗归来自动重进
+
+  const op = async (body: Record<string, unknown>) => {
+    const r = await fetch("/api/world/op", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId, ...body }),
+    });
+    const b = await r.json() as any;
+    if (r.status !== 200) { say(`✗ ${b.code}: ${b.message}`); return null; }
+    setOpsLeft(b.opsLeft ?? opsLeft);
+    return b;
+  };
+
+  const move = async (nodeId: string) => {
+    const b = await op({ op: "move", nodeId });
+    if (b !== null) { say(`→ ${b.location}`); await refresh(); }
+  };
+
+  const act = async (actionId: string) => {
+    const b = await op({ op: "act", actionId });
+    if (b === null) return;
+    if (b.battle !== undefined) { // challenge → 直接进战局
+      location.assign(`/?battle=${b.battle.battleId}&player=${b.battle.token}&pve=1&wpl=${playerId}`);
+      return;
+    }
+    say(`✓ ${actionId}: ${JSON.stringify(b.result)}`);
+    await refresh();
+  };
+
   const species = meta === null ? [] : Object.keys(meta.units).sort();
-  const toggle = (id: string) => {
-    setErr("");
-    setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length >= 3 ? t : [...t, id]);
-  };
-  const refreshProfile = async (id: string) => {
-    const r = await fetch(`/api/world/player/${id}`);
-    setProfile(r.status === 200 ? await r.json() : null);
-  };
+  const toggle = (id: string) => setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length >= 3 ? t : [...t, id]);
   const saveTeam = async () => {
-    if (team.length === 0) { setErr("先选队伍再存档"); return; }
+    if (team.length === 0) return;
     await fetch(`/api/world/player/${playerId}/team`, {
       method: "PUT", headers: { "content-type": "application/json" },
       body: JSON.stringify({ name: "main", pack, species: team }),
     });
-    void refreshProfile(playerId);
+    say(`队伍已存档 main=[${team.join(",")}]`);
+    await refresh();
   };
-  const start = async () => {
-    if (team.length === 0) { setErr("选至少 1 只"); return; }
-    // PVE：boss 队 = epsilon 领衔（v2 boss overlay）；PVP：自动取非首发前二
-    const foe = pve && pack === "synthetic-v2" ? ["syn-epsilon", "syn-delta"]
-      : species.filter((s) => s !== team[0]).slice(0, 2);
-    const owners = /^wpl_[a-z0-9-]{1,60}$/.test(playerId) ? { p1: playerId } : undefined;
+  const curNode = map?.nodes.find((n) => n.id === map.location);
+  const quickStart = async () => {
+    if (team.length === 0) { say("先点选队伍"); return; }
+    const foe = pack === "synthetic-v2" ? ["syn-epsilon", "syn-delta"] : species.filter((s) => s !== team[0]).slice(0, 2);
+    const owners = wplOk ? { p1: playerId } : undefined;
     const r = await fetch("/api/battle", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        pack, mode: pve ? "pve" : "pvp",
+        pack, mode: "pve",
         team: { p1: team, p2: foe.length > 0 ? foe : team },
         ...(owners !== undefined ? { owners } : {}),
       }),
     });
     const body = await r.json() as { battleId?: string; tokens?: { p1: string }; message?: string };
-    if (body.battleId === undefined || body.tokens === undefined) { setErr(body.message ?? "create failed"); return; }
-    location.assign(`/?battle=${body.battleId}&player=${body.tokens.p1}${pve ? "&pve=1" : ""}${owners !== undefined ? `&wpl=${playerId}` : ""}`);
+    if (body.battleId === undefined || body.tokens === undefined) { say(`✗ ${body.message ?? "create failed"}`); return; }
+    location.assign(`/?battle=${body.battleId}&player=${body.tokens.p1}&pve=1${owners !== undefined ? `&wpl=${playerId}` : ""}`);
   };
+
   return (
-    <div data-testid="team-builder" style={{ fontFamily: "monospace", color: "#ddd", padding: 16 }}>
-      <h3>队伍编辑 <select data-testid="pack-select" value={pack} onChange={(e) => setPack(e.target.value)}>
-        <option value="synthetic-v2">synthetic-v2</option><option value="synthetic-v1">synthetic-v1</option>
-      </select>
-      {" "}<label><input type="checkbox" data-testid="pve-check" checked={pve} onChange={(e) => setPve(e.target.checked)} /> PVE（打 bot）</label></h3>
+    <div data-testid="world-screen" style={{ fontFamily: "monospace", color: "#ddd", padding: 16 }}>
+      <h3>Seer Reborn — 世界</h3>
       <div style={{ marginBottom: 8 }}>
-        玩家ID <input data-testid="player-id" value={playerId} placeholder="wpl_…（可选，登记后可领奖/存档）"
-          onChange={(e) => setPlayerId(e.target.value)} onBlur={() => { if (/^wpl_/.test(playerId)) void refreshProfile(playerId); }}
-          style={{ fontFamily: "monospace", width: 220 }} />
-        {/^wpl_/.test(playerId) && (
-          <button data-testid="btn-register" onClick={async () => {
-            await fetch("/api/world/player", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ playerId, name: playerId }) });
-            void refreshProfile(playerId);
-          }}>注册/刷新</button>
-        )}
-        {profile !== null && (
-          <span data-testid="world-profile" style={{ fontSize: 12, color: "#8af" }}>
-            {" "}胜{profile.wins}/负{profile.losses} 背包[{Object.entries(profile.inventory).map(([k, v]) => `${k}×${v}`).join(" ") || "空"}]
-            任务[{profile.quests.map((q) => `${q.id}:${q.progress}/${q.target}${q.done ? "✓" : ""}`).join(" ")}]
-          </span>
-        )}
+        玩家ID <input data-testid="player-id" value={playerId}
+          onChange={(e) => { setPlayerId(e.target.value); setSessionId(null); }}
+          style={{ fontFamily: "monospace", width: 200 }} />
+        {" "}<label><input type="checkbox" data-testid="irr-check" checked={allowIrr} onChange={(e) => setAllowIrr(e.target.checked)} /> 允许消耗道具</label>
+        {" "}<button data-testid="btn-enter" onClick={() => void enter()}>进入世界</button>
+        {sessionId !== null && <span style={{ color: "#8af", fontSize: 12 }}> 预算 {opsLeft}/128</span>}
       </div>
-      <div>{species.map((id) => (
-        <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)}
-          style={{ margin: 4, padding: "6px 10px", border: team.includes(id) ? "2px solid #4af" : "1px solid #555" }}>
-          {id} {team.includes(id) ? `(#${team.indexOf(id) + 1})` : ""}
-        </button>
-      ))}</div>
-      <div style={{ margin: "8px 0", fontSize: 12 }}>
-        首发={team[0] ?? "-"} bench=[{team.slice(1).join(", ")}] （点选顺序即上场序，bench ≤2）
-        {pve && pack === "synthetic-v2" && <span style={{ color: "#fd6" }}> — boss 队：syn-epsilon 领衔</span>}
-      </div>
-      <button data-testid="btn-start" onClick={() => void start()}>开战</button>
-      {/^wpl_/.test(playerId) && (
-        <span>
-          {" "}<button data-testid="btn-save-team" onClick={() => void saveTeam()}>存档队伍</button>
-          {profile?.teams.map((t) => (
-            <button key={t.name} data-testid={`load-${t.name}`} onClick={() => setTeam(t.species)}>载入:{t.name}</button>
-          ))}
-        </span>
+      {profile !== null && (
+        <div data-testid="world-profile" style={{ fontSize: 12, color: "#8af", marginBottom: 8 }}>
+          胜{profile.wins}/负{profile.losses} · 背包[{Object.entries(profile.inventory).map(([k, v]) => `${k}×${v}`).join(" ") || "空"}]
+          <br />任务 {profile.quests.map((q: any) => <span key={q.id} style={{ color: q.done ? "#8f8" : "#ddd" }}>{q.desc} {q.progress}/{q.target}{q.done ? "✓" : ""}{"　"}</span>)}
+        </div>
       )}
-      {err && <div style={{ color: "#f66" }}>{err}</div>}
+      {map !== null && (
+        <div data-testid="world-map" style={{ margin: "8px 0", padding: 8, border: "1px solid #444" }}>
+          {map.nodes.map((n) => (
+            <button key={n.id} data-testid={`node-${n.id}`} onClick={() => void move(n.id)}
+              style={{ margin: 4, padding: "6px 10px", border: n.id === map.location ? "2px solid #4af" : "1px solid #555" }}>
+              {n.label}{n.id === map.location ? " ◎" : ""}
+            </button>
+          ))}
+          <div style={{ marginTop: 6 }}>
+            {curNode?.actions.map((a) => (
+              <button key={a.id} data-testid={`act-${a.id}`} onClick={() => void act(a.id)}
+                style={{ margin: 4, padding: "4px 8px", fontSize: 12, border: a.irreversible === true ? "1px solid #f96" : "1px solid #555" }}>
+                {a.irreversible === true ? "⚠ " : ""}{a.desc}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <div data-testid="team-builder" style={{ marginTop: 12, padding: 8, border: "1px solid #444" }}>
+        <b>队伍</b>{" "}<select data-testid="pack-select" value={pack} onChange={(e) => { setPack(e.target.value); setTeam([]); }}>
+          <option value="synthetic-v2">synthetic-v2</option><option value="synthetic-v1">synthetic-v1</option>
+        </select>
+        <div style={{ margin: "6px 0" }}>{species.map((id) => (
+          <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)}
+            style={{ margin: 4, padding: "5px 8px", fontSize: 12, border: team.includes(id) ? "2px solid #4af" : "1px solid #555" }}>
+            {id}{team.includes(id) ? `(#${team.indexOf(id) + 1})` : ""}
+          </button>
+        ))}</div>
+        <span style={{ fontSize: 12 }}>首发={team[0] ?? "-"} bench=[{team.slice(1).join(",")}]</span>
+        {" "}<button data-testid="btn-start" disabled={team.length === 0} onClick={() => void quickStart()}>快速开战</button>
+        {" "}<button data-testid="btn-save-team" disabled={!wplOk || team.length === 0} onClick={() => void saveTeam()}>存档</button>
+        {profile?.teams?.map((t: any) => (
+          <button key={t.name} data-testid={`load-${t.name}`} onClick={() => setTeam(t.species)}>载入:{t.name}</button>
+        ))}
+      </div>
+      <pre data-testid="world-log" style={{ fontSize: 11, height: 90, overflow: "auto", color: "#9ab" }}>{log.join("\n")}</pre>
     </div>
   );
 }
@@ -340,6 +404,6 @@ function loadMetaPack(packId: string): Promise<PackMeta> {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {BATTLE && TOKEN ? <App /> : <TeamBuilder />}
+    {BATTLE && TOKEN ? <App /> : <World />}
   </StrictMode>,
 );
