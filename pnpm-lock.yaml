@@ -197,6 +197,9 @@ importers:
       '@seer/plugin-runtime':
         specifier: workspace:*
         version: link:experiments/cordis
+      '@seer/world':
+        specifier: workspace:*
+        version: link:packages/world
       '@types/node':
         specifier: 24.13.5
         version: 24.13.5
@@ -230,6 +233,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@seer/agent':
+        specifier: workspace:*
+        version: link:../../packages/agent
       '@seer/battle-core':
         specifier: workspace:*
         version: link:../../packages/battle-core
@@ -242,6 +248,9 @@ importers:
       '@seer/plugin-runtime':
         specifier: workspace:*
         version: link:../../experiments/cordis
+      '@seer/world':
+        specifier: workspace:*
+        version: link:../../packages/world
 
   experiments/cordis:
     dependencies:
@@ -301,6 +310,8 @@ importers:
       '@seer/contracts':
         specifier: workspace:*
         version: link:../contracts
+
+  packages/world: {}
 
 packages:
 

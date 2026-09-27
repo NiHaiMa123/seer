@@ -10,7 +10,7 @@
  * INSERT OR IGNORE 保证幂等）。
  */
 import type { Command, Observation, BattleEvent } from "@seer/contracts";
-import { internalValidators, type InternalEvent, type ResolvedInput } from "@seer/contracts/internal";
+import { internalValidators, type InternalEvent, type ResolvedInput, type BattleState } from "@seer/contracts/internal";
 import { canonicalJson } from "@seer/contracts";
 import type { CoreState, FrozenPack } from "@seer/battle-core";
 import { assertCoreState } from "./executor.ts";
@@ -124,6 +124,12 @@ export class PersistedBattleHost {
   }
   receiptFor(playerId: string, key: string): SubmissionRecord | undefined {
     return this.host.receiptFor(playerId, key);
+  }
+
+  /** 终局摘要——world 奖励 entitlement 的服务侧读取面（terminal + revision）。 */
+  outcome(): { terminal: NonNullable<BattleState["terminal"]>; revision: number } | null {
+    const b = this.host.state.battle;
+    return b.terminal === null ? null : { terminal: b.terminal, revision: b.revision };
   }
 
   submit(playerId: string, cmd: Omit<Command, "schemaVersion">): SubmitResult {

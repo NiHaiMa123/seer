@@ -45,11 +45,11 @@
     "verify:m3": "node tools/verify-m3.ts"
   },
   "dependencies": {
+    "@seer/agent": "workspace:*",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "@seer/agent": "workspace:*"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
@@ -57,6 +57,7 @@
     "@seer/contracts": "workspace:*",
     "@seer/host": "workspace:*",
     "@seer/plugin-runtime": "workspace:*",
+    "@seer/world": "workspace:*",
     "@types/node": "24.13.5",
     "ajv": "8.17.1",
     "esbuild": "0.28.2",

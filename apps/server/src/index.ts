@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { loadPackFromDir } from "@seer/battle-core";
 import { BattleManager, BattleStore, HostError, RuntimeArtifactCatalog, RuntimeGenerationRegistry, TeamError, generationIdOf, teamToConfig } from "@seer/host";
 import { decideBaseline } from "@seer/agent";
+import { WorldError, WorldService, WorldStore } from "@seer/world";
 import {
   BATTLE_MANAGER_POLICY,
   BATTLE_MANAGER_SERVICE,
@@ -16,11 +17,15 @@ import {
 import {
   TransportError,
   parseAck,
+  parseClaimReward,
   parseCreateBattle,
   parseCursor,
   parseDelay,
+  parseRegisterPlayer,
+  parseSaveTeam,
   parseSubmit,
   parseToken,
+  parseWorldPlayer,
   readJsonBody,
 } from "./transport.ts";
 
@@ -50,6 +55,11 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function startServer(port = 0, dbPath?: string): Promise<ServerHandle> {
   const db = dbPath ?? join(mkdtempSync(join(tmpdir(), "seer-srv-")), "battle.db");
   const store = new BattleStore(db);
+  // world.db 与 battle.db 并列——域分离（M4-03）
+  const worldDbPath = dbPath === undefined
+    ? join(mkdtempSync(join(tmpdir(), "seer-wld-")), "world.db")
+    : dbPath.replace(/battle\.db$/, "world.db");
+  const world = new WorldService(new WorldStore(worldDbPath));
   const packs = Object.values(PACKS);
   const artifacts = new RuntimeArtifactCatalog(packs);
   const generations = new RuntimeGenerationRegistry();
@@ -65,6 +75,8 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
   const tokens = new Map<string, { battleId: string; playerId: string }>();
   /** pve 席位：battleId → { bossPlayerId, packId } */
   const pveSeats = new Map<string, { boss: string; packId: string }>();
+  /** 世界域：battleId → side→wpl_* 登记 + 首发 species（领奖/任务归属） */
+  const worldMeta = new Map<string, { owners: { p1?: string; p2?: string }; species: { p1: string; p2: string } }>();
   let battleCounter = 0;
 
   /** PVE 驱动：boss 侧有空 decision 就按 rule baseline 自动提交（含 replacement）。 */
@@ -82,7 +94,7 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
         ? (obs.legalActions.find((a) => a.actionId.startsWith("act_switch-"))?.actionId ?? "act_concede")
         : decideBaseline(pack, obs).actionId;
       const r = host.submit(seat.boss, {
-        schemaVersion: 1, battleId, decisionId: d.decisionId,
+        battleId, decisionId: d.decisionId,
         baseRevision: d.baseRevision, actionId: pick,
         idempotencyKey: `bot_${battleId}_${d.decisionId}`,
       });
@@ -135,8 +147,11 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
         const pack = PACKS[packId];
         const generationId = generationByPackId.get(packId);
         if (generationId === undefined || pack === undefined) throw new TransportError(400, `unknown pack ${packId}`);
-        // team（有序）→ species+bench 展开；缺省 species 走默认
-        let species = input.species;
+        // team（有序）→ species+bench 展开；缺省 species 用 pack 前两个单位
+        let species = input.species ?? (() => {
+          const ids = [...pack.unitsById.keys()];
+          return { p1: ids[0]!, p2: ids[1] ?? ids[0]! };
+        })();
         let bench = input.bench;
         if (input.team !== undefined) {
           const t1 = teamToConfig(pack, input.team.p1);
@@ -158,6 +173,9 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
         });
         const p1 = `tok_${randomBytes(16).toString("hex")}`;
         tokens.set(p1, { battleId, playerId: players.p1 });
+        if (input.owners !== undefined) {
+          worldMeta.set(battleId, { owners: input.owners, species });
+        }
         if (pve) {
           // bot 席位不发 token——外部永远无法扮演 p2
           pveSeats.set(battleId, { boss: players.p2, packId });
@@ -209,6 +227,47 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
         return json(res, 200, { cursor: host.ack(playerId, input.seq) });
       }
 
+      // ---- world 域端点（M4-03）：profile/team/inventory/quest/reward ----
+      if (path === "/api/world/player") {
+        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
+        const input = parseRegisterPlayer(await readJsonBody(req));
+        world.registerPlayer(input.playerId, input.name);
+        return json(res, 200, { ok: true });
+      }
+
+      const worldPlayerMatch = path.match(/^\/api\/world\/player\/([^/]+)(\/teams?)?$/);
+      if (worldPlayerMatch) {
+        if (req.method !== "GET" && req.method !== "PUT") return json(res, 405, { code: "INVALID_SCHEMA" });
+        const playerId = parseWorldPlayer(worldPlayerMatch[1]!);
+        if (worldPlayerMatch[2] === "/team" || worldPlayerMatch[2] === "/teams") {
+          if (req.method === "PUT") {
+            const input = parseSaveTeam(await readJsonBody(req));
+            world.saveTeam(playerId, input.name, input.pack, input.species);
+            return json(res, 200, { ok: true });
+          }
+          return json(res, 200, { teams: world.teams(playerId) });
+        }
+        return json(res, 200, world.profile(playerId));
+      }
+
+      if (path === "/api/world/reward") {
+        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
+        const input = parseClaimReward(await readJsonBody(req));
+        const meta = worldMeta.get(input.battleId);
+        const host = battles.get(input.battleId);
+        if (meta === undefined || host === undefined) return json(res, 404, { code: "NOT_FOUND", message: "battle" });
+        const out = host.outcome();
+        if (out === null) return json(res, 409, { code: "STALE_DECISION", message: "battle not terminal" });
+        const result = world.claimReward({
+          battleId: input.battleId,
+          terminal: out.terminal,
+          revision: out.revision,
+          owners: meta.owners,
+          opponentSpecies: meta.species,
+        }, input.playerId);
+        return json(res, 200, result);
+      }
+
       const file = path === "/" ? "index.html" : path.slice(1);
       const full = join(CLIENT_DIST, file);
       if (existsSync(full) && !file.includes("..")) {
@@ -222,6 +281,10 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
       if (error instanceof TransportError) return json(res, error.status, { code: error.code, message: error.message });
       if (error instanceof TeamError) return json(res, 400, { code: error.code, message: error.message });
       if (error instanceof HostError) {
+        const status = error.code === "UNAUTHORIZED" ? 401 : error.code === "NOT_FOUND" ? 404 : 400;
+        return json(res, status, { code: error.code, message: error.message });
+      }
+      if (error instanceof WorldError) {
         const status = error.code === "UNAUTHORIZED" ? 401 : error.code === "NOT_FOUND" ? 404 : 400;
         return json(res, status, { code: error.code, message: error.message });
       }

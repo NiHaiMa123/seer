@@ -7,7 +7,8 @@
 import type { FrozenPack } from "@seer/battle-core";
 
 export class TeamError extends Error {
-  constructor(readonly code: string, message: string) { super(message); }
+  readonly code: string;
+  constructor(code: string, message: string) { super(message); this.code = code; }
 }
 
 export function teamToConfig(

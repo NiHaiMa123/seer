@@ -212,6 +212,32 @@ function App() {
         </button>
       </div>
       <pre data-testid="battle-log" style={{ fontSize: 11, height: 140, overflow: "auto" }}>{log.join("\n")}</pre>
+      {obs.terminal !== null && qs.get("wpl") !== null && <ClaimReward battleId={BATTLE} playerId={qs.get("wpl")!} />}
+    </div>
+  );
+}
+
+/** 终局领奖：outbox exactly-once——重复点击回执相同、不重复入账。 */
+function ClaimReward({ battleId, playerId }: { battleId: string; playerId: string }) {
+  const [res, setRes] = useState<{ items?: Record<string, number>; fresh?: boolean; err?: string } | null>(null);
+  const claim = async () => {
+    const r = await fetch("/api/world/reward", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ playerId, battleId }),
+    });
+    const b = await r.json() as { receipt?: { items: Record<string, number> }; fresh?: boolean; message?: string };
+    setRes(b.receipt !== undefined
+      ? { items: b.receipt.items, fresh: b.fresh }
+      : { err: b.message ?? `claim failed (${r.status})` });
+  };
+  return (
+    <div data-testid="claim-reward" style={{ padding: 8 }}>
+      <button data-testid="btn-claim" onClick={() => void claim()}>领取奖励</button>
+      {res !== null && (
+        res.items !== undefined
+          ? <span style={{ color: "#8f8" }}> +{Object.entries(res.items).map(([k, v]) => `${k}×${v}`).join(" ")}（{res.fresh === true ? "已入账" : "回执重放——未重复入账"}）</span>
+          : <span style={{ color: "#f66" }}> {res.err}</span>
+      )}
     </div>
   );
 }
@@ -223,27 +249,43 @@ function TeamBuilder() {
   const [team, setTeam] = useState<string[]>([]);
   const [pve, setPve] = useState(true);
   const [err, setErr] = useState("");
+  const [playerId, setPlayerId] = useState("");
+  const [profile, setProfile] = useState<{ wins: number; losses: number; inventory: Record<string, number>; quests: { id: string; desc: string; progress: number; target: number; done: boolean }[]; teams: { name: string; species: string[] }[] } | null>(null);
   useEffect(() => { setMeta(null); void loadMetaPack(pack).then(setMeta); setTeam([]); }, [pack]);
   const species = meta === null ? [] : Object.keys(meta.units).sort();
   const toggle = (id: string) => {
     setErr("");
     setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length >= 3 ? t : [...t, id]);
   };
+  const refreshProfile = async (id: string) => {
+    const r = await fetch(`/api/world/player/${id}`);
+    setProfile(r.status === 200 ? await r.json() : null);
+  };
+  const saveTeam = async () => {
+    if (team.length === 0) { setErr("先选队伍再存档"); return; }
+    await fetch(`/api/world/player/${playerId}/team`, {
+      method: "PUT", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: "main", pack, species: team }),
+    });
+    void refreshProfile(playerId);
+  };
   const start = async () => {
     if (team.length === 0) { setErr("选至少 1 只"); return; }
     // PVE：boss 队 = epsilon 领衔（v2 boss overlay）；PVP：自动取非首发前二
     const foe = pve && pack === "synthetic-v2" ? ["syn-epsilon", "syn-delta"]
       : species.filter((s) => s !== team[0]).slice(0, 2);
+    const owners = /^wpl_[a-z0-9-]{1,60}$/.test(playerId) ? { p1: playerId } : undefined;
     const r = await fetch("/api/battle", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({
         pack, mode: pve ? "pve" : "pvp",
         team: { p1: team, p2: foe.length > 0 ? foe : team },
+        ...(owners !== undefined ? { owners } : {}),
       }),
     });
     const body = await r.json() as { battleId?: string; tokens?: { p1: string }; message?: string };
     if (body.battleId === undefined || body.tokens === undefined) { setErr(body.message ?? "create failed"); return; }
-    location.assign(`/?battle=${body.battleId}&player=${body.tokens.p1}${pve ? "&pve=1" : ""}`);
+    location.assign(`/?battle=${body.battleId}&player=${body.tokens.p1}${pve ? "&pve=1" : ""}${owners !== undefined ? `&wpl=${playerId}` : ""}`);
   };
   return (
     <div data-testid="team-builder" style={{ fontFamily: "monospace", color: "#ddd", padding: 16 }}>
@@ -251,6 +293,23 @@ function TeamBuilder() {
         <option value="synthetic-v2">synthetic-v2</option><option value="synthetic-v1">synthetic-v1</option>
       </select>
       {" "}<label><input type="checkbox" data-testid="pve-check" checked={pve} onChange={(e) => setPve(e.target.checked)} /> PVE（打 bot）</label></h3>
+      <div style={{ marginBottom: 8 }}>
+        玩家ID <input data-testid="player-id" value={playerId} placeholder="wpl_…（可选，登记后可领奖/存档）"
+          onChange={(e) => setPlayerId(e.target.value)} onBlur={() => { if (/^wpl_/.test(playerId)) void refreshProfile(playerId); }}
+          style={{ fontFamily: "monospace", width: 220 }} />
+        {/^wpl_/.test(playerId) && (
+          <button data-testid="btn-register" onClick={async () => {
+            await fetch("/api/world/player", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ playerId, name: playerId }) });
+            void refreshProfile(playerId);
+          }}>注册/刷新</button>
+        )}
+        {profile !== null && (
+          <span data-testid="world-profile" style={{ fontSize: 12, color: "#8af" }}>
+            {" "}胜{profile.wins}/负{profile.losses} 背包[{Object.entries(profile.inventory).map(([k, v]) => `${k}×${v}`).join(" ") || "空"}]
+            任务[{profile.quests.map((q) => `${q.id}:${q.progress}/${q.target}${q.done ? "✓" : ""}`).join(" ")}]
+          </span>
+        )}
+      </div>
       <div>{species.map((id) => (
         <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)}
           style={{ margin: 4, padding: "6px 10px", border: team.includes(id) ? "2px solid #4af" : "1px solid #555" }}>
@@ -262,6 +321,14 @@ function TeamBuilder() {
         {pve && pack === "synthetic-v2" && <span style={{ color: "#fd6" }}> — boss 队：syn-epsilon 领衔</span>}
       </div>
       <button data-testid="btn-start" onClick={() => void start()}>开战</button>
+      {/^wpl_/.test(playerId) && (
+        <span>
+          {" "}<button data-testid="btn-save-team" onClick={() => void saveTeam()}>存档队伍</button>
+          {profile?.teams.map((t) => (
+            <button key={t.name} data-testid={`load-${t.name}`} onClick={() => setTeam(t.species)}>载入:{t.name}</button>
+          ))}
+        </span>
+      )}
       {err && <div style={{ color: "#f66" }}>{err}</div>}
     </div>
   );

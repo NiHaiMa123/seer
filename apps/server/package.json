@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@seer/agent": "workspace:*",
     "@seer/battle-core": "workspace:*",
     "@seer/contracts": "workspace:*",
     "@seer/host": "workspace:*",
-    "@seer/plugin-runtime": "workspace:*"
+    "@seer/plugin-runtime": "workspace:*",
+    "@seer/world": "workspace:*"
   }
 }

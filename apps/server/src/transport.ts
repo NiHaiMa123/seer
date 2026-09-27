@@ -14,13 +14,16 @@ export class TransportError extends Error {
 
 export interface CreateBattleRequest {
   seedHex: string;
-  species: { p1: string; p2: string };
+  /** 未给时由 server 按 pack 前两个单位补默认 */
+  species?: { p1: string; p2: string };
   bench?: { p1?: string[]; p2?: string[] };
   /** 有序队伍（[0]首发，余下 bench）——与 species/bench 互斥 */
   team?: { p1: string[]; p2: string[] };
   pack?: string;
   /** pve：p2 为服务端 bot 席位（不发 token，自动提交） */
   mode?: "pvp" | "pve";
+  /** 世界席位登记：side → wpl_* playerId（奖励归属用） */
+  owners?: { p1?: string; p2?: string };
   deadlineMs: number;
 }
 
@@ -77,9 +80,21 @@ const teamPair = (value: unknown): { p1: string[]; p2: string[] } => {
   return { p1: benchSide(input.p1, "team.p1"), p2: benchSide(input.p2, "team.p2") };
 };
 
+const worldPlayer = (value: unknown, label: string): string =>
+  text(value, label, /^wpl_[a-z0-9-]{1,60}$/);
+
+const owners = (value: unknown): { p1?: string; p2?: string } => {
+  const input = asRecord(value, "owners");
+  exact(input, ["p1", "p2"], "owners");
+  return {
+    ...(input.p1 !== undefined ? { p1: worldPlayer(input.p1, "owners.p1") } : {}),
+    ...(input.p2 !== undefined ? { p2: worldPlayer(input.p2, "owners.p2") } : {}),
+  };
+};
+
 export function parseCreateBattle(value: unknown): CreateBattleRequest {
   const input = asRecord(value, "create battle body");
-  exact(input, ["seedHex", "species", "bench", "team", "pack", "mode", "deadlineMs"], "create battle body");
+  exact(input, ["seedHex", "species", "bench", "team", "pack", "mode", "owners", "deadlineMs"], "create battle body");
   if (input.mode !== undefined && input.mode !== "pvp" && input.mode !== "pve") {
     throw new TransportError(400, "mode must be pvp or pve");
   }
@@ -88,12 +103,44 @@ export function parseCreateBattle(value: unknown): CreateBattleRequest {
   }
   return {
     seedHex: input.seedHex === undefined ? "f".repeat(32) : text(input.seedHex, "seedHex", /^[0-9a-f]{32}$/),
-    species: input.species === undefined ? { p1: "syn-alpha", p2: "syn-beta" } : speciesPair(input.species),
+    ...(input.species !== undefined ? { species: speciesPair(input.species) } : {}),
     ...(input.team !== undefined ? { team: teamPair(input.team) } : {}),
     ...(input.bench !== undefined ? { bench: bench(input.bench) } : {}),
     ...(input.pack !== undefined ? { pack: text(input.pack, "pack", /^[a-z0-9][a-z0-9-]*$/) } : {}),
     ...(input.mode !== undefined ? { mode: input.mode as "pvp" | "pve" } : {}),
+    ...(input.owners !== undefined ? { owners: owners(input.owners) } : {}),
     deadlineMs: input.deadlineMs === undefined ? 30_000 : integer(input.deadlineMs, "deadlineMs", 1, 300_000),
+  };
+}
+
+const WORLD_ID = /^wpl_[a-z0-9-]{1,60}$/;
+
+export function parseWorldPlayer(value: string | null): string {
+  return text(value, "playerId", WORLD_ID);
+}
+
+export function parseRegisterPlayer(value: unknown): { playerId: string; name: string } {
+  const input = asRecord(value, "register body");
+  exact(input, ["playerId", "name"], "register body");
+  return { playerId: worldPlayer(input.playerId, "playerId"), name: text(input.name, "name") };
+}
+
+export function parseSaveTeam(value: unknown): { name: string; pack: string; species: string[] } {
+  const input = asRecord(value, "save team body");
+  exact(input, ["name", "pack", "species"], "save team body");
+  return {
+    name: text(input.name, "name", /^[a-z0-9][a-z0-9-]{0,60}$/),
+    pack: text(input.pack, "pack", /^[a-z0-9][a-z0-9-]*$/),
+    species: benchSide(input.species, "species"),
+  };
+}
+
+export function parseClaimReward(value: unknown): { playerId: string; battleId: string } {
+  const input = asRecord(value, "claim body");
+  exact(input, ["playerId", "battleId"], "claim body");
+  return {
+    playerId: worldPlayer(input.playerId, "playerId"),
+    battleId: text(input.battleId, "battleId", /^btl_[a-z0-9-]{1,60}$/),
   };
 }
 
