@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { loadPackFromDir } from "@seer/battle-core";
 import { BattleManager, BattleStore, HostError, RuntimeArtifactCatalog, RuntimeGenerationRegistry, TeamError, generationIdOf, teamToConfig } from "@seer/host";
+import { decideBaseline } from "@seer/agent";
 import {
   BATTLE_MANAGER_POLICY,
   BATTLE_MANAGER_SERVICE,
@@ -62,7 +63,32 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
   await plugins.loadPlugin(battleManagerPlugin(manager), BATTLE_MANAGER_POLICY);
   const battles = plugins.require<BattleManager>(BATTLE_MANAGER_SERVICE);
   const tokens = new Map<string, { battleId: string; playerId: string }>();
+  /** pve 席位：battleId → { bossPlayerId, packId } */
+  const pveSeats = new Map<string, { boss: string; packId: string }>();
   let battleCounter = 0;
+
+  /** PVE 驱动：boss 侧有空 decision 就按 rule baseline 自动提交（含 replacement）。 */
+  const drivePve = (battleId: string): void => {
+    const seat = pveSeats.get(battleId);
+    if (seat === undefined) return;
+    const host = battles.get(battleId);
+    const pack = PACKS[seat.packId];
+    if (host === undefined || pack === undefined) return;
+    for (let guard = 0; guard < 8; guard++) {
+      const obs = host.observe(seat.boss);
+      const d = obs.decision;
+      if (d === null || !d.actors.includes(obs.side)) return;
+      const pick = d.kind === "replacement"
+        ? (obs.legalActions.find((a) => a.actionId.startsWith("act_switch-"))?.actionId ?? "act_concede")
+        : decideBaseline(pack, obs).actionId;
+      const r = host.submit(seat.boss, {
+        schemaVersion: 1, battleId, decisionId: d.decisionId,
+        baseRevision: d.baseRevision, actionId: pick,
+        idempotencyKey: `bot_${battleId}_${d.decisionId}`,
+      });
+      if (!r.ok) return;
+    }
+  };
 
   const json = (res: ServerResponse, status: number, body: unknown) => {
     res.writeHead(status, { "content-type": "application/json" });
@@ -119,7 +145,8 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
           bench = { ...(t1.bench !== undefined ? { p1: t1.bench } : {}), ...(t2.bench !== undefined ? { p2: t2.bench } : {}) };
         }
         const battleId = `btl_${(++battleCounter).toString(16)}`;
-        const players = { p1: `p1_${battleId}`, p2: `p2_${battleId}` };
+        const pve = input.mode === "pve";
+        const players = { p1: `p1_${battleId}`, p2: pve ? `bot_${battleId}` : `p2_${battleId}` };
         battles.create({
           battleId,
           seedHex: input.seedHex,
@@ -130,8 +157,14 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
           deadlineMs: input.deadlineMs,
         });
         const p1 = `tok_${randomBytes(16).toString("hex")}`;
-        const p2 = `tok_${randomBytes(16).toString("hex")}`;
         tokens.set(p1, { battleId, playerId: players.p1 });
+        if (pve) {
+          // bot 席位不发 token——外部永远无法扮演 p2
+          pveSeats.set(battleId, { boss: players.p2, packId });
+          drivePve(battleId); // t1 决策已开
+          return json(res, 200, { battleId, mode: "pve", tokens: { p1 } });
+        }
+        const p2 = `tok_${randomBytes(16).toString("hex")}`;
         tokens.set(p2, { battleId, playerId: players.p2 });
         return json(res, 200, { battleId, tokens: { p1, p2 } });
       }
@@ -165,6 +198,7 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
           if (!playerId) return json(res, 401, { code: "UNAUTHORIZED" });
           const result = host.submit(playerId, input.command);
           if (!result.ok) return json(res, 200, { ok: false, code: result.error.code, message: result.error.message });
+          drivePve(battleId); // 玩家提交后 bot 立即回应（resolve 已内联发生）
           return json(res, 200, { ok: true, receipt: result.receipt });
         }
 

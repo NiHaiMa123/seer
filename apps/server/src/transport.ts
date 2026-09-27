@@ -19,6 +19,8 @@ export interface CreateBattleRequest {
   /** 有序队伍（[0]首发，余下 bench）——与 species/bench 互斥 */
   team?: { p1: string[]; p2: string[] };
   pack?: string;
+  /** pve：p2 为服务端 bot 席位（不发 token，自动提交） */
+  mode?: "pvp" | "pve";
   deadlineMs: number;
 }
 
@@ -77,7 +79,10 @@ const teamPair = (value: unknown): { p1: string[]; p2: string[] } => {
 
 export function parseCreateBattle(value: unknown): CreateBattleRequest {
   const input = asRecord(value, "create battle body");
-  exact(input, ["seedHex", "species", "bench", "team", "pack", "deadlineMs"], "create battle body");
+  exact(input, ["seedHex", "species", "bench", "team", "pack", "mode", "deadlineMs"], "create battle body");
+  if (input.mode !== undefined && input.mode !== "pvp" && input.mode !== "pve") {
+    throw new TransportError(400, "mode must be pvp or pve");
+  }
   if (input.team !== undefined && (input.species !== undefined || input.bench !== undefined)) {
     throw new TransportError(400, "team is mutually exclusive with species/bench");
   }
@@ -87,6 +92,7 @@ export function parseCreateBattle(value: unknown): CreateBattleRequest {
     ...(input.team !== undefined ? { team: teamPair(input.team) } : {}),
     ...(input.bench !== undefined ? { bench: bench(input.bench) } : {}),
     ...(input.pack !== undefined ? { pack: text(input.pack, "pack", /^[a-z0-9][a-z0-9-]*$/) } : {}),
+    ...(input.mode !== undefined ? { mode: input.mode as "pvp" | "pve" } : {}),
     deadlineMs: input.deadlineMs === undefined ? 30_000 : integer(input.deadlineMs, "deadlineMs", 1, 300_000),
   };
 }
