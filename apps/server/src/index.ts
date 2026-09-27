@@ -78,6 +78,30 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
     const url = new URL(req.url ?? "/", "http://localhost");
     const path = url.pathname;
     try {
+      if (path.startsWith("/api/content/")) {
+        // 公开规则知识：pack 的 moves/units 元数据（玩家有权查规则——lookup_rule 的 HTTP 等价）
+        const packId = path.slice("/api/content/".length);
+        const pack = PACKS[packId];
+        if (!pack) return json(res, 404, { code: "NOT_FOUND", message: "pack" });
+        return json(res, 200, {
+          packId,
+          moves: Object.fromEntries(
+            [...pack.movesById.values()].map((m) => {
+              const dmg = m.effects.find((e) => e.op === "damage") as { power?: number; kind?: string } | undefined;
+              return [m.id, {
+                label: m.id,
+                power: dmg?.power ?? 0,
+                damageKind: dmg?.kind ?? "standard",
+                ops: m.effects.map((e) => e.op),
+              }];
+            }),
+          ),
+          units: Object.fromEntries(
+            [...pack.unitsById.values()].map((u) => [u.id, { speciesId: u.id, hp: u.base.hp }]),
+          ),
+        });
+      }
+
       if (path === "/api/battle") {
         if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
         const input = parseCreateBattle(await readJsonBody(req));

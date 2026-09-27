@@ -5,6 +5,10 @@
 export function chooseAction(obs: any): string | null {
   const d = obs.decision;
   if (!d || !d.actors.includes(obs.side)) return null; // 非本侧决策轮
+  if (d.kind === "replacement") {
+    // KO 替补：选第一个存活 bench 的 switch 动作
+    return obs.legalActions.find((a: any) => a.actionId.startsWith("act_switch-"))?.actionId ?? "act_concede";
+  }
   const legal = new Set(obs.legalActions.map((l: any) => l.actionId));
   const own = obs.own;
   const has = (id: string) => legal.has(id) && legal.has(`act_${id}`) === legal.has(id); // noop guard

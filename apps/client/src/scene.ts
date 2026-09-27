@@ -33,9 +33,26 @@ export class BattleScene {
     this.app.ticker.maxFPS = 120;
   }
 
-  setup(ownId: string, foeId: string): void {
-    this.mkUnit(ownId, 160, "self", 0x3ea6ff);
-    this.mkUnit(foeId, 560, "foe", 0xff6b4a);
+  setup(ownId: string, foeId: string, ownName = "我方", foeName = "对手"): void {
+    this.mkUnit(ownId, 160, ownName, 0x3ea6ff);
+    this.mkUnit(foeId, 560, foeName, 0xff6b4a);
+  }
+
+  /** switch/replacement：旧单位淡出，新单位同位换入。返回新 SceneUnit 供 id 重映射。 */
+  swapUnit(outUnitId: string, inUnitId: string, side: "self" | "foe", speciesId: string): void {
+    const old = this.units.get(outUnitId);
+    const x = old?.x ?? (side === "self" ? 160 : 560);
+    if (old) {
+      this.push((p) => { old.box.alpha = 1 - p; old.box.y = 170 + p * 50; }, 300);
+      const name = old.nameText, bar = old.hpBar, hpT = old.hpText;
+      this.push(() => { this.app.stage.removeChild(old.box, bar, name, hpT); }, 1);
+      this.units.delete(outUnitId);
+    }
+    const color = side === "self" ? 0x3ea6ff : 0xff6b4a;
+    this.mkUnit(inUnitId, x, speciesId, color);
+    const nu = this.units.get(inUnitId)!;
+    nu.box.alpha = 0;
+    this.push((p) => { nu.box.alpha = p; nu.box.y = 220 - p * 50; }, 300);
   }
 
   private mkUnit(unitId: string, x: number, tag: string, color: number): void {
@@ -89,8 +106,34 @@ export class BattleScene {
         this.push((p) => { u.box.alpha = 1 - p; u.box.y = 170 + p * 60; }, 500);
         break;
       }
+      case "revive": {
+        const u = this.units.get(unitOf(ev.side as string));
+        if (!u) return;
+        this.push((p) => { u.box.alpha = p < 0.5 ? p * 2 : 2 - p * 2; u.box.tint = 0xfff27a; }, 400);
+        this.push(() => { u.box.alpha = 1; u.box.tint = 0xffffff; }, 1);
+        break;
+      }
+      case "effect-applied": {
+        const u = this.units.get(unitOf(ev.side as string));
+        if (!u) return;
+        this.push((p) => { u.box.tint = p < 0.5 ? 0x9f7aff : 0xffffff; }, 250);
+        break;
+      }
+      case "control-immune": {
+        const u = this.units.get(unitOf(ev.side as string));
+        if (!u) return;
+        this.push((p) => { u.box.tint = p < 0.5 ? 0x8affc1 : 0xffffff; }, 250);
+        break;
+      }
+      case "action-failed": {
+        const u = this.units.get(unitOf(ev.side as string));
+        if (!u) return;
+        this.push((p) => { u.box.rotation = Math.sin(p * Math.PI * 2) * 0.15; }, 300);
+        this.push(() => { u.box.rotation = 0; }, 1);
+        break;
+      }
       default:
-        break; // turn-begin/heal(struggle-used 未画)/battle-end：无动画
+        break; // turn-begin/heal/stages-*/battle-end/struggle：无动画或已覆盖
     }
   }
 

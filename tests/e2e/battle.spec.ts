@@ -19,11 +19,11 @@ test.afterAll(async () => {
 
 const api = (path: string) => `${server!.url}${path}`;
 
-async function newBattle(seed: string): Promise<{ battleId: string; tokens: { p1: string; p2: string } }> {
+async function newBattle(seed: string, extra?: Record<string, unknown>): Promise<{ battleId: string; tokens: { p1: string; p2: string } }> {
   const r = await fetch(api("/api/battle"), {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ seedHex: seed }),
+    body: JSON.stringify({ seedHex: seed, ...extra }),
   });
   return (await r.json()) as { battleId: string; tokens: { p1: string; p2: string } };
 }
@@ -147,6 +147,54 @@ test("慢 mock（history 延迟 2s）下 UI 仍可操作提交", async () => {
       const s = await pB.getByTestId("battle-status").textContent();
       expect(s).toContain("turn=2");
     }).toPass({ timeout: 15_000, intervals: [300] });
+
+    await ctxA.close();
+    await ctxB.close();
+  } finally {
+    await browser.close();
+  }
+});
+
+test("v2 机制 UI：bench 面板 + replacement 横幅 + 徽标", async () => {
+  test.setTimeout(120_000);
+  const browser = await chromium.launch();
+  try {
+    // 双 bench → delta KO 后 p2 得 replacement 决策；epsilon(boss) 上场
+    const { battleId, tokens } = await newBattle("e5".repeat(16), {
+      pack: "synthetic-v2",
+      species: { p1: "syn-gamma", p2: "syn-delta" },
+      bench: { p1: ["syn-epsilon"], p2: ["syn-epsilon"] },
+    });
+    const ctxA = await browser.newContext();
+    const ctxB = await browser.newContext();
+    const pA = await openPlayer(ctxA, battleId, tokens.p1);
+    const pB = await openPlayer(ctxB, battleId, tokens.p2);
+
+    // bench 面板可见（双方各 1 个后备）
+    await expect(pA.getByTestId("bench-0")).toBeVisible();
+    await expect(pB.getByTestId("bench-0")).toBeVisible();
+    // 徽标渲染（meta endpoint 提供 damageKind）
+    const btn = pA.getByTestId("btn-act_syn-strike");
+    await expect(btn).toContainText("[STD", { timeout: 10_000 });
+
+    // AI 双侧自动打到 KO+replacement（p2 delta revive→KO→选替补）
+    for (let i = 0; i < 200; i++) {
+      const sB = await pB.getByTestId("battle-status").textContent();
+      if (sB?.includes('"result"')) break;
+      if ((await pB.getByTestId("replacement-banner").count()) > 0) break; // 横幅出现即停——AI 会自己选替补
+      await actOnce(pA);
+      const sw = pB.locator("button[data-testid^='btn-act_switch-']:not([disabled])");
+      if ((await sw.count()) > 0) { await sw.first().click({ timeout: 800 }).catch(() => {}); }
+      await actOnce(pB);
+      await pA.waitForTimeout(120);
+    }
+    // p2 侧应出现过 replacement 横幅（KO 后选替补）
+    await expect(pB.getByTestId("replacement-banner")).toBeVisible({ timeout: 10_000 });
+    // 换入 epsilon 后 p2 状态栏 unitId 变化 → log 里有 switch 事件
+    await pB.getByTestId("btn-act_switch-0").click({ timeout: 1500 }).catch(() => {});
+    await pA.waitForTimeout(400);
+    const log = await pB.getByTestId("battle-log").textContent();
+    expect(log ?? "").toContain("switch");
 
     await ctxA.close();
     await ctxB.close();
