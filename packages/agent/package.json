@@ -1,0 +1,14 @@
+{
+  "name": "@seer/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@seer/battle-core": "workspace:*",
+    "@seer/contracts": "workspace:*",
+    "ajv": "8.17.1"
+  }
+}

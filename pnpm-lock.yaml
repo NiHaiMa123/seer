@@ -166,6 +166,9 @@ importers:
 
   .:
     dependencies:
+      '@seer/agent':
+        specifier: workspace:*
+        version: link:packages/agent
       '@types/react':
         specifier: 19.2.18
         version: 19.2.18
@@ -266,6 +269,18 @@ importers:
       pixi.js:
         specifier: 8.21.0
         version: 8.21.0
+
+  packages/agent:
+    dependencies:
+      '@seer/battle-core':
+        specifier: workspace:*
+        version: link:../battle-core
+      '@seer/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      ajv:
+        specifier: 8.17.1
+        version: 8.17.1
 
   packages/battle-core:
     dependencies:

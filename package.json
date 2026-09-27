@@ -39,13 +39,15 @@
     "perf:render": "node tools/build-render-bundle.ts && playwright test render",
     "verify:m0": "node tools/verify-m0.ts",
     "vectors:gen": "node experiments/determinism/scripts/gen-vectors.ts",
-    "check:boundaries": "node tools/check-boundaries.ts"
+    "check:boundaries": "node tools/check-boundaries.ts",
+    "test:agent": "vitest run tests/agent/"
   },
   "dependencies": {
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "@seer/agent": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
