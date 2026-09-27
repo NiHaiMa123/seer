@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-27T13:16:29.088Z",
+  "gates": [
+    {
+      "gate": "regression:typecheck",
+      "status": "PASS",
+      "evidence": "tsc -p tsconfig.json"
+    },
+    {
+      "gate": "regression:boundaries",
+      "status": "PASS",
+      "evidence": "public/internal 边界扫描"
+    },
+    {
+      "gate": "regression:unit",
+      "status": "PASS",
+      "evidence": "vitest 全量（不含 e2e/playwright spec）"
+    },
+    {
+      "gate": "presentation:e2e",
+      "status": "PASS",
+      "evidence": "bench 面板/replacement 横幅/effect+stage chips/伤害徽标（5 用例）"
+    },
+    {
+      "gate": "team",
+      "status": "PASS",
+      "evidence": "有序展开/bench≤maxBenchSize/v1 门禁/互斥（9 用例）"
+    },
+    {
+      "gate": "pve",
+      "status": "PASS",
+      "evidence": "bot 席位无 token、boss overlay、单人到终局（2 用例）"
+    },
+    {
+      "gate": "world:persistence+outbox",
+      "status": "PASS",
+      "evidence": "outbox 键 (battleId,recipient,resultRevision)、重放不重复入账、db 重开存活（5 用例）"
+    },
+    {
+      "gate": "world:ops",
+      "status": "PASS",
+      "evidence": "会话预算耗尽/停机全拒/邻接校验/POLICY_DENIED/challenge→建局（4 用例）"
+    },
+    {
+      "gate": "world:agent",
+      "status": "PASS",
+      "evidence": "目标驱动 BFS/预算收敛/不可逆不误触（4 用例）"
+    }
+  ]
+}

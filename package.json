@@ -42,7 +42,8 @@
     "check:boundaries": "node tools/check-boundaries.ts",
     "test:agent": "vitest run tests/agent/",
     "eval:m3": "node tools/eval-m3.ts",
-    "verify:m3": "node tools/verify-m3.ts"
+    "verify:m3": "node tools/verify-m3.ts",
+    "verify:m4": "node tools/verify-m4.ts"
   },
   "dependencies": {
     "@seer/agent": "workspace:*",
