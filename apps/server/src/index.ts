@@ -1,70 +1,60 @@
-import { randomBytes } from "node:crypto";
-import { createServer, type ServerResponse } from "node:http";
-import { readFileSync, existsSync, mkdtempSync } from "node:fs";
+/**
+ * index.ts —— server 装配根（composition root）。
+ * 只做三件事：建基础设施（store/generations/manager）、按 profile 装插件、把请求交给路由注册表。
+ * 功能域全部是插件：content / battle-manager / battle-api / world-api / static-web。
+ * 加一个域 = 写 PluginSpec + 进 profile；删一个域 = profile 去掉它（端点随之消失）。
+ */
+import { createServer } from "node:http";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { loadPackFromDir } from "@seer/battle-core";
-import { BattleManager, BattleStore, HostError, RuntimeArtifactCatalog, RuntimeGenerationRegistry, TeamError, generationIdOf, teamToConfig } from "@seer/host";
-import { decideBaseline } from "@seer/agent";
+import { BattleManager, BattleStore, HostError, RuntimeArtifactCatalog, RuntimeGenerationRegistry, TeamError, generationIdOf } from "@seer/host";
 import { WorldError, WorldService, WorldStore } from "@seer/world";
 import {
   BATTLE_MANAGER_POLICY,
   BATTLE_MANAGER_SERVICE,
   PluginHost,
   battleManagerPlugin,
+  type LoadPolicy,
+  type PluginSpec,
 } from "@seer/plugin-runtime";
-import {
-  TransportError,
-  parseAck,
-  parseClaimReward,
-  parseCreateBattle,
-  parseOpenSession,
-  parseSessionId,
-  parseWorldOp,
-  parseCursor,
-  parseDelay,
-  parseRegisterPlayer,
-  parseSaveTeam,
-  parseSubmit,
-  parseToken,
-  parseWorldPlayer,
-  readJsonBody,
-} from "./transport.ts";
+import { TransportError } from "./transport.ts";
+import { HTTP_ROUTER_SERVICE, Router } from "./router.ts";
+import { contentPlugin, CONTENT_CATALOG_SERVICE, type ContentCatalog } from "./plugins/content.ts";
+import { battleApiPlugin, BATTLE_API_POLICY } from "./plugins/battle.ts";
+import { worldApiPlugin, WORLD_API_POLICY, WORLD_SERVICE_KEY } from "./plugins/world.ts";
+import { staticPlugin, STATIC_POLICY } from "./plugins/static.ts";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const PACKS = Object.fromEntries(
   ["synthetic-v1", "synthetic-v2"].map((id) => [id, loadPackFromDir(join(ROOT, "content"), id)]),
 );
-const DEFAULT_PACK_ID = "synthetic-v1";
 const CLIENT_DIST = join(ROOT, "apps", "client");
-
-const MIME: Record<string, string> = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "text/javascript; charset=utf-8",
-  ".css": "text/css",
-  ".map": "application/json",
-};
 
 export interface ServerHandle {
   port: number;
   url: string;
   close(): Promise<void>;
   battles: BattleManager;
+  plugins: PluginHost;
+  router: Router;
 }
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export interface ModuleEntry {
+  spec: PluginSpec;
+  policy: LoadPolicy;
+}
 
-export async function startServer(port = 0, dbPath?: string): Promise<ServerHandle> {
+export async function startServer(port = 0, dbPath?: string, opts?: { exclude?: string[]; extra?: ModuleEntry[] }): Promise<ServerHandle> {
   const db = dbPath ?? join(mkdtempSync(join(tmpdir(), "seer-srv-")), "battle.db");
   const store = new BattleStore(db);
-  // world.db 与 battle.db 并列——域分离（M4-03）
   const worldDbPath = dbPath === undefined
     ? join(mkdtempSync(join(tmpdir(), "seer-wld-")), "world.db")
     : dbPath.replace(/battle\.db$/, "world.db");
   const world = new WorldService(new WorldStore(worldDbPath));
-  const packs = Object.values(PACKS);
-  const artifacts = new RuntimeArtifactCatalog(packs);
+  const artifacts = new RuntimeArtifactCatalog(Object.values(PACKS));
   const generations = new RuntimeGenerationRegistry();
   const generationByPackId = new Map<string, string>();
   for (const [packId, pack] of Object.entries(PACKS)) {
@@ -72,284 +62,38 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
     await generations.activate(pack);
   }
   const manager = new BattleManager(store, generations, artifacts);
+  const catalog: ContentCatalog = { packs: PACKS, generationByPackId, defaultPackId: "synthetic-v1" };
+
+  // 插件装配：基础设施服务由 host 直接 provide，功能域走 loadPlugin（依赖在执行入口前校验）
   const plugins = new PluginHost();
-  await plugins.loadPlugin(battleManagerPlugin(manager), BATTLE_MANAGER_POLICY);
+  const router = new Router();
+  plugins.provideService(HTTP_ROUTER_SERVICE, router);
+  plugins.provideService(WORLD_SERVICE_KEY, world);
+  const excluded = new Set(opts?.exclude ?? []);
+  const modules = [...defaultModulesFor(manager, catalog), ...(opts?.extra ?? [])]
+    .filter((m) => !excluded.has(m.spec.manifest.pluginId));
+  for (const m of modules) await plugins.loadPlugin(m.spec, m.policy);
   const battles = plugins.require<BattleManager>(BATTLE_MANAGER_SERVICE);
-  const tokens = new Map<string, { battleId: string; playerId: string }>();
-  /** pve 席位：battleId → { bossPlayerId, packId } */
-  const pveSeats = new Map<string, { boss: string; packId: string }>();
-  /** 世界域：battleId → side→wpl_* 登记 + 首发 species（领奖/任务归属） */
-  const worldMeta = new Map<string, { owners: { p1?: string; p2?: string }; species: { p1: string; p2: string } }>();
-  let battleCounter = 0;
-
-  /** PVE 驱动：boss 侧有空 decision 就按 rule baseline 自动提交（含 replacement）。 */
-  const drivePve = (battleId: string): void => {
-    const seat = pveSeats.get(battleId);
-    if (seat === undefined) return;
-    const host = battles.get(battleId);
-    const pack = PACKS[seat.packId];
-    if (host === undefined || pack === undefined) return;
-    for (let guard = 0; guard < 8; guard++) {
-      const obs = host.observe(seat.boss);
-      const d = obs.decision;
-      if (d === null || !d.actors.includes(obs.side)) return;
-      const pick = d.kind === "replacement"
-        ? (obs.legalActions.find((a) => a.actionId.startsWith("act_switch-"))?.actionId ?? "act_concede")
-        : decideBaseline(pack, obs).actionId;
-      const r = host.submit(seat.boss, {
-        battleId, decisionId: d.decisionId,
-        baseRevision: d.baseRevision, actionId: pick,
-        idempotencyKey: `bot_${battleId}_${d.decisionId}`,
-      });
-      if (!r.ok) return;
-    }
-  };
-
-  const json = (res: ServerResponse, status: number, body: unknown) => {
-    res.writeHead(status, { "content-type": "application/json" });
-    res.end(JSON.stringify(body));
-  };
-
-  const playerFor = (token: string, battleId: string): string | null => {
-    const binding = tokens.get(token);
-    return binding?.battleId === battleId ? binding.playerId : null;
-  };
 
   const server = createServer(async (req, res) => {
-    const url = new URL(req.url ?? "/", "http://localhost");
-    const path = url.pathname;
     try {
-      if (path.startsWith("/api/content/")) {
-        // 公开规则知识：pack 的 moves/units 元数据（玩家有权查规则——lookup_rule 的 HTTP 等价）
-        const packId = path.slice("/api/content/".length);
-        const pack = PACKS[packId];
-        if (!pack) return json(res, 404, { code: "NOT_FOUND", message: "pack" });
-        return json(res, 200, {
-          packId,
-          moves: Object.fromEntries(
-            [...pack.movesById.values()].map((m) => {
-              const dmg = m.effects.find((e) => e.op === "damage") as { power?: number; kind?: string } | undefined;
-              return [m.id, {
-                label: m.id,
-                power: dmg?.power ?? 0,
-                damageKind: dmg?.kind ?? "standard",
-                ops: m.effects.map((e) => e.op),
-              }];
-            }),
-          ),
-          units: Object.fromEntries(
-            [...pack.unitsById.values()].map((u) => [u.id, { speciesId: u.id, hp: u.base.hp }]),
-          ),
-        });
+      const handled = await router.dispatch(req, res);
+      if (!handled) {
+        res.writeHead(404);
+        res.end("not found");
       }
-
-      if (path === "/api/battle") {
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const input = parseCreateBattle(await readJsonBody(req));
-        const packId = input.pack ?? DEFAULT_PACK_ID;
-        const pack = PACKS[packId];
-        const generationId = generationByPackId.get(packId);
-        if (generationId === undefined || pack === undefined) throw new TransportError(400, `unknown pack ${packId}`);
-        // team（有序）→ species+bench 展开；缺省 species 用 pack 前两个单位
-        let species = input.species ?? (() => {
-          const ids = [...pack.unitsById.keys()];
-          return { p1: ids[0]!, p2: ids[1] ?? ids[0]! };
-        })();
-        let bench = input.bench;
-        if (input.team !== undefined) {
-          const t1 = teamToConfig(pack, input.team.p1);
-          const t2 = teamToConfig(pack, input.team.p2);
-          species = { p1: t1.species, p2: t2.species };
-          bench = { ...(t1.bench !== undefined ? { p1: t1.bench } : {}), ...(t2.bench !== undefined ? { p2: t2.bench } : {}) };
-        }
-        const battleId = `btl_${(++battleCounter).toString(16)}`;
-        const pve = input.mode === "pve";
-        const players = { p1: `p1_${battleId}`, p2: pve ? `bot_${battleId}` : `p2_${battleId}` };
-        battles.create({
-          battleId,
-          seedHex: input.seedHex,
-          species,
-          ...(bench !== undefined ? { bench } : {}),
-          generationId,
-          players,
-          deadlineMs: input.deadlineMs,
-        });
-        const p1 = `tok_${randomBytes(16).toString("hex")}`;
-        tokens.set(p1, { battleId, playerId: players.p1 });
-        if (input.owners !== undefined) {
-          worldMeta.set(battleId, { owners: input.owners, species });
-        }
-        if (pve) {
-          // bot 席位不发 token——外部永远无法扮演 p2
-          pveSeats.set(battleId, { boss: players.p2, packId });
-          drivePve(battleId); // t1 决策已开
-          return json(res, 200, { battleId, mode: "pve", tokens: { p1 } });
-        }
-        const p2 = `tok_${randomBytes(16).toString("hex")}`;
-        tokens.set(p2, { battleId, playerId: players.p2 });
-        return json(res, 200, { battleId, tokens: { p1, p2 } });
-      }
-
-      const match = path.match(/^\/api\/battle\/([^/]+)\/(observe|history|submit|ack|resync)$/);
-      if (match) {
-        const battleId = match[1]!;
-        const op = match[2]!;
-        const host = battles.get(battleId);
-        if (!host) return json(res, 404, { code: "NOT_FOUND", message: "battle" });
-
-        if (op === "observe" || op === "history" || op === "resync") {
-          if (req.method !== "GET") return json(res, 405, { code: "INVALID_SCHEMA" });
-          const token = parseToken(url.searchParams.get("player"));
-          const playerId = playerFor(token, battleId);
-          if (!playerId) return json(res, 401, { code: "UNAUTHORIZED" });
-          if (op === "observe") return json(res, 200, host.observe(playerId));
-          const since = parseCursor(url.searchParams.get("since"));
-          if (op === "history") {
-            const slowMs = parseDelay(url.searchParams.get("slow"));
-            if (slowMs > 0) await sleep(slowMs);
-            return json(res, 200, host.history(playerId, since));
-          }
-          return json(res, 200, host.resync(playerId, since));
-        }
-
-        if (op === "submit") {
-          if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-          const input = parseSubmit(battleId, await readJsonBody(req));
-          const playerId = playerFor(input.token, battleId);
-          if (!playerId) return json(res, 401, { code: "UNAUTHORIZED" });
-          const result = host.submit(playerId, input.command);
-          if (!result.ok) return json(res, 200, { ok: false, code: result.error.code, message: result.error.message });
-          drivePve(battleId); // 玩家提交后 bot 立即回应（resolve 已内联发生）
-          return json(res, 200, { ok: true, receipt: result.receipt });
-        }
-
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const input = parseAck(await readJsonBody(req));
-        const playerId = playerFor(input.token, battleId);
-        if (!playerId) return json(res, 401, { code: "UNAUTHORIZED" });
-        return json(res, 200, { cursor: host.ack(playerId, input.seq) });
-      }
-
-      // ---- world 域端点（M4-03）：profile/team/inventory/quest/reward ----
-      if (path === "/api/world/player") {
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const input = parseRegisterPlayer(await readJsonBody(req));
-        world.registerPlayer(input.playerId, input.name);
-        return json(res, 200, { ok: true });
-      }
-
-      const worldPlayerMatch = path.match(/^\/api\/world\/player\/([^/]+)(\/teams?)?$/);
-      if (worldPlayerMatch) {
-        if (req.method !== "GET" && req.method !== "PUT") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const playerId = parseWorldPlayer(worldPlayerMatch[1]!);
-        if (worldPlayerMatch[2] === "/team" || worldPlayerMatch[2] === "/teams") {
-          if (req.method === "PUT") {
-            const input = parseSaveTeam(await readJsonBody(req));
-            world.saveTeam(playerId, input.name, input.pack, input.species);
-            return json(res, 200, { ok: true });
-          }
-          return json(res, 200, { teams: world.teams(playerId) });
-        }
-        return json(res, 200, world.profile(playerId));
-      }
-
-      // ---- 世界探索 op：会话预算 + move/act（M4-04） ----
-      if (path === "/api/world/session") {
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const input = parseOpenSession(await readJsonBody(req));
-        const s = world.openSession(input.playerId, { ops: input.ops, allowIrreversible: input.irreversible });
-        return json(res, 200, { sessionId: s.sessionId, opsLeft: s.opsLeft, irreversible: s.irreversible });
-      }
-
-      const stopMatch = path.match(/^\/api\/world\/session\/([^/]+)\/stop$/);
-      if (stopMatch) {
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        world.stopSession(parseSessionId(stopMatch[1]!));
-        return json(res, 200, { ok: true });
-      }
-
-      const mapMatch = path.match(/^\/api\/world\/player\/([^/]+)\/map$/);
-      if (mapMatch) {
-        if (req.method !== "GET") return json(res, 405, { code: "INVALID_SCHEMA" });
-        return json(res, 200, world.map(parseWorldPlayer(mapMatch[1]!)));
-      }
-
-      if (path === "/api/world/op") {
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const input = parseWorldOp(await readJsonBody(req));
-        if (input.op === "move") {
-          return json(res, 200, world.move(input.sessionId, input.nodeId!));
-        }
-        const actRes = world.act(input.sessionId, input.actionId!);
-        // challenge：翻译成真实 pve 建局（玩家队取存档 main，boss 队由动作给）
-        const ch = actRes.result["challenge"] as { pack: string; bossTeam: string[] } | undefined;
-        if (ch !== undefined) {
-          const sess = world.session(input.sessionId);
-          const pack = PACKS[ch.pack];
-          const generationId = generationByPackId.get(ch.pack);
-          if (pack === undefined || generationId === undefined) throw new TransportError(400, `unknown pack ${ch.pack}`);
-          const saved = world.teams(sess.playerId).find((t) => t.name === "main" && t.pack === ch.pack)?.species;
-          const t1 = teamToConfig(pack, saved ?? [[...pack.unitsById.keys()][0]!]);
-          const t2 = teamToConfig(pack, ch.bossTeam);
-          const battleId = `btl_${(++battleCounter).toString(16)}`;
-          const players = { p1: `p1_${battleId}`, p2: `bot_${battleId}` };
-          battles.create({
-            battleId, seedHex: randomBytes(16).toString("hex"),
-            species: { p1: t1.species, p2: t2.species },
-            ...(t1.bench !== undefined || t2.bench !== undefined
-              ? { bench: { ...(t1.bench !== undefined ? { p1: t1.bench } : {}), ...(t2.bench !== undefined ? { p2: t2.bench } : {}) } }
-              : {}),
-            generationId, players, deadlineMs: 30_000,
-          });
-          const tok = `tok_${randomBytes(16).toString("hex")}`;
-          tokens.set(tok, { battleId, playerId: players.p1 });
-          pveSeats.set(battleId, { boss: players.p2, packId: ch.pack });
-          worldMeta.set(battleId, { owners: { p1: sess.playerId }, species: { p1: t1.species, p2: t2.species } });
-          drivePve(battleId);
-          return json(res, 200, { ...actRes, battle: { battleId, token: tok } });
-        }
-        return json(res, 200, actRes);
-      }
-
-      if (path === "/api/world/reward") {
-        if (req.method !== "POST") return json(res, 405, { code: "INVALID_SCHEMA" });
-        const input = parseClaimReward(await readJsonBody(req));
-        const meta = worldMeta.get(input.battleId);
-        const host = battles.get(input.battleId);
-        if (meta === undefined || host === undefined) return json(res, 404, { code: "NOT_FOUND", message: "battle" });
-        const out = host.outcome();
-        if (out === null) return json(res, 409, { code: "STALE_DECISION", message: "battle not terminal" });
-        const result = world.claimReward({
-          battleId: input.battleId,
-          terminal: out.terminal,
-          revision: out.revision,
-          owners: meta.owners,
-          opponentSpecies: meta.species,
-        }, input.playerId);
-        return json(res, 200, result);
-      }
-
-      const file = path === "/" ? "index.html" : path.slice(1);
-      const full = join(CLIENT_DIST, file);
-      if (existsSync(full) && !file.includes("..")) {
-        const ext = `.${file.split(".").pop()}`;
-        res.writeHead(200, { "content-type": MIME[ext] ?? "application/octet-stream" });
-        return res.end(readFileSync(full));
-      }
-      res.writeHead(404);
-      res.end("not found");
     } catch (error) {
-      if (error instanceof TransportError) return json(res, error.status, { code: error.code, message: error.message });
-      if (error instanceof TeamError) return json(res, 400, { code: error.code, message: error.message });
-      if (error instanceof HostError) {
+      const json = (status: number, body: unknown) => {
+        res.writeHead(status, { "content-type": "application/json" });
+        res.end(JSON.stringify(body));
+      };
+      if (error instanceof TransportError) return json(error.status, { code: error.code, message: error.message });
+      if (error instanceof TeamError) return json(400, { code: error.code, message: error.message });
+      if (error instanceof HostError || error instanceof WorldError) {
         const status = error.code === "UNAUTHORIZED" ? 401 : error.code === "NOT_FOUND" ? 404 : 400;
-        return json(res, status, { code: error.code, message: error.message });
+        return json(status, { code: error.code, message: error.message });
       }
-      if (error instanceof WorldError) {
-        const status = error.code === "UNAUTHORIZED" ? 401 : error.code === "NOT_FOUND" ? 404 : 400;
-        return json(res, status, { code: error.code, message: error.message });
-      }
-      return json(res, 500, { code: "ENGINE_FAULT", message: String(error) });
+      return json(500, { code: "ENGINE_FAULT", message: String(error) });
     }
   });
 
@@ -360,6 +104,8 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
     port: address.port,
     url: `http://127.0.0.1:${address.port}`,
     battles,
+    plugins,
+    router,
     close: async () => {
       if (closed) return;
       closed = true;
@@ -368,6 +114,16 @@ export async function startServer(port = 0, dbPath?: string): Promise<ServerHand
       store.close();
     },
   };
+}
+
+function defaultModulesFor(manager: BattleManager, catalog: ContentCatalog): ModuleEntry[] {
+  return [
+    { spec: contentPlugin(catalog), policy: { grantedCapabilities: [] } },
+    { spec: battleManagerPlugin(manager), policy: BATTLE_MANAGER_POLICY },
+    { spec: battleApiPlugin(), policy: BATTLE_API_POLICY },
+    { spec: worldApiPlugin(), policy: WORLD_API_POLICY },
+    { spec: staticPlugin(CLIENT_DIST), policy: STATIC_POLICY },
+  ];
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

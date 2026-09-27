@@ -183,9 +183,9 @@ test("v2 机制 UI：bench 面板 + replacement 横幅 + 徽标", async () => {
       if (sB?.includes('"result"')) break;
       if ((await pB.getByTestId("replacement-banner").count()) > 0) break; // 横幅出现即停——AI 会自己选替补
       await actOnce(pA);
-      const sw = pB.locator("button[data-testid^='btn-act_switch-']:not([disabled])");
-      if ((await sw.count()) > 0) { await sw.first().click({ timeout: 800 }).catch(() => {}); }
-      await actOnce(pB);
+      // pB 只点招式——replacement 期间不打断，让横幅存活到下一轮被检测
+      const strikeB = pB.getByTestId("btn-act_syn-strike");
+      if (await strikeB.isEnabled().catch(() => false)) await strikeB.click({ timeout: 800 }).catch(() => {});
       await pA.waitForTimeout(120);
     }
     // p2 侧应出现过 replacement 横幅（KO 后选替补）
@@ -234,11 +234,22 @@ test("cleanup/幂等：连击按钮不产生重复生效；页面销毁后重新
     const ctx = await browser.newContext();
     const page = await openPlayer(ctx, battleId, tokens.p1);
 
-    // React StrictMode dev 双挂载：若 cleanup 失败会有两个 BattleClient 轮询。
-    // 验证：连续点击两次——同一 idempotencyKey（h-<side>-<dec>）→ 只生效一次；
-    // log 无 ALREADY_SUBMITTED / ERR。
+    // cleanup：页面销毁后无残留轮询。幂等：UI 提交后按钮即收起（双击竞态不可靠），
+    // 改为协议层用同一幂等键重放——服务端应返回 duplicate-replay 而非重复生效。
+    const pre: any = await page.evaluate(async (a: { battleId: string; token: string }) => {
+      const r = await fetch(`/api/battle/${a.battleId}/observe?player=${encodeURIComponent(a.token)}`);
+      return r.json();
+    }, { battleId, token: tokens.p1 });
     await page.getByTestId("btn-act_syn-strike").click();
-    await page.getByTestId("btn-act_syn-strike").click();
+    const dup: any = await page.evaluate(async ({ battleId, token, decisionId, baseRevision }: { battleId: string; token: string; decisionId: string; baseRevision: number }) => {
+      const r = await fetch(`/api/battle/${battleId}/submit`, {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ player: token, decisionId, actionId: "act_syn-strike", baseRevision, idempotencyKey: `h-p1-${decisionId}` }),
+      });
+      return r.json();
+    }, { battleId, token: tokens.p1, decisionId: pre.decision.decisionId, baseRevision: pre.decision.baseRevision });
+    expect(dup.ok).toBe(true);
+    expect(dup.receipt?.status).toBe("duplicate-replay");
     await page.waitForTimeout(600);
     const log = await page.getByTestId("battle-log").textContent();
     expect(log ?? "").not.toContain("ALREADY_SUBMITTED");
@@ -263,7 +274,7 @@ test("世界闭环：进世界→跑图→挑战boss→认输→领奖→回世�
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     page.on("pageerror", (e) => { throw new Error(`pageerror: ${e.message}`); });
-    await page.goto(`${server!.url}/`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${server!.url}/?world=1`, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("world-screen")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("btn-enter").click();
     await expect(page.getByTestId("world-map")).toBeVisible({ timeout: 10_000 });

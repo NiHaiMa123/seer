@@ -9,7 +9,8 @@ import { StrictMode, useEffect, useRef, useState } from "react";
 import { BattleClient } from "./api.ts";
 import { BattleScene } from "./scene.ts";
 import { chooseAction } from "./ai.ts";
-import { loadMeta, packIdOf, moveBadge, type PackMeta } from "./meta.ts";
+import { loadMeta, packIdOf, moveBadge, zhSpecies, zhMove, zhMode, zhReason, zhEvent, zhEffect, describeMove, type PackMeta } from "./meta.ts";
+import { slots, type BattlePanelCtx } from "./slots.ts";
 
 declare const window: any;
 
@@ -35,7 +36,7 @@ function Chips({ effects, stages }: { effects?: any[]; stages?: any }) {
       })}
       {(effects ?? []).map((e: any, i: number) => (
         <span key={i} style={{ fontSize: 10, padding: "0 4px", border: `1px solid ${effectColor(e.kind)}`, color: effectColor(e.kind) }}>
-          {e.kind}{e.remainingTurns !== undefined ? `:${e.remainingTurns}` : ""}{e.stack !== undefined ? `×${e.stack}` : ""}
+          {zhEffect(e.kind)}{e.remainingTurns !== undefined ? `:${e.remainingTurns}` : ""}{e.stack !== undefined ? `×${e.stack}` : ""}
         </span>
       ))}
     </span>
@@ -50,12 +51,52 @@ function BenchPanel({ bench }: { bench: any[] }) {
           border: `1px solid ${b.alive ? "#4a6" : "#533"}`, padding: "2px 8px", fontSize: 11,
           opacity: b.alive ? 1 : 0.45,
         }}>
-          {b.speciesId} {b.hp.current}/{b.hp.max}
-          {b.mode !== undefined && <span style={{ color: "#fd6" }}> [{b.mode}]</span>}
+          {zhSpecies(b.speciesId)} <span style={{ fontSize: 9, color: "#6a7ca8" }}>{b.speciesId}</span> {b.hp.current}/{b.hp.max}
+          {b.mode !== undefined && <span style={{ color: "#fd6" }}> [{zhMode(b.mode)}]</span>}
           {b.revives !== undefined && b.revives > 0 && <span style={{ color: "#8af" }}> ↻{b.revives}</span>}
           <Chips effects={b.effects} stages={b.stages} />
         </div>
       ))}
+    </div>
+  );
+}
+
+/** unitId → speciesId：switch 事件不含 species 字段，从最新 obs 反查 */
+function speciesOf(obs: any, unitId: string): string | undefined {
+  if (obs.own?.unitId === unitId) return obs.own.speciesId;
+  if (obs.opponent?.unitId === unitId) return obs.opponent.speciesId;
+  return obs.own?.bench?.find((b: any) => b.unitId === unitId)?.speciesId;
+}
+
+/** speciesId → 头像底色（与 scene 的 speciesSkin 同算法，UI 一致） */
+function speciesHue(speciesId: string): number {
+  let h = 0;
+  for (const c of speciesId) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h % 360;
+}
+
+/** 单位信息卡——赛尔号式：圆形头像 + Lv + 名字 + HP 条 + 状态 chips */
+function UnitCard({ u, side, benchAlive }: { u: any; side: "own" | "foe"; benchAlive?: number }) {
+  const hue = speciesHue(u.speciesId);
+  const low = u.hp.current / u.hp.max < 0.3;
+  return (
+    <div className="ucard" data-testid={`ucard-${side}`}>
+      <div className="avatar" style={{ background: `radial-gradient(circle at 35% 30%, hsl(${hue},70%,70%), hsl(${hue},60%,40%))` }}>
+        {u.speciesId.slice(4, 5).toUpperCase()}
+      </div>
+      <div style={{ flex: 1 }}>
+        <div className="nm">{zhSpecies(u.speciesId)}
+          <span className="lv"> Lv.100</span>
+          {u.mode !== undefined && <span style={{ color: "#fd6", fontSize: 10 }}> [{zhMode(u.mode)}]</span>}
+          {u.revives !== undefined && u.revives > 0 && <span style={{ color: "#8af", fontSize: 10 }}> ↻{u.revives}</span>}
+          {benchAlive !== undefined && <span style={{ color: "#8af", fontSize: 10 }}> 后备×{benchAlive}</span>}
+        </div>
+        <div className={`hpbar${low ? " low" : ""}`}>
+          <i style={{ width: `${(u.hp.current / u.hp.max) * 100}%` }} />
+          <b>{u.hp.current}/{u.hp.max}</b>
+        </div>
+        <Chips effects={u.effects} stages={u.stages} />
+      </div>
     </div>
   );
 }
@@ -65,7 +106,7 @@ function App() {
   const [meta, setMeta] = useState<PackMeta | null>(null);
   const [log, setLog] = useState<string[]>([]);
   const [speed, setSpeed] = useState(SPEED);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const clientRef = useRef<BattleClient | null>(null);
   const sceneRef = useRef<BattleScene | null>(null);
   const cursorRef = useRef(0);
@@ -88,7 +129,7 @@ function App() {
       void loadMeta(packIdOf(r.observation)).then((m) => { if (alive) setMeta(m); });
       const o = r.observation;
       unitIds.current = { own: o.own.unitId, opp: o.opponent.unitId };
-      scene.setup(o.own.unitId, o.opponent.unitId, o.own.speciesId, o.opponent.speciesId);
+      scene.setup(o.own.unitId, o.opponent.unitId, zhSpecies(o.own.speciesId), zhSpecies(o.opponent.speciesId));
       scene.setHp(o.own.unitId, o.own.hp.current, o.own.hp.max);
       scene.setHp(o.opponent.unitId, o.opponent.hp.current, o.opponent.hp.max);
       setObs(o);
@@ -99,10 +140,11 @@ function App() {
           scene.enqueueEvent(ev, unitIds.current!, o.side);
           if (ev.type === "switch" && unitIds.current) {
             const key = ev.side === o.side ? "own" : "opp";
-            scene.swapUnit(ev.outUnitId, ev.inUnitId, key === "own" ? "self" : "foe", "");
+            const sp = zhSpecies(speciesOf(o, ev.inUnitId) ?? ev.inUnitId);
+            scene.swapUnit(ev.outUnitId, ev.inUnitId, key === "own" ? "self" : "foe", sp);
             unitIds.current[key] = ev.inUnitId;
           }
-          setLog((l) => [...l.slice(-60), `${ev.type} ${JSON.stringify(ev)}`]);
+          setLog((l) => [...l.slice(-60), `${zhEvent(ev.type)} ${JSON.stringify(ev)}`]);
         }
         cursorRef.current = cur;
         void client.ack(cur);
@@ -120,6 +162,8 @@ function App() {
         if (unitIds.current.opp !== o.opponent.unitId) unitIds.current.opp = o.opponent.unitId;
         scene.setHp(o.own.unitId, o.own.hp.current, o.own.hp.max);
         scene.setHp(o.opponent.unitId, o.opponent.hp.current, o.opponent.hp.max);
+        scene.setName(o.own.unitId, zhSpecies(o.own.speciesId));
+        scene.setName(o.opponent.unitId, zhSpecies(o.opponent.speciesId));
       }
     };
 
@@ -164,67 +208,156 @@ function App() {
     }
   }, [AUTOPLAY, obs]);
 
-  if (!obs) return <div data-testid="loading">loading…</div>;
-  const myTurn = obs.decision !== null && obs.decision.actors.includes(obs.side) && obs.terminal === null;
-  const isReplacement = obs.decision?.kind === "replacement";
+  const myTurn = obs !== null && obs.decision !== null && obs.decision.actors.includes(obs.side) && obs.terminal === null;
+  const isReplacement = obs?.decision?.kind === "replacement";
+  const ctx: BattlePanelCtx = {
+    obs, meta, myTurn, isReplacement, submit, log, speed,
+    onSkip: () => sceneRef.current?.skip(),
+    onCycleSpeed: () => {
+      const s = speed >= 4 ? 1 : speed * 2;
+      setSpeed(s);
+      if (sceneRef.current) sceneRef.current.speed = s;
+    },
+  };
 
   return (
-    <div style={{ fontFamily: "monospace", color: "#ddd" }}>
-      <div data-testid="battle-status" style={{ padding: 8 }}>
-        {qs.get("pve") === "1" && <span data-testid="pve-badge" style={{ color: "#fd6", marginRight: 8 }}>[PVE]</span>}
+    <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      {obs === null && <div data-testid="loading" style={{ padding: 40, textAlign: "center", color: "#9ab4e8" }}>载入中…</div>}
+      {/* battle.top 面板区：单位卡/横幅——presentation 插件可 registerPanel 追加 */}
+      {obs !== null && slots.panels("battle.top").map((C, i) => <C key={i} {...ctx} />)}
+      {/* 中央战场（Pixi 自建 canvas 挂载于此——挂外层 canvas 会被 StrictMode 重挂载杀上下文） */}
+      <div ref={canvasRef} data-testid="pixi-canvas" style={{ width: 720, minHeight: 360, margin: "0 auto", borderRadius: 12, border: "1px solid #24365e", overflow: "hidden" }} />
+      {/* battle.hud 面板区：替补/技能栏/日志/终局——按注册顺序渲染 */}
+      {obs !== null && slots.panels("battle.hud").map((C, i) => <C key={i} {...ctx} />)}
+    </div>
+  );
+}
+
+/** battle.top：顶部信息栏——双单位卡 + 回合徽标 + 终局横幅 */
+function BattleTop({ obs }: BattlePanelCtx) {
+  return (
+    <>
+      <div data-testid="battle-status" style={{ position: "absolute", left: -9999, top: -9999, fontSize: 1 }}>
+        {qs.get("pve") === "1" && <span>[PVE]</span>}
         side={obs.side} turn={obs.turn} rev={obs.revision} terminal={JSON.stringify(obs.terminal)}
       </div>
-      {isReplacement && myTurn && (
-        <div data-testid="replacement-banner" style={{ margin: "0 8px", padding: 8, background: "#533", border: "1px solid #f66" }}>
-          ⚠ 精灵倒下 — 选择替补上场
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 10px 0" }}>
+        <UnitCard u={obs.own} side="own" />
+        <div style={{ textAlign: "center" }}>
+          {qs.get("pve") === "1" && <div data-testid="pve-badge" style={{ color: "#fd6", fontSize: 11 }}>人机对战</div>}
+          <span className="turnbadge">第 {obs.turn} 回合</span>
+          {obs.terminal !== null && (
+            <div data-testid="result-banner" style={{
+              marginTop: 8, padding: "6px 18px", borderRadius: 8, fontSize: 18, fontWeight: 800, letterSpacing: 4,
+              background: obs.terminal.result === obs.side ? "#2c5a2c" : "#5a2c2c",
+              border: `1px solid ${obs.terminal.result === obs.side ? "#7bf0a8" : "#ff8a6a"}`,
+              color: obs.terminal.result === obs.side ? "#b8ffd0" : "#ffc0b0",
+            }}>
+              {obs.terminal.result === obs.side ? "胜 利" : obs.terminal.result === "draw" ? "平 局" : "战 败"}
+              <div style={{ fontSize: 10, fontWeight: 400, letterSpacing: 0, color: "#9ab4e8", marginTop: 2 }}>{zhReason(obs.terminal.reason)}</div>
+            </div>
+          )}
         </div>
-      )}
-      <canvas ref={canvasRef} data-testid="pixi-canvas" />
-      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 8px", fontSize: 12 }}>
-        <span>{obs.own.speciesId}<Chips effects={obs.own.effects} stages={obs.own.stages} />
-          {obs.own.revives !== undefined && obs.own.revives > 0 && <span style={{ color: "#8af", fontSize: 10 }}> ↻{obs.own.revives}</span>}
-          {obs.own.mode !== undefined && <span style={{ color: "#fd6", fontSize: 10 }}> [{obs.own.mode}]</span>}
-        </span>
-        <span>{obs.opponent.speciesId}
-          {obs.opponent.benchAlive !== undefined && <span style={{ color: "#8af", fontSize: 10 }}> bench×{obs.opponent.benchAlive}</span>}
-          <Chips effects={obs.opponent.effects} stages={obs.opponent.stages} />
-          {obs.opponent.mode !== undefined && <span style={{ color: "#fd6", fontSize: 10 }}> [{obs.opponent.mode}]</span>}
-        </span>
+        <UnitCard u={obs.opponent} side="foe" benchAlive={obs.opponent.benchAlive} />
       </div>
-      {obs.own.bench !== undefined && <BenchPanel bench={obs.own.bench} />}
-      <div style={{ display: "flex", gap: 8, padding: 8 }}>
-        {obs.legalActions.map((a: any) => {
-          const moveId = a.actionId.startsWith("act_") && a.action?.kind === "move" ? a.actionId.slice(4) : null;
+    </>
+  );
+}
+
+/** battle.top：替补决策横幅 */
+function ReplacementBanner({ myTurn, isReplacement }: BattlePanelCtx) {
+  if (!isReplacement || !myTurn) return null;
+  return (
+    <div data-testid="replacement-banner" style={{ margin: "4px 10px", padding: 8, background: "#533", border: "1px solid #f66", borderRadius: 8 }}>
+      ⚠ 精灵倒下 — 选择替补上场
+    </div>
+  );
+}
+
+/** battle.hud：替补面板 */
+function BenchRow({ obs }: BattlePanelCtx) {
+  if (obs.own.bench === undefined) return null;
+  return <BenchPanel bench={obs.own.bench} />;
+}
+
+/** battle.hud：技能栏 + 右侧功能键 */
+function SkillBar({ obs, meta, myTurn, isReplacement, submit, speed, onSkip, onCycleSpeed }: BattlePanelCtx) {
+  const moveActs = obs.legalActions.filter((a: any) => a.action?.kind === "move" || a.action?.kind === "switch" || a.action?.kind === "struggle");
+  const concede = obs.legalActions.find((a: any) => a.action?.kind === "concede");
+  return (
+    <div style={{ display: "flex", gap: 8, padding: "8px 10px", alignItems: "stretch" }}>
+      <div style={{ display: "flex", gap: 8, flex: 1, flexWrap: "wrap" }}>
+        {moveActs.map((a: any) => {
+          const moveId = a.action?.kind === "move" ? a.actionId.slice(4) : null;
           const badge = moveId !== null ? moveBadge(meta, moveId) : null;
+          const mMeta = moveId !== null ? meta?.moves[moveId] : undefined;
+          const pp = moveId !== null ? obs.own.ppByMoveId?.[moveId] : undefined;
           const isSwitch = a.action?.kind === "switch";
+          const swSpecies = isSwitch ? obs.own.bench?.find((b: any) => b.unitId === a.action.unitId)?.speciesId : undefined;
           return (
             <button key={a.actionId} data-testid={`btn-${a.actionId}`} disabled={!myTurn}
+              className={`skill${isSwitch ? " switch" : ""}`}
               onClick={() => submit(a.actionId)}
               style={isSwitch && isReplacement ? { border: "2px solid #f66" } : undefined}>
-              {a.label ?? a.actionId}
-              {badge !== null && <span style={{ fontSize: 9, marginLeft: 4, color: badge.color }}>[{badge.tag}{badge.power > 0 ? ` ${badge.power}` : ""}]</span>}
+              <div className="sname">{isSwitch ? `换下 → ${zhSpecies(swSpecies ?? a.label ?? "")}` : moveId !== null ? zhMove(moveId) : "挣扎"}</div>
+              <div className="sinfo">
+                {moveId !== null ? (
+                  <>
+                    <span>次数 {pp ?? "?"}/{mMeta?.pp ?? "?"}</span>
+                    <span>{badge !== null ? <><span style={{ color: badge.color }}>[{badge.tag}]</span> 威力 {badge.power}</> : "变化"}</span>
+                  </>
+                ) : (
+                  <span>{isSwitch ? "替换" : "挣扎"}</span>
+                )}
+              </div>
+              {moveId !== null && mMeta !== undefined && (
+                <div className="tip">
+                  <div className="tt">{zhMove(moveId)}</div>
+                  {describeMove(mMeta).map((line, i) => <div key={i} className="tl">{line}</div>)}
+                  <div className="tm">PP {pp ?? "?"}/{mMeta.pp ?? "?"}</div>
+                </div>
+              )}
             </button>
           );
         })}
-        <button data-testid="btn-skip" onClick={() => sceneRef.current?.skip()}>skip</button>
-        <button data-testid="btn-speed" onClick={() => { const s = speed >= 4 ? 1 : speed * 2; setSpeed(s); sceneRef.current!.speed = s; }}>
-          {speed}x
-        </button>
       </div>
-      <pre data-testid="battle-log" style={{ fontSize: 11, height: 140, overflow: "auto" }}>{log.join("\n")}</pre>
-      {obs.terminal !== null && qs.get("wpl") !== null && <ClaimReward battleId={BATTLE} playerId={qs.get("wpl")!} />}
+      <div className="rail">
+        {concede !== undefined && (
+          <button data-testid="btn-act_concede" className="warn" disabled={!myTurn} onClick={() => submit("act_concede")}>撤退</button>
+        )}
+        <button data-testid="btn-skip" onClick={onSkip}>快进</button>
+        <button data-testid="btn-speed" onClick={onCycleSpeed}>{speed}x</button>
+      </div>
+    </div>
+  );
+}
+
+/** battle.hud：战斗日志 */
+function BattleLogView({ log }: BattlePanelCtx) {
+  return <pre className="log" data-testid="battle-log">{log.join("\n")}</pre>;
+}
+
+/** battle.hud：终局操作条（领奖/返回） */
+function PostBattle({ obs }: BattlePanelCtx) {
+  if (obs.terminal === null) return null;
+  return (
+    <div data-testid="post-battle" style={{ display: "flex", gap: 10, justifyContent: "center", padding: "8px 10px 14px" }}>
+      {qs.get("wpl") !== null && <ClaimReward battleId={BATTLE} playerId={qs.get("wpl")!} />}
       {qs.get("wpl") !== null && (
-        <div style={{ padding: 8 }}>
-          <a data-testid="back-world" href={`/?wpl=${qs.get("wpl")}`} style={{ color: "#8af" }}>← 返回世界</a>
-        </div>
+        <a data-testid="back-world" href={`/?wpl=${qs.get("wpl")}`}>
+          <button className="skill" style={{ padding: "8px 20px" }}>← 返回世界</button>
+        </a>
       )}
+      <a data-testid="back-lobby" href="/">
+        <button className="skill" style={{ padding: "8px 20px" }}>{qs.get("wpl") !== null ? "返回大厅" : "再来一局"}</button>
+      </a>
     </div>
   );
 }
 
 /** 终局领奖：outbox exactly-once——重复点击回执相同、不重复入账。 */
 function ClaimReward({ battleId, playerId }: { battleId: string; playerId: string }) {
-  const [res, setRes] = useState<{ items?: Record<string, number>; fresh?: boolean; err?: string } | null>(null);
+  const [res, setRes] = useState<{ items?: Record<string, number>; fresh?: boolean | undefined; err?: string } | null>(null);
   const claim = async () => {
     const r = await fetch("/api/world/reward", {
       method: "POST", headers: { "content-type": "application/json" },
@@ -383,7 +516,7 @@ function World() {
         <div style={{ margin: "6px 0" }}>{species.map((id) => (
           <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)}
             style={{ margin: 4, padding: "5px 8px", fontSize: 12, border: team.includes(id) ? "2px solid #4af" : "1px solid #555" }}>
-            {id}{team.includes(id) ? `(#${team.indexOf(id) + 1})` : ""}
+            {zhSpecies(id)}<span style={{ fontSize: 9, color: "#6a7ca8" }}> {id}</span>{team.includes(id) ? `(#${team.indexOf(id) + 1})` : ""}
           </button>
         ))}</div>
         <span style={{ fontSize: 12 }}>首发={team[0] ?? "-"} bench=[{team.slice(1).join(",")}]</span>
@@ -402,8 +535,107 @@ function loadMetaPack(packId: string): Promise<PackMeta> {
   return fetch(`/api/content/${packId}`).then((r) => r.json() as Promise<PackMeta>);
 }
 
+/** 战斗入口——赛尔号式：选精灵编队 → 直接进对战（PVE boss / 双人对局）。 */
+function Lobby() {
+  const [pack, setPack] = useState("synthetic-v2");
+  const [meta, setMeta] = useState<PackMeta | null>(null);
+  const [team, setTeam] = useState<string[]>([]);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { void loadMetaPack(pack).then(setMeta); }, [pack]);
+  const species = meta === null ? [] : Object.keys(meta.units).sort();
+  const toggle = (id: string) => setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length >= 3 ? t : [...t, id]);
+  const start = async () => {
+    const foe = pack === "synthetic-v2" ? ["syn-epsilon", "syn-delta"] : species.filter((s) => !team.includes(s)).slice(0, 2);
+    const r = await fetch("/api/battle", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ pack, mode: "pve", team: { p1: team, p2: foe.length > 0 ? foe : team } }),
+    });
+    const b = await r.json() as { battleId?: string; tokens?: { p1: string }; message?: string };
+    if (b.battleId === undefined || b.tokens === undefined) { setErr(b.message ?? "create failed"); return; }
+    location.assign(`/?battle=${b.battleId}&player=${b.tokens.p1}&pve=1`);
+  };
+  return (
+    <div data-testid="team-builder" style={{ maxWidth: 720, margin: "24px auto", padding: "0 16px" }}>
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: 6, color: "#cfe0ff", textShadow: "0 0 18px #4a7dff88" }}>精灵对战</div>
+        <div style={{ fontSize: 11, color: "#7a90c8", marginTop: 4 }}>SEER REBORN · 合成规则演示</div>
+      </div>
+      <div style={{ marginBottom: 10, fontSize: 12, color: "#9ab4e8" }}>
+        规则包 <select data-testid="pack-select" value={pack} onChange={(e) => { setPack(e.target.value); setTeam([]); }}
+          style={{ background: "#16204a", color: "#cfe0ff", border: "1px solid #3a4a70", padding: "3px 8px", borderRadius: 6 }}>
+          <option value="synthetic-v2">synthetic-v2</option>
+          <option value="synthetic-v1">synthetic-v1</option>
+        </select>
+        <span style={{ marginLeft: 10 }}>按点选顺序编队（第 1 只首发，最多 3 只）</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        {species.map((id) => {
+          const hue = speciesHue(id);
+          const order = team.indexOf(id);
+          const hp = meta!.units[id]?.hp ?? 0;
+          return (
+            <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)} style={{
+              width: 108, padding: 8, borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
+              background: order >= 0 ? "#1c2f66" : "#141d3d",
+              border: order >= 0 ? "2px solid #5a8aff" : "1px solid #2c3d68", color: "#dfe8ff",
+            }}>
+              <div style={{
+                width: 44, height: 44, margin: "0 auto 6px", borderRadius: "50%",
+                background: `radial-gradient(circle at 35% 30%, hsl(${hue},70%,70%), hsl(${hue},60%,40%))`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontWeight: 800, fontSize: 18, color: "#fff", textShadow: "0 1px 2px #000",
+              }}>{id.slice(4, 5).toUpperCase()}</div>
+              <div style={{ fontSize: 12, fontWeight: 700 }}>{zhSpecies(id)}</div>
+              <div style={{ fontSize: 9, color: "#6a7ca8" }}>{id}</div>
+              <div style={{ fontSize: 10, color: "#9ab4e8" }}>体力 {hp}</div>
+              {order >= 0 && <div style={{ fontSize: 10, color: "#8af", marginTop: 2 }}>{order === 0 ? "首发" : `替补 ${order}`}</div>}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 12 }}>
+        <span style={{ fontSize: 12, color: "#9ab4e8" }}>首发={team[0] ?? "-"} 替补=[{team.slice(1).join(", ")}]</span>
+        <button data-testid="btn-start" disabled={team.length === 0} onClick={() => void start()} style={{
+          padding: "10px 34px", fontSize: 16, fontWeight: 800, letterSpacing: 4, borderRadius: 10,
+          background: team.length === 0 ? "#2a3450" : "linear-gradient(180deg,#ffb830,#f07818)",
+          border: "1px solid #ffd080", color: "#311800", cursor: team.length === 0 ? "default" : "pointer",
+          fontFamily: "inherit",
+        }}>开始对战</button>
+        {err !== null && <span style={{ color: "#f66", fontSize: 12 }}>{err}</span>}
+      </div>
+      <div style={{ marginTop: 20, fontSize: 11, color: "#5a6c9a" }}>
+        <a href="/?world=1" style={{ color: "#5a6c9a" }}>世界地图（实验）</a> · 内容与规则均为合成，与原游戏无关
+      </div>
+    </div>
+  );
+}
+
+/** 内建 presentation 模块注册——新页面/新面板照此追加，不改渲染分发逻辑 */
+const builtinDisposers = [
+  slots.registerScreen("battle", App),
+  slots.registerScreen("world", World),
+  slots.registerScreen("lobby", Lobby),
+  slots.registerPanel("battle.top", BattleTop),
+  slots.registerPanel("battle.top", ReplacementBanner),
+  slots.registerPanel("battle.hud", BenchRow),
+  slots.registerPanel("battle.hud", SkillBar),
+  slots.registerPanel("battle.hud", BattleLogView),
+  slots.registerPanel("battle.hud", PostBattle),
+];
+void builtinDisposers;
+
+function screenId(): string {
+  if (BATTLE && TOKEN) return "battle";
+  return qs.get("world") === "1" || qs.get("wpl") !== null ? "world" : "lobby";
+}
+
+function Root() {
+  const Screen = slots.screen(screenId()) ?? Lobby;
+  return <Screen />;
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {BATTLE && TOKEN ? <App /> : <World />}
+    <Root />
   </StrictMode>,
 );

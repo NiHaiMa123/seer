@@ -18,6 +18,7 @@ await build({
   jsx: "automatic",
   platform: "browser",
   sourcemap: true,
+  define: { "process.env.NODE_ENV": '"production"' },
   loader: { ".ts": "ts", ".tsx": "tsx" },
 });
 console.log("client.js built →", join(OUT, "client.js"));

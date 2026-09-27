@@ -3,7 +3,11 @@
  * 规则知识属公开信息（lookup_rule 同口径）——只取 badge 需要的最小字段。
  */
 
-export interface MoveMeta { label: string; power: number; damageKind: string; ops: string[] }
+export interface MoveEffect {
+  op: string; power?: number; kind?: string; stat?: string; delta?: number;
+  numerator?: number; denominator?: number; name?: string; turns?: number; target?: string;
+}
+export interface MoveMeta { label: string; power: number; damageKind: string; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
 export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, { speciesId: string; hp: number }> }
 
 let cache: Promise<PackMeta> | null = null;
@@ -29,4 +33,77 @@ export function moveBadge(meta: PackMeta | null, moveId: string): { tag: string;
   if (!m || !m.ops.includes("damage")) return null;
   const b = KIND_BADGE[m.damageKind] ?? KIND_BADGE["standard"]!;
   return { ...b, power: m.power };
+}
+
+/** 合成内容的中文显示名（表现层映射，协议仍用英文 id） */
+const ZH_SPECIES: Record<string, string> = {
+  "syn-alpha": "阿尔法", "syn-beta": "贝塔", "syn-gamma": "伽马",
+  "syn-delta": "德尔塔", "syn-epsilon": "伊普西龙",
+};
+const ZH_MOVE: Record<string, string> = {
+  "syn-strike": "重击", "syn-jab": "突刺", "syn-bolster": "强化", "syn-recover": "回复",
+  "syn-drain": "汲取", "syn-purge": "净化", "syn-slam": "猛击", "syn-blast": "爆破",
+  "syn-hex": "咒印", "syn-purge-mind": "清心", "syn-ward": "守护", "syn-brand": "烙印",
+};
+const ZH_MODE: Record<string, string> = { boss: "首领" };
+const ZH_REASON: Record<string, string> = { ko: "击倒", concede: "认输", "turn-limit": "回合上限" };
+
+export const zhSpecies = (id: string): string => ZH_SPECIES[id] ?? id;
+export const zhMove = (id: string): string => ZH_MOVE[id] ?? id;
+export const zhMode = (id: string): string => ZH_MODE[id] ?? id;
+export const zhReason = (id: string): string => ZH_REASON[id] ?? id;
+
+const ZH_EVENT: Record<string, string> = {
+  "action-declared": "出招", "damage": "伤害", "heal": "回复", "ko": "击倒",
+  "switch": "换人", "revive": "复活", "stat-stage": "能力变化", "stages-transferred": "能力转移",
+  "stages-cleared": "能力清除", "effect-applied": "效果附加", "effect-faded": "效果消退",
+  "control-immune": "免疫", "action-failed": "失败", "battle-end": "战斗结束", "turn-end": "回合结束",
+};
+export const zhEvent = (type: string): string => ZH_EVENT[type] ?? type;
+
+const ZH_EFFECT: Record<string, string> = { control: "控制", immune_control: "免控", tag: "标记" };
+export const zhEffect = (kind: string): string => kind.startsWith("tag:") ? `标记:${kind.slice(4)}` : (ZH_EFFECT[kind] ?? kind);
+
+const ZH_STAT: Record<string, string> = { atk: "攻击", def: "防御", spd: "速度", hp: "体力" };
+const ZH_TARGET: Record<string, string> = { self: "自身", opponent: "对方" };
+const ZH_STATUS: Record<string, string> = { stun: "眩晕", immune_control: "免控", marked: "烙印" };
+const ZH_DMGKIND: Record<string, string> = { standard: "普通", fixed: "固定", percent: "百分比", true: "真实" };
+
+/** 单个招式效果 → 中文说明行（公开规则知识） */
+export function describeEffect(e: MoveEffect): string {
+  const tgt = ZH_TARGET[e.target ?? "opponent"] ?? e.target ?? "对方";
+  switch (e.op) {
+    case "damage": {
+      const k = e.kind ?? "standard";
+      if (k === "percent") return `造成对方最大体力 ${e.power}% 的伤害`;
+      if (k === "true") return `造成 ${e.power} 点真实伤害（无视攻防）`;
+      if (k === "fixed") return `造成 ${e.power} 点固定伤害`;
+      return `造成伤害，威力 ${e.power}`;
+    }
+    case "apply_stat_stage":
+      return `${tgt}${ZH_STAT[e.stat ?? ""] ?? e.stat} ${(e.delta ?? 0) > 0 ? "+" : ""}${e.delta}`;
+    case "heal":
+      return `回复${tgt} ${e.numerator}/${e.denominator} 最大体力`;
+    case "transfer_stages":
+      return "吸取对方的能力等级变化";
+    case "clear_stages":
+      return `清除${tgt}的能力等级变化`;
+    case "control":
+      return `使${tgt}陷入「${ZH_STATUS[e.name ?? ""] ?? e.name}」${e.turns} 回合`;
+    case "cleanse":
+      return `净化${tgt}的异常状态与标记`;
+    case "apply_status":
+      return `${tgt}获得「${ZH_STATUS[e.name ?? ""] ?? e.name}」${e.turns} 回合`;
+    case "apply_effect":
+      return `使${tgt}附加「${ZH_STATUS[e.name ?? ""] ?? e.name}」标记 ${e.turns} 回合`;
+    default:
+      return e.op;
+  }
+}
+
+/** 招式悬停提示的完整中文描述行 */
+export function describeMove(m: MoveMeta | undefined): string[] {
+  if (m === undefined) return [];
+  const head = `类型 ${ZH_DMGKIND[m.damageKind] ?? m.damageKind}${m.priority !== undefined && m.priority !== 0 ? ` · 先制 ${m.priority > 0 ? "+" : ""}${m.priority}` : ""}`;
+  return [head, ...(m.effects ?? []).map(describeEffect)];
 }

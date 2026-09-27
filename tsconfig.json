@@ -11,11 +11,12 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "verbatimModuleSyntax": true,
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["tools/**/*.ts", "packages/**/*.ts", "tests/**/*.ts", "experiments/**/*.ts", "docs/examples/**/*.ts"]
+  "include": ["tools/**/*.ts", "packages/**/*.ts", "tests/**/*.ts", "experiments/**/*.ts", "docs/examples/**/*.ts", "apps/**/*.ts", "apps/**/*.tsx"]
 }

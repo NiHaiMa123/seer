@@ -1,7 +1,67 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8" /><title>seer battle</title></head>
-<body style="margin:0;background:#12181f">
+<head><meta charset="utf-8" /><title>seer battle</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: radial-gradient(ellipse at 50% 20%, #16233f 0%, #0a0f1e 70%); font-family: "Segoe UI", "Microsoft YaHei", monospace; color: #dfe7ff; }
+  .ucard {
+    display: flex; gap: 8px; align-items: center;
+    background: linear-gradient(135deg, rgba(30,50,90,.92), rgba(15,25,50,.92));
+    border: 1px solid #3a5a9c; border-radius: 10px; padding: 6px 10px; min-width: 210px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.5);
+  }
+  .ucard .avatar {
+    width: 44px; height: 44px; border-radius: 50%; flex: none;
+    border: 2px solid #6ea8ff; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 1px 3px #000;
+  }
+  .ucard .nm { font-size: 13px; font-weight: 600; }
+  .ucard .lv { font-size: 10px; color: #9ab4e8; }
+  .hpbar { height: 12px; border-radius: 6px; background: #1a2238; border: 1px solid #3a4a70; overflow: hidden; margin-top: 3px; position: relative; }
+  .hpbar > i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #43d97e, #7bf0a8); transition: width .3s; }
+  .hpbar.low > i { background: linear-gradient(90deg, #e8584a, #ff8a6a); }
+  .hpbar > b { position: absolute; inset: 0; font-size: 9px; line-height: 12px; text-align: center; color: #fff; text-shadow: 0 1px 2px #000; font-weight: 600; }
+  .skill {
+    min-width: 96px; padding: 6px 8px; border-radius: 10px; cursor: pointer; text-align: left;
+    background: linear-gradient(160deg, rgba(40,60,110,.95), rgba(20,32,64,.95));
+    border: 1px solid #4a6ab0; color: #dfe7ff; box-shadow: 0 2px 8px rgba(0,0,0,.4);
+    transition: transform .08s, border-color .12s;
+    position: relative;
+  }
+  .skill .tip {
+    display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    min-width: 170px; background: #0c1430; border: 1px solid #4a6ab0; border-radius: 8px;
+    padding: 8px 10px; font-size: 11px; color: #cfe0ff; text-align: left; z-index: 60;
+    box-shadow: 0 8px 24px rgba(0,0,0,.65); white-space: nowrap; pointer-events: none;
+  }
+  .skill:hover .tip { display: block; }
+  .tip .tt { font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .tip .tl { color: #9fc0ff; line-height: 1.55; }
+  .tip .tm { color: #7d95c9; font-size: 10px; margin-top: 3px; }
+  .skill:hover:not(:disabled) { transform: translateY(-2px); border-color: #8ab4ff; }
+  .skill:disabled { opacity: .38; cursor: default; }
+  .skill .sname { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+  .skill .sinfo { font-size: 10px; color: #9ab4e8; display: flex; justify-content: space-between; margin-top: 2px; }
+  .skill.switch { border-color: #b08aff; }
+  .rail {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .rail button {
+    width: 64px; padding: 8px 0; border-radius: 10px; font-size: 12px; cursor: pointer;
+    background: linear-gradient(160deg, #31406e, #1b2547); color: #cfe0ff; border: 1px solid #4a6ab0;
+  }
+  .rail button.warn { border-color: #c05050; color: #ffb0a0; }
+  .turnbadge {
+    display: inline-block; padding: 2px 14px; border-radius: 12px; font-size: 12px;
+    background: rgba(20,30,60,.9); border: 1px solid #3a5a9c; color: #9fc0ff;
+  }
+  .log {
+    font-size: 10px; height: 44px; overflow: auto; margin: 4px 8px 0; padding: 4px 8px;
+    background: rgba(8,14,30,.85); border: 1px solid #24365e; border-radius: 6px; color: #7d95c9;
+  }
+</style>
+</head>
+<body>
 <div id="root"></div>
 <script type="module" src="/dist/client.js"></script>
 </body>
