@@ -6,4 +6,8 @@ export { decideBaseline } from "./baseline.ts";
 export type { Decision } from "./baseline.ts";
 export { BattleAgent } from "./agent.ts";
 export type { AgentResult, AgentOptions } from "./agent.ts";
+export { Belief } from "./belief.ts";
+export type { BeliefSample, BeliefState } from "./belief.ts";
+export { mechanismOf, counterplayFor } from "./knowledge.ts";
+export type { MoveMechanism } from "./knowledge.ts";
 export type { AgentView, SubmitFn, SubmitOutcome } from "./views.ts";

@@ -9,6 +9,7 @@ import { sha256hex } from "@seer/battle-core";
 import { ToolServer } from "./tools.ts";
 import type { AgentView, SubmitFn } from "./views.ts";
 import { decideBaseline } from "./baseline.ts";
+import { Belief } from "./belief.ts";
 
 export interface AgentOptions {
   maxTurns?: number;
@@ -24,10 +25,12 @@ export class BattleAgent {
   private readonly tools: ToolServer;
   private readonly pack: FrozenPack;
   private readonly decided = new Set<string>();
+  private readonly belief: Belief | null;
 
-  constructor(deps: { view: AgentView; pack: FrozenPack; submit: SubmitFn }) {
+  constructor(deps: { view: AgentView; pack: FrozenPack; submit: SubmitFn; useBelief?: boolean }) {
     this.tools = new ToolServer(deps);
     this.pack = deps.pack;
+    this.belief = deps.useBelief === true ? new Belief(deps.pack) : null;
   }
 
   /** 单步：若当前有未处理的 open decision → 决策并提交。返回是否提交了动作。 */
@@ -38,7 +41,10 @@ export class BattleAgent {
     if (dec === null || this.decided.has(dec.decisionId)) {
       return { submitted: false, observation };
     }
-    const decision = decideBaseline(this.pack, observation);
+    const hypotheses = this.belief === null ? undefined : this.belief.update(observation).samples;
+    const decision = decideBaseline(this.pack, observation, {
+      ...(hypotheses !== undefined ? { hypotheses } : {}),
+    });
     // key 含 side——两侧同决策同动作时 key 不能撞（Host 按 key 查所属侧）
     const key = `agt_${observation.side}_${sha256hex(`${dec.decisionId}:${decision.actionId}`).slice(0, 20)}`;
     const r = this.tools.call({

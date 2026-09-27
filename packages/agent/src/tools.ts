@@ -11,6 +11,7 @@ import { toolSchema, canonicalJson, type BattleEvent, type Observation } from "@
 import { sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
 import type { AgentView, SubmitFn } from "./views.ts";
 import { simulateBatch, type SimHypothesis, type SimResponse } from "./simulate.ts";
+import { counterplayFor } from "./knowledge.ts";
 
 const ajv = new Ajv({ allErrors: false, strict: true });
 const validate = ajv.compile(toolSchema);
@@ -188,22 +189,19 @@ export class ToolServer {
     return { moveId, assumedDef: effDef, attackerAtk: effAtkReal, damages };
   }
 
-  /** 机制反制候选：五类干预 × 当前合法集——返回可重跑的候选，非权威 oracle。 */
+  /** 机制反制候选：五类干预 × Knowledge 机制图 × 当前合法集——可重跑候选，非权威 oracle。 */
   private searchCounterplay(query: { trigger: string; produces?: string; targetPath?: string }): Record<string, unknown> {
     const obs = this.view.observe();
     const legal = obs.legalActions.map((a) => a.actionId);
-    const interventions = [
-      { kind: "remove_precondition", candidates: legal.filter((a) => /purge|clear|drain/.test(a)) },
-      { kind: "alter_timing", candidates: legal.filter((a) => /jab|priority/.test(a)) },
-      { kind: "block_execution", candidates: legal.filter((a) => /ward|immune|hex/.test(a)) },
-      { kind: "bypass_target", candidates: legal.filter((a) => /blast|slam|fixed/.test(a)) },
-      { kind: "pay_cost", candidates: legal.filter((a) => a === "act_switch-0" || a === "act_switch-1") },
-    ];
+    const interventions = counterplayFor(this.pack, legal, query.trigger).map((i) => ({
+      kind: i.intervention,
+      candidates: i.candidates,
+    }));
     return {
       query,
-      interventions: interventions.filter((i) => i.candidates.length > 0),
+      interventions,
       rerunnable: true,
-      disclaimer: "heuristic candidates, not authoritative proof",
+      disclaimer: "heuristic candidates from mechanism graph, not authoritative proof",
     };
   }
 }

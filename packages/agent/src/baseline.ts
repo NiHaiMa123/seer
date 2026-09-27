@@ -9,16 +9,18 @@
  */
 import type { Observation } from "@seer/contracts";
 import type { FrozenPack } from "@seer/battle-core";
-import { simulateBatch } from "./simulate.ts";
+import { simulateBatch, type SimHypothesis } from "./simulate.ts";
 
 export interface Decision {
   actionId: string;
   rationale: string;
 }
 
-const KO_BONUS = 1e6;
-
-export function decideBaseline(pack: FrozenPack, obs: Observation): Decision {
+export function decideBaseline(
+  pack: FrozenPack,
+  obs: Observation,
+  opts: { hypotheses?: SimHypothesis[] } = {},
+): Decision {
   const legal = obs.legalActions.map((a) => a.actionId);
 
   // replacement 决策：最低下标存活 bench，否则 concede
@@ -32,10 +34,11 @@ export function decideBaseline(pack: FrozenPack, obs: Observation): Decision {
   const candidates = legal.filter((a) => a !== "act_concede");
   if (candidates.length === 0) return { actionId: "act_concede", rationale: "only concede legal" };
 
-  // 假设对手满配置（宽 prior）——baseline 不做 belief，直接用 pack 全集
+  // 默认假设对手满配置（宽 prior）；传入 belief 样本则按样本评估
+  const hypotheses = opts.hypotheses ?? [{}];
   const r = simulateBatch(pack, {
     observation: obs,
-    hypotheses: [{}],
+    hypotheses,
     candidates,
     seed: 1,
     maxTransitions: 2048,
