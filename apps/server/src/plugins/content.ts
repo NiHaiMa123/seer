@@ -4,7 +4,7 @@
  */
 import type { PluginManifest } from "@seer/contracts";
 import type { PluginSpec, SeerPluginContext } from "@seer/plugin-runtime";
-import { deriveStats, effectivenessOf, type FrozenPack, type StatSpread } from "@seer/battle-core";
+import { deriveStats, effectivenessOf, MECHANICS, type FrozenPack, type StatSpread } from "@seer/battle-core";
 import { HTTP_ROUTER_SERVICE, type Router } from "../router.ts";
 
 export const CONTENT_CATALOG_SERVICE = "content.catalog";
@@ -87,13 +87,8 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
               },
             ]),
           ),
-          // 刻印图鉴库 + 佩戴规则（公开内容知识；客户端检索/校验提示用）
-          ...(pack.seals !== undefined
-            ? {
-                seals: Object.fromEntries([...pack.seals.values()].map((s) => [s.id, s])),
-                sealRules: pack.sealRules,
-              }
-            : {}),
+          // 机制内容片段：各注册模块贡献公开知识（如刻印图鉴库+佩戴规则）。
+          ...Object.assign({}, ...MECHANICS.map((m) => m.meta?.(pack) ?? {})),
         });
       });
     },

@@ -116,8 +116,8 @@ export function battleApiPlugin(): PluginSpec {
             species = { p1: t1.species, p2: t2.species };
             bench = { ...(t1.bench !== undefined ? { p1: t1.bench } : {}), ...(t2.bench !== undefined ? { p2: t2.bench } : {}) };
           }
-          // 刻印 loadout：loadout.p1[i] ↔ 队伍第 i 槽位（[0]=首发）→ initBattle seals 数组
-          let seals: { p1?: string[][]; p2?: string[][] } | undefined;
+          // 刻印 loadout 桥接：线协议 loadout.p1[i] ↔ 队伍第 i 槽位 → 通用 mechanics.seals 袋
+          let mechanics: Record<string, { p1?: unknown[]; p2?: unknown[] }> | undefined;
           if (input.loadout !== undefined) {
             const slotsOf = (s: "p1" | "p2") => 1 + (bench?.[s]?.length ?? 0);
             for (const s of ["p1", "p2"] as const) {
@@ -125,9 +125,11 @@ export function battleApiPlugin(): PluginSpec {
               if (lo === undefined) continue;
               if (lo.length > slotsOf(s)) throw new TransportError(400, `loadout.${s} has ${lo.length} slots but only ${slotsOf(s)} units`);
             }
-            seals = {
-              ...(input.loadout.p1 !== undefined ? { p1: input.loadout.p1 } : {}),
-              ...(input.loadout.p2 !== undefined ? { p2: input.loadout.p2 } : {}),
+            mechanics = {
+              seals: {
+                ...(input.loadout.p1 !== undefined ? { p1: input.loadout.p1 } : {}),
+                ...(input.loadout.p2 !== undefined ? { p2: input.loadout.p2 } : {}),
+              },
             };
           }
           const battleId = `btl_${(++battleCounter).toString(16)}`;
@@ -138,7 +140,7 @@ export function battleApiPlugin(): PluginSpec {
             seedHex: input.seedHex,
             species,
             ...(bench !== undefined ? { bench } : {}),
-            ...(seals !== undefined ? { seals } : {}),
+            ...(mechanics !== undefined ? { mechanics } : {}),
             generationId,
             players,
             deadlineMs: input.deadlineMs,

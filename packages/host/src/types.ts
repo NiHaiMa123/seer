@@ -47,8 +47,10 @@ export interface HostConfig {
   species: { p1: string; p2: string };
   /** v2 bench：每方后备 speciesId 列表（v1 局不传 → bench 字段不出现） */
   bench?: { p1?: string[]; p2?: string[] };
-  /** 刻印 loadout：seals.p1[0]=首发槽位，[1+i]=bench[i]；不传=用 species 预设 seals。 */
-  seals?: { p1?: string[][]; p2?: string[][] };
+  /** 机制初始化袋（透传 initBattle opts.mechanics）：mechanics.<id>.<side>[i] = 第 i 槽位数据
+   *  （[0]=首发，[1+i]=bench[i]）。例如刻印 loadout 走 mechanics.seals.p1[i] = seal id 数组；
+   *  元素 undefined = 该槽回落 species 预设。 */
+  mechanics?: Record<string, { p1?: unknown[]; p2?: unknown[] }>;
   players: { p1: string; p2: string }; // side → playerId
   deadlineMs: number; // 逻辑 deadline（不接 wall-clock）
 }

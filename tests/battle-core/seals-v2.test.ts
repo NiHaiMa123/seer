@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import {
-  checkSealLoadout, compilePack, initBattle, applyTurn, legalActions,
+  checkSealLoadout, compilePack, initBattle, applyTurn, legalActions, sealsOf,
   type CompiledSeal, type CoreState, type FrozenPack,
 } from "@seer/battle-core";
 import { BattleHost } from "@seer/host";
@@ -31,14 +31,14 @@ const PACK: FrozenPack = compilePack({
   natures: read("rulesets/natures.json"),
   seals: read("seals/seals.json"),
 });
-const sealOf = (id: string): CompiledSeal => PACK.seals!.get(id)!;
+const sealOf = (id: string): CompiledSeal => sealsOf(PACK)!.catalog!.get(id)!;
 const dg = (): CoreState => initBattle(PACK, { battleId: "btl_sl", seedHex: SEED, p1: "syn-gamma", p2: "syn-delta", bench: { p1: ["syn-delta"] } });
 const act = (id: string) => ({ actionId: id, origin: "player" as const, idempotencyKey: `k-${id}-xxxxxxx` });
 const ok = (r: ReturnType<typeof applyTurn>) => { if (!r.ok) throw new Error(`fault: ${r.fault.message}`); return r; };
 
 describe("seal loadout 规则（checkSealLoadout）", () => {
-  const rules = PACK.sealRules!;
-  const check = (ids: string[], unitName = "Gamma") => checkSealLoadout(PACK.seals!, rules, unitName, ids);
+  const rules = sealsOf(PACK)!.rules!;
+  const check = (ids: string[], unitName = "Gamma") => checkSealLoadout(sealsOf(PACK)!.catalog!, rules, unitName, ids);
   it("≤3 枚 / >3 拒", () => {
     // 3 枚不同系列合法；4 枚超限
     expect(check([K13_01, "seal-45009", "seal-41286"])).toBeNull(); // K13 + V10 + 九天
@@ -118,7 +118,7 @@ describe("engine：满数值面板叠加", () => {
     const plain = dg().sides.p1.unit.base;
     const s = initBattle(PACK, {
       battleId: "b1", seedHex: SEED, p1: "syn-gamma", p2: "syn-delta",
-      seals: { p1: [[K13_02]] },
+      mechanics: { seals: { p1: [[K13_02]] } },
     });
     const u = s.sides.p1.unit;
     expect(u.base.spa).toBe(plain.spa! + 52);
@@ -129,14 +129,14 @@ describe("engine：满数值面板叠加", () => {
   it("loadout 违例（3 枚同 id）→ SEAL_RULE", () => {
     expect(() => initBattle(PACK, {
       battleId: "b1", seedHex: SEED, p1: "syn-gamma", p2: "syn-delta",
-      seals: { p1: [[K13_01, K13_01, K13_01]] },
+      mechanics: { seals: { p1: [[K13_01, K13_01, K13_01]] } },
     })).toThrow(/maxIdentical/);
   });
   it("bench 单位带刻印 → 换入后 seals 与加成保留", () => {
     let s = initBattle(PACK, {
       battleId: "b1", seedHex: SEED, p1: "syn-gamma", p2: "syn-delta",
       bench: { p1: ["syn-delta"] },
-      seals: { p1: [[], [K13_01, K13_01]] },
+      mechanics: { seals: { p1: [[], [K13_01, K13_01]] } },
     });
     const benchDelta = s.sides.p1.bench![0]!;
     expect(benchDelta.seals).toEqual([K13_01, K13_01]);
@@ -157,7 +157,7 @@ describe("engine：满数值面板叠加", () => {
     });
     expect(() => initBattle(v1, {
       battleId: "b1", seedHex: SEED, p1: "syn-alpha", p2: "syn-beta",
-      seals: { p1: [[K13_01]] },
+      mechanics: { seals: { p1: [[K13_01]] } },
     })).toThrow(/SEAL_UNSUPPORTED|no seal catalog/);
   });
 });
@@ -168,7 +168,7 @@ describe("投影：己方可见、对手隐藏", () => {
       pack: PACK, battleId: "btl_slh", seedHex: SEED,
       species: { p1: "syn-gamma", p2: "syn-epsilon" },
       players: { p1: "alice", p2: "bob" }, deadlineMs: 10_000,
-      seals: { p1: [[K13_02]] },
+      mechanics: { seals: { p1: [[K13_02]] } },
     });
     const own = h.observe("alice");
     expect(own.own.seals).toEqual([K13_02]);
@@ -186,14 +186,14 @@ describe("刻印与既有机制交互", () => {
     const hpNoSeal = s.sides.p2.unit.base.hp;
     const sealed = initBattle(PACK, {
       battleId: "b1", seedHex: SEED, p1: "syn-gamma", p2: "syn-delta",
-      seals: { p2: [[K13_01]] },
+      mechanics: { seals: { p2: [[K13_01]] } },
     });
     expect(sealed.sides.p2.unit.base.hp).toBe(hpNoSeal + 100);
   });
   it("确定性：同 seed+loadout 两次初始化字节级一致", () => {
     const mk2 = () => initBattle(PACK, {
       battleId: "b1", seedHex: SEED, p1: "syn-gamma", p2: "syn-epsilon",
-      seals: { p1: [[K13_01, K13_02]] },
+      mechanics: { seals: { p1: [[K13_01, K13_02]] } },
     });
     expect(JSON.stringify(mk2())).toBe(JSON.stringify(mk2()));
   });

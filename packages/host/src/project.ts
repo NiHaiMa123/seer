@@ -5,7 +5,7 @@
  */
 import type { Observation, BattleEvent, LegalAction } from "@seer/contracts";
 import type { BattleState, InternalEvent } from "@seer/contracts/internal";
-import { OTHER, type SideId } from "@seer/battle-core";
+import { MECHANICS, OTHER, type SideId, type UnitFieldProjection } from "@seer/battle-core";
 import { projectEvent } from "./events.ts";
 
 const MOVE_LABEL: Record<string, string> = {
@@ -16,6 +16,20 @@ const MOVE_LABEL: Record<string, string> = {
 };
 
 type InternalEffects = BattleState["sides"]["p1"]["unit"]["effects"];
+type UnitState = BattleState["sides"]["p1"]["unit"];
+
+/** 机制投影描述符（模块加载期一次展平——observe 热路径零反射，与手写展开同形态）：
+ *  into "own"  → 己方首发+替补；into "both" → 对手单位也公开（默认无，隐私边界）。 */
+const OWN_PROJ = MECHANICS.flatMap((m) => m.projections ?? []);
+const FOE_PROJ = OWN_PROJ.filter((p) => p.into === "both");
+const mechFields = (u: UnitState, projs: readonly UnitFieldProjection[]): Record<string, unknown> => {
+  const out: Record<string, unknown> = {};
+  for (const p of projs) {
+    const v = p.get(u);
+    if (v !== undefined) out[p.key] = v;
+  }
+  return out;
+};
 /** effectInstanceId/hidden 不公开；对手侧 hidden 效果完全不发。 */
 function publicEffects(effects: InternalEffects, self: boolean) {
   return effects
@@ -72,7 +86,7 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
       unitId: me.unitId,
       speciesId: me.speciesId,
       ...(me.level !== undefined ? { level: me.level, stats: { hp: me.base.hp, atk: me.base.atk, def: me.base.def, spa: me.base.spa!, sdf: me.base.sdf!, spd: me.base.spd } } : {}),
-      ...(me.seals !== undefined ? { seals: [...me.seals] } : {}),
+      ...(mechFields(me, OWN_PROJ) as Partial<Observation["own"]>),
       hp: { current: me.currentHp, max: me.base.hp },
       ppByMoveId: Object.fromEntries(me.moves.map((m) => [m.moveId, m.pp])),
       stages: { ...me.stages },
@@ -85,7 +99,7 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
               unitId: b.unitId,
               speciesId: b.speciesId,
               ...(b.level !== undefined ? { level: b.level, stats: { hp: b.base.hp, atk: b.base.atk, def: b.base.def, spa: b.base.spa!, sdf: b.base.sdf!, spd: b.base.spd } } : {}),
-              ...(b.seals !== undefined ? { seals: [...b.seals] } : {}),
+              ...(mechFields(b, OWN_PROJ) as Record<string, unknown>),
               hp: { current: b.currentHp, max: b.base.hp },
               ppByMoveId: Object.fromEntries(b.moves.map((m) => [m.moveId, m.pp])),
               stages: { ...b.stages },
@@ -105,6 +119,7 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
       revealedMoveIds: [...foe.revealedMoveIds],
       ppEstimate: { kind: "unknown" }, // PP 永不公开
       stages: { ...foe.stages },
+      ...(mechFields(foe, FOE_PROJ) as Partial<Observation["opponent"]>),
       effects: publicEffects(foe.effects, /* opponent: hidden effects never leave */ false),
       ...(foe.mode !== undefined ? { mode: foe.mode } : {}),
       ...(sFoe.bench !== undefined ? { benchAlive: sFoe.bench.filter((b) => b.currentHp > 0).length } : {}),
