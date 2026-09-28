@@ -115,6 +115,12 @@ function validateRoot(root: string, schemasDir: string): Result {
   for (const f of listJsonFiles(join(root, "rulesets"))) {
     filesChecked.push(f);
     const data = loadJson(f, findings);
+    if (data === undefined) continue;
+    // 目录内除 ruleset 外还可能有引用型资源（typeChartFile → 克制表）
+    if (!isStr((data as Obj)["rulesetId"])) {
+      check("typechart", data, f);
+      continue;
+    }
     if (!check("ruleset", data, f)) continue;
     const rs = data as Obj;
     const id = rs["rulesetId"];

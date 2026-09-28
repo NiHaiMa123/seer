@@ -39,6 +39,7 @@
 | 模块 | 位置 | 装配 |
 |---|---|---|
 | 规则包 synthetic-v1/v2（units/moves/ruleset/modeOverlays/limits） | `content/synthetic-v{1,2}/` | **数据**——`loader` 按 packId 装载，rulesetHash 钉到对局 |
+| 属性克制表 + 精灵属性/招式属性（v2） | `content/rulesets/typechart.json`、units.types、moves.type | **数据**——ruleset 声明 `typeChartFile` 即启用；表体计入 rulesetHash；单位 types/招式 type 校验到表 |
 | claims/校验 schema | `content/claims/`、`content/schemas/` | 数据 + `tools/content-validate.ts` |
 | 客户端中文显示名映射 | `apps/client/src/meta.ts` | 静态（表现层字典，不进协议） |
 
@@ -123,7 +124,8 @@
 
 | 操作 | 现在怎么做 | 「万物可插件」目标态 |
 |---|---|---|
-| 加精灵/招式（已有 op） | 往 pack JSON 加数据 → `content-validate` | ✅ 已是数据化 |
+| 加精灵/招式（已有 op） | 往 pack JSON 加数据（含 types/type） → `content-validate` | ✅ 已是数据化 |
+| 换克制表/加新属性 | 改 `typechart.json` 或 ruleset 指新文件 → 新 rulesetHash | ✅ 表=规则数据，钉版不串 |
 | 加新语义 op | 升 core 契约 + 新 generation（规格允许，不能挂监听器冒充） | 同 |
 | 换 LLM provider | 实现 `ModelProvider` 接口注入 | ✅ 已是接缝 |
 | 加 UI 面板/页面 | `slots.registerPanel/registerScreen` 注册组件 | ✅ 已是注册表 |

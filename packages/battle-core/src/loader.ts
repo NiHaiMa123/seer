@@ -14,6 +14,7 @@ import rulesetSchemaJson from "../../../content/schemas/ruleset.schema.json" wit
 import packSchemaJson from "../../../content/schemas/pack.schema.json" with { type: "json" };
 import unitsSchemaJson from "../../../content/schemas/units.schema.json" with { type: "json" };
 import movesSchemaJson from "../../../content/schemas/moves.schema.json" with { type: "json" };
+import typechartSchemaJson from "../../../content/schemas/typechart.schema.json" with { type: "json" };
 
 export const ENGINE_VERSION = "0.1.0";
 export const IR_VERSION = 1;
@@ -28,6 +29,7 @@ export interface CompiledMove {
   pp: number;
   priority: number;
   effects: CompiledEffect[];
+  type?: string;
 }
 
 export type DamageKind = "standard" | "fixed" | "percent" | "true";
@@ -47,6 +49,7 @@ export interface CompiledUnit {
   id: string;
   base: { hp: number; atk: number; def: number; spd: number };
   moveIds: string[];
+  types?: string[];
   revives?: number;
   mode?: string;
 }
@@ -63,6 +66,10 @@ export interface FrozenPack {
   rules: BattleState["rules"];
   unitsById: ReadonlyMap<string, CompiledUnit>;
   movesById: ReadonlyMap<string, CompiledMove>;
+  /** 属性克制表（attack[攻方][守方]=倍率）；ruleset 未声明则 undefined → 无属性系统。 */
+  typeChart?: ReadonlyMap<string, ReadonlyMap<string, number>>;
+  /** 属性一致加成（STAB）：招式属性 ∈ 自身属性时的倍率。 */
+  stabMultiplier: number;
   limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   stageRange: { min: number; max: number };
   operatorAllowlist: readonly string[];
@@ -75,6 +82,7 @@ const vRuleset = ajv.compile(rulesetSchemaJson);
 const vPack = ajv.compile(packSchemaJson);
 const vUnits = ajv.compile(unitsSchemaJson);
 const vMoves = ajv.compile(movesSchemaJson);
+const vTypeChart = ajv.compile(typechartSchemaJson);
 
 function fail(msg: string): never {
   throw new PackLoadError(msg);
@@ -85,6 +93,8 @@ interface RawContent {
   pack: unknown;
   units: unknown;
   moves: unknown;
+  /** ruleset.typeChartFile 指向的克制表文档（loadPackFromDir 负责读取注入）。 */
+  typeChart?: unknown;
 }
 
 /** Pure: compile from already-parsed JSON documents (usable in Worker/browser). */
@@ -100,13 +110,46 @@ export function compilePack(raw: RawContent): FrozenPack {
     operatorAllowlist: string[];
     features?: string[];
     damageKinds?: string[];
+    typeChartFile?: string;
+    stabMultiplier?: number;
     modeOverlays?: Record<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
     statStageRange: [number, number];
     limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   };
   const pack = raw.pack as { packId: string; rulesetId: string };
   const units = (raw.units as { units: CompiledUnit[] }).units;
-  const moves = (raw.moves as { moves: { id: string; pp: number; priority: number; effects: CompiledEffect[] }[] }).moves;
+  const moves = (raw.moves as { moves: { id: string; pp: number; priority: number; effects: CompiledEffect[]; type?: string }[] }).moves;
+
+  // 属性克制表：ruleset 声明 typeChartFile → 必须随包注入且通过 schema；
+  // 未声明 → 任何 types/type 字段都视为误配置拒绝（静默忽略会埋坑）。
+  // canonicalJson 只收安全整数 → 倍率一律存 ×16 定点（赛尔号倍率全是 1/16 的倍数：
+  // 4/2.75/2.6875/2.5/1.5/1.375/0.875/0.8125/0.75/0.5/0.25/0.125/0 …），运行时 /16 还原。
+  let typeChart: Map<string, Map<string, number>> | undefined;
+  const knownTypeKeys = new Set<string>();
+  let typeChartInt: Record<string, Record<string, number>> | undefined;
+  if (ruleset.typeChartFile !== undefined) {
+    if (raw.typeChart === undefined) fail(`ruleset declares typeChartFile "${ruleset.typeChartFile}" but no typeChart document was provided`);
+    if (!vTypeChart(raw.typeChart)) fail(`typeChart schema: ${ajv.errorsText(vTypeChart.errors)}`);
+    const attack = (raw.typeChart as { attack: Record<string, Record<string, number>> }).attack;
+    typeChart = new Map();
+    typeChartInt = {};
+    for (const [att, row] of Object.entries(attack)) {
+      const intRow: Record<string, number> = {};
+      const mapRow = new Map<string, number>();
+      for (const [def, mult] of Object.entries(row)) {
+        const eff16 = mult * 16;
+        if (!Number.isSafeInteger(eff16)) fail(`typeChart ${att}→${def} multiplier ${mult} is not a multiple of 1/16`);
+        intRow[def] = eff16;
+        mapRow.set(def, eff16);
+      }
+      typeChart.set(att, mapRow);
+      typeChartInt[att] = intRow;
+      knownTypeKeys.add(att);
+      for (const def of Object.keys(row)) knownTypeKeys.add(def);
+    }
+  } else if (raw.typeChart !== undefined) {
+    fail("typeChart document provided but ruleset declares no typeChartFile");
+  }
 
   if (pack.rulesetId !== ruleset.rulesetId) {
     fail(`pack rulesetId "${pack.rulesetId}" != ruleset "${ruleset.rulesetId}"`);
@@ -140,7 +183,13 @@ export function compilePack(raw: RawContent): FrozenPack {
         fail(`move ${m.id} damage kind "${fx.kind}" not in ruleset damageKinds`);
       }
     }
-    movesById.set(m.id, { id: m.id, pp: m.pp, priority: m.priority, effects: m.effects });
+    if (typeChart === undefined) {
+      if (m.type !== undefined) fail(`move ${m.id} sets type but ruleset has no type chart`);
+    } else {
+      if (m.type === undefined) fail(`move ${m.id} lacks type (ruleset has type chart)`);
+      else if (!typeChart.has(m.type)) fail(`move ${m.id} type "${m.type}" is not an attack row of the type chart`);
+    }
+    movesById.set(m.id, { id: m.id, pp: m.pp, priority: m.priority, effects: m.effects, ...(m.type !== undefined ? { type: m.type } : {}) });
   }
 
   const unitsById = new Map<string, CompiledUnit>();
@@ -158,10 +207,42 @@ export function compilePack(raw: RawContent): FrozenPack {
     if (u.mode !== undefined && ruleset.modeOverlays !== undefined && !(u.mode in ruleset.modeOverlays)) {
       fail(`unit ${u.id} mode "${u.mode}" has no ruleset overlay entry`);
     }
-    unitsById.set(u.id, { id: u.id, base: u.base, moveIds: u.moveIds, ...(u.revives !== undefined ? { revives: u.revives } : {}), ...(u.mode !== undefined ? { mode: u.mode } : {}) });
+    if (typeChart === undefined) {
+      if (u.types !== undefined) fail(`unit ${u.id} sets types but ruleset has no type chart`);
+    } else {
+      if (u.types === undefined) fail(`unit ${u.id} lacks types (ruleset has type chart)`);
+      else {
+        const key = u.types.join("");
+        const rkey = [...u.types].reverse().join("");
+        if (!knownTypeKeys.has(key) && !knownTypeKeys.has(rkey)) {
+          fail(`unit ${u.id} types "${key}" unknown in type chart`);
+        }
+      }
+    }
+    unitsById.set(u.id, { id: u.id, base: u.base, moveIds: u.moveIds, ...(u.types !== undefined ? { types: u.types } : {}), ...(u.revives !== undefined ? { revives: u.revives } : {}), ...(u.mode !== undefined ? { mode: u.mode } : {}) });
   }
 
-  const rulesetHash = `sha256:${sha256hex(canonicalJson(raw.ruleset))}`;
+  // 克制表是规则数据 → 计入 rulesetHash（换表=换规则版本，钉版对局不受影响）。
+  // canonicalJson 不收浮点/非 ASCII 键 → 表体走 sha256(原始 JSON 文本)（文件本身即规范序），
+  // ruleset 本体剥掉浮点 stabMultiplier 后走 canonicalJson，stab 以 ×16 定点入 hash。
+  const stab = ruleset.stabMultiplier ?? 1.5;
+  if (ruleset.typeChartFile !== undefined && !Number.isSafeInteger(stab * 16)) {
+    fail(`stabMultiplier ${stab} is not a multiple of 1/16`);
+  }
+  if (ruleset.typeChartFile === undefined && ruleset.stabMultiplier !== undefined) {
+    fail("stabMultiplier declared without typeChartFile");
+  }
+  const rulesetHash = `sha256:${sha256hex(canonicalJson(typeChartInt === undefined
+    ? raw.ruleset
+    : (() => {
+        const rest = { ...(raw.ruleset as Record<string, unknown>) };
+        delete rest["stabMultiplier"];
+        return {
+          ruleset: rest,
+          stabMultiplier16: Math.round(stab * 16),
+          typeChartSha256: sha256hex(JSON.stringify(raw.typeChart)),
+        };
+      })()))}`;
   const contentHash = `sha256:${sha256hex(canonicalJson({ pack: raw.pack, units: raw.units, moves: raw.moves }))}`;
   const executableHash = ENGINE_EXECUTABLE_HASH;
 
@@ -176,6 +257,8 @@ export function compilePack(raw: RawContent): FrozenPack {
     },
     unitsById,
     movesById,
+    ...(typeChart !== undefined ? { typeChart } : {}),
+    stabMultiplier: ruleset.stabMultiplier ?? 1.5,
     limits: ruleset.limits,
     stageRange: { min: ruleset.statStageRange[0], max: ruleset.statStageRange[1] },
     operatorAllowlist: ruleset.operatorAllowlist,
@@ -196,10 +279,12 @@ export function loadPackFromDir(contentRoot: string, packId: string): FrozenPack
     rulesetId: string;
     files?: { units?: string; moves?: string };
   };
+  const ruleset = read(join("rulesets", `${pack.rulesetId}.json`)) as { typeChartFile?: string };
   return compilePack({
-    ruleset: read(join("rulesets", `${pack.rulesetId}.json`)),
+    ruleset,
     pack,
     units: read(join(packId, pack.files?.units ?? "units.json")),
     moves: read(join(packId, pack.files?.moves ?? "moves.json")),
+    ...(ruleset.typeChartFile !== undefined ? { typeChart: read(join("rulesets", ruleset.typeChartFile)) } : {}),
   });
 }

@@ -1,0 +1,16 @@
+{
+  "claimId": "CLAIM-TYPECHART-001",
+  "targetSnapshot": "seer-4399-ssxxk-2026-05",
+  "mode": "battle-general",
+  "statement": "属性克制表：attack[攻方属性][守方属性]=倍率（1/16 精度），双属性守方为表中手工标定条目（非单属性乘积），免疫=0。来源页含 26 单属性 + ~110 双属性行。",
+  "boundaries": "4399 攻略页的静态克制表数据；页面显示值（0.438/0.563/0.688/0.813/0.7/2.7）是 1/16 精度的截断显示，入库文件已归一化为精确 16 分位；双属性推断规则不在本表覆盖（表中无的组合按 1.0 处理）。",
+  "source": {
+    "kind": "observation",
+    "uri": "https://news.4399.com/seer/ssxxk/"
+  },
+  "observedAt": "2026-05",
+  "evidenceDigest": "sha256:508e74a7b93219b9d75df2486593b72b83f5ffdb7e445c8f514a1cd4fff326ea",
+  "reviewer": "automated extraction via rendered DOM (GB2312 page)",
+  "verification": "UNVERIFIED",
+  "fixtureIds": []
+}

@@ -86,6 +86,16 @@ export const eventSchema: Record<string, unknown> = {
             "true"
           ]
         },
+        "eff16": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stab": {
+          "type": "boolean"
+        },
+        "moveType": {
+          "type": "string"
+        },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,
@@ -525,6 +535,9 @@ export type BattleEvent =
       side: "p1" | "p2";
       amount: number;
       damageKind?: "standard" | "fixed" | "percent" | "true";
+      eff16?: number;
+      stab?: boolean;
+      moveType?: string;
       hpAfter: {
         current: number;
         max: number;

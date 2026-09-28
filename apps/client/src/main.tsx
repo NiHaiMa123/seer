@@ -9,7 +9,7 @@ import { StrictMode, useEffect, useRef, useState } from "react";
 import { BattleClient } from "./api.ts";
 import { BattleScene } from "./scene.ts";
 import { chooseAction } from "./ai.ts";
-import { loadMeta, packIdOf, moveBadge, zhSpecies, zhMove, zhMode, zhReason, zhEvent, zhEffect, describeMove, type PackMeta } from "./meta.ts";
+import { loadMeta, packIdOf, moveBadge, zhSpecies, zhMove, zhMode, zhReason, zhEvent, zhEffect, describeMove, typeColor, effTag, type PackMeta } from "./meta.ts";
 import { slots, type BattlePanelCtx } from "./slots.ts";
 
 declare const window: any;
@@ -43,7 +43,7 @@ function Chips({ effects, stages }: { effects?: any[]; stages?: any }) {
   );
 }
 
-function BenchPanel({ bench }: { bench: any[] }) {
+function BenchPanel({ bench, meta }: { bench: any[]; meta?: PackMeta | null }) {
   return (
     <div data-testid="bench-panel" style={{ display: "flex", gap: 6, padding: "4px 8px" }}>
       {bench.map((b: any, i: number) => (
@@ -51,7 +51,11 @@ function BenchPanel({ bench }: { bench: any[] }) {
           border: `1px solid ${b.alive ? "#4a6" : "#533"}`, padding: "2px 8px", fontSize: 11,
           opacity: b.alive ? 1 : 0.45,
         }}>
-          {zhSpecies(b.speciesId)} <span style={{ fontSize: 9, color: "#6a7ca8" }}>{b.speciesId}</span> {b.hp.current}/{b.hp.max}
+          {zhSpecies(b.speciesId)}
+          {(meta?.units[b.speciesId]?.types ?? []).map((t) => (
+            <b key={t} className="tchip" style={{ background: typeColor(t) }}>{t}</b>
+          ))}
+          <span style={{ fontSize: 9, color: "#6a7ca8" }}>{b.speciesId}</span> {b.hp.current}/{b.hp.max}
           {b.mode !== undefined && <span style={{ color: "#fd6" }}> [{zhMode(b.mode)}]</span>}
           {b.revives !== undefined && b.revives > 0 && <span style={{ color: "#8af" }}> ↻{b.revives}</span>}
           <Chips effects={b.effects} stages={b.stages} />
@@ -76,7 +80,7 @@ function speciesHue(speciesId: string): number {
 }
 
 /** 单位信息卡——赛尔号式：圆形头像 + Lv + 名字 + HP 条 + 状态 chips */
-function UnitCard({ u, side, benchAlive }: { u: any; side: "own" | "foe"; benchAlive?: number }) {
+function UnitCard({ u, side, benchAlive, types }: { u: any; side: "own" | "foe"; benchAlive?: number; types: string[] | undefined }) {
   const hue = speciesHue(u.speciesId);
   const low = u.hp.current / u.hp.max < 0.3;
   return (
@@ -86,6 +90,9 @@ function UnitCard({ u, side, benchAlive }: { u: any; side: "own" | "foe"; benchA
       </div>
       <div style={{ flex: 1 }}>
         <div className="nm">{zhSpecies(u.speciesId)}
+          {(types ?? []).map((t) => (
+            <span key={t} className="tchip" data-testid={`tchip-${side}-${t}`} style={{ background: typeColor(t) }}>{t}</span>
+          ))}
           <span className="lv"> Lv.100</span>
           {u.mode !== undefined && <span style={{ color: "#fd6", fontSize: 10 }}> [{zhMode(u.mode)}]</span>}
           {u.revives !== undefined && u.revives > 0 && <span style={{ color: "#8af", fontSize: 10 }}> ↻{u.revives}</span>}
@@ -234,7 +241,7 @@ function App() {
 }
 
 /** battle.top：顶部信息栏——双单位卡 + 回合徽标 + 终局横幅 */
-function BattleTop({ obs }: BattlePanelCtx) {
+function BattleTop({ obs, meta }: BattlePanelCtx) {
   return (
     <>
       <div data-testid="battle-status" style={{ position: "absolute", left: -9999, top: -9999, fontSize: 1 }}>
@@ -242,7 +249,7 @@ function BattleTop({ obs }: BattlePanelCtx) {
         side={obs.side} turn={obs.turn} rev={obs.revision} terminal={JSON.stringify(obs.terminal)}
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 10px 0" }}>
-        <UnitCard u={obs.own} side="own" />
+        <UnitCard u={obs.own} side="own" types={meta?.units[obs.own.speciesId]?.types} />
         <div style={{ textAlign: "center" }}>
           {qs.get("pve") === "1" && <div data-testid="pve-badge" style={{ color: "#fd6", fontSize: 11 }}>人机对战</div>}
           <span className="turnbadge">第 {obs.turn} 回合</span>
@@ -258,7 +265,7 @@ function BattleTop({ obs }: BattlePanelCtx) {
             </div>
           )}
         </div>
-        <UnitCard u={obs.opponent} side="foe" benchAlive={obs.opponent.benchAlive} />
+        <UnitCard u={obs.opponent} side="foe" benchAlive={obs.opponent.benchAlive} types={meta?.units[obs.opponent.speciesId]?.types} />
       </div>
     </>
   );
@@ -275,9 +282,9 @@ function ReplacementBanner({ myTurn, isReplacement }: BattlePanelCtx) {
 }
 
 /** battle.hud：替补面板 */
-function BenchRow({ obs }: BattlePanelCtx) {
+function BenchRow({ obs, meta }: BattlePanelCtx) {
   if (obs.own.bench === undefined) return null;
-  return <BenchPanel bench={obs.own.bench} />;
+  return <BenchPanel bench={obs.own.bench} meta={meta} />;
 }
 
 /** battle.hud：技能栏 + 右侧功能键 */
@@ -292,6 +299,8 @@ function SkillBar({ obs, meta, myTurn, isReplacement, submit, speed, onSkip, onC
           const badge = moveId !== null ? moveBadge(meta, moveId) : null;
           const mMeta = moveId !== null ? meta?.moves[moveId] : undefined;
           const pp = moveId !== null ? obs.own.ppByMoveId?.[moveId] : undefined;
+          const effNow = mMeta?.effVs?.[obs.opponent.speciesId];
+          const et = effTag(effNow);
           const isSwitch = a.action?.kind === "switch";
           const swSpecies = isSwitch ? obs.own.bench?.find((b: any) => b.unitId === a.action.unitId)?.speciesId : undefined;
           return (
@@ -303,8 +312,13 @@ function SkillBar({ obs, meta, myTurn, isReplacement, submit, speed, onSkip, onC
               <div className="sinfo">
                 {moveId !== null ? (
                   <>
-                    <span>次数 {pp ?? "?"}/{mMeta?.pp ?? "?"}</span>
-                    <span>{badge !== null ? <><span style={{ color: badge.color }}>[{badge.tag}]</span> 威力 {badge.power}</> : "变化"}</span>
+                    <span>
+                      {mMeta?.type !== undefined && <b className="tchip" style={{ background: typeColor(mMeta.type) }}>{mMeta.type}</b>}
+                      {" "}次数 {pp ?? "?"}/{mMeta?.pp ?? "?"}
+                    </span>
+                    <span>{badge !== null ? <><span style={{ color: badge.color }}>[{badge.tag}]</span> 威力 {badge.power}</> : "变化"}
+                      {et !== null && <b style={{ color: et.color, marginLeft: 3 }}>{et.text}</b>}
+                    </span>
                   </>
                 ) : (
                   <span>{isSwitch ? "替换" : "挣扎"}</span>
@@ -586,6 +600,7 @@ function Lobby() {
                 fontWeight: 800, fontSize: 18, color: "#fff", textShadow: "0 1px 2px #000",
               }}>{id.slice(4, 5).toUpperCase()}</div>
               <div style={{ fontSize: 12, fontWeight: 700 }}>{zhSpecies(id)}</div>
+              <div>{(meta!.units[id]?.types ?? []).map((t) => <b key={t} className="tchip" style={{ background: typeColor(t), marginLeft: 2 }}>{t}</b>)}</div>
               <div style={{ fontSize: 9, color: "#6a7ca8" }}>{id}</div>
               <div style={{ fontSize: 10, color: "#9ab4e8" }}>体力 {hp}</div>
               {order >= 0 && <div style={{ fontSize: 10, color: "#8af", marginTop: 2 }}>{order === 0 ? "首发" : `替补 ${order}`}</div>}

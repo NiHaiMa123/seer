@@ -7,8 +7,8 @@ export interface MoveEffect {
   op: string; power?: number; kind?: string; stat?: string; delta?: number;
   numerator?: number; denominator?: number; name?: string; turns?: number; target?: string;
 }
-export interface MoveMeta { label: string; power: number; damageKind: string; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
-export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, { speciesId: string; hp: number }> }
+export interface MoveMeta { label: string; power: number; damageKind: string; type?: string; effVs?: Record<string, number>; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
+export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, { speciesId: string; hp: number; types?: string[] }> }
 
 let cache: Promise<PackMeta> | null = null;
 
@@ -65,6 +65,24 @@ const ZH_EFFECT: Record<string, string> = { control: "控制", immune_control: "
 export const zhEffect = (kind: string): string => kind.startsWith("tag:") ? `标记:${kind.slice(4)}` : (ZH_EFFECT[kind] ?? kind);
 
 const ZH_STAT: Record<string, string> = { atk: "攻击", def: "防御", spd: "速度", hp: "体力" };
+
+/** 属性徽标配色（赛尔号页游风味）。属性名本身就是中文，直接显示。 */
+export const TYPE_COLOR: Record<string, string> = {
+  火: "#e05038", 水: "#3d7bd9", 草: "#4da63e", 电: "#c8a020", 冰: "#66c8d8",
+  机械: "#8a8fa0", 地面: "#a0763a", 龙: "#7a4fd0", 暗影: "#5a3a78", 圣灵: "#d8b840",
+  超能: "#c860a8", 战斗: "#b05828", 次元: "#40a0b8", 远古: "#987040", 自然: "#58a848",
+  混沌: "#483858", 王: "#c8a848", 邪灵: "#883048", 光: "#d8c860", 神秘: "#7060c0",
+  飞行: "#78a8d8", 轮回: "#609878", 虚空: "#504868", 神灵: "#d0a060", 虫: "#889830",
+  飞龙: "#6860a8",
+};
+export const typeColor = (t: string): string => TYPE_COLOR[t] ?? "#707888";
+/** 克制倍率 → 飘字标签（中性 null 不飘） */
+export function effTag(eff: number | undefined): { text: string; color: string } | null {
+  if (eff === undefined || eff === 1) return null;
+  if (eff === 0) return { text: "无效", color: "#8890a0" };
+  if (eff > 1) return { text: eff >= 2 ? "克制!!" : "克制!", color: "#ffb040" };
+  return { text: "微弱", color: "#7ab8ff" };
+}
 const ZH_TARGET: Record<string, string> = { self: "自身", opponent: "对方" };
 const ZH_STATUS: Record<string, string> = { stun: "眩晕", immune_control: "免控", marked: "烙印" };
 const ZH_DMGKIND: Record<string, string> = { standard: "普通", fixed: "固定", percent: "百分比", true: "真实" };
@@ -104,6 +122,6 @@ export function describeEffect(e: MoveEffect): string {
 /** 招式悬停提示的完整中文描述行 */
 export function describeMove(m: MoveMeta | undefined): string[] {
   if (m === undefined) return [];
-  const head = `类型 ${ZH_DMGKIND[m.damageKind] ?? m.damageKind}${m.priority !== undefined && m.priority !== 0 ? ` · 先制 ${m.priority > 0 ? "+" : ""}${m.priority}` : ""}`;
+  const head = `${m.type !== undefined ? `属性 ${m.type} · ` : ""}类型 ${ZH_DMGKIND[m.damageKind] ?? m.damageKind}${m.priority !== undefined && m.priority !== 0 ? ` · 先制 ${m.priority > 0 ? "+" : ""}${m.priority}` : ""}`;
   return [head, ...(m.effects ?? []).map(describeEffect)];
 }

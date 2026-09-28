@@ -34,6 +34,9 @@
         "side": { "enum": ["p1", "p2"] },
         "amount": { "type": "integer", "minimum": 0 },
         "damageKind": { "enum": ["standard", "fixed", "percent", "true"] },
+        "eff16": { "type": "integer", "minimum": 0 },
+        "stab": { "type": "boolean" },
+        "moveType": { "type": "string" },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,

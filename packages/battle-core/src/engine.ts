@@ -20,6 +20,25 @@ function fault(reason: string, msg: string): CoreResult {
 }
 
 /** eff = floor(base × num / den)，§4 stage 系数表 */
+/**
+ * 属性克制查找：chart[招式属性][守方属性键] → 倍率 ×16 定点（1.0 → 16）。
+ * 守方双属性按声明序 join("") 为键（"机械地面"），查不到再试逆序（"地面机械"）；
+ * 单属性/未命中 → 8（即 1.0）。双属性倍率是表中手工标定的条目，不是单属性乘积
+ * （验证过：如 (0.5,1.0) 组合在不同双属性上给出 0.75/0.875/1.5 不同结果）。
+ */
+export function effectivenessOf(
+  chart: ReadonlyMap<string, ReadonlyMap<string, number>>,
+  moveType: string,
+  defenderTypes: readonly string[],
+): number {
+  const row = chart.get(moveType);
+  if (row === undefined || defenderTypes.length === 0) return 16;
+  const direct = row.get(defenderTypes.join(""));
+  if (direct !== undefined) return direct;
+  if (defenderTypes.length === 2) return row.get(`${defenderTypes[1]}${defenderTypes[0]}`) ?? 16;
+  return 16;
+}
+
 function effStat(base: number, stage: number): number {
   const [num, den] = stage >= 0 ? [2 + stage, 2] : [2, 2 - stage];
   return Math.floor((base * num) / den);
@@ -302,7 +321,7 @@ function applyTurnInner(
       if (++applications > pack.limits.maxEffectApplications) {
         return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
       }
-      const cp = applyEffect(pack, next, events, side, unit, fx);
+      const cp = applyEffect(pack, next, events, side, unit, move, fx);
       if (cp === "terminal") break outer;
       if (cp !== "continue") { writeSuspension(cp.suspend); break outer; }
     }
@@ -372,22 +391,44 @@ function doSwitch(next: CoreState, events: CoreEvent[], side: SideId, benchIndex
   return true;
 }
 
-function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, fx: CompiledEffect): CpResult {
+function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, move: CompiledMove, fx: CompiledEffect): CpResult {
   const foe = next.sides[OTHER[side]].unit;
   const targetSide = (fx as { target?: "self" | "opponent" }).target === "opponent" ? OTHER[side] : side;
   const target = next.sides[targetSide].unit;
   switch (fx.op) {
     case "damage": {
       const kind = fx.kind ?? "standard";
-      const dmg = kind === "fixed"
-        ? fx.power
-        : kind === "percent"
-          ? Math.floor((fx.power * foe.base.hp) / 100)
-          : Math.max(1, Math.floor((fx.power * effStat(unit.base.atk, unit.stages.atk)) / (2 * effStat(foe.base.def, kind === "true" ? 0 : foe.stages.def))));
+      // 属性系统：standard/true（攻防公式招式）吃克制倍率 + STAB；
+      // fixed/percent 是固定值语义，不受属性影响；struggle 无类型。
+      const typed = kind !== "fixed" && kind !== "percent" && pack.typeChart !== undefined && move.type !== undefined;
+      let dmg: number;
+      let eff16: number | undefined; // ×16 定点（事件流必须全整数——canonicalJson 拒浮点）
+      let stab = false;
+      if (kind === "fixed") {
+        dmg = fx.power;
+      } else if (kind === "percent") {
+        dmg = Math.floor((fx.power * foe.base.hp) / 100);
+      } else {
+        const base = Math.floor((fx.power * effStat(unit.base.atk, unit.stages.atk)) / (2 * effStat(foe.base.def, kind === "true" ? 0 : foe.stages.def)));
+        if (typed) {
+          const foeTypes = pack.unitsById.get(foe.speciesId)?.types ?? [];
+          eff16 = effectivenessOf(pack.typeChart!, move.type!, foeTypes);
+          stab = (pack.unitsById.get(unit.speciesId)?.types ?? []).includes(move.type!);
+          dmg = eff16 === 0 ? 0 : Math.max(1, Math.floor((base * eff16) / 16 * (stab ? pack.stabMultiplier : 1)));
+        } else {
+          dmg = Math.max(1, base);
+        }
+      }
       foe.currentHp = Math.max(0, foe.currentHp - dmg);
       events.push({
         type: "damage",
-        detail: { side: OTHER[side], amount: dmg, hpAfter: { current: foe.currentHp, max: foe.base.hp }, ...(kind !== "standard" ? { damageKind: kind } : {}) },
+        detail: {
+          side: OTHER[side],
+          amount: dmg,
+          hpAfter: { current: foe.currentHp, max: foe.base.hp },
+          ...(kind !== "standard" ? { damageKind: kind } : {}),
+          ...(eff16 !== undefined ? { eff16, stab, moveType: move.type } : {}),
+        },
       });
       return checkpoint(next, events);
     }
@@ -654,7 +695,7 @@ export function applyReplacement(
         if (++applications > pack.limits.maxEffectApplications) {
           return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
         }
-        if (stopAtCheckpoint(applyEffect(pack, next, events, side, unit, fx))) {
+        if (stopAtCheckpoint(applyEffect(pack, next, events, side, unit, move, fx))) {
           halted = true;
           break;
         }

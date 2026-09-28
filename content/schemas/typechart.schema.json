@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/typechart.schema.json",
+  "title": "Type effectiveness chart (attack side)",
+  "type": "object",
+  "required": ["attack"],
+  "additionalProperties": false,
+  "properties": {
+    "_comment": { "type": "string" },
+    "attack": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": { "type": "number", "minimum": 0 }
+      }
+    }
+  }
+}

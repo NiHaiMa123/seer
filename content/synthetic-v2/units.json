@@ -4,12 +4,14 @@
       "id": "syn-gamma",
       "name": "Gamma",
       "base": { "hp": 150, "atk": 45, "def": 28, "spd": 60 },
+      "types": ["草"],
       "moveIds": ["syn-strike", "syn-jab", "syn-hex", "syn-blast"]
     },
     {
       "id": "syn-delta",
       "name": "Delta",
       "base": { "hp": 90, "atk": 55, "def": 20, "spd": 70 },
+      "types": ["水"],
       "moveIds": ["syn-strike", "syn-drain", "syn-slam", "syn-purge-mind"],
       "revives": 1
     },
@@ -17,6 +19,7 @@
       "id": "syn-epsilon",
       "name": "Epsilon",
       "base": { "hp": 110, "atk": 38, "def": 40, "spd": 45 },
+      "types": ["暗影", "龙"],
       "moveIds": ["syn-strike", "syn-bolster", "syn-purge", "syn-ward", "syn-brand"],
       "mode": "boss"
     }

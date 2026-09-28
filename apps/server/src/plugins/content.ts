@@ -4,7 +4,7 @@
  */
 import type { PluginManifest } from "@seer/contracts";
 import type { PluginSpec, SeerPluginContext } from "@seer/plugin-runtime";
-import type { FrozenPack } from "@seer/battle-core";
+import { effectivenessOf, type FrozenPack } from "@seer/battle-core";
 import { HTTP_ROUTER_SERVICE, type Router } from "../router.ts";
 
 export const CONTENT_CATALOG_SERVICE = "content.catalog";
@@ -44,10 +44,20 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
           moves: Object.fromEntries(
             [...pack.movesById.values()].map((m) => {
               const dmg = m.effects.find((e) => e.op === "damage") as { power?: number; kind?: string } | undefined;
+              // 克制矩阵：招式属性 × 包内每种守方精灵属性 → eff（公开规则知识）
+              const effVs = pack.typeChart !== undefined && m.type !== undefined && dmg !== undefined && (dmg.kind === undefined || dmg.kind === "standard" || dmg.kind === "true")
+                ? Object.fromEntries(
+                    [...pack.unitsById.values()]
+                      .filter((u) => u.types !== undefined)
+                      .map((u) => [u.id, effectivenessOf(pack.typeChart!, m.type!, u.types!) / 16]),
+                  )
+                : undefined;
               return [m.id, {
                 label: m.id,
                 power: dmg?.power ?? 0,
                 damageKind: dmg?.kind ?? "standard",
+                ...(m.type !== undefined ? { type: m.type } : {}),
+                ...(effVs !== undefined ? { effVs } : {}),
                 pp: m.pp,
                 priority: m.priority,
                 ops: m.effects.map((e) => e.op),
@@ -56,7 +66,10 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
             }),
           ),
           units: Object.fromEntries(
-            [...pack.unitsById.values()].map((u) => [u.id, { speciesId: u.id, hp: u.base.hp }]),
+            [...pack.unitsById.values()].map((u) => [
+              u.id,
+              { speciesId: u.id, hp: u.base.hp, ...(u.types !== undefined ? { types: u.types } : {}) },
+            ]),
           ),
         });
       });

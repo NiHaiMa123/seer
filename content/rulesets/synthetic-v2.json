@@ -18,6 +18,8 @@
   "stats": ["hp", "atk", "def", "spd"],
   "statStageRange": [-6, 6],
   "damageKinds": ["standard", "fixed", "percent", "true"],
+  "typeChartFile": "typechart.json",
+  "stabMultiplier": 1.5,
   "modeOverlays": {
     "boss": { "immuneControl": true, "immuneClearStages": true }
   },

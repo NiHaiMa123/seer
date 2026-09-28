@@ -15,6 +15,7 @@
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
           "name": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "minLength": 1 },
           "pp": { "type": "integer", "minimum": 1 },
           "priority": { "type": "integer" },
           "effects": {

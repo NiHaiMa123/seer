@@ -166,6 +166,12 @@ export class BattleScene {
         this.push((p) => { u.box.alpha = p < 0.5 ? 0.3 : 1; }, 250);
         const color = ev.damageKind === "true" ? 0xff5555 : ev.damageKind === "percent" ? 0xffaa33 : 0xffe08a;
         this.floatText(u.x, 120, `-${ev.amount}`, color);
+        // 克制反馈飘字（eff 仅 standard/true 招式携带）
+        if (typeof ev.eff16 === "number") {
+          const effN = ev.eff16 / 16;
+          const tag = effN === 0 ? { t: "无效", c: 0x8890a0 } : effN > 1 ? { t: effN >= 2 ? "克制!!" : "克制!", c: 0xffb040 } : effN < 1 ? { t: "微弱", c: 0x7ab8ff } : null;
+          if (tag !== null) this.floatText(u.x, 92, tag.t, tag.c);
+        }
         break;
       }
       case "heal": {

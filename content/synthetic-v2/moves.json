@@ -3,86 +3,169 @@
     {
       "id": "syn-strike",
       "name": "Strike",
+      "type": "战斗",
       "pp": 35,
       "priority": 0,
-      "effects": [{ "op": "damage", "power": 40 }]
+      "effects": [
+        {
+          "op": "damage",
+          "power": 40
+        }
+      ]
     },
     {
       "id": "syn-jab",
       "name": "Jab",
+      "type": "飞行",
       "pp": 30,
       "priority": 1,
-      "effects": [{ "op": "damage", "power": 20 }]
+      "effects": [
+        {
+          "op": "damage",
+          "power": 20
+        }
+      ]
     },
     {
       "id": "syn-bolster",
       "name": "Bolster",
+      "type": "超能",
       "pp": 20,
       "priority": 0,
-      "effects": [{ "op": "apply_stat_stage", "stat": "atk", "delta": 1, "target": "self" }]
+      "effects": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "atk",
+          "delta": 1,
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "syn-recover",
       "name": "Recover",
+      "type": "自然",
       "pp": 10,
       "priority": 0,
-      "effects": [{ "op": "heal", "numerator": 1, "denominator": 2, "target": "self" }]
+      "effects": [
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 2,
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "syn-drain",
       "name": "Drain",
+      "type": "神秘",
       "pp": 15,
       "priority": 0,
-      "effects": [{ "op": "transfer_stages" }]
+      "effects": [
+        {
+          "op": "transfer_stages"
+        }
+      ]
     },
     {
       "id": "syn-purge",
       "name": "Purge",
+      "type": "圣灵",
       "pp": 15,
       "priority": 0,
-      "effects": [{ "op": "clear_stages", "target": "opponent" }]
+      "effects": [
+        {
+          "op": "clear_stages",
+          "target": "opponent"
+        }
+      ]
     },
     {
       "id": "syn-slam",
       "name": "Slam",
+      "type": "水",
       "pp": 20,
       "priority": 0,
-      "effects": [{ "op": "damage", "kind": "true", "power": 30 }]
+      "effects": [
+        {
+          "op": "damage",
+          "kind": "true",
+          "power": 30
+        }
+      ]
     },
     {
       "id": "syn-blast",
       "name": "Blast",
+      "type": "火",
       "pp": 20,
       "priority": 0,
-      "effects": [{ "op": "damage", "kind": "percent", "power": 25 }]
+      "effects": [
+        {
+          "op": "damage",
+          "kind": "percent",
+          "power": 25
+        }
+      ]
     },
     {
       "id": "syn-hex",
       "name": "Hex",
+      "type": "暗影",
       "pp": 10,
       "priority": 0,
-      "effects": [{ "op": "control", "name": "stun", "turns": 1, "target": "opponent" }]
+      "effects": [
+        {
+          "op": "control",
+          "name": "stun",
+          "turns": 1,
+          "target": "opponent"
+        }
+      ]
     },
     {
       "id": "syn-purge-mind",
       "name": "Purge Mind",
+      "type": "圣灵",
       "pp": 10,
       "priority": 0,
-      "effects": [{ "op": "cleanse", "target": "self" }]
+      "effects": [
+        {
+          "op": "cleanse",
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "syn-ward",
       "name": "Ward",
+      "type": "超能",
       "pp": 10,
       "priority": 0,
-      "effects": [{ "op": "apply_status", "name": "immune_control", "turns": 2, "target": "self" }]
+      "effects": [
+        {
+          "op": "apply_status",
+          "name": "immune_control",
+          "turns": 2,
+          "target": "self"
+        }
+      ]
     },
     {
       "id": "syn-brand",
       "name": "Brand",
+      "type": "火",
       "pp": 10,
       "priority": 0,
-      "effects": [{ "op": "apply_effect", "name": "marked", "turns": 3, "target": "opponent" }]
+      "effects": [
+        {
+          "op": "apply_effect",
+          "name": "marked",
+          "turns": 3,
+          "target": "opponent"
+        }
+      ]
     }
   ]
 }

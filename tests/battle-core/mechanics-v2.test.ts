@@ -97,13 +97,18 @@ describe("damage kinds", () => {
     s.sides.p2.unit.stages.def = 3;
     const r = ok(applyTurn(PACK, s, { p1: act("act_syn-slam"), p2: act("act_syn-strike") }));
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
-    // floor(30×55/(2×28)) = floor(1650/56) = 29 —— def 按 stage 0
-    expect(dmg.detail.amount).toBe(29);
+    // floor(30×55/(2×28))=29 base；水系 slam 打草 eff=0.5 + 本系加成×1.5 → floor(29×8/16×1.5)=21
+    expect(dmg.detail.amount).toBe(21);
     expect(dmg.detail.damageKind).toBe("true");
+    expect(dmg.detail.eff16).toBe(8);
+    expect(dmg.detail.stab).toBe(true);
   });
   it("fixed：固定伤害无视 stage（内存包夹具）", () => {
+    const ruleset = JSON.parse(readFileSync(join(CONTENT, "rulesets", "synthetic-v2.json"), "utf8"));
+    delete ruleset.typeChartFile;
+    delete ruleset.stabMultiplier;
     const pack = compilePack({
-      ruleset: JSON.parse(readFileSync(join(CONTENT, "rulesets", "synthetic-v2.json"), "utf8")),
+      ruleset,
       pack: JSON.parse(readFileSync(join(CONTENT, "synthetic-v2", "pack.json"), "utf8")),
       units: {
         units: [

@@ -51,10 +51,11 @@ describe("feature gating (v1 ruleset rejects v2 semantics)", () => {
       license: { identifier: "CC0-1.0", public: true },
       files: { units: "units.json", moves: "moves.json" }, assets: [],
     },
-    units: { units: [{ id: "u", name: "U", base: { hp: 10, atk: 1, def: 1, spd: 1 }, moveIds: ["m"] }] },
+    units: { units: [{ id: "u", name: "U", base: { hp: 10, atk: 1, def: 1, spd: 1 }, moveIds: ["m"], ...(ruleset.typeChartFile !== undefined ? { types: ["火"] } : {}) }] },
     moves: { moves: [] as unknown[] },
+    ...(ruleset.typeChartFile !== undefined ? { typeChart: read(`rulesets/${ruleset.typeChartFile}`) } : {}),
   });
-  const mkMove = (effects: unknown[]) => ({ id: "m", name: "M", pp: 5, priority: 0, effects });
+  const mkMove = (effects: unknown[], type?: string) => ({ id: "m", name: "M", pp: 5, priority: 0, effects, ...(type !== undefined ? { type } : {}) });
 
   it("transfer_stages under v1 → fail", () => {
     const c = base();
@@ -91,14 +92,14 @@ describe("feature gating (v1 ruleset rejects v2 semantics)", () => {
   it("unit mode without overlay entry → fail", () => {
     const c = base(V2_RULESET(), "synthetic-v2");
     (c.units.units[0] as Record<string, unknown>)["mode"] = "ghost";
-    c.moves.moves = [mkMove([{ op: "damage", power: 1 }])];
+    c.moves.moves = [mkMove([{ op: "damage", power: 1 }], "火")];
     expect(() => compilePack(c)).toThrow(/mode "ghost"/);
   });
   it("bench feature without maxBenchSize → fail", () => {
     const ruleset = V2_RULESET();
     delete ruleset.limits.maxBenchSize;
     const c = base(ruleset, "synthetic-v2");
-    c.moves.moves = [mkMove([{ op: "damage", power: 1 }])];
+    c.moves.moves = [mkMove([{ op: "damage", power: 1 }], "火")];
     expect(() => compilePack(c)).toThrow(/maxBenchSize/);
   });
 });
@@ -110,9 +111,10 @@ describe("new unit = data only", () => {
       id: "syn-zeta",
       name: "Zeta",
       base: { hp: 100, atk: 30, def: 30, spd: 30 },
+      types: ["草"],
       moveIds: ["syn-strike", "syn-recover"],
     });
-    const pack = compilePack({ ruleset: V2_RULESET(), pack: V2_PACK(), units, moves: V2_MOVES() });
+    const pack = compilePack({ ruleset: V2_RULESET(), pack: V2_PACK(), units, moves: V2_MOVES(), typeChart: read("rulesets/typechart.json") });
     expect(pack.unitsById.has("syn-zeta")).toBe(true);
     // contentHash 变化——"数据即内容"，hash 改变证明数据确实进入 artifact
     expect(pack.rules.contentHash).not.toBe(PACK_V2.rules.contentHash);
