@@ -63,23 +63,23 @@ describe("伤害结算 × 属性", () => {
     expect(evs(r, "rng-draw").some((e) => e.rngDraw?.purpose === "damage_roll")).toBe(true);
   });
   it("双属性守方：syn-strike（战斗）→ 暗影龙 eff=1.25", () => {
-    // gamma atk140 vs epsilon def206：core=floor(42*40*140/10300)+2=24，×1.25=30 → roll [25,30]
+    // gamma atk140 vs epsilon def266（刻印+60）：core=floor(42*40*140/13300)+2=19，×1.25→23 → roll [19,23]
     const r = applyTurn(PACK, dg(), { p1: act("act_syn-strike"), p2: act("act_syn-strike") });
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
     expect(dmg.detail.eff16).toBe(20);
-    expect(dmg.detail.amount).toBeGreaterThanOrEqual(25);
-    expect(dmg.detail.amount).toBeLessThanOrEqual(30);
+    expect(dmg.detail.amount).toBeGreaterThanOrEqual(19);
+    expect(dmg.detail.amount).toBeLessThanOrEqual(23);
   });
   it("STAB：水系 delta 打水系 syn-slam ×1.5", () => {
-    // delta atk158（胆小-攻） slam(30,true,physical) vs eps def206（true 无视 stage）：
-    // core=floor(42*30*158/10300)+2=21，本系×1.5=31，eff16=16 → roll [26,31]
+    // delta atk158（胆小-攻） slam(30,true,physical) vs eps def266（刻印加持，true 无视 stage）：
+    // core=floor(42*30*158/13300)+2=16，本系×1.5=24，eff16=16 → roll [20,24]
     const s = initBattle(PACK, { battleId: "btl_s", seedHex: SEED, p1: "syn-delta", p2: "syn-epsilon" });
     const r = applyTurn(PACK, s, { p1: act("act_syn-slam"), p2: act("act_syn-strike") });
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
     expect(dmg.detail.eff16).toBe(16);
     expect(dmg.detail.stab).toBe(true);
-    expect(dmg.detail.amount).toBeGreaterThanOrEqual(26);
-    expect(dmg.detail.amount).toBeLessThanOrEqual(31);
+    expect(dmg.detail.amount).toBeGreaterThanOrEqual(20);
+    expect(dmg.detail.amount).toBeLessThanOrEqual(24);
   });
   it("无 STAB 时 stab=false", () => {
     const r = applyTurn(PACK, dg(), { p1: act("act_syn-strike"), p2: act("act_syn-strike") });

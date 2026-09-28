@@ -3,37 +3,127 @@
     {
       "id": "syn-gamma",
       "name": "Gamma",
-      "base": { "hp": 120, "atk": 60, "def": 80, "spa": 95, "sdf": 85, "spd": 70 },
+      "base": {
+        "hp": 120,
+        "atk": 60,
+        "def": 80,
+        "spa": 95,
+        "sdf": 85,
+        "spd": 70
+      },
       "level": 100,
-      "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "sdf": 31, "spd": 31 },
-      "evs": { "hp": 252, "atk": 0, "def": 0, "spa": 252, "sdf": 0, "spd": 6 },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "sdf": 31,
+        "spd": 31
+      },
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "sdf": 0,
+        "spd": 6
+      },
       "nature": "保守",
-      "types": ["草"],
-      "moveIds": ["syn-strike", "syn-jab", "syn-hex", "syn-blast"]
+      "types": [
+        "草"
+      ],
+      "moveIds": [
+        "syn-strike",
+        "syn-jab",
+        "syn-hex",
+        "syn-blast"
+      ]
     },
     {
       "id": "syn-delta",
       "name": "Delta",
-      "base": { "hp": 95, "atk": 70, "def": 70, "spa": 100, "sdf": 75, "spd": 95 },
+      "base": {
+        "hp": 95,
+        "atk": 70,
+        "def": 70,
+        "spa": 100,
+        "sdf": 75,
+        "spd": 95
+      },
       "level": 100,
-      "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "sdf": 31, "spd": 31 },
-      "evs": { "hp": 6, "atk": 0, "def": 0, "spa": 252, "sdf": 0, "spd": 252 },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "sdf": 31,
+        "spd": 31
+      },
+      "evs": {
+        "hp": 6,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "sdf": 0,
+        "spd": 252
+      },
       "nature": "胆小",
-      "types": ["水"],
-      "moveIds": ["syn-strike", "syn-drain", "syn-slam", "syn-purge-mind"],
+      "types": [
+        "水"
+      ],
+      "moveIds": [
+        "syn-strike",
+        "syn-drain",
+        "syn-slam",
+        "syn-purge-mind"
+      ],
       "revives": 1
     },
     {
       "id": "syn-epsilon",
       "name": "Epsilon",
-      "base": { "hp": 115, "atk": 95, "def": 85, "spa": 60, "sdf": 90, "spd": 75 },
+      "base": {
+        "hp": 115,
+        "atk": 95,
+        "def": 85,
+        "spa": 60,
+        "sdf": 90,
+        "spd": 75
+      },
       "level": 100,
-      "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "sdf": 31, "spd": 31 },
-      "evs": { "hp": 252, "atk": 252, "def": 0, "spa": 0, "sdf": 6, "spd": 0 },
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "sdf": 31,
+        "spd": 31
+      },
+      "evs": {
+        "hp": 252,
+        "atk": 252,
+        "def": 0,
+        "spa": 0,
+        "sdf": 6,
+        "spd": 0
+      },
       "nature": "固执",
-      "types": ["暗影", "龙"],
-      "moveIds": ["syn-strike", "syn-bolster", "syn-purge", "syn-ward", "syn-brand"],
-      "mode": "boss"
+      "types": [
+        "暗影",
+        "龙"
+      ],
+      "moveIds": [
+        "syn-strike",
+        "syn-bolster",
+        "syn-purge",
+        "syn-ward",
+        "syn-brand"
+      ],
+      "mode": "boss",
+      "seals": [
+        "seal-42240",
+        "seal-42240"
+      ]
     }
   ]
 }

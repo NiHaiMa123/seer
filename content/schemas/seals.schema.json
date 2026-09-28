@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/seals.schema.json",
+  "title": "Seal catalog（刻印图鉴库）",
+  "description": "刻印数据：stats 为满数值（初始+隐藏合并）。type 取页游分类；exclusive 为专属精灵名（非本包物种名时该刻印仅可展示）。",
+  "type": "object",
+  "required": ["seals"],
+  "additionalProperties": false,
+  "properties": {
+    "seals": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/seal" },
+      "propertyNames": { "pattern": "^seal-\\d+$" }
+    }
+  },
+  "definitions": {
+    "statSpread": {
+      "type": "object",
+      "required": ["hp", "atk", "def", "spa", "sdf", "spd"],
+      "additionalProperties": false,
+      "properties": {
+        "hp": { "type": "integer", "minimum": 0 },
+        "atk": { "type": "integer", "minimum": 0 },
+        "def": { "type": "integer", "minimum": 0 },
+        "spa": { "type": "integer", "minimum": 0 },
+        "sdf": { "type": "integer", "minimum": 0 },
+        "spd": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "seal": {
+      "type": "object",
+      "required": ["id", "name", "type", "stats"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^seal-\\d+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "enum": ["全能刻印", "能力刻印", "技能刻印", "通用刻印"] },
+        "series": { "type": "string", "minLength": 1 },
+        "stats": { "$ref": "#/definitions/statSpread" },
+        "hidden": { "$ref": "#/definitions/statSpread" },
+        "exclusive": { "type": "string", "minLength": 1 },
+        "desc": { "type": "string", "maxLength": 400 }
+      }
+    }
+  }
+}

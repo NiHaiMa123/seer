@@ -10,7 +10,8 @@
   },
   "files": {
     "units": "units.json",
-    "moves": "moves.json"
+    "moves": "moves.json",
+    "seals": "../seals/seals.json"
   },
   "assets": []
 }

@@ -73,7 +73,9 @@ await step("连续出招打到终局", async () => {
     if (++nulls === 3) {
       const u = new URL(page.url());
       const o = await fetch(`${BASE}/api/battle/${u.searchParams.get("battle")}/observe?player=${u.searchParams.get("player")}`).then((r) => r.json()) as any;
-      console.log(`    [t${i}] STALL obs: terminal=${JSON.stringify(o.terminal)} decision=${JSON.stringify(o.decision)} legal=[${o.legalActions.map((a: any) => `${a.actionId}:${a.action?.kind}`).join(",")}]`);
+      const legal = Array.isArray(o.legalActions) ? o.legalActions.map((a: any) => `${a.actionId}:${a.action?.kind}`).join(",") : "(none)";
+      console.log(`    [t${i}] STALL obs: terminal=${JSON.stringify(o.terminal)} decision=${JSON.stringify(o.decision)} legal=[${legal}]`);
+      if (o.terminal !== null) return; // 已终局（横幅渲染可能滞后一拍）——交给下一步验横幅
       console.log(`    [t${i}] DOM skills=${await page.locator("button.skill").count()} banner=${await page.getByTestId("result-banner").count()} repl=${await page.getByTestId("replacement-banner").count()}`);
       await page.screenshot({ path: `${SHOTS}/stall.png` });
     }

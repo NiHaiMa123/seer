@@ -3,7 +3,14 @@
   "rulesetVersion": "2.0.0",
   "schemaVersion": 1,
   "verification": "SYNTHETIC",
-  "features": ["bench", "damage_kinds", "control", "revive", "stat_ops", "mode_overlay"],
+  "features": [
+    "bench",
+    "damage_kinds",
+    "control",
+    "revive",
+    "stat_ops",
+    "mode_overlay"
+  ],
   "operatorAllowlist": [
     "damage",
     "apply_stat_stage",
@@ -15,15 +22,33 @@
     "apply_status",
     "apply_effect"
   ],
-  "stats": ["hp", "atk", "def", "spa", "sdf", "spd"],
-  "statStageRange": [-6, 6],
-  "damageKinds": ["standard", "fixed", "percent", "true"],
+  "stats": [
+    "hp",
+    "atk",
+    "def",
+    "spa",
+    "sdf",
+    "spd"
+  ],
+  "statStageRange": [
+    -6,
+    6
+  ],
+  "damageKinds": [
+    "standard",
+    "fixed",
+    "percent",
+    "true"
+  ],
   "typeChartFile": "typechart.json",
   "stabMultiplier": 1.5,
   "statModel": "six-stat",
   "naturesFile": "natures.json",
   "modeOverlays": {
-    "boss": { "immuneControl": true, "immuneClearStages": true }
+    "boss": {
+      "immuneControl": true,
+      "immuneClearStages": true
+    }
   },
   "limits": {
     "maxEffectApplications": 4096,
@@ -33,6 +58,14 @@
   },
   "rng": {
     "algorithmId": "xoshiro128**",
-    "usage": ["order_tiebreak", "damage_roll"]
+    "usage": [
+      "order_tiebreak",
+      "damage_roll"
+    ]
+  },
+  "sealRules": {
+    "maxPerUnit": 3,
+    "maxIdentical": 2,
+    "maxPerSeries": 2
   }
 }

@@ -5,7 +5,7 @@
  * 无 wall-clock/环境读取、全部整数运算、draw 只发生在 §6 平速组。
  */
 import { DeterministicRng } from "./rng.ts";
-import { deriveStats, type CompiledEffect, type CompiledMove, type CompiledUnit, type FrozenPack, type StatSpread, type StageStatKey } from "./loader.ts";
+import { checkSealLoadout, deriveStats, type CompiledEffect, type CompiledMove, type CompiledUnit, type FrozenPack, type StatSpread, type StageStatKey, type StatKey } from "./loader.ts";
 import { EngineFault, OTHER, type CoreAction, type CoreEvent, type CoreResult, type CoreState, type SideId } from "./types.ts";
 
 type SideUnit = CoreState["sides"]["p1"]["unit"];
@@ -99,7 +99,7 @@ function resolveAction(state: CoreState, side: SideId, action: CoreAction): Move
   return { kind: "invalid", actionId };
 }
 
-const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string): CoreState["sides"]["p1"]["unit"] => {
+const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string, sealIds?: string[]): CoreState["sides"]["p1"]["unit"] => {
   // six-stat：units.json 的 base 是种族值 → 推导面板六维（性格修正已内含）；
   // legacy：base 即面板值（v1 行为字节级不变）。
   const six = pack.statModel === "six-stat";
@@ -111,6 +111,19 @@ const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string): CoreState["s
         ...(u.nature !== undefined ? { nature: pack.natures!.get(u.nature) } : {}),
       })
     : ({ ...u.base } as StatSpread);
+  // 刻印：满数值平面叠加在推导面板之上（不吃性格/等级缩放）——赛尔号刻印为固定数值加成。
+  const effSeals = sealIds ?? u.seals;
+  if (effSeals !== undefined && effSeals.length > 0) {
+    if (pack.seals === undefined || pack.sealRules === undefined) {
+      throw new EngineFault("SEAL_UNSUPPORTED", `pack ${pack.rules.rulesetId} has no seal catalog`);
+    }
+    const err = checkSealLoadout(pack.seals, pack.sealRules, u.name, effSeals);
+    if (err !== null) throw new EngineFault("SEAL_RULE", `unit ${u.id} ${err}`);
+    for (const id of effSeals) {
+      const stats = pack.seals.get(id)!.stats;
+      for (const k of Object.keys(stats) as StatKey[]) base[k] += stats[k];
+    }
+  }
   return {
     unitId,
     speciesId: u.id,
@@ -127,12 +140,21 @@ const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string): CoreState["s
     // v2 additive 字段：仅当 pack 声明时才写入（v1 hash 不变靠"不写"）
     ...(u.mode !== undefined ? { mode: u.mode } : {}),
     ...(u.revives !== undefined ? { revives: u.revives } : {}),
+    ...(effSeals !== undefined && effSeals.length > 0 ? { seals: [...effSeals] } : {}),
   };
 };
 
 export function initBattle(
   pack: FrozenPack,
-  opts: { battleId: string; seedHex: string; p1: string; p2: string; bench?: { p1?: string[]; p2?: string[] } },
+  opts: {
+    battleId: string;
+    seedHex: string;
+    p1: string;
+    p2: string;
+    bench?: { p1?: string[]; p2?: string[] };
+    /** 运行时刻印 loadout：seals.p1[0]=首发，[1+i]=bench[i]；元素缺省=用 species 预设。 */
+    seals?: { p1?: string[][]; p2?: string[][] };
+  },
 ): CoreState {
   const side = (s: SideId, speciesId: string, benchIds: string[] | undefined): CoreState["sides"]["p1"] => {
     const requestedBench = benchIds ?? [];
@@ -142,15 +164,19 @@ export function initBattle(
     if (requestedBench.length > (pack.limits.maxBenchSize ?? 0)) {
       throw new EngineFault("BENCH_LIMIT", `bench size ${requestedBench.length} exceeds ${pack.limits.maxBenchSize ?? 0}`);
     }
+    const lo = opts.seals?.[s];
+    if (lo !== undefined && lo.length > 1 + requestedBench.length) {
+      throw new EngineFault("SEAL_RULE", `seal loadout ${lo.length} slots > unit count ${1 + requestedBench.length} on ${s}`);
+    }
     const u = pack.unitsById.get(speciesId);
     if (!u) throw new EngineFault("UNKNOWN_SPECIES", `species ${speciesId} not in pack`);
     const benchUnits = requestedBench.map((bid, i) => {
       const bu = pack.unitsById.get(bid);
       if (!bu) throw new EngineFault("UNKNOWN_SPECIES", `bench species ${bid} not in pack`);
-      return mkUnit(pack, bu, `unit_${s}-b${i}`);
+      return mkUnit(pack, bu, `unit_${s}-b${i}`, lo?.[i + 1]);
     });
     return {
-      unit: mkUnit(pack, u, `unit_${s}`),
+      unit: mkUnit(pack, u, `unit_${s}`, lo?.[0]),
       ...(benchUnits.length > 0 ? { bench: benchUnits } : {}),
     };
   };

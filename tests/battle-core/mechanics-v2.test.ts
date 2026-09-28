@@ -89,7 +89,7 @@ describe("damage kinds", () => {
     s.sides.p2.unit.stages.def = 6;
     const r = ok(applyTurn(PACK, s, { p1: act("act_syn-blast"), p2: act("act_syn-strike") }));
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
-    expect(dmg.detail.amount).toBe(108); // floor(25×434/100)：epsilon 面板 HP=434
+    expect(dmg.detail.amount).toBe(158); // floor(25×634/100)：epsilon 面板 HP=634（双 K13-01 刻印）
     expect(dmg.detail.damageKind).toBe("percent");
   });
   it("true：def stage 不参与", () => {
@@ -112,7 +112,7 @@ describe("damage kinds", () => {
     delete ruleset.naturesFile;
     const pack = compilePack({
       ruleset,
-      pack: JSON.parse(readFileSync(join(CONTENT, "synthetic-v2", "pack.json"), "utf8")),
+      pack: (() => { const p = JSON.parse(readFileSync(join(CONTENT, "synthetic-v2", "pack.json"), "utf8")); delete p.files.seals; return p; })(),
       units: {
         units: [
           { id: "u1", name: "U1", base: { hp: 100, atk: 10, def: 10, spd: 50 }, moveIds: ["mf"] },

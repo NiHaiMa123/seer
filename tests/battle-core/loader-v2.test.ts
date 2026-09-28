@@ -127,7 +127,7 @@ describe("new unit = data only", () => {
       types: ["草"],
       moveIds: ["syn-strike", "syn-recover"],
     });
-    const pack = compilePack({ ruleset: V2_RULESET(), pack: V2_PACK(), units, moves: V2_MOVES(), typeChart: read("rulesets/typechart.json"), natures: read("rulesets/natures.json") });
+    const pack = compilePack({ ruleset: V2_RULESET(), pack: V2_PACK(), units, moves: V2_MOVES(), typeChart: read("rulesets/typechart.json"), natures: read("rulesets/natures.json"), seals: read("seals/seals.json") });
     expect(pack.unitsById.has("syn-zeta")).toBe(true);
     // contentHash 变化——"数据即内容"，hash 改变证明数据确实进入 artifact
     expect(pack.rules.contentHash).not.toBe(PACK_V2.rules.contentHash);

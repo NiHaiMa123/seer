@@ -87,6 +87,7 @@
         "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
         "level": { "type": "integer", "minimum": 1, "maximum": 100 },
         "stats": { "$ref": "#/definitions/panelStats" },
+        "seals": { "type": "array", "items": { "type": "string", "pattern": "^seal-\\d+$" }, "maxItems": 6 },
         "hp": { "$ref": "#/definitions/hp" },
         "ppByMoveId": {
           "type": "object",
@@ -112,6 +113,7 @@
         "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
         "level": { "type": "integer", "minimum": 1, "maximum": 100 },
         "stats": { "$ref": "#/definitions/panelStats" },
+        "seals": { "type": "array", "items": { "type": "string", "pattern": "^seal-\\d+$" }, "maxItems": 6 },
         "hp": { "$ref": "#/definitions/hp" },
         "ppByMoveId": {
           "type": "object",

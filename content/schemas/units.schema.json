@@ -32,6 +32,7 @@
           "ivs": { "$ref": "#/definitions/statSpread" },
           "evs": { "$ref": "#/definitions/statSpread" },
           "nature": { "type": "string", "minLength": 1 },
+          "seals": { "type": "array", "items": { "type": "string", "pattern": "^seal-\\d+$" }, "maxItems": 6 },
           "moveIds": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
           "types": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "maxItems": 2, "uniqueItems": true },
           "revives": { "type": "integer", "minimum": 0 },

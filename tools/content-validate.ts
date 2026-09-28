@@ -174,6 +174,19 @@ function validateRoot(root: string, schemasDir: string): Result {
     const files = pack["files"];
     const unitFile = isObj(files) && isStr(files["units"]) ? join(root, dir, files["units"]) : undefined;
     const moveFile = isObj(files) && isStr(files["moves"]) ? join(root, dir, files["moves"]) : undefined;
+    const sealFile = isObj(files) && isStr(files["seals"]) ? join(root, dir, files["seals"]) : undefined;
+
+    // 刻印库：schema 校验 + 收集 id 供 unit.seals 引用检查（规则语义由 loader 把关）
+    const sealIds = new Set<string>();
+    if (sealFile !== undefined) {
+      filesChecked.push(sealFile);
+      const sdata = loadJson(sealFile, findings);
+      if (check("seals", sdata, sealFile)) {
+        for (const s of Object.values((sdata as Obj)["seals"] as Obj)) {
+          if (isObj(s) && isStr(s["id"])) sealIds.add(s["id"]);
+        }
+      }
+    }
 
     const moves = new Map<string, Obj>();
     if (moveFile) {
@@ -224,6 +237,18 @@ function validateRoot(root: string, schemasDir: string): Result {
                 file: unitFile,
                 message: `unit "${String(u["id"])}" references missing move "${ref}"`,
               });
+            }
+          }
+          const seals = u["seals"];
+          if (isArr(seals)) {
+            for (const ref of seals) {
+              if (isStr(ref) && !sealIds.has(ref)) {
+                findings.push({
+                  code: "REF",
+                  file: unitFile,
+                  message: `unit "${String(u["id"])}" references missing seal "${ref}"`,
+                });
+              }
             }
           }
         }

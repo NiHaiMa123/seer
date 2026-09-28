@@ -17,6 +17,16 @@
     "stabMultiplier": { "type": "number", "minimum": 1 },
     "statModel": { "enum": ["six-stat"] },
     "naturesFile": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*\\.json$" },
+    "sealRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxPerUnit", "maxIdentical", "maxPerSeries"],
+      "properties": {
+        "maxPerUnit": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "maxIdentical": { "type": "integer", "minimum": 1 },
+        "maxPerSeries": { "type": "integer", "minimum": 1 }
+      }
+    },
     "modeOverlays": {
       "type": "object",
       "additionalProperties": false,

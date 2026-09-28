@@ -16,6 +16,7 @@ import unitsSchemaJson from "../../../content/schemas/units.schema.json" with { 
 import movesSchemaJson from "../../../content/schemas/moves.schema.json" with { type: "json" };
 import typechartSchemaJson from "../../../content/schemas/typechart.schema.json" with { type: "json" };
 import naturesSchemaJson from "../../../content/schemas/natures.schema.json" with { type: "json" };
+import sealsSchemaJson from "../../../content/schemas/seals.schema.json" with { type: "json" };
 
 export const ENGINE_VERSION = "0.1.0";
 export const IR_VERSION = 1;
@@ -53,6 +54,8 @@ export type CompiledEffect =
 
 export interface CompiledUnit {
   id: string;
+  /** 中文物种名（专属刻印匹配用）。 */
+  name: string;
   /** 种族值（six-stat 模式）或面板值（legacy 四维）。 */
   base: { hp: number; atk: number; def: number; spd: number; spa?: number; sdf?: number };
   moveIds: string[];
@@ -64,6 +67,25 @@ export interface CompiledUnit {
   ivs?: StatSpread;
   evs?: StatSpread;
   nature?: string;
+  /** 预设刻印 loadout（可被对局创建时 loadout 覆盖）。 */
+  seals?: string[];
+}
+
+/** 刻印（满数值：初始+隐藏已合并为 stats，平面叠加面板，不吃性格）。 */
+export interface CompiledSeal {
+  id: string;
+  name: string;
+  type: "全能刻印" | "能力刻印" | "技能刻印" | "通用刻印";
+  series?: string;
+  stats: StatSpread;
+  /** 专属精灵名（为空=通用）。装备校验按单位 name 匹配。 */
+  exclusive?: string;
+}
+
+export interface SealRules {
+  maxPerUnit: number;
+  maxIdentical: number;
+  maxPerSeries: number;
 }
 
 export type FeatureFlag =
@@ -86,6 +108,10 @@ export interface FrozenPack {
   statModel?: "six-stat";
   /** six-stat：性格表（性格名 → {up,down}，平衡性格为空对象）。 */
   natures?: ReadonlyMap<string, { up?: StageStatKey; down?: StageStatKey }>;
+  /** 刻印库（pack.files.seals 注入）；未声明则 undefined → unit.seals 一律拒绝。 */
+  seals?: ReadonlyMap<string, CompiledSeal>;
+  /** 刻印佩戴规则（ruleset.sealRules）。 */
+  sealRules?: SealRules;
   limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   stageRange: { min: number; max: number };
   operatorAllowlist: readonly string[];
@@ -100,6 +126,7 @@ const vUnits = ajv.compile(unitsSchemaJson);
 const vMoves = ajv.compile(movesSchemaJson);
 const vTypeChart = ajv.compile(typechartSchemaJson);
 const vNatures = ajv.compile(naturesSchemaJson);
+const vSeals = ajv.compile(sealsSchemaJson);
 
 /** six-stat 面板推导（BWIKI 培养机制 × 4399 计算解析交叉验证）：
  *  HP  = floor((2·种族 + 个体 + 努力/4) · 等级/100) + 等级 + 10
@@ -142,6 +169,8 @@ interface RawContent {
   typeChart?: unknown;
   /** ruleset.naturesFile 指向的性格表文档。 */
   natures?: unknown;
+  /** pack.files.seals 指向的刻印库文档。 */
+  seals?: unknown;
 }
 
 /** Pure: compile from already-parsed JSON documents (usable in Worker/browser). */
@@ -161,6 +190,7 @@ export function compilePack(raw: RawContent): FrozenPack {
     stabMultiplier?: number;
     statModel?: "six-stat";
     naturesFile?: string;
+    sealRules?: SealRules;
     modeOverlays?: Record<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
     statStageRange: [number, number];
     limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
@@ -216,6 +246,25 @@ export function compilePack(raw: RawContent): FrozenPack {
   } else {
     if (ruleset.naturesFile !== undefined) fail("naturesFile declared without statModel");
   }
+
+  // 刻印库：pack.files.seals 声明 → 文档必填 + ruleset.sealRules 必填；
+  // 未声明 files.seals → 拒绝注入（unit.seals 在校验循环里同样拒）。
+  const packDeclaresSeals = (raw.pack as { files?: { seals?: string } }).files?.seals !== undefined;
+  let seals: Map<string, CompiledSeal> | undefined;
+  if (packDeclaresSeals) {
+    if (raw.seals === undefined) fail("pack declares files.seals but no seals document was provided");
+    if (!vSeals(raw.seals)) fail(`seals schema: ${ajv.errorsText(vSeals.errors)}`);
+    if (ruleset.sealRules === undefined) fail("pack declares files.seals but ruleset lacks sealRules");
+    seals = new Map(
+      Object.values((raw.seals as { seals: Record<string, CompiledSeal> }).seals).map((s) => [s.id, s]),
+    );
+    for (const [id, s] of seals) {
+      if (s.id !== id) fail(`seal key ${id} != seal.id ${s.id}`);
+    }
+  } else if (raw.seals !== undefined) {
+    fail("seals document provided but pack declares no files.seals");
+  }
+  // sealRules 允许单独声明（ruleset 开了能力但本 pack 不出刻印库 → unit.seals 仍被拒）
 
   if (pack.rulesetId !== ruleset.rulesetId) {
     fail(`pack rulesetId "${pack.rulesetId}" != ruleset "${ruleset.rulesetId}"`);
@@ -306,8 +355,15 @@ export function compilePack(raw: RawContent): FrozenPack {
     } else if (hasSixFields) {
       fail(`unit ${u.id} sets six-stat fields (level/ivs/evs/nature/spa/sdf) but statModel is not "six-stat"`);
     }
+    if (u.seals !== undefined) {
+      if (seals === undefined || ruleset.sealRules === undefined) {
+        fail(`unit ${u.id} sets seals but pack declares no files.seals`);
+      }
+      const err = checkSealLoadout(seals, ruleset.sealRules, u.name, u.seals);
+      if (err !== null) fail(`unit ${u.id} ${err}`);
+    }
     unitsById.set(u.id, {
-      id: u.id, base: u.base, moveIds: u.moveIds,
+      id: u.id, name: u.name, base: u.base, moveIds: u.moveIds,
       ...(u.types !== undefined ? { types: u.types } : {}),
       ...(u.revives !== undefined ? { revives: u.revives } : {}),
       ...(u.mode !== undefined ? { mode: u.mode } : {}),
@@ -319,6 +375,7 @@ export function compilePack(raw: RawContent): FrozenPack {
             ...(u.nature !== undefined ? { nature: u.nature } : {}),
           }
         : {}),
+      ...(u.seals !== undefined && u.seals.length > 0 ? { seals: [...u.seals] } : {}),
     });
   }
 
@@ -344,7 +401,11 @@ export function compilePack(raw: RawContent): FrozenPack {
           ...(raw.natures !== undefined ? { naturesSha256: sha256hex(JSON.stringify(raw.natures)) } : {}),
         };
       })()))}`;
-  const contentHash = `sha256:${sha256hex(canonicalJson({ pack: raw.pack, units: raw.units, moves: raw.moves }))}`;
+  const contentHash = `sha256:${sha256hex(canonicalJson(
+    raw.seals === undefined
+      ? { pack: raw.pack, units: raw.units, moves: raw.moves }
+      : { pack: raw.pack, units: raw.units, moves: raw.moves, sealsSha256: sha256hex(JSON.stringify(raw.seals)) },
+  ))}`;
   const executableHash = ENGINE_EXECUTABLE_HASH;
 
   const frozen: FrozenPack = {
@@ -362,6 +423,8 @@ export function compilePack(raw: RawContent): FrozenPack {
     stabMultiplier: ruleset.stabMultiplier ?? 1.5,
     ...(ruleset.statModel !== undefined ? { statModel: ruleset.statModel } : {}),
     ...(natures !== undefined ? { natures } : {}),
+    ...(seals !== undefined ? { seals } : {}),
+    ...(ruleset.sealRules !== undefined ? { sealRules: { ...ruleset.sealRules } } : {}),
     limits: ruleset.limits,
     stageRange: { min: ruleset.statStageRange[0], max: ruleset.statStageRange[1] },
     operatorAllowlist: ruleset.operatorAllowlist,
@@ -375,12 +438,44 @@ export function compilePack(raw: RawContent): FrozenPack {
   return Object.freeze(frozen);
 }
 
+/**
+ * 刻印佩戴规则校验（loader 期预设 & 运行时 loadout 共用）：
+ * ≤maxPerUnit 枚、同 id ≤maxIdentical、同系列 ≤maxPerSeries、专属刻印须匹配单位名。
+ * 返回错误描述或 null。
+ */
+export function checkSealLoadout(
+  seals: ReadonlyMap<string, CompiledSeal>,
+  rules: SealRules,
+  unitName: string,
+  sealIds: readonly string[],
+): string | null {
+  if (sealIds.length > rules.maxPerUnit) return `seals count ${sealIds.length} exceeds maxPerUnit ${rules.maxPerUnit}`;
+  const byId = new Map<string, number>();
+  const bySeries = new Map<string, number>();
+  for (const id of sealIds) {
+    const seal = seals.get(id);
+    if (seal === undefined) return `seal ${id} not in seal catalog`;
+    const n = (byId.get(id) ?? 0) + 1;
+    if (n > rules.maxIdentical) return `seal ${id} count ${n} exceeds maxIdentical ${rules.maxIdentical}`;
+    byId.set(id, n);
+    if (seal.series !== undefined) {
+      const s = (bySeries.get(seal.series) ?? 0) + 1;
+      if (s > rules.maxPerSeries) return `series "${seal.series}" count ${s} exceeds maxPerSeries ${rules.maxPerSeries}`;
+      bySeries.set(seal.series, s);
+    }
+    if (seal.exclusive !== undefined && seal.exclusive !== unitName) {
+      return `seal ${id} is exclusive to "${seal.exclusive}", not "${unitName}"`;
+    }
+  }
+  return null;
+}
+
 /** Convenience node loader for Host/tests (fs — not used inside transitions). */
 export function loadPackFromDir(contentRoot: string, packId: string): FrozenPack {
   const read = (p: string): unknown => JSON.parse(readFileSync(join(contentRoot, p), "utf8"));
   const pack = read(join(packId, "pack.json")) as {
     rulesetId: string;
-    files?: { units?: string; moves?: string };
+    files?: { units?: string; moves?: string; seals?: string };
   };
   const ruleset = read(join("rulesets", `${pack.rulesetId}.json`)) as { typeChartFile?: string; naturesFile?: string };
   return compilePack({
@@ -390,5 +485,6 @@ export function loadPackFromDir(contentRoot: string, packId: string): FrozenPack
     moves: read(join(packId, pack.files?.moves ?? "moves.json")),
     ...(ruleset.typeChartFile !== undefined ? { typeChart: read(join("rulesets", ruleset.typeChartFile)) } : {}),
     ...(ruleset.naturesFile !== undefined ? { natures: read(join("rulesets", ruleset.naturesFile)) } : {}),
+    ...(pack.files?.seals !== undefined ? { seals: read(join(packId, pack.files.seals)) } : {}),
   });
 }

@@ -146,7 +146,7 @@ describe("six-stat 战斗结算", () => {
     expect(s.sides.p1.unit.base).toEqual({ hp: 444, atk: 140, def: 196, spa: 317, sdf: 206, spd: 177 });
     expect(s.sides.p1.unit.level).toBe(100);
     expect(s.sides.p1.unit.stages).toEqual({ atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 });
-    expect(s.sides.p2.unit.base.hp).toBe(434); // epsilon 固执 hp
+    expect(s.sides.p2.unit.base.hp).toBe(634); // epsilon 固执 hp 434 + 双 K13-01 刻印 +200
   });
   it("physical 用 atk/def、special 用 spa/sdf（同威力对高攻低特攻精灵差异显著）", () => {
     // 内存夹具：u1 spa 极高 atk 极低；物理招几乎不破防，特攻招重创

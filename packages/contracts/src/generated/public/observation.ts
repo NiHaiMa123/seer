@@ -257,6 +257,14 @@ export const observationSchema: Record<string, unknown> = {
         "stats": {
           "$ref": "#/definitions/panelStats"
         },
+        "seals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^seal-\\d+$"
+          },
+          "maxItems": 6
+        },
         "hp": {
           "$ref": "#/definitions/hp"
         },
@@ -321,6 +329,14 @@ export const observationSchema: Record<string, unknown> = {
         },
         "stats": {
           "$ref": "#/definitions/panelStats"
+        },
+        "seals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^seal-\\d+$"
+          },
+          "maxItems": 6
         },
         "hp": {
           "$ref": "#/definitions/hp"
@@ -629,6 +645,10 @@ export interface OwnUnit {
   speciesId: string;
   level?: number;
   stats?: PanelStats;
+  /**
+   * @maxItems 6
+   */
+  seals?: string[];
   hp: Hp;
   ppByMoveId: {
     [k: string]: number;
@@ -674,6 +694,10 @@ export interface BenchEntry {
   speciesId: string;
   level?: number;
   stats?: PanelStats;
+  /**
+   * @maxItems 6
+   */
+  seals?: string[];
   hp: Hp;
   ppByMoveId: {
     [k: string]: number;

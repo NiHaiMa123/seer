@@ -9,8 +9,8 @@ export {
   ENGINE_EXECUTABLE_HASH,
   IR_VERSION,
 } from "./loader.ts";
-export { deriveStats } from "./loader.ts";
-export type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack, StatKey, StageStatKey, StatSpread } from "./loader.ts";
+export { checkSealLoadout, deriveStats } from "./loader.ts";
+export type { CompiledEffect, CompiledMove, CompiledSeal, CompiledUnit, FrozenPack, SealRules, StatKey, StageStatKey, StatSpread } from "./loader.ts";
 export { applyReplacement, applyTurn, defaultAction, defaultReplacement, effectivenessOf, initBattle, legalActions } from "./engine.ts";
 export {
   EngineFault,

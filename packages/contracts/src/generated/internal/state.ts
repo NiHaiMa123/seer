@@ -413,6 +413,14 @@ export const stateSchema: Record<string, unknown> = {
           "minimum": 1,
           "maximum": 100
         },
+        "seals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^seal-\\d+$"
+          },
+          "maxItems": 6
+        },
         "base": {
           "type": "object",
           "additionalProperties": false,
@@ -657,6 +665,10 @@ export interface InternalUnit {
   unitId: string;
   speciesId: string;
   level?: number;
+  /**
+   * @maxItems 6
+   */
+  seals?: string[];
   base: {
     hp: number;
     atk: number;

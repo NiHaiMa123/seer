@@ -19,6 +19,8 @@ export interface CreateBattleRequest {
   bench?: { p1?: string[]; p2?: string[] };
   /** 有序队伍（[0]首发，余下 bench）——与 species/bench 互斥 */
   team?: { p1: string[]; p2: string[] };
+  /** 刻印 loadout：loadout.p1[i] 是队伍第 i 槽位（[0]=首发）的刻印 id 列表 */
+  loadout?: { p1?: string[][]; p2?: string[][] };
   pack?: string;
   /** pve：p2 为服务端 bot 席位（不发 token，自动提交） */
   mode?: "pvp" | "pve";
@@ -80,6 +82,23 @@ const teamPair = (value: unknown): { p1: string[]; p2: string[] } => {
   return { p1: benchSide(input.p1, "team.p1"), p2: benchSide(input.p2, "team.p2") };
 };
 
+const SEAL_ID = /^seal-\d+$/;
+const loadoutSide = (value: unknown, label: string): string[][] => {
+  if (!Array.isArray(value) || value.length > 16) throw new TransportError(400, `${label} is invalid`);
+  return value.map((slot, i) => {
+    if (!Array.isArray(slot) || slot.length > 6) throw new TransportError(400, `${label}[${i}] must be an array of <=6 seal ids`);
+    return slot.map((s, j) => text(s, `${label}[${i}][${j}]`, SEAL_ID));
+  });
+};
+const loadout = (value: unknown): { p1?: string[][]; p2?: string[][] } => {
+  const input = asRecord(value, "loadout");
+  exact(input, ["p1", "p2"], "loadout");
+  return {
+    ...(input.p1 !== undefined ? { p1: loadoutSide(input.p1, "loadout.p1") } : {}),
+    ...(input.p2 !== undefined ? { p2: loadoutSide(input.p2, "loadout.p2") } : {}),
+  };
+};
+
 const worldPlayer = (value: unknown, label: string): string =>
   text(value, label, /^wpl_[a-z0-9-]{1,60}$/);
 
@@ -94,7 +113,7 @@ const owners = (value: unknown): { p1?: string; p2?: string } => {
 
 export function parseCreateBattle(value: unknown): CreateBattleRequest {
   const input = asRecord(value, "create battle body");
-  exact(input, ["seedHex", "species", "bench", "team", "pack", "mode", "owners", "deadlineMs"], "create battle body");
+  exact(input, ["seedHex", "species", "bench", "team", "loadout", "pack", "mode", "owners", "deadlineMs"], "create battle body");
   if (input.mode !== undefined && input.mode !== "pvp" && input.mode !== "pve") {
     throw new TransportError(400, "mode must be pvp or pve");
   }
@@ -106,6 +125,7 @@ export function parseCreateBattle(value: unknown): CreateBattleRequest {
     ...(input.species !== undefined ? { species: speciesPair(input.species) } : {}),
     ...(input.team !== undefined ? { team: teamPair(input.team) } : {}),
     ...(input.bench !== undefined ? { bench: bench(input.bench) } : {}),
+    ...(input.loadout !== undefined ? { loadout: loadout(input.loadout) } : {}),
     ...(input.pack !== undefined ? { pack: text(input.pack, "pack", /^[a-z0-9][a-z0-9-]*$/) } : {}),
     ...(input.mode !== undefined ? { mode: input.mode as "pvp" | "pve" } : {}),
     ...(input.owners !== undefined ? { owners: owners(input.owners) } : {}),

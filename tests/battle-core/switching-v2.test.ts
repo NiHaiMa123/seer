@@ -110,23 +110,23 @@ describe("KO → replacement 挂起/续跑", () => {
   it("未行动方：其 suspended remaining 在 replacement 后执行（未行动方剩余伤害结算）", () => {
     // 双方 PP 耗尽且 gamma 更快：p1 struggle 后被反伤 KO，p2 的 struggle 尚未行动。
     // replacement 换入 delta 后必须继续 p2 的 remaining action，而不是静默丢弃。
-    // six-stat：epsilon 速度面板(187)反超 gamma(177) → 给 p1 +1 速度 stage 保持"先行被反伤 KO"的语义。
+    // six-stat：epsilon 速度面板(272 含刻印)反超 gamma(177) → 给 p1 +2 速度 stage(354) 保持"先行被反伤 KO"的语义。
     const s = mk();
     for (const move of s.sides.p1.unit.moves) move.pp = 0;
     for (const move of s.sides.p2.unit.moves) move.pp = 0;
-    s.sides.p1.unit.stages.spd = 1;
+    s.sides.p1.unit.stages.spd = 2;
     s.sides.p1.unit.currentHp = 1;
     const r = ok(applyTurn(PACK, s, { p1: act("act_struggle"), p2: act("act_struggle") }));
     expect(r.state.suspension?.koSide).toBe("p1");
     expect(r.state.suspension!.remaining.p1).toBeNull();
     expect(r.state.suspension!.remaining.p2).toBe("act_struggle");
-    // p1 struggle 打 epsilon：floor(444/4)=111 → eps 434-111=323；recoil floor(444/8)=55 → p1 KO
-    expect(r.state.sides.p2.unit.currentHp).toBe(323);
+    // p1 struggle 打 epsilon：floor(444/4)=111 → eps 634-111=523；recoil floor(444/8)=55 → p1 KO
+    expect(r.state.sides.p2.unit.currentHp).toBe(523);
     const r2 = ok(applyReplacement(PACK, r.state, { p1: act("act_switch-0"), p2: null }));
     expect(r2.state.sides.p1.unit.speciesId).toBe("syn-delta");
-    // 换入的 delta(hp332) 吃 epsilon struggle floor(434/4)=108 → 224；eps 反伤 floor(434/8)=54 → 269
-    expect(r2.state.sides.p1.unit.currentHp).toBe(224);
-    expect(r2.state.sides.p2.unit.currentHp).toBe(269);
+    // 换入的 delta(hp332) 吃 epsilon struggle floor(634/4)=158 → 174；eps 反伤 floor(634/8)=79 → 444
+    expect(r2.state.sides.p1.unit.currentHp).toBe(174);
+    expect(r2.state.sides.p2.unit.currentHp).toBe(444);
     expect(evs(r2, "struggle-used")).toHaveLength(1);
     expect(r2.state.phase).toBe("collect");
     expect(r2.state.turn).toBe(2);

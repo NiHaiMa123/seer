@@ -5,7 +5,7 @@
  * 权威状态永远来自 observe；动画只表现公开事件。
  */
 import { createRoot } from "react-dom/client";
-import { StrictMode, useEffect, useRef, useState } from "react";
+import { StrictMode, useEffect, useMemo, useRef, useState } from "react";
 import { BattleClient } from "./api.ts";
 import { BattleScene } from "./scene.ts";
 import { chooseAction } from "./ai.ts";
@@ -80,7 +80,7 @@ function speciesHue(speciesId: string): number {
 }
 
 /** 单位信息卡——赛尔号式：圆形头像 + Lv + 名字 + HP 条 + 状态 chips */
-function UnitCard({ u, side, benchAlive, types }: { u: any; side: "own" | "foe"; benchAlive?: number; types: string[] | undefined }) {
+function UnitCard({ u, side, benchAlive, types, sealNames }: { u: any; side: "own" | "foe"; benchAlive?: number; types: string[] | undefined; sealNames?: string }) {
   const hue = speciesHue(u.speciesId);
   const low = u.hp.current / u.hp.max < 0.3;
   return (
@@ -97,6 +97,10 @@ function UnitCard({ u, side, benchAlive, types }: { u: any; side: "own" | "foe";
           {u.mode !== undefined && <span style={{ color: "#fd6", fontSize: 10 }}> [{zhMode(u.mode)}]</span>}
           {u.revives !== undefined && u.revives > 0 && <span style={{ color: "#8af", fontSize: 10 }}> ↻{u.revives}</span>}
           {benchAlive !== undefined && <span style={{ color: "#8af", fontSize: 10 }}> 后备×{benchAlive}</span>}
+          {u.seals !== undefined && u.seals.length > 0 && (
+            <span className="tchip" data-testid={`sealchip-${side}`} title={sealNames ?? ""}
+              style={{ background: "#b8922a" }}>刻印×{u.seals.length}</span>
+          )}
         </div>
         <div className={`hpbar${low ? " low" : ""}`}>
           <i style={{ width: `${(u.hp.current / u.hp.max) * 100}%` }} />
@@ -254,7 +258,8 @@ function BattleTop({ obs, meta }: BattlePanelCtx) {
         side={obs.side} turn={obs.turn} rev={obs.revision} terminal={JSON.stringify(obs.terminal)}
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 10px 0" }}>
-        <UnitCard u={obs.own} side="own" types={meta?.units[obs.own.speciesId]?.types} />
+        <UnitCard u={obs.own} side="own" types={meta?.units[obs.own.speciesId]?.types}
+          sealNames={(obs.own.seals ?? []).map((id: string) => meta?.seals?.[id]?.name ?? id).join("、")} />
         <div style={{ textAlign: "center" }}>
           {qs.get("pve") === "1" && <div data-testid="pve-badge" style={{ color: "#fd6", fontSize: 11 }}>人机对战</div>}
           <span className="turnbadge">第 {obs.turn} 回合</span>
@@ -554,20 +559,130 @@ function loadMetaPack(packId: string): Promise<PackMeta> {
   return fetch(`/api/content/${packId}`).then((r) => r.json() as Promise<PackMeta>);
 }
 
+const SEAL_TYPE_COLOR: Record<string, string> = { 全能刻印: "#b8922a", 能力刻印: "#3a6ad0", 技能刻印: "#8a4ac0", 通用刻印: "#3a9070" };
+const sealStatText = (s: { hp: number; atk: number; def: number; spa: number; sdf: number; spd: number }): string =>
+  (["hp", "atk", "def", "spa", "sdf", "spd"] as const).filter((k) => s[k] > 0).map((k) => `${zhStat(k)}+${s[k]}`).join(" ");
+
+/** 客户端佩戴预检——与 loader.checkSealLoadout 同口径，服务端仍是权威校验。 */
+function sealEquipError(meta: PackMeta, unitName: string, cur: string[], id: string): string | null {
+  const rules = meta.sealRules!;
+  const seals = meta.seals!;
+  const seal = seals[id]!;
+  if (cur.length >= rules.maxPerUnit) return `最多佩戴 ${rules.maxPerUnit} 枚刻印`;
+  if (cur.filter((x) => x === id).length >= rules.maxIdentical) return `相同刻印最多 ${rules.maxIdentical} 枚`;
+  if (seal.series !== undefined && cur.filter((x) => seals[x]?.series === seal.series).length >= rules.maxPerSeries)
+    return `同系列「${seal.series}」最多 ${rules.maxPerSeries} 枚`;
+  if (seal.exclusive !== undefined && seal.exclusive !== unitName) return `专属刻印，仅「${seal.exclusive}」可佩戴`;
+  return null;
+}
+
+/** 刻印图鉴面板——仿 WIKI 图鉴：名称搜索 + 类型/系列筛选 + 结果列表 + 装备槽。 */
+function SealPicker({ meta, unit, current, onChange }: {
+  meta: PackMeta; unit: { speciesId: string; name?: string }; current: string[];
+  onChange: (next: string[] | null) => void; // null = 关闭
+}) {
+  const [q, setQ] = useState("");
+  const [ftype, setFtype] = useState("全部");
+  const [fseries, setFseries] = useState("全部");
+  const [msg, setMsg] = useState<string | null>(null);
+  const seals = meta.seals!;
+  const all = useMemo(() => Object.values(seals), [seals]);
+  const types = useMemo(() => [...new Set(all.map((s) => s.type))], [all]);
+  const seriesList = useMemo(() => [...new Set(all.map((s) => s.series).filter((x): x is string => x !== undefined))].sort(), [all]);
+  const filtered = useMemo(() => all.filter((s) =>
+    (ftype === "全部" || s.type === ftype) &&
+    (fseries === "全部" || s.series === fseries) &&
+    (q === "" || s.name.includes(q) || s.id.includes(q))
+  ), [all, q, ftype, fseries]);
+  const rules = meta.sealRules!;
+  const equip = (id: string) => {
+    const err = sealEquipError(meta, unit.name ?? unit.speciesId, current, id);
+    if (err !== null) { setMsg(err); return; }
+    setMsg(null);
+    onChange([...current, id]);
+  };
+  const sel = { background: "#16204a", color: "#cfe0ff", border: "1px solid #3a4a70", padding: "3px 6px", borderRadius: 6, fontSize: 11 };
+  return (
+    <div data-testid="seal-picker" style={{ marginTop: 8, padding: 10, border: "1px solid #3a4a70", borderRadius: 8, background: "#101735" }}>
+      <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "#9ab4e8", flexWrap: "wrap" }}>
+        <b>{zhSpecies(unit.speciesId)}</b> 的刻印槽
+        <input data-testid="seal-q" placeholder="名称/ID 搜索" value={q} onChange={(e) => setQ(e.target.value)}
+          style={{ ...sel, width: 110 }} />
+        <select data-testid="seal-ftype" value={ftype} onChange={(e) => setFtype(e.target.value)} style={sel}>
+          <option>全部</option>{types.map((t) => <option key={t}>{t}</option>)}
+        </select>
+        <select data-testid="seal-fseries" value={fseries} onChange={(e) => setFseries(e.target.value)} style={sel}>
+          <option>全部</option>{seriesList.map((s) => <option key={s}>{s}</option>)}
+        </select>
+        <span style={{ color: "#5a6c9a" }}>共 {filtered.length} 条</span>
+        <button data-testid="seal-close" onClick={() => onChange(null)} style={{ ...sel, marginLeft: "auto" }}>收起</button>
+      </div>
+      <div style={{ margin: "6px 0", fontSize: 11 }}>
+        {Array.from({ length: rules.maxPerUnit }, (_, i) => current[i] ?? "").map((id, i) => {
+          const s = id !== "" ? seals[id] : undefined;
+          return (
+            <span key={i} data-testid={`seal-slot-${i}`}
+              onClick={() => { if (id !== "") onChange(current.filter((_, j) => j !== i)); setMsg(null); }}
+              title={s !== undefined ? `${s.name} · ${s.type}${s.series !== undefined ? ` · ${s.series}` : ""} · ${sealStatText(s.stats)}（点击卸下）` : "空槽"}
+              style={{
+                display: "inline-block", margin: "2px 4px 2px 0", padding: "3px 8px", borderRadius: 6, fontSize: 11, cursor: "pointer",
+                border: id !== "" ? "1px solid #b8922a" : "1px dashed #3a4a70",
+                color: id !== "" ? "#ffd880" : "#5a6c9a",
+              }}>
+              {i + 1}. {s?.name ?? "空槽"}
+            </span>
+          );
+        })}
+        <span style={{ color: "#5a6c9a" }}> 相同刻印≤{rules.maxIdentical} · 同系列≤{rules.maxPerSeries}</span>
+        {msg !== null && <span data-testid="seal-err" style={{ color: "#f88", marginLeft: 8 }}>{msg}</span>}
+      </div>
+      <div data-testid="seal-list" style={{ maxHeight: 200, overflow: "auto", borderTop: "1px solid #25335c" }}>
+        {filtered.slice(0, 80).map((s) => {
+          const err = sealEquipError(meta, unit.name ?? unit.speciesId, current, s.id);
+          return (
+            <div key={s.id} data-testid={`seal-row-${s.id}`} onClick={() => equip(s.id)}
+              style={{ display: "flex", gap: 8, alignItems: "baseline", padding: "4px 2px", borderBottom: "1px solid #1c2748", fontSize: 11, cursor: "pointer", opacity: err !== null ? 0.45 : 1 }}>
+              <b style={{ color: "#dfe8ff", minWidth: 120 }}>{s.name}</b>
+              <span className="tchip" style={{ background: SEAL_TYPE_COLOR[s.type] ?? "#666", marginLeft: 0 }}>{s.type}</span>
+              {s.series !== undefined && <span style={{ color: "#8aa0d8" }}>[{s.series}]</span>}
+              <span style={{ color: "#9fc0ff" }}>{sealStatText(s.stats)}</span>
+              {s.exclusive !== undefined && <span style={{ color: "#f96" }}>专属:{s.exclusive}</span>}
+            </div>
+          );
+        })}
+        {filtered.length > 80 && <div style={{ fontSize: 10, color: "#5a6c9a", padding: 4 }}>仅显示前 80 条，请用筛选缩小范围</div>}
+        {filtered.length === 0 && <div style={{ fontSize: 11, color: "#5a6c9a", padding: 6 }}>无匹配刻印</div>}
+      </div>
+    </div>
+  );
+}
+
 /** 战斗入口——赛尔号式：选精灵编队 → 直接进对战（PVE boss / 双人对局）。 */
 function Lobby() {
   const [pack, setPack] = useState("synthetic-v2");
   const [meta, setMeta] = useState<PackMeta | null>(null);
   const [team, setTeam] = useState<string[]>([]);
+  const [loadout, setLoadout] = useState<Record<string, string[]>>({});
+  const [pickerFor, setPickerFor] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { void loadMetaPack(pack).then(setMeta); }, [pack]);
+  useEffect(() => { setLoadout({}); setPickerFor(null); }, [pack]);
   const species = meta === null ? [] : Object.keys(meta.units).sort();
-  const toggle = (id: string) => setTeam((t) => t.includes(id) ? t.filter((x) => x !== id) : t.length >= 3 ? t : [...t, id]);
+  const toggle = (id: string) => setTeam((t) => {
+    if (!t.includes(id)) return t.length >= 3 ? t : [...t, id];
+    setLoadout((l) => { const n = { ...l }; delete n[id]; return n; });
+    if (pickerFor === id) setPickerFor(null);
+    return t.filter((x) => x !== id);
+  });
   const start = async () => {
     const foe = pack === "synthetic-v2" ? ["syn-epsilon", "syn-delta"] : species.filter((s) => !team.includes(s)).slice(0, 2);
     const r = await fetch("/api/battle", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ pack, mode: "pve", team: { p1: team, p2: foe.length > 0 ? foe : team } }),
+      body: JSON.stringify({
+        pack, mode: "pve", team: { p1: team, p2: foe.length > 0 ? foe : team },
+        // 刻印 loadout：p1[i] ↔ 队伍第 i 槽位；包无刻印库时不传（v1 兼容）
+        ...(meta?.seals !== undefined ? { loadout: { p1: team.map((id) => loadout[id] ?? []) } } : {}),
+      }),
     });
     const b = await r.json() as { battleId?: string; tokens?: { p1: string }; message?: string };
     if (b.battleId === undefined || b.tokens === undefined) { setErr(b.message ?? "create failed"); return; }
@@ -621,6 +736,45 @@ function Lobby() {
           );
         })}
       </div>
+      {meta?.seals !== undefined && team.length > 0 && (
+        <div data-testid="seal-panel" style={{ marginTop: 12, fontSize: 12 }}>
+          {team.map((id) => {
+            const cur = loadout[id] ?? [];
+            const open = pickerFor === id;
+            return (
+              <div key={id} data-testid={`seal-unit-${id}`} style={{ marginBottom: 4 }}>
+                <span style={{ color: "#9ab4e8" }}>{zhSpecies(id)}</span>
+                {Array.from({ length: meta.sealRules?.maxPerUnit ?? 3 }, (_, i) => cur[i] ?? "").map((sid, i) => (
+                  <span key={i} data-testid={`seal-slot-${id}-${i}`}
+                    title={sid !== "" ? `${meta.seals![sid]?.name ?? sid}（点击卸下）` : "空槽"}
+                    onClick={() => {
+                      if (sid === "") { setPickerFor(open ? null : id); return; }
+                      setLoadout((l) => ({ ...l, [id]: cur.filter((_, j) => j !== i) }));
+                    }}
+                    style={{
+                      display: "inline-block", marginLeft: 6, padding: "2px 8px", borderRadius: 5, fontSize: 11, cursor: "pointer",
+                      border: sid !== "" ? "1px solid #b8922a" : "1px dashed #3a4a70",
+                      color: sid !== "" ? "#ffd880" : "#5a6c9a",
+                    }}>
+                    {sid !== "" ? (meta.seals![sid]?.name ?? sid) : `刻印${i + 1}`}
+                  </span>
+                ))}
+                <button data-testid={`seal-edit-${id}`} onClick={() => setPickerFor(open ? null : id)}
+                  style={{ marginLeft: 6, fontSize: 11, padding: "2px 8px", background: "#16204a", color: "#9ab4e8", border: "1px solid #3a4a70", borderRadius: 5 }}>
+                  {open ? "收起图鉴" : "打开刻印图鉴"}
+                </button>
+                {open && (
+                  <SealPicker meta={meta} unit={meta.units[id]!} current={cur}
+                    onChange={(next) => {
+                      if (next === null) { setPickerFor(null); return; }
+                      setLoadout((l) => ({ ...l, [id]: next }));
+                    }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
       <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{ fontSize: 12, color: "#9ab4e8" }}>首发={team[0] ?? "-"} 替补=[{team.slice(1).join(", ")}]</span>
         <button data-testid="btn-start" disabled={team.length === 0} onClick={() => void start()} style={{

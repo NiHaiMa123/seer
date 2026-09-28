@@ -9,8 +9,10 @@ export interface MoveEffect {
 }
 export interface StatPanel { hp: number; atk: number; def: number; spa: number; sdf: number; spd: number }
 export interface MoveMeta { label: string; power: number; damageKind: string; type?: string; category?: "physical" | "special"; effVs?: Record<string, number>; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
-export interface UnitMeta { speciesId: string; hp: number; types?: string[]; level?: number; nature?: string; stats?: StatPanel }
-export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, UnitMeta> }
+export interface UnitMeta { speciesId: string; name?: string; hp: number; types?: string[]; level?: number; nature?: string; stats?: StatPanel; seals?: string[] }
+export interface SealMeta { id: string; name: string; type: string; series?: string; stats: StatPanel; hidden?: StatPanel; exclusive?: string; desc?: string }
+export interface SealRules { maxPerUnit: number; maxIdentical: number; maxPerSeries: number }
+export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, UnitMeta>; seals?: Record<string, SealMeta>; sealRules?: SealRules }
 
 let cache: Promise<PackMeta> | null = null;
 

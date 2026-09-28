@@ -47,6 +47,8 @@ export interface HostConfig {
   species: { p1: string; p2: string };
   /** v2 bench：每方后备 speciesId 列表（v1 局不传 → bench 字段不出现） */
   bench?: { p1?: string[]; p2?: string[] };
+  /** 刻印 loadout：seals.p1[0]=首发槽位，[1+i]=bench[i]；不传=用 species 预设 seals。 */
+  seals?: { p1?: string[][]; p2?: string[][] };
   players: { p1: string; p2: string }; // side → playerId
   deadlineMs: number; // 逻辑 deadline（不接 wall-clock）
 }

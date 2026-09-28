@@ -1,0 +1,16 @@
+{
+  "claimId": "CLAIM-SEALS-001",
+  "targetSnapshot": "seer-bwiki-seal-catalog-2026-09",
+  "mode": "battle-general",
+  "statement": "刻印图鉴库 3832 条：id/名称/类型(全能/能力/技能)/系列/六维满数值加成(初始+隐藏合并)/专属精灵绑定。字段源自 BWIKI SMW ask 查询返回的 printouts（名称/类型/系列名称/初始六维/隐藏六维/专属精灵/最大装备等级/最大持有数量），页面自报约 3838 条、每页 108、更新日期 2026-04-13。",
+  "boundaries": "本库只取数值与分类元数据；技能刻印的特效描述文本未结构化（desc 仅原文截断留存），运行时只结算 stats 六维加成；碎片类型条目不入库（3 条已剔除）；'满数值'=初始+隐藏直接相加，不复刻官方养成/升级路径；专属精灵为 WIKI 精灵名，合成包内物种不匹配时该刻印仅可展示。",
+  "source": {
+    "kind": "observation",
+    "uri": "https://wiki.biligame.com/seer/%E5%88%BB%E5%8D%B0%E5%9B%BE%E9%89%B4"
+  },
+  "observedAt": "2026-09-29",
+  "evidenceDigest": "sha256:61b94cc92479ee164943e9e2dd8569de0e64c89948379509fad4903cd5c4401c",
+  "reviewer": "automated SMW ask extraction + DOM render inspection",
+  "verification": "UNVERIFIED",
+  "fixtureIds": []
+}

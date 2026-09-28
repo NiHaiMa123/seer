@@ -71,6 +71,7 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
               u.id,
               {
                 speciesId: u.id,
+                name: u.name,
                 hp: pack.statModel === "six-stat" ? deriveStats(u.base as StatSpread, { level: u.level ?? 100, ivs: u.ivs!, evs: u.evs!, nature: u.nature !== undefined ? pack.natures!.get(u.nature) : undefined }).hp : u.base.hp,
                 // six-stat：默认养成的面板六维 + 等级/性格（内容公开数据，非对局隐藏信息）
                 ...(pack.statModel === "six-stat"
@@ -81,9 +82,18 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
                     }
                   : {}),
                 ...(u.types !== undefined ? { types: u.types } : {}),
+                // 预设刻印（物种默认 loadout——如 boss 预装）
+                ...(u.seals !== undefined && u.seals.length > 0 ? { seals: u.seals } : {}),
               },
             ]),
           ),
+          // 刻印图鉴库 + 佩戴规则（公开内容知识；客户端检索/校验提示用）
+          ...(pack.seals !== undefined
+            ? {
+                seals: Object.fromEntries([...pack.seals.values()].map((s) => [s.id, s])),
+                sealRules: pack.sealRules,
+              }
+            : {}),
         });
       });
     },

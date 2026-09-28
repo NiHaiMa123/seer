@@ -49,6 +49,7 @@ export class BattleHost {
       p1: cfg.species.p1,
       p2: cfg.species.p2,
       ...(cfg.bench !== undefined ? { bench: cfg.bench } : {}),
+      ...(cfg.seals !== undefined ? { seals: cfg.seals } : {}),
     });
     assertCoreState(core, cfg.pack, cfg.battleId);
     if (core.revision !== 0 || core.turn !== 1) throw new ExecutorError("executor init state is malformed");
