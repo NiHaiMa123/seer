@@ -37,6 +37,7 @@
         "eff16": { "type": "integer", "minimum": 0 },
         "stab": { "type": "boolean" },
         "moveType": { "type": "string" },
+        "category": { "enum": ["physical", "special"] },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,

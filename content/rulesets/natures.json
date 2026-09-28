@@ -1,0 +1,30 @@
+{
+  "_comment": "赛尔号 25 性格修正表（来源 BWIKI 性格图鉴 ×2 交叉验证）：提升项 ×1.1、降低项 ×0.9、平衡无修正。键=性格名；up/down 取值为 stat 键（atk/def/spa/sdf/spd），体力不受性格影响。",
+  "natures": {
+    "孤独": { "up": "atk", "down": "def" },
+    "勇敢": { "up": "atk", "down": "spd" },
+    "调皮": { "up": "atk", "down": "sdf" },
+    "固执": { "up": "atk", "down": "spa" },
+    "大胆": { "up": "def", "down": "atk" },
+    "无虑": { "up": "def", "down": "sdf" },
+    "悠闲": { "up": "def", "down": "spd" },
+    "顽皮": { "up": "def", "down": "spa" },
+    "保守": { "up": "spa", "down": "atk" },
+    "马虎": { "up": "spa", "down": "sdf" },
+    "稳重": { "up": "spa", "down": "def" },
+    "冷静": { "up": "spa", "down": "spd" },
+    "沉着": { "up": "sdf", "down": "atk" },
+    "狂妄": { "up": "sdf", "down": "spd" },
+    "温顺": { "up": "sdf", "down": "def" },
+    "慎重": { "up": "sdf", "down": "spa" },
+    "胆小": { "up": "spd", "down": "atk" },
+    "急躁": { "up": "spd", "down": "def" },
+    "天真": { "up": "spd", "down": "sdf" },
+    "开朗": { "up": "spd", "down": "spa" },
+    "认真": {},
+    "坦率": {},
+    "实干": {},
+    "害羞": {},
+    "浮躁": {}
+  }
+}

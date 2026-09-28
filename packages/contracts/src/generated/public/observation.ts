@@ -152,10 +152,59 @@ export const observationSchema: Record<string, unknown> = {
           "minimum": -6,
           "maximum": 6
         },
+        "spa": {
+          "type": "integer",
+          "minimum": -6,
+          "maximum": 6
+        },
+        "sdf": {
+          "type": "integer",
+          "minimum": -6,
+          "maximum": 6
+        },
         "spd": {
           "type": "integer",
           "minimum": -6,
           "maximum": 6
+        }
+      }
+    },
+    "panelStats": {
+      "description": "six-stat：推导后的六维面板值（含种族/个体/努力/性格）。只对己方单位公开。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hp",
+        "atk",
+        "def",
+        "spa",
+        "sdf",
+        "spd"
+      ],
+      "properties": {
+        "hp": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "atk": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "def": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "spa": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sdf": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "spd": {
+          "type": "integer",
+          "minimum": 1
         }
       }
     },
@@ -199,6 +248,14 @@ export const observationSchema: Record<string, unknown> = {
         "speciesId": {
           "type": "string",
           "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "stats": {
+          "$ref": "#/definitions/panelStats"
         },
         "hp": {
           "$ref": "#/definitions/hp"
@@ -257,6 +314,14 @@ export const observationSchema: Record<string, unknown> = {
           "type": "string",
           "pattern": "^[a-z0-9][a-z0-9-]*$"
         },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "stats": {
+          "$ref": "#/definitions/panelStats"
+        },
         "hp": {
           "$ref": "#/definitions/hp"
         },
@@ -309,6 +374,11 @@ export const observationSchema: Record<string, unknown> = {
         "speciesId": {
           "type": "string",
           "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
         },
         "hp": {
           "$ref": "#/definitions/hp"
@@ -557,6 +627,8 @@ export interface RulesRef {
 export interface OwnUnit {
   unitId: string;
   speciesId: string;
+  level?: number;
+  stats?: PanelStats;
   hp: Hp;
   ppByMoveId: {
     [k: string]: number;
@@ -570,6 +642,17 @@ export interface OwnUnit {
    */
   bench?: BenchEntry[];
 }
+/**
+ * six-stat：推导后的六维面板值（含种族/个体/努力/性格）。只对己方单位公开。
+ */
+export interface PanelStats {
+  hp: number;
+  atk: number;
+  def: number;
+  spa: number;
+  sdf: number;
+  spd: number;
+}
 export interface Hp {
   current: number;
   max: number;
@@ -577,6 +660,8 @@ export interface Hp {
 export interface Stages {
   atk: number;
   def: number;
+  spa?: number;
+  sdf?: number;
   spd: number;
 }
 export interface PublicEffect {
@@ -587,6 +672,8 @@ export interface PublicEffect {
 export interface BenchEntry {
   unitId: string;
   speciesId: string;
+  level?: number;
+  stats?: PanelStats;
   hp: Hp;
   ppByMoveId: {
     [k: string]: number;
@@ -600,6 +687,7 @@ export interface BenchEntry {
 export interface VisibleOpponent {
   unitId: string;
   speciesId: string;
+  level?: number;
   hp: Hp;
   revealedMoveIds: string[];
   ppEstimate:

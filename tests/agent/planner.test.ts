@@ -49,14 +49,21 @@ describe("planner", () => {
   });
   it("KO 可杀时 planner 收敛到致胜动作", () => {
     const h = mkHost();
-    // 打残 delta 到 <45 → A 下回合 strike 可 KO
-    for (let i = 0; i < 2; i++) {
-      const d = h.observe("A").decision!;
-      h.submit("A", { battleId: "btl_pln", decisionId: d.decisionId, baseRevision: d.baseRevision, actionId: "act_syn-strike", idempotencyKey: `ka${i}11111` });
-      h.submit("B", { battleId: "btl_pln", decisionId: d.decisionId, baseRevision: d.baseRevision, actionId: "act_syn-strike", idempotencyKey: `kb${i}11111` });
+    // six-stat：delta 面板 hp332，strike 随机 23-28、jab 12-15（飞行→水中性）。
+    // 打残到 ≤23（最差 roll 也必杀）：hp≥29 用 strike 永不可能 KO（≥29-28≥1 存活），
+    // hp 24-28 用 jab（≤15）安全落地；绝不提交 hp≤28 的 strike（可能真 KO 触发挂起）。
+    let obs = h.observe("A");
+    for (let i = 0; i < 40 && obs.opponent.hp.current > 23; i++) {
+      const d = obs.decision;
+      if (!d || d.kind !== "turn") break;
+      const move = obs.opponent.hp.current >= 29 ? "act_syn-strike" : "act_syn-jab";
+      h.submit("A", { battleId: "btl_pln", decisionId: d.decisionId, baseRevision: d.baseRevision, actionId: move, idempotencyKey: `ka${String(i).padStart(4, "0")}xx` });
+      h.submit("B", { battleId: "btl_pln", decisionId: d.decisionId, baseRevision: d.baseRevision, actionId: "act_syn-drain", idempotencyKey: `kb${String(i).padStart(4, "0")}xx` });
+      obs = h.observe("A");
+      if (obs.decision?.kind === "replacement" || obs.opponent.hp.current === 0) break;
     }
-    const obs = h.observe("A");
-    expect(obs.opponent.hp.current).toBeLessThanOrEqual(45);
+    expect(obs.opponent.hp.current).toBeGreaterThan(0);
+    expect(obs.opponent.hp.current).toBeLessThanOrEqual(23);
     const r = plan(PACK, obs, [{}], 5, { ...DEFAULT_PLANNER, depth: 1 });
     const strike = r.scores.find((s) => s.actionId === "act_syn-strike")!;
     expect(strike.worstMilli).toBeGreaterThan(0); // worst-case 也赢/占优

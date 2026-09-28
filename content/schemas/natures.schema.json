@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/natures.schema.json",
+  "title": "Nature modifier table",
+  "type": "object",
+  "required": ["natures"],
+  "additionalProperties": false,
+  "properties": {
+    "_comment": { "type": "string" },
+    "natures": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "up": { "enum": ["atk", "def", "spa", "sdf", "spd"] },
+          "down": { "enum": ["atk", "def", "spa", "sdf", "spd"] }
+        }
+      }
+    }
+  }
+}

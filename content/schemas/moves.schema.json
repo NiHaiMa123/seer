@@ -16,6 +16,7 @@
           "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
           "name": { "type": "string", "minLength": 1 },
           "type": { "type": "string", "minLength": 1 },
+          "category": { "enum": ["physical", "special"] },
           "pp": { "type": "integer", "minimum": 1 },
           "priority": { "type": "integer" },
           "effects": {
@@ -28,7 +29,7 @@
               "properties": {
                 "op": { "type": "string", "minLength": 1 },
                 "power": { "type": "integer", "minimum": 1 },
-                "stat": { "enum": ["atk", "def", "spd"] },
+                "stat": { "enum": ["atk", "def", "spa", "sdf", "spd"] },
                 "delta": { "type": "integer", "not": { "const": 0 } },
                 "target": { "enum": ["self", "opponent"] },
                 "numerator": { "type": "integer", "minimum": 1 },

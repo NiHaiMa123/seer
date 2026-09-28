@@ -94,7 +94,7 @@ describe("M2 complex interaction chains", () => {
       p2: act("act_syn-strike"),
     }));
     expect(revived.state.sides.p2.unit.revives).toBe(0);
-    expect(revived.state.sides.p2.unit.currentHp).toBe(45);
+    expect(revived.state.sides.p2.unit.currentHp).toBe(166); // floor(332/2)：delta 面板 hp=332
     expect(revived.state.suspension).toBeUndefined();
 
     revived.state.sides.p2.unit.currentHp = 1;

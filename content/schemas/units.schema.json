@@ -23,14 +23,35 @@
               "hp": { "type": "integer", "minimum": 1 },
               "atk": { "type": "integer", "minimum": 1 },
               "def": { "type": "integer", "minimum": 1 },
+              "spa": { "type": "integer", "minimum": 1 },
+              "sdf": { "type": "integer", "minimum": 1 },
               "spd": { "type": "integer", "minimum": 1 }
             }
           },
+          "level": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "ivs": { "$ref": "#/definitions/statSpread" },
+          "evs": { "$ref": "#/definitions/statSpread" },
+          "nature": { "type": "string", "minLength": 1 },
           "moveIds": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
           "types": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "maxItems": 2, "uniqueItems": true },
           "revives": { "type": "integer", "minimum": 0 },
           "mode": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
         }
+      }
+    }
+  },
+  "definitions": {
+    "statSpread": {
+      "type": "object",
+      "required": ["hp", "atk", "def", "spa", "sdf", "spd"],
+      "additionalProperties": false,
+      "properties": {
+        "hp": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "atk": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "def": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "spa": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "sdf": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "spd": { "type": "integer", "minimum": 0, "maximum": 255 }
       }
     }
   }

@@ -51,29 +51,35 @@ describe("effectivenessOf 查表", () => {
 
 describe("伤害结算 × 属性", () => {
   it("克制招式伤害放大：飞行 syn-jab 打草（eff=2）", () => {
-    // gamma(45atk) jab(20power) → 镜像 gamma(28def)：base=floor(20*45/56)=16，eff16=32 → 32
+    // six-stat：gamma 面板 atk140/def196（保守-攻）。core=floor(42*20*140/(196*50))+2=14
+    // eff16=32 → floor(14*2)=28，随机 217..255/255 → [23,28]
     const s = initBattle(PACK, { battleId: "btl_x", seedHex: SEED, p1: "syn-gamma", p2: "syn-gamma" });
     const r = applyTurn(PACK, s, { p1: act("act_syn-jab"), p2: act("act_syn-jab") });
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
     expect(dmg.detail.eff16).toBe(32);
     expect(dmg.detail.moveType).toBe("飞行");
-    expect(dmg.detail.amount).toBe(32);
+    expect(dmg.detail.amount).toBeGreaterThanOrEqual(23);
+    expect(dmg.detail.amount).toBeLessThanOrEqual(28);
+    expect(evs(r, "rng-draw").some((e) => e.rngDraw?.purpose === "damage_roll")).toBe(true);
   });
   it("双属性守方：syn-strike（战斗）→ 暗影龙 eff=1.25", () => {
-    // gamma strike(40) vs epsilon(40def)：base=floor(40*45/80)=22，×1.25=27
+    // gamma atk140 vs epsilon def206：core=floor(42*40*140/10300)+2=24，×1.25=30 → roll [25,30]
     const r = applyTurn(PACK, dg(), { p1: act("act_syn-strike"), p2: act("act_syn-strike") });
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
     expect(dmg.detail.eff16).toBe(20);
-    expect(dmg.detail.amount).toBe(27);
+    expect(dmg.detail.amount).toBeGreaterThanOrEqual(25);
+    expect(dmg.detail.amount).toBeLessThanOrEqual(30);
   });
   it("STAB：水系 delta 打水系 syn-slam ×1.5", () => {
-    // delta(55atk) slam(30,true) vs epsilon(40def, stage0)：base=floor(30*55/80)=20，eff16=16，stab → ×1.5=30
+    // delta atk158（胆小-攻） slam(30,true,physical) vs eps def206（true 无视 stage）：
+    // core=floor(42*30*158/10300)+2=21，本系×1.5=31，eff16=16 → roll [26,31]
     const s = initBattle(PACK, { battleId: "btl_s", seedHex: SEED, p1: "syn-delta", p2: "syn-epsilon" });
     const r = applyTurn(PACK, s, { p1: act("act_syn-slam"), p2: act("act_syn-strike") });
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
     expect(dmg.detail.eff16).toBe(16);
     expect(dmg.detail.stab).toBe(true);
-    expect(dmg.detail.amount).toBe(30);
+    expect(dmg.detail.amount).toBeGreaterThanOrEqual(26);
+    expect(dmg.detail.amount).toBeLessThanOrEqual(31);
   });
   it("无 STAB 时 stab=false", () => {
     const r = applyTurn(PACK, dg(), { p1: act("act_syn-strike"), p2: act("act_syn-strike") });
@@ -92,14 +98,14 @@ describe("伤害结算 × 属性", () => {
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
     expect(dmg.detail.eff16).toBe(0);
     expect(dmg.detail.amount).toBe(0);
-    expect(r.ok && r.state.sides.p2.unit.currentHp).toBe(100);
+    expect(r.ok && r.state.sides.p2.unit.currentHp === r.state.sides.p2.unit.base.hp).toBe(true);
   });
   it("percent/fixed 不吃属性：syn-blast（火,percent）打草还是 25%", () => {
-    // gamma blast percent25 vs gamma(150hp)：floor(25*150/100)=37——草弱火也不放大
+    // gamma 面板 hp=444（种族120+IV31+EV252，Lv100）：floor(25*444/100)=111——草弱火也不放大
     const s = initBattle(PACK, { battleId: "btl_p", seedHex: SEED, p1: "syn-gamma", p2: "syn-gamma" });
     const r = applyTurn(PACK, s, { p1: act("act_syn-blast"), p2: act("act_syn-blast") });
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
-    expect(dmg.detail.amount).toBe(37);
+    expect(dmg.detail.amount).toBe(111);
     expect(dmg.detail.eff16).toBeUndefined();
   });
   it("v1 包（无表）事件不带 eff/moveType —— 字节级兼容", () => {
@@ -117,9 +123,10 @@ describe("loader 属性校验", () => {
   const base = () => ({
     ruleset: read("rulesets/synthetic-v2.json"),
     typeChart: read("rulesets/typechart.json"),
+    natures: read("rulesets/natures.json"),
     pack: { packId: "x", version: "0.0.0", schemaVersion: 1, rulesetId: "synthetic-v2", verification: "SYNTHETIC", license: { identifier: "CC0-1.0", public: true }, files: { units: "units.json", moves: "moves.json" }, assets: [] },
-    units: { units: [{ id: "u", name: "U", base: { hp: 10, atk: 1, def: 1, spd: 1 }, types: ["火"], moveIds: ["m"] }] },
-    moves: { moves: [{ id: "m", name: "M", type: "火", pp: 5, priority: 0, effects: [{ op: "damage", power: 1 }] }] },
+    units: { units: [{ id: "u", name: "U", base: { hp: 10, atk: 1, def: 1, spa: 1, sdf: 1, spd: 1 }, types: ["火"], moveIds: ["m"] }] },
+    moves: { moves: [{ id: "m", name: "M", type: "火", category: "physical", pp: 5, priority: 0, effects: [{ op: "damage", power: 1 }] }] },
   });
   it("有表缺 unit.types → 拒", () => {
     const c = base();
@@ -145,9 +152,13 @@ describe("loader 属性校验", () => {
     const c = base();
     delete (c.ruleset as Record<string, unknown>)["typeChartFile"];
     delete (c.ruleset as Record<string, unknown>)["stabMultiplier"];
+    delete (c.ruleset as Record<string, unknown>)["statModel"];
+    delete (c.ruleset as Record<string, unknown>)["naturesFile"];
     delete (c as Record<string, unknown>)["typeChart"];
+    delete (c as Record<string, unknown>)["natures"];
     (c.ruleset as Record<string, unknown>)["rulesetId"] = "synthetic-v1";
     (c.pack as Record<string, unknown>)["rulesetId"] = "synthetic-v1";
+    (c.moves.moves[0] as Record<string, unknown>)["category"] = undefined;
     expect(() => compilePack(c)).toThrow(/no type chart/);
   });
   it("换表 → rulesetHash 变（钉版语义）", () => {
@@ -164,13 +175,14 @@ function typedFixture(opts: { atkType: string; defTypes: string[]; effects: unkn
   return compilePack({
     ruleset: JSON.parse(readFileSync(join(CONTENT, "rulesets", "synthetic-v2.json"), "utf8")),
     typeChart: JSON.parse(readFileSync(join(CONTENT, "rulesets", "typechart.json"), "utf8")),
+    natures: JSON.parse(readFileSync(join(CONTENT, "rulesets", "natures.json"), "utf8")),
     pack: { packId: "fx", version: "0.0.0", schemaVersion: 1, rulesetId: "synthetic-v2", verification: "SYNTHETIC", license: { identifier: "CC0-1.0", public: true }, files: { units: "units.json", moves: "moves.json" }, assets: [] },
     units: {
       units: [
-        { id: "u1", name: "U1", base: { hp: 100, atk: 50, def: 20, spd: 50 }, types: ["电"], moveIds: ["m"] },
-        { id: "u2", name: "U2", base: { hp: 100, atk: 50, def: 20, spd: 40 }, types: opts.defTypes, moveIds: ["m"] },
+        { id: "u1", name: "U1", base: { hp: 100, atk: 50, def: 20, spa: 50, sdf: 20, spd: 50 }, types: ["电"], moveIds: ["m"] },
+        { id: "u2", name: "U2", base: { hp: 100, atk: 50, def: 20, spa: 50, sdf: 20, spd: 40 }, types: opts.defTypes, moveIds: ["m"] },
       ],
     },
-    moves: { moves: [{ id: "m", name: "M", type: opts.atkType, pp: 5, priority: 0, effects: opts.effects }] },
+    moves: { moves: [{ id: "m", name: "M", type: opts.atkType, category: "physical", pp: 5, priority: 0, effects: opts.effects }] },
   });
 }

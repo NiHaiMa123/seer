@@ -51,11 +51,23 @@ describe("feature gating (v1 ruleset rejects v2 semantics)", () => {
       license: { identifier: "CC0-1.0", public: true },
       files: { units: "units.json", moves: "moves.json" }, assets: [],
     },
-    units: { units: [{ id: "u", name: "U", base: { hp: 10, atk: 1, def: 1, spd: 1 }, moveIds: ["m"], ...(ruleset.typeChartFile !== undefined ? { types: ["火"] } : {}) }] },
+    units: {
+      units: [{
+        id: "u", name: "U",
+        base: { hp: 10, atk: 1, def: 1, spd: 1, ...(ruleset.statModel === "six-stat" ? { spa: 1, sdf: 1 } : {}) },
+        moveIds: ["m"],
+        ...(ruleset.typeChartFile !== undefined ? { types: ["火"] } : {}),
+      }],
+    },
     moves: { moves: [] as unknown[] },
     ...(ruleset.typeChartFile !== undefined ? { typeChart: read(`rulesets/${ruleset.typeChartFile}`) } : {}),
+    ...(ruleset.naturesFile !== undefined ? { natures: read(`rulesets/${ruleset.naturesFile}`) } : {}),
   });
-  const mkMove = (effects: unknown[], type?: string) => ({ id: "m", name: "M", pp: 5, priority: 0, effects, ...(type !== undefined ? { type } : {}) });
+  const mkMove = (effects: unknown[], type?: string, ruleset?: { statModel?: string }) => ({
+    id: "m", name: "M", pp: 5, priority: 0, effects,
+    ...(type !== undefined ? { type } : {}),
+    ...(ruleset?.statModel === "six-stat" && effects.some((e) => (e as { op?: string; kind?: string }).op === "damage" && ((e as { kind?: string }).kind ?? "standard") !== "percent" && (e as { kind?: string }).kind !== "fixed") ? { category: "physical" } : {}),
+  });
 
   it("transfer_stages under v1 → fail", () => {
     const c = base();
@@ -90,16 +102,17 @@ describe("feature gating (v1 ruleset rejects v2 semantics)", () => {
     expect(() => compilePack(c)).toThrow(PackLoadError);
   });
   it("unit mode without overlay entry → fail", () => {
-    const c = base(V2_RULESET(), "synthetic-v2");
+    const rs = V2_RULESET();
+    const c = base(rs, "synthetic-v2");
     (c.units.units[0] as Record<string, unknown>)["mode"] = "ghost";
-    c.moves.moves = [mkMove([{ op: "damage", power: 1 }], "火")];
+    c.moves.moves = [mkMove([{ op: "damage", power: 1 }], "火", rs)];
     expect(() => compilePack(c)).toThrow(/mode "ghost"/);
   });
   it("bench feature without maxBenchSize → fail", () => {
     const ruleset = V2_RULESET();
     delete ruleset.limits.maxBenchSize;
     const c = base(ruleset, "synthetic-v2");
-    c.moves.moves = [mkMove([{ op: "damage", power: 1 }], "火")];
+    c.moves.moves = [mkMove([{ op: "damage", power: 1 }], "火", ruleset)];
     expect(() => compilePack(c)).toThrow(/maxBenchSize/);
   });
 });
@@ -110,11 +123,11 @@ describe("new unit = data only", () => {
     units.units.push({
       id: "syn-zeta",
       name: "Zeta",
-      base: { hp: 100, atk: 30, def: 30, spd: 30 },
+      base: { hp: 100, atk: 30, def: 30, spa: 30, sdf: 30, spd: 30 },
       types: ["草"],
       moveIds: ["syn-strike", "syn-recover"],
     });
-    const pack = compilePack({ ruleset: V2_RULESET(), pack: V2_PACK(), units, moves: V2_MOVES(), typeChart: read("rulesets/typechart.json") });
+    const pack = compilePack({ ruleset: V2_RULESET(), pack: V2_PACK(), units, moves: V2_MOVES(), typeChart: read("rulesets/typechart.json"), natures: read("rulesets/natures.json") });
     expect(pack.unitsById.has("syn-zeta")).toBe(true);
     // contentHash 变化——"数据即内容"，hash 改变证明数据确实进入 artifact
     expect(pack.rules.contentHash).not.toBe(PACK_V2.rules.contentHash);

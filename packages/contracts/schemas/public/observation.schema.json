@@ -49,7 +49,23 @@
       "properties": {
         "atk": { "type": "integer", "minimum": -6, "maximum": 6 },
         "def": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "spa": { "type": "integer", "minimum": -6, "maximum": 6 },
+        "sdf": { "type": "integer", "minimum": -6, "maximum": 6 },
         "spd": { "type": "integer", "minimum": -6, "maximum": 6 }
+      }
+    },
+    "panelStats": {
+      "description": "six-stat：推导后的六维面板值（含种族/个体/努力/性格）。只对己方单位公开。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hp", "atk", "def", "spa", "sdf", "spd"],
+      "properties": {
+        "hp": { "type": "integer", "minimum": 1 },
+        "atk": { "type": "integer", "minimum": 1 },
+        "def": { "type": "integer", "minimum": 1 },
+        "spa": { "type": "integer", "minimum": 1 },
+        "sdf": { "type": "integer", "minimum": 1 },
+        "spd": { "type": "integer", "minimum": 1 }
       }
     },
     "publicEffect": {
@@ -69,6 +85,8 @@
       "properties": {
         "unitId": { "type": "string", "pattern": "^unit_[a-z0-9-]{1,60}$" },
         "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "stats": { "$ref": "#/definitions/panelStats" },
         "hp": { "$ref": "#/definitions/hp" },
         "ppByMoveId": {
           "type": "object",
@@ -92,6 +110,8 @@
       "properties": {
         "unitId": { "type": "string", "pattern": "^unit_[a-z0-9-]{1,60}$" },
         "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "stats": { "$ref": "#/definitions/panelStats" },
         "hp": { "$ref": "#/definitions/hp" },
         "ppByMoveId": {
           "type": "object",
@@ -111,6 +131,7 @@
       "properties": {
         "unitId": { "type": "string", "pattern": "^unit_[a-z0-9-]{1,60}$" },
         "speciesId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 100 },
         "hp": { "$ref": "#/definitions/hp" },
         "revealedMoveIds": { "type": "array", "items": { "type": "string" } },
         "ppEstimate": {

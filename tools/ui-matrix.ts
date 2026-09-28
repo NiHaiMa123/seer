@@ -207,7 +207,12 @@ if (swBack !== undefined) {
   o = await obsOf(page);
   await assertConsistent(page, o, "换回后");
   eq("换回后 active==原首发", leadUnit, o.own.unitId);
-  eq("换回后 HP==换下时的值（不重置）", leadBenchHp, o.own.hp.current);
+  // 换入回合仍吃对手一击：HP 应 ≤换下值且不回到满血（不重置 ≠ 不受击）
+  check(
+    "换回后 HP 未重置（≤换下值且非满血）",
+    leadBenchHp !== undefined && o.own.hp.current <= leadBenchHp && (leadBenchHp === o.own.hp.max || o.own.hp.current < o.own.hp.max),
+    `${leadBenchHp}→${o.own.hp.current}/${o.own.hp.max}`,
+  );
   eq("换回后 PP==消耗后的值（不重置）", leadBenchPp, o.own.ppByMoveId?.[firstMoveId]);
 }
 

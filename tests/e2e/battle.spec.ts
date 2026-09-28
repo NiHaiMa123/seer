@@ -160,10 +160,11 @@ test("v2 机制 UI：bench 面板 + replacement 横幅 + 徽标", async () => {
   const browser = await chromium.launch();
   try {
     // 双 bench → delta KO 后 p2 得 replacement 决策；epsilon(boss) 上场
+    // six-stat：epsilon 物攻317 对 delta 防176 ≈53-62/回合，~9 回合内 KO（gamma 物攻太低打不动）
     const { battleId, tokens } = await newBattle("e5".repeat(16), {
       pack: "synthetic-v2",
-      species: { p1: "syn-gamma", p2: "syn-delta" },
-      bench: { p1: ["syn-epsilon"], p2: ["syn-epsilon"] },
+      species: { p1: "syn-epsilon", p2: "syn-delta" },
+      bench: { p1: ["syn-gamma"], p2: ["syn-epsilon"] },
     });
     const ctxA = await browser.newContext();
     const ctxB = await browser.newContext();

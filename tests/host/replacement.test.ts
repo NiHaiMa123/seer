@@ -17,8 +17,8 @@ function mkHost(): BattleHost {
     pack: PACK,
     battleId: "btl_repl",
     seedHex: SEED,
-    species: { p1: "syn-gamma", p2: "syn-delta" },
-    bench: { p2: ["syn-epsilon"] },
+    species: { p1: "syn-epsilon", p2: "syn-delta" },
+    bench: { p2: ["syn-gamma"] },
     players: { p1: "A", p2: "B" },
     deadlineMs: 30000,
   });
@@ -30,32 +30,27 @@ const cmd = (decisionId: string, baseRevision: number, actionId: string, key: st
 describe("replacement decision 协议", () => {
   it("KO→replacement→resume 全链路；非 actor 无权提交；幂等重放同 receipt", () => {
     const h = mkHost();
-    // 打到 p2 delta 濒死：delta 90hp，gamma strike ~floor(40×45/40)=45 → 2 回合 KO
-    const o1 = h.observe("A");
-    const dec1 = o1.decision!;
-    h.submit("A", cmd(dec1.decisionId, dec1.baseRevision, "act_syn-strike", "k-aaaa0000"));
-    h.submit("B", cmd(dec1.decisionId, dec1.baseRevision, "act_syn-strike", "k-bbbb0000"));
-    const o2 = h.observe("A");
-    const dec2 = o2.decision!;
-    expect(dec2.kind).toBe("turn");
-    h.submit("A", cmd(dec2.decisionId, dec2.baseRevision, "act_syn-strike", "k-aaaa0001"));
-    h.submit("B", cmd(dec2.decisionId, dec2.baseRevision, "act_syn-strike", "k-bbbb0001"));
-
-    // 第 3 回合 KO delta → replacement 决策只开给 B
-    const o3 = h.observe("A");
-    const dec3 = o3.decision!;
-    h.submit("A", cmd(dec3.decisionId, dec3.baseRevision, "act_syn-strike", "k-aaaa0002"));
-    h.submit("B", cmd(dec3.decisionId, dec3.baseRevision, "act_syn-strike", "k-bbbb0002"));
-
-    const oR = h.observe("B");
-    const decR = oR.decision!;
-    expect(decR.kind).toBe("replacement");
-    expect(decR.actors).toEqual(["p2"]);
+    // six-stat：epsilon 面板 atk317 → strike 对 delta ~52-62/回合；delta hp332+复活166 → ~9 回合 KO。
+    // 循环打到 replacement 决策出现（上限防死循环）。
+    let decR: { decisionId: string; baseRevision: number; kind: string; actors?: string[] } | undefined;
+    let oR!: ReturnType<typeof h.observe>;
+    for (let i = 0; i < 40 && decR === undefined; i++) {
+      const d = h.observe("A").decision;
+      if (!d || d.kind !== "turn") break;
+      h.submit("A", cmd(d.decisionId, d.baseRevision, "act_syn-strike", `k-aaaa${String(i).padStart(4, "0")}`));
+      h.submit("B", cmd(d.decisionId, d.baseRevision, "act_syn-strike", `k-bbbb${String(i).padStart(4, "0")}`));
+      oR = h.observe("B");
+      if (oR.decision?.kind === "replacement") decR = oR.decision;
+    }
+    expect(decR).toBeDefined();
+    expect(decR!.kind).toBe("replacement");
+    expect(decR!.kind).toBe("replacement");
+    expect(decR!.actors).toEqual(["p2"]);
     // 己方 bench 可见 + 合法集是 act_switch-0 + concede
     expect(oR.own.bench).toHaveLength(1);
-    expect(oR.own.bench![0]!.speciesId).toBe("syn-epsilon");
-    expect(oR.own.bench![0]!.ppByMoveId).toEqual({ "syn-strike": 35, "syn-bolster": 20, "syn-purge": 15, "syn-ward": 10, "syn-brand": 10 });
-    expect(oR.own.bench![0]!.stages).toEqual({ atk: 0, def: 0, spd: 0 });
+    expect(oR.own.bench![0]!.speciesId).toBe("syn-gamma");
+    expect(oR.own.bench![0]!.ppByMoveId).toEqual({ "syn-strike": 35, "syn-jab": 30, "syn-hex": 10, "syn-blast": 20 });
+    expect(oR.own.bench![0]!.stages).toEqual({ atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 });
     expect(oR.own.bench![0]!.effects).toEqual([]);
     expect(oR.legalActions.some((a) => a.actionId === "act_switch-0")).toBe(true);
     // A 不是 actor
@@ -63,36 +58,38 @@ describe("replacement decision 协议", () => {
     expect(oA.decision).toBeNull();
     expect(oA.legalActions).toEqual([]);
     expect(oA.opponent.benchAlive).toBe(1);
-    const rBad = h.submit("A", cmd(decR.decisionId, decR.baseRevision, "act_switch-0", "k-aaaa9999"));
+    const rBad = h.submit("A", cmd(decR!.decisionId, decR!.baseRevision, "act_switch-0", "k-aaaa9999"));
     if (rBad.ok) throw new Error("non-actor submission unexpectedly succeeded");
     expect(rBad.error.code).toBe("UNAUTHORIZED");
 
     // B 提交换入 epsilon
-    const rOK = h.submit("B", cmd(decR.decisionId, decR.baseRevision, "act_switch-0", "k-bbbb9000"));
+    const rOK = h.submit("B", cmd(decR!.decisionId, decR!.baseRevision, "act_switch-0", "k-bbbb9000"));
     expect(rOK.ok).toBe(true);
     // 幂等重放
-    const rDup = h.submit("B", cmd(decR.decisionId, decR.baseRevision, "act_switch-0", "k-bbbb9000"));
+    const rDup = h.submit("B", cmd(decR!.decisionId, decR!.baseRevision, "act_switch-0", "k-bbbb9000"));
     if (!rDup.ok) throw rDup.error;
     expect(rDup.receipt.status).toBe("duplicate-replay");
     // 换入完成，回到 collect
     const oAfter = h.observe("B");
-    expect(oAfter.own.speciesId).toBe("syn-epsilon");
+    expect(oAfter.own.speciesId).toBe("syn-gamma");
     expect(oAfter.decision?.kind).toBe("turn");
   });
 
   it("replacement 决策超时 → 默认最低下标存活 bench", () => {
     const h = mkHost();
-    // 快进到挂起
-    for (let i = 0; i < 3; i++) {
-      const o = h.observe("A");
-      const d = o.decision!;
-      h.submit("A", cmd(d.decisionId, d.baseRevision, "act_syn-strike", `k-a${i}xxxx`));
-      h.submit("B", cmd(d.decisionId, d.baseRevision, "act_syn-strike", `k-b${i}xxxx`));
+    // 快进到挂起（six-stat 伤害低，~19 回合 KO+复活消耗）
+    let oR!: ReturnType<typeof h.observe>;
+    for (let i = 0; i < 40; i++) {
+      const d = h.observe("A").decision;
+      if (!d || d.kind !== "turn") break;
+      h.submit("A", cmd(d.decisionId, d.baseRevision, "act_syn-strike", `k-a${String(i).padStart(4, "0")}x`));
+      h.submit("B", cmd(d.decisionId, d.baseRevision, "act_syn-strike", `k-b${String(i).padStart(4, "0")}x`));
+      oR = h.observe("B");
+      if (oR.decision?.kind === "replacement") break;
     }
-    const oR = h.observe("B");
     expect(oR.decision?.kind).toBe("replacement");
     h.expireDecision(); // B 不提交 → timeout → 默认 act_switch-0
     const oAfter = h.observe("B");
-    expect(oAfter.own.speciesId).toBe("syn-epsilon");
+    expect(oAfter.own.speciesId).toBe("syn-gamma");
   });
 });

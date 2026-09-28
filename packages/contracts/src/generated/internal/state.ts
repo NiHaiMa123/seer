@@ -408,6 +408,11 @@ export const stateSchema: Record<string, unknown> = {
           "type": "string",
           "pattern": "^[a-z0-9][a-z0-9-]*$"
         },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
         "base": {
           "type": "object",
           "additionalProperties": false,
@@ -427,6 +432,14 @@ export const stateSchema: Record<string, unknown> = {
               "minimum": 1
             },
             "def": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "spa": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sdf": {
               "type": "integer",
               "minimum": 1
             },
@@ -455,6 +468,16 @@ export const stateSchema: Record<string, unknown> = {
               "maximum": 6
             },
             "def": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            },
+            "spa": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            },
+            "sdf": {
               "type": "integer",
               "minimum": -6,
               "maximum": 6
@@ -633,16 +656,21 @@ export interface InternalSide {
 export interface InternalUnit {
   unitId: string;
   speciesId: string;
+  level?: number;
   base: {
     hp: number;
     atk: number;
     def: number;
+    spa?: number;
+    sdf?: number;
     spd: number;
   };
   currentHp: number;
   stages: {
     atk: number;
     def: number;
+    spa?: number;
+    sdf?: number;
     spd: number;
   };
   /**

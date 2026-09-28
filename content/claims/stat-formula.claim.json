@@ -1,0 +1,16 @@
+{
+  "claimId": "CLAIM-STAT-001",
+  "targetSnapshot": "seer-stat-model-multi-source",
+  "mode": "battle-general",
+  "statement": "六维面板推导：体力 = floor((2×种族值+个体值+floor(努力值/4))×等级/100)+等级+10；其余五维 = floor(floor((2×种族值+个体值+floor(努力值/4))×等级/100)+5)×性格修正。个体值 0..31；努力值单项 0..255、总和 ≤510；性格 25 种，非体力一项 +10%、一项 -10%，体力不受性格影响；5 种性格无修正。",
+  "boundaries": "交叉验证来源：赛尔号 BWIKI 精灵面板/性格表、赛尔号手游 WIKI、4399 性格攻略及二手整理资料。不同版本（页游/手游/怀旧服）公式细节有差异：本项目采用与口袋系一致的通用推导式并在 ruleset.statModel 中显式声明版本；努力值按 4 点折算 1 点能力（252 单项有效上限等价 63 点面板增量）。",
+  "source": {
+    "kind": "observation",
+    "uri": "https://wiki.biligame.com/seer/ (性格/面板条目) + https://news.4399.com/seer/ (性格攻略)"
+  },
+  "observedAt": "2026-05-21",
+  "evidenceDigest": "sha256:f7b9eeb4ee68a54f7934c66cd6907e51752abbf81277bd6bcf89e815750cdb17",
+  "reviewer": "manual cross-check across BWIKI/4399/secondary guides; 25-nature table reproduced in content/rulesets/natures.json",
+  "verification": "UNVERIFIED",
+  "fixtureIds": []
+}

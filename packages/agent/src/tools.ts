@@ -8,7 +8,7 @@
  */
 import Ajv from "ajv";
 import { toolSchema, canonicalJson, type BattleEvent, type Observation } from "@seer/contracts";
-import { sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
+import { sha256hex, deriveStats, effectivenessOf, type FrozenPack, type SideId, type StatSpread } from "@seer/battle-core";
 import type { AgentView, SubmitFn } from "./views.ts";
 import { simulateBatch, type SimHypothesis, type SimResponse } from "./simulate.ts";
 import { counterplayFor } from "./knowledge.ts";
@@ -171,20 +171,44 @@ export class ToolServer {
     if (!move) return { moveId, error: "unknown move" };
     const obs = this.view.observe();
     const ownUnit = this.pack.unitsById.get(obs.own.speciesId)!;
+    const six = this.pack.statModel === "six-stat";
     const oppSpecies = assumptions.oppSpeciesId as string | undefined;
-    const oppBase = oppSpecies !== undefined ? (this.pack.unitsById.get(oppSpecies)?.base.def ?? 1) : (this.pack.unitsById.get(obs.opponent.speciesId)?.base.def ?? 1);
+    const oppUnit = (oppSpecies !== undefined ? this.pack.unitsById.get(oppSpecies) : this.pack.unitsById.get(obs.opponent.speciesId));
+    const stageMul = (base: number, stage: number) => Math.floor((base * (stage >= 0 ? 2 + stage : 2)) / (stage >= 0 ? 2 : 2 - stage));
+    // six-stat：面板值——己方取 obs.own.stats（已投影），假定目标按其 pack 声明推导默认面板
+    const atkKey = move.category === "special" ? "spa" : "atk";
+    const defKey = move.category === "special" ? "sdf" : "def";
+    const oppPanelDef = six && oppUnit
+      ? deriveStats(oppUnit.base as StatSpread, { level: oppUnit.level ?? 100, ivs: oppUnit.ivs!, evs: oppUnit.evs!, nature: oppUnit.nature !== undefined ? this.pack.natures!.get(oppUnit.nature) : undefined })[defKey]
+      : (oppUnit?.base.def ?? 1);
     const defStage = (assumptions.oppDefStage as number | undefined) ?? 0;
     const defOverride = assumptions.oppDefOverride as number | undefined;
-    const effDef = defOverride ?? Math.floor((oppBase * (defStage >= 0 ? 2 + defStage : 2)) / (defStage >= 0 ? 2 : 2 - defStage));
-    const atkStage = obs.own.stages.atk;
-    const effAtkReal = Math.floor((ownUnit.base.atk * (atkStage >= 0 ? 2 + atkStage : 2)) / (atkStage >= 0 ? 2 : 2 - atkStage));
+    const effDef = defOverride ?? stageMul(oppPanelDef, defStage);
+    const atkStage = (obs.own.stages as unknown as Record<string, number>)[atkKey] ?? 0;
+    const ownPanelAtk = six ? ((obs.own.stats as unknown as Record<string, number> | undefined)?.[atkKey] ?? ownUnit.base[atkKey]!) : ownUnit.base.atk;
+    const effAtkReal = stageMul(ownPanelAtk, atkStage);
+    // 对手属性（类型）是公开的（species 已知）→ 克制/STAB 可入估计
+    const eff16 = six && move.type !== undefined && this.pack.typeChart !== undefined && oppUnit !== undefined
+      ? effectivenessOf(this.pack.typeChart, move.type, oppUnit.types ?? [])
+      : undefined;
+    const stab = eff16 !== undefined && move.type !== undefined && (ownUnit.types ?? []).includes(move.type);
     const damages = move.effects.filter((e) => e.op === "damage").map((e) => {
       const kind = (e as { kind?: string }).kind ?? "standard";
       const power = (e as { power?: number }).power ?? 0;
-      const amount = kind === "fixed" ? power
-        : kind === "percent" ? Math.floor((power * obs.opponent.hp.max) / 100)
-        : Math.max(1, Math.floor((power * effAtkReal) / (2 * effDef)));
-      return { kind, power, amount };
+      if (kind === "fixed") return { kind, power, amount: power };
+      if (kind === "percent") return { kind, power, amount: Math.floor((power * obs.opponent.hp.max) / 100) };
+      if (six) {
+        const lvf = Math.floor((obs.own.level ?? 100) * 0.4 + 2);
+        let core = Math.floor((lvf * power * effAtkReal) / (effDef * 50)) + 2;
+        if (eff16 !== undefined) {
+          if (stab) core = Math.floor(core * this.pack.stabMultiplier);
+          core = Math.floor((core * eff16) / 16);
+        }
+        const amountMin = eff16 === 0 ? 0 : Math.max(1, Math.floor((core * 217) / 255));
+        const amountMax = eff16 === 0 ? 0 : Math.max(1, Math.floor((core * 255) / 255));
+        return { kind, power, amount: amountMax, amountMin, amountMax, ...(eff16 !== undefined ? { eff16, stab } : {}) };
+      }
+      return { kind, power, amount: Math.max(1, Math.floor((power * effAtkReal) / (2 * effDef))) };
     });
     return { moveId, assumedDef: effDef, attackerAtk: effAtkReal, damages };
   }

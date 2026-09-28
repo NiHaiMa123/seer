@@ -7,8 +7,10 @@ export interface MoveEffect {
   op: string; power?: number; kind?: string; stat?: string; delta?: number;
   numerator?: number; denominator?: number; name?: string; turns?: number; target?: string;
 }
-export interface MoveMeta { label: string; power: number; damageKind: string; type?: string; effVs?: Record<string, number>; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
-export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, { speciesId: string; hp: number; types?: string[] }> }
+export interface StatPanel { hp: number; atk: number; def: number; spa: number; sdf: number; spd: number }
+export interface MoveMeta { label: string; power: number; damageKind: string; type?: string; category?: "physical" | "special"; effVs?: Record<string, number>; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
+export interface UnitMeta { speciesId: string; hp: number; types?: string[]; level?: number; nature?: string; stats?: StatPanel }
+export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, UnitMeta> }
 
 let cache: Promise<PackMeta> | null = null;
 
@@ -64,7 +66,9 @@ export const zhEvent = (type: string): string => ZH_EVENT[type] ?? type;
 const ZH_EFFECT: Record<string, string> = { control: "控制", immune_control: "免控", tag: "标记" };
 export const zhEffect = (kind: string): string => kind.startsWith("tag:") ? `标记:${kind.slice(4)}` : (ZH_EFFECT[kind] ?? kind);
 
-const ZH_STAT: Record<string, string> = { atk: "攻击", def: "防御", spd: "速度", hp: "体力" };
+const ZH_STAT: Record<string, string> = { hp: "体力", atk: "攻击", def: "防御", spa: "特攻", sdf: "特防", spd: "速度" };
+export const zhStat = (k: string): string => ZH_STAT[k] ?? k;
+const ZH_CATEGORY: Record<string, string> = { physical: "物攻", special: "特攻" };
 
 /** 属性徽标配色（赛尔号页游风味）。属性名本身就是中文，直接显示。 */
 export const TYPE_COLOR: Record<string, string> = {
@@ -122,6 +126,6 @@ export function describeEffect(e: MoveEffect): string {
 /** 招式悬停提示的完整中文描述行 */
 export function describeMove(m: MoveMeta | undefined): string[] {
   if (m === undefined) return [];
-  const head = `${m.type !== undefined ? `属性 ${m.type} · ` : ""}类型 ${ZH_DMGKIND[m.damageKind] ?? m.damageKind}${m.priority !== undefined && m.priority !== 0 ? ` · 先制 ${m.priority > 0 ? "+" : ""}${m.priority}` : ""}`;
+  const head = `${m.type !== undefined ? `属性 ${m.type} · ` : ""}${m.category !== undefined ? `${ZH_CATEGORY[m.category]} · ` : ""}类型 ${ZH_DMGKIND[m.damageKind] ?? m.damageKind}${m.priority !== undefined && m.priority !== 0 ? ` · 先制 ${m.priority > 0 ? "+" : ""}${m.priority}` : ""}`;
   return [head, ...(m.effects ?? []).map(describeEffect)];
 }

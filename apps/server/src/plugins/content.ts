@@ -4,7 +4,7 @@
  */
 import type { PluginManifest } from "@seer/contracts";
 import type { PluginSpec, SeerPluginContext } from "@seer/plugin-runtime";
-import { effectivenessOf, type FrozenPack } from "@seer/battle-core";
+import { deriveStats, effectivenessOf, type FrozenPack, type StatSpread } from "@seer/battle-core";
 import { HTTP_ROUTER_SERVICE, type Router } from "../router.ts";
 
 export const CONTENT_CATALOG_SERVICE = "content.catalog";
@@ -60,6 +60,7 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
                 ...(effVs !== undefined ? { effVs } : {}),
                 pp: m.pp,
                 priority: m.priority,
+                ...(m.category !== undefined ? { category: m.category } : {}),
                 ops: m.effects.map((e) => e.op),
                 effects: m.effects,
               }];
@@ -68,7 +69,19 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
           units: Object.fromEntries(
             [...pack.unitsById.values()].map((u) => [
               u.id,
-              { speciesId: u.id, hp: u.base.hp, ...(u.types !== undefined ? { types: u.types } : {}) },
+              {
+                speciesId: u.id,
+                hp: pack.statModel === "six-stat" ? deriveStats(u.base as StatSpread, { level: u.level ?? 100, ivs: u.ivs!, evs: u.evs!, nature: u.nature !== undefined ? pack.natures!.get(u.nature) : undefined }).hp : u.base.hp,
+                // six-stat：默认养成的面板六维 + 等级/性格（内容公开数据，非对局隐藏信息）
+                ...(pack.statModel === "six-stat"
+                  ? {
+                      level: u.level ?? 100,
+                      nature: u.nature,
+                      stats: deriveStats(u.base as StatSpread, { level: u.level ?? 100, ivs: u.ivs!, evs: u.evs!, nature: u.nature !== undefined ? pack.natures!.get(u.nature) : undefined }),
+                    }
+                  : {}),
+                ...(u.types !== undefined ? { types: u.types } : {}),
+              },
             ]),
           ),
         });

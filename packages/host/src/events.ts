@@ -51,7 +51,7 @@ const PUBLIC_TYPES = new Set([
 const PUBLIC_FIELDS: Record<string, Set<string>> = {
   "turn-begin": new Set(["turn", "decisionId"]),
   "action-declared": new Set(["side", "actionId", "moveId"]),
-  damage: new Set(["side", "amount", "damageKind", "hpAfter", "eff16", "stab", "moveType"]),
+  damage: new Set(["side", "amount", "damageKind", "hpAfter", "eff16", "stab", "moveType", "category"]),
   heal: new Set(["side", "amount", "hpAfter"]),
   "stat-stage": new Set(["side", "stat", "deltaApplied", "stageAfter"]),
   "stages-transferred": new Set(["side", "stages"]),

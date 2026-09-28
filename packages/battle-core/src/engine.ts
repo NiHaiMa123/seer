@@ -5,7 +5,7 @@
  * 无 wall-clock/环境读取、全部整数运算、draw 只发生在 §6 平速组。
  */
 import { DeterministicRng } from "./rng.ts";
-import type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack } from "./loader.ts";
+import { deriveStats, type CompiledEffect, type CompiledMove, type CompiledUnit, type FrozenPack, type StatSpread, type StageStatKey } from "./loader.ts";
 import { EngineFault, OTHER, type CoreAction, type CoreEvent, type CoreResult, type CoreState, type SideId } from "./types.ts";
 
 type SideUnit = CoreState["sides"]["p1"]["unit"];
@@ -99,22 +99,36 @@ function resolveAction(state: CoreState, side: SideId, action: CoreAction): Move
   return { kind: "invalid", actionId };
 }
 
-const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string): CoreState["sides"]["p1"]["unit"] => ({
-  unitId,
-  speciesId: u.id,
-  base: { ...u.base },
-  currentHp: u.base.hp,
-  stages: { atk: 0, def: 0, spd: 0 },
-  moves: u.moveIds.map((moveId) => {
-    const m = pack.movesById.get(moveId)!;
-    return { moveId, pp: m.pp, ppMax: m.pp };
-  }),
-  revealedMoveIds: [],
-  effects: [],
-  // v2 additive 字段：仅当 pack 声明时才写入（v1 hash 不变靠"不写"）
-  ...(u.mode !== undefined ? { mode: u.mode } : {}),
-  ...(u.revives !== undefined ? { revives: u.revives } : {}),
-});
+const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string): CoreState["sides"]["p1"]["unit"] => {
+  // six-stat：units.json 的 base 是种族值 → 推导面板六维（性格修正已内含）；
+  // legacy：base 即面板值（v1 行为字节级不变）。
+  const six = pack.statModel === "six-stat";
+  const base = six
+    ? deriveStats(u.base as StatSpread, {
+        level: u.level ?? 100,
+        ivs: u.ivs ?? { hp: 31, atk: 31, def: 31, spa: 31, sdf: 31, spd: 31 },
+        evs: u.evs ?? { hp: 0, atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 },
+        ...(u.nature !== undefined ? { nature: pack.natures!.get(u.nature) } : {}),
+      })
+    : ({ ...u.base } as StatSpread);
+  return {
+    unitId,
+    speciesId: u.id,
+    ...(six ? { level: u.level ?? 100 } : {}),
+    base,
+    currentHp: base.hp,
+    stages: { atk: 0, def: 0, spd: 0, ...(six ? { spa: 0, sdf: 0 } : {}) },
+    moves: u.moveIds.map((moveId) => {
+      const m = pack.movesById.get(moveId)!;
+      return { moveId, pp: m.pp, ppMax: m.pp };
+    }),
+    revealedMoveIds: [],
+    effects: [],
+    // v2 additive 字段：仅当 pack 声明时才写入（v1 hash 不变靠"不写"）
+    ...(u.mode !== undefined ? { mode: u.mode } : {}),
+    ...(u.revives !== undefined ? { revives: u.revives } : {}),
+  };
+};
 
 export function initBattle(
   pack: FrozenPack,
@@ -321,7 +335,7 @@ function applyTurnInner(
       if (++applications > pack.limits.maxEffectApplications) {
         return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
       }
-      const cp = applyEffect(pack, next, events, side, unit, move, fx);
+      const cp = applyEffect(pack, next, events, side, unit, move, fx, rng);
       if (cp === "terminal") break outer;
       if (cp !== "continue") { writeSuspension(cp.suspend); break outer; }
     }
@@ -391,7 +405,11 @@ function doSwitch(next: CoreState, events: CoreEvent[], side: SideId, benchIndex
   return true;
 }
 
-function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, move: CompiledMove, fx: CompiledEffect): CpResult {
+/** 参与 stage 增减的 stat 键集合：six-stat 含 spa/sdf，legacy 只有 atk/def/spd。 */
+const stageKeys = (pack: FrozenPack): readonly StageStatKey[] =>
+  pack.statModel === "six-stat" ? ["atk", "def", "spa", "sdf", "spd"] : ["atk", "def", "spd"];
+
+function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, move: CompiledMove, fx: CompiledEffect, rng: DeterministicRng): CpResult {
   const foe = next.sides[OTHER[side]].unit;
   const targetSide = (fx as { target?: "self" | "opponent" }).target === "opponent" ? OTHER[side] : side;
   const target = next.sides[targetSide].unit;
@@ -408,6 +426,32 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
         dmg = fx.power;
       } else if (kind === "percent") {
         dmg = Math.floor((fx.power * foe.base.hp) / 100);
+      } else if (pack.statModel === "six-stat") {
+        // Seer 伤害公式（4399/7k7k/BWIKI 交叉验证，时代=页游经典式）：
+        //   floor(floor(lv·0.4+2)·威力·攻÷防÷50+2) ×本系 ×克制 ×随机(217..255)/255
+        //   physical → 攻/防；special → 特攻/特防；true 伤吃攻防值但无视防御 stage。
+        const cat = move.category ?? "physical";
+        const aKey: StageStatKey = cat === "special" ? "spa" : "atk";
+        const dKey: StageStatKey = cat === "special" ? "sdf" : "def";
+        const atk = effStat(unit.base[aKey]!, unit.stages[aKey] ?? 0);
+        const def = effStat(foe.base[dKey]!, kind === "true" ? 0 : (foe.stages[dKey] ?? 0));
+        const lvf = Math.floor((unit.level ?? 100) * 0.4 + 2);
+        let core = Math.floor((lvf * fx.power * atk) / (def * 50)) + 2;
+        let roll: number | undefined;
+        if (typed) {
+          const foeTypes = pack.unitsById.get(foe.speciesId)?.types ?? [];
+          eff16 = effectivenessOf(pack.typeChart!, move.type!, foeTypes);
+          stab = (pack.unitsById.get(unit.speciesId)?.types ?? []).includes(move.type!);
+          if (stab) core = Math.floor(core * pack.stabMultiplier);
+          core = Math.floor((core * eff16) / 16);
+          dmg = eff16 === 0 ? 0 : (roll = 217 + rng.drawBelow(39, "damage_roll"), Math.max(1, Math.floor((core * roll) / 255)));
+        } else {
+          roll = 217 + rng.drawBelow(39, "damage_roll");
+          dmg = Math.max(1, Math.floor((core * roll) / 255));
+        }
+        if (roll !== undefined) {
+          events.push({ type: "rng-draw", detail: { purpose: "damage_roll" }, rngDraw: { purpose: "damage_roll", value: roll } });
+        }
       } else {
         const base = Math.floor((fx.power * effStat(unit.base.atk, unit.stages.atk)) / (2 * effStat(foe.base.def, kind === "true" ? 0 : foe.stages.def)));
         if (typed) {
@@ -428,13 +472,14 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
           hpAfter: { current: foe.currentHp, max: foe.base.hp },
           ...(kind !== "standard" ? { damageKind: kind } : {}),
           ...(eff16 !== undefined ? { eff16, stab, moveType: move.type } : {}),
+          ...(pack.statModel === "six-stat" && move.category !== undefined ? { category: move.category } : {}),
         },
       });
       return checkpoint(next, events);
     }
     case "apply_stat_stage": {
       const t = fx.target === "opponent" ? foe : unit;
-      const before = t.stages[fx.stat];
+      const before = t.stages[fx.stat] ?? 0;
       const after = clamp(before + fx.delta, -6, 6);
       if (after === before) {
         events.push({ type: "action-failed", detail: { side, reason: "stage-at-cap" } });
@@ -461,13 +506,13 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
         events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
         return "continue";
       }
-      const moved = { atk: 0, def: 0, spd: 0 };
+      const moved: Record<string, number> = {};
       let any = false;
-      for (const stat of ["atk", "def", "spd"] as const) {
-        if (foe.stages[stat] === 0) continue;
+      for (const stat of stageKeys(pack)) {
+        if ((foe.stages[stat] ?? 0) === 0) continue;
         any = true;
-        moved[stat] = Math.abs(foe.stages[stat]);
-        unit.stages[stat] = clamp(unit.stages[stat] + Math.abs(foe.stages[stat]), -6, 6);
+        moved[stat] = Math.abs(foe.stages[stat]!);
+        unit.stages[stat] = clamp((unit.stages[stat] ?? 0) + Math.abs(foe.stages[stat]!), -6, 6);
         foe.stages[stat] = 0;
       }
       if (!any) {
@@ -482,11 +527,11 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
         events.push({ type: "action-failed", detail: { side, reason: "overlay_immune" } });
         return "continue";
       }
-      if (target.stages.atk === 0 && target.stages.def === 0 && target.stages.spd === 0) {
+      if (stageKeys(pack).every((s) => (target.stages[s] ?? 0) === 0)) {
         events.push({ type: "action-failed", detail: { side, reason: "no-stages" } });
         return "continue";
       }
-      target.stages = { atk: 0, def: 0, spd: 0 };
+      target.stages = Object.fromEntries(stageKeys(pack).map((s) => [s, 0])) as typeof target.stages;
       events.push({ type: "stages-cleared", detail: { side: targetSide } });
       return "continue";
     }
@@ -695,7 +740,7 @@ export function applyReplacement(
         if (++applications > pack.limits.maxEffectApplications) {
           return fault("EFFECT_LIMIT", `maxEffectApplications ${pack.limits.maxEffectApplications} exceeded`);
         }
-        if (stopAtCheckpoint(applyEffect(pack, next, events, side, unit, move, fx))) {
+        if (stopAtCheckpoint(applyEffect(pack, next, events, side, unit, move, fx, rng))) {
           halted = true;
           break;
         }

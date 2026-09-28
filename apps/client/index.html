@@ -28,13 +28,15 @@
     transition: transform .08s, border-color .12s;
     position: relative;
   }
-  .skill .tip {
+  .skill .tip, .pickbtn .tip {
     display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
     min-width: 170px; background: #0c1430; border: 1px solid #4a6ab0; border-radius: 8px;
     padding: 8px 10px; font-size: 11px; color: #cfe0ff; text-align: left; z-index: 60;
     box-shadow: 0 8px 24px rgba(0,0,0,.65); white-space: nowrap; pointer-events: none;
   }
-  .skill:hover .tip { display: block; }
+  .skill:hover .tip, .pickbtn:hover .tip { display: block; }
+  .pickbtn { position: relative; }
+  .statline { font-size: 9px; color: #7d95c9; margin-top: 1px; letter-spacing: 0.2px; }
   .tip .tt { font-weight: 700; color: #fff; margin-bottom: 3px; }
   .tip .tl { color: #9fc0ff; line-height: 1.55; }
   .tip .tm { color: #7d95c9; font-size: 10px; margin-top: 3px; }

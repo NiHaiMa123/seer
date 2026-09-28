@@ -33,8 +33,8 @@ describe("transfer_stages（吸强）", () => {
     const s = dg();
     s.sides.p2.unit.stages = { atk: 2, def: -1, spd: 0 }; // 不动 spd —— 避免打乱 ORDER
     const r = ok(applyTurn(PACK, s, { p1: act("act_syn-drain"), p2: act("act_syn-strike") }));
-    expect(r.state.sides.p1.unit.stages).toEqual({ atk: 2, def: 1, spd: 0 }); // def -1 → 取绝对值 +1
-    expect(r.state.sides.p2.unit.stages).toEqual({ atk: 0, def: 0, spd: 0 });
+    expect(r.state.sides.p1.unit.stages).toEqual({ atk: 2, def: 1, spa: 0, sdf: 0, spd: 0 }); // def -1 → 取绝对值 +1
+    expect(r.state.sides.p2.unit.stages).toEqual({ atk: 0, def: 0, spd: 0 }); // 夹具注入的只有 3 键，转移不清空不存在的键
     expect(evs(r, "stages-transferred")).toHaveLength(1);
   });
   it("边界：转移后 clamp 到 +6", () => {
@@ -65,7 +65,7 @@ describe("clear_stages（消强）", () => {
     const s = initBattle(PACK, { battleId: "btl_t", seedHex: SEED, p1: "syn-epsilon", p2: "syn-delta" });
     s.sides.p2.unit.stages = { atk: 2, def: -1, spd: 0 };
     const r = ok(applyTurn(PACK, s, { p1: act("act_syn-purge"), p2: act("act_syn-strike") }));
-    expect(r.state.sides.p2.unit.stages).toEqual({ atk: 0, def: 0, spd: 0 });
+    expect(r.state.sides.p2.unit.stages).toEqual({ atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 });
     expect(evs(r, "stages-cleared")).toHaveLength(1);
   });
   it("负：全零 → no-stages", () => {
@@ -89,16 +89,17 @@ describe("damage kinds", () => {
     s.sides.p2.unit.stages.def = 6;
     const r = ok(applyTurn(PACK, s, { p1: act("act_syn-blast"), p2: act("act_syn-strike") }));
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
-    expect(dmg.detail.amount).toBe(27); // floor(25×110/100)=27
+    expect(dmg.detail.amount).toBe(108); // floor(25×434/100)：epsilon 面板 HP=434
     expect(dmg.detail.damageKind).toBe("percent");
   });
   it("true：def stage 不参与", () => {
-    const s = dg(); // delta slam vs gamma(28def)
+    const s = dg(); // delta slam vs gamma(面板 def196)
     s.sides.p2.unit.stages.def = 3;
     const r = ok(applyTurn(PACK, s, { p1: act("act_syn-slam"), p2: act("act_syn-strike") }));
     const dmg = evs(r, "damage").find((e) => e.detail.side === "p2")!;
-    // floor(30×55/(2×28))=29 base；水系 slam 打草 eff=0.5 + 本系加成×1.5 → floor(29×8/16×1.5)=21
-    expect(dmg.detail.amount).toBe(21);
+    // six-stat：core=floor(42×30×158/(196×50))+2=22 → 本系×1.5=33 → 水→草 eff16=8 → floor(33/2)=16 → 随机 [13,16]
+    expect(dmg.detail.amount).toBeGreaterThanOrEqual(13);
+    expect(dmg.detail.amount).toBeLessThanOrEqual(16);
     expect(dmg.detail.damageKind).toBe("true");
     expect(dmg.detail.eff16).toBe(8);
     expect(dmg.detail.stab).toBe(true);
@@ -107,6 +108,8 @@ describe("damage kinds", () => {
     const ruleset = JSON.parse(readFileSync(join(CONTENT, "rulesets", "synthetic-v2.json"), "utf8"));
     delete ruleset.typeChartFile;
     delete ruleset.stabMultiplier;
+    delete ruleset.statModel;
+    delete ruleset.naturesFile;
     const pack = compilePack({
       ruleset,
       pack: JSON.parse(readFileSync(join(CONTENT, "synthetic-v2", "pack.json"), "utf8")),

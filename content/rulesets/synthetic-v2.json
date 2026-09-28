@@ -15,11 +15,13 @@
     "apply_status",
     "apply_effect"
   ],
-  "stats": ["hp", "atk", "def", "spd"],
+  "stats": ["hp", "atk", "def", "spa", "sdf", "spd"],
   "statStageRange": [-6, 6],
   "damageKinds": ["standard", "fixed", "percent", "true"],
   "typeChartFile": "typechart.json",
   "stabMultiplier": 1.5,
+  "statModel": "six-stat",
+  "naturesFile": "natures.json",
   "modeOverlays": {
     "boss": { "immuneControl": true, "immuneClearStages": true }
   },
@@ -31,6 +33,6 @@
   },
   "rng": {
     "algorithmId": "xoshiro128**",
-    "usage": ["order_tiebreak"]
+    "usage": ["order_tiebreak", "damage_roll"]
   }
 }

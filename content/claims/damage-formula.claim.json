@@ -1,0 +1,16 @@
+{
+  "claimId": "CLAIM-DAMAGE-001",
+  "targetSnapshot": "seer-damage-formula-multi-source",
+  "mode": "battle-general",
+  "statement": "伤害公式（物特分家）：damage = floor(floor(floor(floor(2×等级/5+2)×威力×攻方实攻/守方实防)/50)+2)×克制×STAB(×1.5)×随机(217..255)/255。物理招取 攻击/防御，特殊招取 特攻/特防；克制倍率查 typechart（含双属性条目），免疫=0；非免疫命中保底 1 伤；fixed/percent/true 语义不走此公式。随机系数取确定性 RNG（purpose=damage_roll），回放可复现。",
+  "boundaries": "多来源交叉：4399/淘米系攻略与二手整理均指向与口袋系同构的等级-威力-攻防框架，随机系数按赛尔号常用区间 [217,255]/255（≈85%~100%）取整实现。等级=攻方实级。整数地板位置影响边界 ±1，已在测试中以区间断言而非单值断言覆盖。",
+  "source": {
+    "kind": "observation",
+    "uri": "https://news.4399.com/seer/ (伤害/公式相关攻略交叉)"
+  },
+  "observedAt": "2026-05-21",
+  "evidenceDigest": "sha256:de61418c26d12d7fcec2f082197700b685e08b5d2155375aff34121418cb2425",
+  "reviewer": "manual cross-check; formula implemented in packages/battle-core/src/engine.ts with deterministic roll",
+  "verification": "UNVERIFIED",
+  "fixtureIds": []
+}

@@ -8,7 +8,7 @@
     "kind": "observation",
     "uri": "https://news.4399.com/seer/ssxxk/"
   },
-  "observedAt": "2026-05",
+  "observedAt": "2026-05-20",
   "evidenceDigest": "sha256:508e74a7b93219b9d75df2486593b72b83f5ffdb7e445c8f514a1cd4fff326ea",
   "reviewer": "automated extraction via rendered DOM (GB2312 page)",
   "verification": "UNVERIFIED",

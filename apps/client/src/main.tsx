@@ -9,7 +9,7 @@ import { StrictMode, useEffect, useRef, useState } from "react";
 import { BattleClient } from "./api.ts";
 import { BattleScene } from "./scene.ts";
 import { chooseAction } from "./ai.ts";
-import { loadMeta, packIdOf, moveBadge, zhSpecies, zhMove, zhMode, zhReason, zhEvent, zhEffect, describeMove, typeColor, effTag, type PackMeta } from "./meta.ts";
+import { loadMeta, packIdOf, moveBadge, zhSpecies, zhMove, zhMode, zhReason, zhEvent, zhEffect, describeMove, typeColor, effTag, zhStat, type PackMeta } from "./meta.ts";
 import { slots, type BattlePanelCtx } from "./slots.ts";
 
 declare const window: any;
@@ -29,10 +29,10 @@ const effectColor = (kind: string) => EFFECT_STYLE[kind] ?? (kind.startsWith("ta
 function Chips({ effects, stages }: { effects?: any[]; stages?: any }) {
   return (
     <span style={{ display: "inline-flex", gap: 4, marginLeft: 8, verticalAlign: "middle" }}>
-      {(stages ?? {}) && ["atk", "def", "spd"].map((k) => {
+      {(stages ?? {}) && ["atk", "def", "spa", "sdf", "spd"].map((k) => {
         const v = stages?.[k] ?? 0;
         if (v === 0) return null;
-        return <span key={k} style={{ fontSize: 10, padding: "0 4px", border: "1px solid #55a", color: v > 0 ? "#8f8" : "#f88" }}>{k}{v > 0 ? `+${v}` : v}</span>;
+        return <span key={k} style={{ fontSize: 10, padding: "0 4px", border: "1px solid #55a", color: v > 0 ? "#8f8" : "#f88" }}>{zhStat(k)}{v > 0 ? `+${v}` : v}</span>;
       })}
       {(effects ?? []).map((e: any, i: number) => (
         <span key={i} style={{ fontSize: 10, padding: "0 4px", border: `1px solid ${effectColor(e.kind)}`, color: effectColor(e.kind) }}>
@@ -93,7 +93,7 @@ function UnitCard({ u, side, benchAlive, types }: { u: any; side: "own" | "foe";
           {(types ?? []).map((t) => (
             <span key={t} className="tchip" data-testid={`tchip-${side}-${t}`} style={{ background: typeColor(t) }}>{t}</span>
           ))}
-          <span className="lv"> Lv.100</span>
+          <span className="lv"> Lv.{u.level ?? 100}</span>
           {u.mode !== undefined && <span style={{ color: "#fd6", fontSize: 10 }}> [{zhMode(u.mode)}]</span>}
           {u.revives !== undefined && u.revives > 0 && <span style={{ color: "#8af", fontSize: 10 }}> ↻{u.revives}</span>}
           {benchAlive !== undefined && <span style={{ color: "#8af", fontSize: 10 }}> 后备×{benchAlive}</span>}
@@ -102,6 +102,11 @@ function UnitCard({ u, side, benchAlive, types }: { u: any; side: "own" | "foe";
           <i style={{ width: `${(u.hp.current / u.hp.max) * 100}%` }} />
           <b>{u.hp.current}/{u.hp.max}</b>
         </div>
+        {u.stats !== undefined && (
+          <div className="statline" data-testid={`stats-${side}`}>
+            攻{u.stats.atk} · 防{u.stats.def} · 特攻{u.stats.spa} · 特防{u.stats.sdf} · 速{u.stats.spd}
+          </div>
+        )}
         <Chips effects={u.effects} stages={u.stages} />
       </div>
     </div>
@@ -588,7 +593,7 @@ function Lobby() {
           const order = team.indexOf(id);
           const hp = meta!.units[id]?.hp ?? 0;
           return (
-            <button key={id} data-testid={`pick-${id}`} onClick={() => toggle(id)} style={{
+            <button key={id} data-testid={`pick-${id}`} className="pickbtn" onClick={() => toggle(id)} style={{
               width: 108, padding: 8, borderRadius: 10, cursor: "pointer", fontFamily: "inherit",
               background: order >= 0 ? "#1c2f66" : "#141d3d",
               border: order >= 0 ? "2px solid #5a8aff" : "1px solid #2c3d68", color: "#dfe8ff",
@@ -603,6 +608,14 @@ function Lobby() {
               <div>{(meta!.units[id]?.types ?? []).map((t) => <b key={t} className="tchip" style={{ background: typeColor(t), marginLeft: 2 }}>{t}</b>)}</div>
               <div style={{ fontSize: 9, color: "#6a7ca8" }}>{id}</div>
               <div style={{ fontSize: 10, color: "#9ab4e8" }}>体力 {hp}</div>
+              {meta!.units[id]?.stats !== undefined && (
+                <div className="tip">
+                  <div className="tt">{zhSpecies(id)} Lv.{meta!.units[id]!.level ?? 100}{meta!.units[id]!.nature !== undefined ? ` · ${meta!.units[id]!.nature}` : ""}</div>
+                  {(["hp", "atk", "def", "spa", "sdf", "spd"] as const).map((k) => (
+                    <div key={k} className="tl">{zhStat(k)} {meta!.units[id]!.stats![k]}</div>
+                  ))}
+                </div>
+              )}
               {order >= 0 && <div style={{ fontSize: 10, color: "#8af", marginTop: 2 }}>{order === 0 ? "首发" : `替补 ${order}`}</div>}
             </button>
           );

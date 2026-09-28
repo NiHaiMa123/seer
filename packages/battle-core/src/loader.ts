@@ -15,6 +15,7 @@ import packSchemaJson from "../../../content/schemas/pack.schema.json" with { ty
 import unitsSchemaJson from "../../../content/schemas/units.schema.json" with { type: "json" };
 import movesSchemaJson from "../../../content/schemas/moves.schema.json" with { type: "json" };
 import typechartSchemaJson from "../../../content/schemas/typechart.schema.json" with { type: "json" };
+import naturesSchemaJson from "../../../content/schemas/natures.schema.json" with { type: "json" };
 
 export const ENGINE_VERSION = "0.1.0";
 export const IR_VERSION = 1;
@@ -30,13 +31,18 @@ export interface CompiledMove {
   priority: number;
   effects: CompiledEffect[];
   type?: string;
+  /** six-stat 规则下伤害招式必填：physical 用 攻→防，special 用 特攻→特防。 */
+  category?: "physical" | "special";
 }
 
 export type DamageKind = "standard" | "fixed" | "percent" | "true";
+export type StatKey = "hp" | "atk" | "def" | "spa" | "sdf" | "spd";
+export type StageStatKey = Exclude<StatKey, "hp">;
+export type StatSpread = Record<StatKey, number>;
 
 export type CompiledEffect =
   | { op: "damage"; power: number; kind?: DamageKind }
-  | { op: "apply_stat_stage"; stat: "atk" | "def" | "spd"; delta: number; target: "self" | "opponent" }
+  | { op: "apply_stat_stage"; stat: StageStatKey; delta: number; target: "self" | "opponent" }
   | { op: "heal"; numerator: number; denominator: number; target: "self" | "opponent" }
   | { op: "transfer_stages" }
   | { op: "clear_stages"; target: "self" | "opponent" }
@@ -47,11 +53,17 @@ export type CompiledEffect =
 
 export interface CompiledUnit {
   id: string;
-  base: { hp: number; atk: number; def: number; spd: number };
+  /** 种族值（six-stat 模式）或面板值（legacy 四维）。 */
+  base: { hp: number; atk: number; def: number; spd: number; spa?: number; sdf?: number };
   moveIds: string[];
   types?: string[];
   revives?: number;
   mode?: string;
+  /** six-stat：个体实例参数（loader 补默认 level=100/ivs=31/evs=0/nature=无修正）。 */
+  level?: number;
+  ivs?: StatSpread;
+  evs?: StatSpread;
+  nature?: string;
 }
 
 export type FeatureFlag =
@@ -70,6 +82,10 @@ export interface FrozenPack {
   typeChart?: ReadonlyMap<string, ReadonlyMap<string, number>>;
   /** 属性一致加成（STAB）：招式属性 ∈ 自身属性时的倍率。 */
   stabMultiplier: number;
+  /** six-stat：精灵有 种族值/等级/个体值/努力值/性格 → 推导六维面板 + Seer 伤害公式。 */
+  statModel?: "six-stat";
+  /** six-stat：性格表（性格名 → {up,down}，平衡性格为空对象）。 */
+  natures?: ReadonlyMap<string, { up?: StageStatKey; down?: StageStatKey }>;
   limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   stageRange: { min: number; max: number };
   operatorAllowlist: readonly string[];
@@ -83,6 +99,27 @@ const vPack = ajv.compile(packSchemaJson);
 const vUnits = ajv.compile(unitsSchemaJson);
 const vMoves = ajv.compile(movesSchemaJson);
 const vTypeChart = ajv.compile(typechartSchemaJson);
+const vNatures = ajv.compile(naturesSchemaJson);
+
+/** six-stat 面板推导（BWIKI 培养机制 × 4399 计算解析交叉验证）：
+ *  HP  = floor((2·种族 + 个体 + 努力/4) · 等级/100) + 等级 + 10
+ *  其余 = floor((floor((2·种族 + 个体 + 努力/4) · 等级/100) + 5) · 性格系数)
+ *  性格系数 11/10 或 9/10（整数运算）；体力不受性格影响。 */
+export function deriveStats(
+  base: StatSpread,
+  opts: { level: number; ivs: StatSpread; evs: StatSpread; nature?: { up?: StageStatKey; down?: StageStatKey } | undefined },
+): StatSpread {
+  const L = opts.level;
+  const inner = (s: StatKey) => 2 * base[s] + opts.ivs[s] + opts.evs[s] / 4;
+  const out = {} as StatSpread;
+  out.hp = Math.floor((inner("hp") * L) / 100) + L + 10;
+  for (const s of ["atk", "def", "spa", "sdf", "spd"] as const) {
+    const raw = Math.floor((inner(s) * L) / 100) + 5;
+    const mult = opts.nature?.up === s ? 11 : opts.nature?.down === s ? 9 : 10;
+    out[s] = Math.floor((raw * mult) / 10);
+  }
+  return out;
+}
 
 function fail(msg: string): never {
   throw new PackLoadError(msg);
@@ -95,6 +132,8 @@ interface RawContent {
   moves: unknown;
   /** ruleset.typeChartFile 指向的克制表文档（loadPackFromDir 负责读取注入）。 */
   typeChart?: unknown;
+  /** ruleset.naturesFile 指向的性格表文档。 */
+  natures?: unknown;
 }
 
 /** Pure: compile from already-parsed JSON documents (usable in Worker/browser). */
@@ -112,13 +151,15 @@ export function compilePack(raw: RawContent): FrozenPack {
     damageKinds?: string[];
     typeChartFile?: string;
     stabMultiplier?: number;
+    statModel?: "six-stat";
+    naturesFile?: string;
     modeOverlays?: Record<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
     statStageRange: [number, number];
     limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   };
   const pack = raw.pack as { packId: string; rulesetId: string };
   const units = (raw.units as { units: CompiledUnit[] }).units;
-  const moves = (raw.moves as { moves: { id: string; pp: number; priority: number; effects: CompiledEffect[]; type?: string }[] }).moves;
+  const moves = (raw.moves as { moves: { id: string; pp: number; priority: number; effects: CompiledEffect[]; type?: string; category?: "physical" | "special" }[] }).moves;
 
   // 属性克制表：ruleset 声明 typeChartFile → 必须随包注入且通过 schema；
   // 未声明 → 任何 types/type 字段都视为误配置拒绝（静默忽略会埋坑）。
@@ -149,6 +190,23 @@ export function compilePack(raw: RawContent): FrozenPack {
     }
   } else if (raw.typeChart !== undefined) {
     fail("typeChart document provided but ruleset declares no typeChartFile");
+  }
+
+  // six-stat：性格表随规则注入（与 typeChart 同纪律——声明了文件就必须给文档）。
+  let natures: Map<string, { up?: StageStatKey; down?: StageStatKey }> | undefined;
+  if (ruleset.naturesFile !== undefined) {
+    if (raw.natures === undefined) fail(`ruleset declares naturesFile "${ruleset.naturesFile}" but no natures document was provided`);
+    if (!vNatures(raw.natures)) fail(`natures schema: ${ajv.errorsText(vNatures.errors)}`);
+    natures = new Map(Object.entries((raw.natures as { natures: Record<string, { up?: StageStatKey; down?: StageStatKey }> }).natures));
+  } else if (raw.natures !== undefined) {
+    fail("natures document provided but ruleset declares no naturesFile");
+  }
+  // statModel 依赖：公式含 STAB+性格修正 → 必须同时声明克制表和性格表。
+  if (ruleset.statModel === "six-stat") {
+    if (typeChart === undefined) fail('statModel "six-stat" requires typeChartFile (damage formula includes STAB)');
+    if (natures === undefined) fail('statModel "six-stat" requires naturesFile');
+  } else {
+    if (ruleset.naturesFile !== undefined) fail("naturesFile declared without statModel");
   }
 
   if (pack.rulesetId !== ruleset.rulesetId) {
@@ -189,7 +247,14 @@ export function compilePack(raw: RawContent): FrozenPack {
       if (m.type === undefined) fail(`move ${m.id} lacks type (ruleset has type chart)`);
       else if (!typeChart.has(m.type)) fail(`move ${m.id} type "${m.type}" is not an attack row of the type chart`);
     }
-    movesById.set(m.id, { id: m.id, pp: m.pp, priority: m.priority, effects: m.effects, ...(m.type !== undefined ? { type: m.type } : {}) });
+    if (ruleset.statModel === "six-stat") {
+      const dealsScaled = m.effects.some((f) => f.op === "damage" && (f.kind === undefined || f.kind === "standard" || f.kind === "true"));
+      if (dealsScaled && m.category === undefined) fail(`move ${m.id} has standard/true damage but no category (six-stat)`);
+      if (!dealsScaled && m.category !== undefined) fail(`move ${m.id} sets category but deals no scaled damage (six-stat)`);
+    } else if (m.category !== undefined) {
+      fail(`move ${m.id} sets category but statModel is not "six-stat"`);
+    }
+    movesById.set(m.id, { id: m.id, pp: m.pp, priority: m.priority, effects: m.effects, ...(m.type !== undefined ? { type: m.type } : {}), ...(m.category !== undefined ? { category: m.category } : {}) });
   }
 
   const unitsById = new Map<string, CompiledUnit>();
@@ -219,7 +284,34 @@ export function compilePack(raw: RawContent): FrozenPack {
         }
       }
     }
-    unitsById.set(u.id, { id: u.id, base: u.base, moveIds: u.moveIds, ...(u.types !== undefined ? { types: u.types } : {}), ...(u.revives !== undefined ? { revives: u.revives } : {}), ...(u.mode !== undefined ? { mode: u.mode } : {}) });
+    const hasSixFields = u.level !== undefined || u.ivs !== undefined || u.evs !== undefined || u.nature !== undefined || u.base.spa !== undefined || u.base.sdf !== undefined;
+    if (ruleset.statModel === "six-stat") {
+      if (u.base.spa === undefined || u.base.sdf === undefined) fail(`unit ${u.id} lacks spa/sdf base stats (six-stat)`);
+      if (u.ivs !== undefined) {
+        for (const [s, v] of Object.entries(u.ivs)) if (v > 31) fail(`unit ${u.id} ivs.${s}=${v} exceeds 31`);
+      }
+      if (u.evs !== undefined) {
+        const total = Object.values(u.evs).reduce((a, b) => a + b, 0);
+        if (total > 510) fail(`unit ${u.id} evs total ${total} exceeds 510`);
+      }
+      if (u.nature !== undefined && !natures!.has(u.nature)) fail(`unit ${u.id} nature "${u.nature}" not in natures table`);
+    } else if (hasSixFields) {
+      fail(`unit ${u.id} sets six-stat fields (level/ivs/evs/nature/spa/sdf) but statModel is not "six-stat"`);
+    }
+    unitsById.set(u.id, {
+      id: u.id, base: u.base, moveIds: u.moveIds,
+      ...(u.types !== undefined ? { types: u.types } : {}),
+      ...(u.revives !== undefined ? { revives: u.revives } : {}),
+      ...(u.mode !== undefined ? { mode: u.mode } : {}),
+      ...(ruleset.statModel === "six-stat"
+        ? {
+            level: u.level ?? 100,
+            ivs: u.ivs ?? { hp: 31, atk: 31, def: 31, spa: 31, sdf: 31, spd: 31 },
+            evs: u.evs ?? { hp: 0, atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 },
+            ...(u.nature !== undefined ? { nature: u.nature } : {}),
+          }
+        : {}),
+    });
   }
 
   // 克制表是规则数据 → 计入 rulesetHash（换表=换规则版本，钉版对局不受影响）。
@@ -232,15 +324,16 @@ export function compilePack(raw: RawContent): FrozenPack {
   if (ruleset.typeChartFile === undefined && ruleset.stabMultiplier !== undefined) {
     fail("stabMultiplier declared without typeChartFile");
   }
-  const rulesetHash = `sha256:${sha256hex(canonicalJson(typeChartInt === undefined
+  const rulesetHash = `sha256:${sha256hex(canonicalJson(typeChartInt === undefined && raw.natures === undefined
     ? raw.ruleset
     : (() => {
         const rest = { ...(raw.ruleset as Record<string, unknown>) };
         delete rest["stabMultiplier"];
         return {
           ruleset: rest,
-          stabMultiplier16: Math.round(stab * 16),
-          typeChartSha256: sha256hex(JSON.stringify(raw.typeChart)),
+          ...(ruleset.stabMultiplier !== undefined ? { stabMultiplier16: Math.round(stab * 16) } : {}),
+          ...(raw.typeChart !== undefined ? { typeChartSha256: sha256hex(JSON.stringify(raw.typeChart)) } : {}),
+          ...(raw.natures !== undefined ? { naturesSha256: sha256hex(JSON.stringify(raw.natures)) } : {}),
         };
       })()))}`;
   const contentHash = `sha256:${sha256hex(canonicalJson({ pack: raw.pack, units: raw.units, moves: raw.moves }))}`;
@@ -259,6 +352,8 @@ export function compilePack(raw: RawContent): FrozenPack {
     movesById,
     ...(typeChart !== undefined ? { typeChart } : {}),
     stabMultiplier: ruleset.stabMultiplier ?? 1.5,
+    ...(ruleset.statModel !== undefined ? { statModel: ruleset.statModel } : {}),
+    ...(natures !== undefined ? { natures } : {}),
     limits: ruleset.limits,
     stageRange: { min: ruleset.statStageRange[0], max: ruleset.statStageRange[1] },
     operatorAllowlist: ruleset.operatorAllowlist,
@@ -279,12 +374,13 @@ export function loadPackFromDir(contentRoot: string, packId: string): FrozenPack
     rulesetId: string;
     files?: { units?: string; moves?: string };
   };
-  const ruleset = read(join("rulesets", `${pack.rulesetId}.json`)) as { typeChartFile?: string };
+  const ruleset = read(join("rulesets", `${pack.rulesetId}.json`)) as { typeChartFile?: string; naturesFile?: string };
   return compilePack({
     ruleset,
     pack,
     units: read(join(packId, pack.files?.units ?? "units.json")),
     moves: read(join(packId, pack.files?.moves ?? "moves.json")),
     ...(ruleset.typeChartFile !== undefined ? { typeChart: read(join("rulesets", ruleset.typeChartFile)) } : {}),
+    ...(ruleset.naturesFile !== undefined ? { natures: read(join("rulesets", ruleset.naturesFile)) } : {}),
   });
 }

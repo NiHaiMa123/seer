@@ -96,6 +96,12 @@ export const eventSchema: Record<string, unknown> = {
         "moveType": {
           "type": "string"
         },
+        "category": {
+          "enum": [
+            "physical",
+            "special"
+          ]
+        },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,
@@ -538,6 +544,7 @@ export type BattleEvent =
       eff16?: number;
       stab?: boolean;
       moveType?: string;
+      category?: "physical" | "special";
       hpAfter: {
         current: number;
         max: number;

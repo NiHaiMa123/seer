@@ -97,8 +97,12 @@ describe("lookup_rule / explain_trace / calculate_damage", () => {
   it("calculate_damage 给出确定整数值", () => {
     const t = mkTools(mkHost(), "A");
     const r = t.call({ tool: "calculate_damage", moveId: "syn-strike", assumptions: {} });
-    const d = (r.data as { damages: { amount: number }[] }).damages[0]!;
-    expect(d.amount).toBe(Math.floor((40 * 45) / (2 * 20))); // gamma atk45 vs delta def20
+    const d = (r.data as { damages: { amount: number; amountMin: number; amountMax: number }[] }).damages[0]!;
+    // six-stat：gamma 面板 atk140 vs delta 面板 def176；core=floor(42*40*140/8800)+2=28 → 战斗→水中性 ×1
+    // 随机 217..255 → [23,28]；amount 取 max-roll 乐观值
+    expect(d.amountMin).toBe(23);
+    expect(d.amountMax).toBe(28);
+    expect(d.amount).toBe(28);
   });
   it("explain_trace 只含公开事件摘要，无内部字段", () => {
     const h = mkHost();
