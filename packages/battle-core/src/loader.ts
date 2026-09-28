@@ -105,18 +105,26 @@ const vNatures = ajv.compile(naturesSchemaJson);
  *  HP  = floor((2·种族 + 个体 + 努力/4) · 等级/100) + 等级 + 10
  *  其余 = floor((floor((2·种族 + 个体 + 努力/4) · 等级/100) + 5) · 性格系数)
  *  性格系数 11/10 或 9/10（整数运算）；体力不受性格影响。 */
+/**
+ * 赛尔号面板推导（4399 解析第一期 / BWIKI 培养机制交叉验证）：
+ *   体力 = Int[(2B + IV + EV/4)×L/100 + L + 10]
+ *   其余 = Int[((2B + IV + EV/4)×L/100 + 5) × 性格修正]
+ * 关键语义：EV/4 不预先取整，小数穿过性格乘算后整体单次 Int（去尾）——
+ * 因此 ×1.1 性格项的极限努力值是 254 或 255（由 (种族个位×2+个体个位) mod 10 决定），
+ * 中性项 252 即极限，省下的点数可再投资（"省点"机制）。
+ * 用 4 倍整数 q = 8B + 4IV + EV 避免浮点误差。
+ */
 export function deriveStats(
   base: StatSpread,
   opts: { level: number; ivs: StatSpread; evs: StatSpread; nature?: { up?: StageStatKey; down?: StageStatKey } | undefined },
 ): StatSpread {
   const L = opts.level;
-  const inner = (s: StatKey) => 2 * base[s] + opts.ivs[s] + opts.evs[s] / 4;
+  const q = (s: StatKey) => 8 * base[s] + 4 * opts.ivs[s] + opts.evs[s];
   const out = {} as StatSpread;
-  out.hp = Math.floor((inner("hp") * L) / 100) + L + 10;
+  out.hp = Math.floor((q("hp") * L) / 400) + L + 10;
   for (const s of ["atk", "def", "spa", "sdf", "spd"] as const) {
-    const raw = Math.floor((inner(s) * L) / 100) + 5;
     const mult = opts.nature?.up === s ? 11 : opts.nature?.down === s ? 9 : 10;
-    out[s] = Math.floor((raw * mult) / 10);
+    out[s] = Math.floor(((q(s) * L + 2000) * mult) / 4000);
   }
   return out;
 }

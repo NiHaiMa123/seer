@@ -50,6 +50,37 @@ describe("deriveStats 面板推导", () => {
   });
 });
 
+describe("性格×努力值「省点」阈值（EV/4 小数穿过 ×1.1 单次取整）", () => {
+  // 4399 解析结论：y=(种族个位×2+个体个位) mod 10 ∈{4,5,6} 时极限需 255；否则 254/253 即封顶
+  const up = (b: number, ev: number) =>
+    deriveStats(
+      { hp: 1, atk: b, def: 1, spa: 1, sdf: 1, spd: 1 },
+      { level: 100, ivs: IV31, evs: { ...EV0, atk: ev }, nature: { up: "atk", down: "def" } },
+    ).atk;
+  it("种族个位=2（y=5）：255 才到顶，254 差 1", () => {
+    expect(up(92, 254)).toBe(311);
+    expect(up(92, 255)).toBe(312);
+  });
+  it("种族个位=0（y=1）：253 即封顶（≡254≡255），省下点数", () => {
+    expect(up(90, 252)).toBe(306);
+    expect(up(90, 253)).toBe(307);
+    expect(up(90, 254)).toBe(307);
+    expect(up(90, 255)).toBe(307);
+  });
+  it("中性项：252≡255（小数进不了面板），体力同理", () => {
+    const flat = (ev: number) =>
+      deriveStats(
+        { hp: 80, atk: 90, def: 1, spa: 1, sdf: 1, spd: 1 },
+        { level: 100, ivs: IV31, evs: { ...EV0, hp: ev, atk: ev } },
+      );
+    expect(flat(252).atk).toBe(flat(255).atk);
+    expect(flat(252).hp).toBe(flat(255).hp);
+  });
+  it("单项非整数阈值外无回退：EV 不可为负/超 255 由 loader 拦截", () => {
+    expect(up(90, 0)).toBeLessThan(up(90, 4));
+  });
+});
+
 describe("loader six-stat 校验", () => {
   const read = (p: string) => JSON.parse(readFileSync(join(CONTENT, p), "utf8"));
   const base = (): any => ({
