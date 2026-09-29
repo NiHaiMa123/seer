@@ -84,7 +84,8 @@ const catalogAndRules = (pack: PackMechView, unitId: string): { catalog: Readonl
 
 export const sealsMechanic: Mechanic = {
   id: "seals",
-  packFileKey: "seals",
+  doc: { rawKey: "seals", packFile: "seals" },
+  unitFieldClaims: ["seals"],
 
   compile(ctx: MechanicCompileCtx): MechanicContribution | undefined {
     const { raw, ruleset, fail } = ctx;

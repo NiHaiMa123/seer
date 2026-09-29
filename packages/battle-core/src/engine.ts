@@ -5,8 +5,8 @@
  * 无 wall-clock/环境读取、全部整数运算、draw 只发生在 §6 平速组。
  */
 import { DeterministicRng } from "./rng.ts";
-import { deriveStats, type CompiledEffect, type CompiledMove, type CompiledUnit, type FrozenPack, type StatSpread, type StageStatKey } from "./loader.ts";
-import { MECHANICS } from "./mechanics/index.ts";
+import { type CompiledEffect, type CompiledMove, type CompiledUnit, type FrozenPack, type StatSpread, type StageStatKey } from "./loader.ts";
+import { MECHANICS, deriveBaseFor, stageKeysFor } from "./mechanics/index.ts";
 import { EngineFault, OTHER, type CoreAction, type CoreEvent, type CoreResult, type CoreState, type SideId } from "./types.ts";
 
 type SideUnit = CoreState["sides"]["p1"]["unit"];
@@ -101,17 +101,9 @@ function resolveAction(state: CoreState, side: SideId, action: CoreAction): Move
 }
 
 const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string, mechInit?: Record<string, unknown>): CoreState["sides"]["p1"]["unit"] => {
-  // six-stat：units.json 的 base 是种族值 → 推导面板六维（性格修正已内含）；
-  // legacy：base 即面板值（v1 行为字节级不变）。
-  const six = pack.statModel === "six-stat";
-  const base = six
-    ? deriveStats(u.base as StatSpread, {
-        level: u.level ?? 100,
-        ivs: u.ivs ?? { hp: 31, atk: 31, def: 31, spa: 31, sdf: 31, spd: 31 },
-        evs: u.evs ?? { hp: 0, atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 },
-        ...(u.nature !== undefined ? { nature: pack.natures!.get(u.nature) } : {}),
-      })
-    : ({ ...u.base } as StatSpread);
+  // 面板推导：机制钩子接管（six-stat：种族/等级/个体/努力/性格 → 六维）；
+  // 无接管 → base 即面板值（legacy v1 行为字节级不变）。
+  const base = deriveBaseFor(pack, u) ?? ({ ...u.base } as StatSpread);
   // 机制加工链：各注册模块对推导面板做修饰并贡献附加状态字段（如 seals → 平面叠加+字段）。
   const mechState: Record<string, unknown> = {};
   for (const m of MECHANICS) {
@@ -121,10 +113,9 @@ const mkUnit = (pack: FrozenPack, u: CompiledUnit, unitId: string, mechInit?: Re
   return {
     unitId,
     speciesId: u.id,
-    ...(six ? { level: u.level ?? 100 } : {}),
     base,
     currentHp: base.hp,
-    stages: { atk: 0, def: 0, spd: 0, ...(six ? { spa: 0, sdf: 0 } : {}) },
+    stages: { atk: 0, def: 0, spd: 0, ...Object.fromEntries(stageKeysFor(pack).slice(3).map((k) => [k, 0])) },
     moves: u.moveIds.map((moveId) => {
       const m = pack.movesById.get(moveId)!;
       return { moveId, pp: m.pp, ppMax: m.pp };
@@ -443,9 +434,8 @@ function doSwitch(next: CoreState, events: CoreEvent[], side: SideId, benchIndex
   return true;
 }
 
-/** 参与 stage 增减的 stat 键集合：six-stat 含 spa/sdf，legacy 只有 atk/def/spd。 */
-const stageKeys = (pack: FrozenPack): readonly StageStatKey[] =>
-  pack.statModel === "six-stat" ? ["atk", "def", "spa", "sdf", "spd"] : ["atk", "def", "spd"];
+/** 参与 stage 增减的 stat 键集合：核心三维 + 机制贡献（six-stat 时含 spa/sdf）。 */
+const stageKeys = stageKeysFor;
 
 function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], side: SideId, unit: SideUnit, move: CompiledMove, fx: CompiledEffect, rng: DeterministicRng): CpResult {
   const foe = next.sides[OTHER[side]].unit;
@@ -464,41 +454,28 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
         dmg = fx.power;
       } else if (kind === "percent") {
         dmg = Math.floor((fx.power * foe.base.hp) / 100);
-      } else if (pack.statModel === "six-stat") {
-        // Seer 伤害公式（4399/7k7k/BWIKI 交叉验证，时代=页游经典式）：
-        //   floor(floor(lv·0.4+2)·威力·攻÷防÷50+2) ×本系 ×克制 ×随机(217..255)/255
-        //   physical → 攻/防；special → 特攻/特防；true 伤吃攻防值但无视防御 stage。
-        const cat = move.category ?? "physical";
-        const aKey: StageStatKey = cat === "special" ? "spa" : "atk";
-        const dKey: StageStatKey = cat === "special" ? "sdf" : "def";
-        const atk = effStat(unit.base[aKey]!, unit.stages[aKey] ?? 0);
-        const def = effStat(foe.base[dKey]!, kind === "true" ? 0 : (foe.stages[dKey] ?? 0));
-        const lvf = Math.floor((unit.level ?? 100) * 0.4 + 2);
-        let core = Math.floor((lvf * fx.power * atk) / (def * 50)) + 2;
-        let roll: number | undefined;
-        if (typed) {
-          const foeTypes = pack.unitsById.get(foe.speciesId)?.types ?? [];
-          eff16 = effectivenessOf(pack.typeChart!, move.type!, foeTypes);
-          stab = (pack.unitsById.get(unit.speciesId)?.types ?? []).includes(move.type!);
-          if (stab) core = Math.floor(core * pack.stabMultiplier);
-          core = Math.floor((core * eff16) / 16);
-          dmg = eff16 === 0 ? 0 : (roll = 217 + rng.drawBelow(39, "damage_roll"), Math.max(1, Math.floor((core * roll) / 255)));
-        } else {
-          roll = 217 + rng.drawBelow(39, "damage_roll");
-          dmg = Math.max(1, Math.floor((core * roll) / 255));
-        }
-        if (roll !== undefined) {
-          events.push({ type: "rng-draw", detail: { purpose: "damage_roll" }, rngDraw: { purpose: "damage_roll", value: roll } });
-        }
       } else {
-        const base = Math.floor((fx.power * effStat(unit.base.atk, unit.stages.atk)) / (2 * effStat(foe.base.def, kind === "true" ? 0 : foe.stages.def)));
         if (typed) {
           const foeTypes = pack.unitsById.get(foe.speciesId)?.types ?? [];
           eff16 = effectivenessOf(pack.typeChart!, move.type!, foeTypes);
           stab = (pack.unitsById.get(unit.speciesId)?.types ?? []).includes(move.type!);
-          dmg = eff16 === 0 ? 0 : Math.max(1, Math.floor((base * eff16) / 16 * (stab ? pack.stabMultiplier : 1)));
+        }
+        // 缩放公式分派：机制钩子接管（如 six-stat 赛尔号公式）；全未接管 → legacy v1 公式。
+        let out: { dmg: number; roll?: number } | undefined;
+        for (const m of MECHANICS) {
+          out = m.scaledDamage?.({ pack, unit, foe, move, power: fx.power, kind, eff16, stab, rng });
+          if (out !== undefined) break;
+        }
+        if (out !== undefined) {
+          dmg = out.dmg;
+          if (out.roll !== undefined) {
+            events.push({ type: "rng-draw", detail: { purpose: "damage_roll" }, rngDraw: { purpose: "damage_roll", value: out.roll } });
+          }
         } else {
-          dmg = Math.max(1, base);
+          const base = Math.floor((fx.power * effStat(unit.base.atk, unit.stages.atk)) / (2 * effStat(foe.base.def, kind === "true" ? 0 : foe.stages.def)));
+          dmg = typed
+            ? (eff16 === 0 ? 0 : Math.max(1, Math.floor((base * eff16!) / 16 * (stab ? pack.stabMultiplier : 1))))
+            : Math.max(1, base);
         }
       }
       foe.currentHp = Math.max(0, foe.currentHp - dmg);
@@ -510,7 +487,7 @@ function applyEffect(pack: FrozenPack, next: CoreState, events: CoreEvent[], sid
           hpAfter: { current: foe.currentHp, max: foe.base.hp },
           ...(kind !== "standard" ? { damageKind: kind } : {}),
           ...(eff16 !== undefined ? { eff16, stab, moveType: move.type } : {}),
-          ...(pack.statModel === "six-stat" && move.category !== undefined ? { category: move.category } : {}),
+          ...(move.category !== undefined ? { category: move.category } : {}),
         },
       });
       return checkpoint(next, events);

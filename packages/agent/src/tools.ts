@@ -8,7 +8,7 @@
  */
 import Ajv from "ajv";
 import { toolSchema, canonicalJson, type BattleEvent, type Observation } from "@seer/contracts";
-import { sha256hex, deriveStats, effectivenessOf, type FrozenPack, type SideId, type StatSpread } from "@seer/battle-core";
+import { sha256hex, deriveStats, effectivenessOf, sixstatOf, type FrozenPack, type SideId, type StatSpread } from "@seer/battle-core";
 import type { AgentView, SubmitFn } from "./views.ts";
 import { simulateBatch, type SimHypothesis, type SimResponse } from "./simulate.ts";
 import { counterplayFor } from "./knowledge.ts";
@@ -171,7 +171,7 @@ export class ToolServer {
     if (!move) return { moveId, error: "unknown move" };
     const obs = this.view.observe();
     const ownUnit = this.pack.unitsById.get(obs.own.speciesId)!;
-    const six = this.pack.statModel === "six-stat";
+    const six = sixstatOf(this.pack) !== undefined;
     const oppSpecies = assumptions.oppSpeciesId as string | undefined;
     const oppUnit = (oppSpecies !== undefined ? this.pack.unitsById.get(oppSpecies) : this.pack.unitsById.get(obs.opponent.speciesId));
     const stageMul = (base: number, stage: number) => Math.floor((base * (stage >= 0 ? 2 + stage : 2)) / (stage >= 0 ? 2 : 2 - stage));
@@ -179,7 +179,7 @@ export class ToolServer {
     const atkKey = move.category === "special" ? "spa" : "atk";
     const defKey = move.category === "special" ? "sdf" : "def";
     const oppPanelDef = six && oppUnit
-      ? deriveStats(oppUnit.base as StatSpread, { level: oppUnit.level ?? 100, ivs: oppUnit.ivs!, evs: oppUnit.evs!, nature: oppUnit.nature !== undefined ? this.pack.natures!.get(oppUnit.nature) : undefined })[defKey]
+      ? deriveStats(oppUnit.base as StatSpread, { level: oppUnit.level ?? 100, ivs: oppUnit.ivs!, evs: oppUnit.evs!, nature: oppUnit.nature !== undefined ? sixstatOf(this.pack)!.natures.get(oppUnit.nature) : undefined })[defKey]
       : (oppUnit?.base.def ?? 1);
     const defStage = (assumptions.oppDefStage as number | undefined) ?? 0;
     const defOverride = assumptions.oppDefOverride as number | undefined;

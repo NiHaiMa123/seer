@@ -4,7 +4,7 @@
  */
 import type { PluginManifest } from "@seer/contracts";
 import type { PluginSpec, SeerPluginContext } from "@seer/plugin-runtime";
-import { deriveStats, effectivenessOf, MECHANICS, type FrozenPack, type StatSpread } from "@seer/battle-core";
+import { deriveBaseFor, effectivenessOf, MECHANICS, type FrozenPack } from "@seer/battle-core";
 import { HTTP_ROUTER_SERVICE, type Router } from "../router.ts";
 
 export const CONTENT_CATALOG_SERVICE = "content.catalog";
@@ -69,22 +69,21 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
           units: Object.fromEntries(
             [...pack.unitsById.values()].map((u) => [
               u.id,
-              {
-                speciesId: u.id,
-                name: u.name,
-                hp: pack.statModel === "six-stat" ? deriveStats(u.base as StatSpread, { level: u.level ?? 100, ivs: u.ivs!, evs: u.evs!, nature: u.nature !== undefined ? pack.natures!.get(u.nature) : undefined }).hp : u.base.hp,
-                // six-stat：默认养成的面板六维 + 等级/性格（内容公开数据，非对局隐藏信息）
-                ...(pack.statModel === "six-stat"
-                  ? {
-                      level: u.level ?? 100,
-                      nature: u.nature,
-                      stats: deriveStats(u.base as StatSpread, { level: u.level ?? 100, ivs: u.ivs!, evs: u.evs!, nature: u.nature !== undefined ? pack.natures!.get(u.nature) : undefined }),
-                    }
-                  : {}),
+              (() => {
+                // 机制面板推导（six-stat）：默认养成的面板六维 + 等级/性格（内容公开数据，非对局隐藏信息）
+                const panel = deriveBaseFor(pack, u);
+                return {
+                  speciesId: u.id,
+                  name: u.name,
+                  hp: panel?.hp ?? u.base.hp,
+                  ...(panel !== undefined
+                    ? { level: u.level ?? 100, nature: u.nature, stats: panel }
+                    : {}),
                 ...(u.types !== undefined ? { types: u.types } : {}),
                 // 预设刻印（物种默认 loadout——如 boss 预装）
                 ...(u.seals !== undefined && u.seals.length > 0 ? { seals: u.seals } : {}),
-              },
+                };
+              })(),
             ]),
           ),
           // 机制内容片段：各注册模块贡献公开知识（如刻印图鉴库+佩戴规则）。

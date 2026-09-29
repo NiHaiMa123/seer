@@ -85,7 +85,6 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
     own: {
       unitId: me.unitId,
       speciesId: me.speciesId,
-      ...(me.level !== undefined ? { level: me.level, stats: { hp: me.base.hp, atk: me.base.atk, def: me.base.def, spa: me.base.spa!, sdf: me.base.sdf!, spd: me.base.spd } } : {}),
       ...(mechFields(me, OWN_PROJ) as Partial<Observation["own"]>),
       hp: { current: me.currentHp, max: me.base.hp },
       ppByMoveId: Object.fromEntries(me.moves.map((m) => [m.moveId, m.pp])),
@@ -98,7 +97,6 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
             bench: sMe.bench.map((b) => ({
               unitId: b.unitId,
               speciesId: b.speciesId,
-              ...(b.level !== undefined ? { level: b.level, stats: { hp: b.base.hp, atk: b.base.atk, def: b.base.def, spa: b.base.spa!, sdf: b.base.sdf!, spd: b.base.spd } } : {}),
               ...(mechFields(b, OWN_PROJ) as Record<string, unknown>),
               hp: { current: b.currentHp, max: b.base.hp },
               ppByMoveId: Object.fromEntries(b.moves.map((m) => [m.moveId, m.pp])),
@@ -114,12 +112,11 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
     opponent: {
       unitId: foe.unitId,
       speciesId: foe.speciesId,
-      ...(foe.level !== undefined ? { level: foe.level } : {}),
+      ...(mechFields(foe, FOE_PROJ) as Partial<Observation["opponent"]>),
       hp: { current: foe.currentHp, max: foe.base.hp },
       revealedMoveIds: [...foe.revealedMoveIds],
       ppEstimate: { kind: "unknown" }, // PP 永不公开
       stages: { ...foe.stages },
-      ...(mechFields(foe, FOE_PROJ) as Partial<Observation["opponent"]>),
       effects: publicEffects(foe.effects, /* opponent: hidden effects never leave */ false),
       ...(foe.mode !== undefined ? { mode: foe.mode } : {}),
       ...(sFoe.bench !== undefined ? { benchAlive: sFoe.bench.filter((b) => b.currentHp > 0).length } : {}),

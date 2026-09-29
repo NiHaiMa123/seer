@@ -15,7 +15,6 @@ import packSchemaJson from "../../../content/schemas/pack.schema.json" with { ty
 import unitsSchemaJson from "../../../content/schemas/units.schema.json" with { type: "json" };
 import movesSchemaJson from "../../../content/schemas/moves.schema.json" with { type: "json" };
 import typechartSchemaJson from "../../../content/schemas/typechart.schema.json" with { type: "json" };
-import naturesSchemaJson from "../../../content/schemas/natures.schema.json" with { type: "json" };
 import { MECHANICS } from "./mechanics/index.ts";
 
 export const ENGINE_VERSION = "0.1.0";
@@ -87,11 +86,7 @@ export interface FrozenPack {
   typeChart?: ReadonlyMap<string, ReadonlyMap<string, number>>;
   /** 属性一致加成（STAB）：招式属性 ∈ 自身属性时的倍率。 */
   stabMultiplier: number;
-  /** six-stat：精灵有 种族值/等级/个体值/努力值/性格 → 推导六维面板 + Seer 伤害公式。 */
-  statModel?: "six-stat";
-  /** six-stat：性格表（性格名 → {up,down}，平衡性格为空对象）。 */
-  natures?: ReadonlyMap<string, { up?: StageStatKey; down?: StageStatKey }>;
-  /** 机制编译贡献（mechanics[id]=各机制数据；刻印→sealsOf() 取）。未启用机制的键不存在。 */
+  /** 机制编译贡献（mechanics[id]=各机制数据；六维→sixstatOf()、刻印→sealsOf() 取）。未启用机制的键不存在。 */
   mechanics?: Record<string, unknown>;
   limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
   stageRange: { min: number; max: number };
@@ -106,35 +101,6 @@ const vPack = ajv.compile(packSchemaJson);
 const vUnits = ajv.compile(unitsSchemaJson);
 const vMoves = ajv.compile(movesSchemaJson);
 const vTypeChart = ajv.compile(typechartSchemaJson);
-const vNatures = ajv.compile(naturesSchemaJson);
-
-/** six-stat 面板推导（BWIKI 培养机制 × 4399 计算解析交叉验证）：
- *  HP  = floor((2·种族 + 个体 + 努力/4) · 等级/100) + 等级 + 10
- *  其余 = floor((floor((2·种族 + 个体 + 努力/4) · 等级/100) + 5) · 性格系数)
- *  性格系数 11/10 或 9/10（整数运算）；体力不受性格影响。 */
-/**
- * 赛尔号面板推导（4399 解析第一期 / BWIKI 培养机制交叉验证）：
- *   体力 = Int[(2B + IV + EV/4)×L/100 + L + 10]
- *   其余 = Int[((2B + IV + EV/4)×L/100 + 5) × 性格修正]
- * 关键语义：EV/4 不预先取整，小数穿过性格乘算后整体单次 Int（去尾）——
- * 因此 ×1.1 性格项的极限努力值是 254 或 255（由 (种族个位×2+个体个位) mod 10 决定），
- * 中性项 252 即极限，省下的点数可再投资（"省点"机制）。
- * 用 4 倍整数 q = 8B + 4IV + EV 避免浮点误差。
- */
-export function deriveStats(
-  base: StatSpread,
-  opts: { level: number; ivs: StatSpread; evs: StatSpread; nature?: { up?: StageStatKey; down?: StageStatKey } | undefined },
-): StatSpread {
-  const L = opts.level;
-  const q = (s: StatKey) => 8 * base[s] + 4 * opts.ivs[s] + opts.evs[s];
-  const out = {} as StatSpread;
-  out.hp = Math.floor((q("hp") * L) / 400) + L + 10;
-  for (const s of ["atk", "def", "spa", "sdf", "spd"] as const) {
-    const mult = opts.nature?.up === s ? 11 : opts.nature?.down === s ? 9 : 10;
-    out[s] = Math.floor(((q(s) * L + 2000) * mult) / 4000);
-  }
-  return out;
-}
 
 function fail(msg: string): never {
   throw new PackLoadError(msg);
@@ -147,11 +113,15 @@ interface RawContent {
   moves: unknown;
   /** ruleset.typeChartFile 指向的克制表文档（loadPackFromDir 负责读取注入）。 */
   typeChart?: unknown;
-  /** ruleset.naturesFile 指向的性格表文档。 */
-  natures?: unknown;
-  /** 机制文档（键=机制 packFileKey，如 seals）——由对应 Mechanic.compile 自取校验。 */
+  /** 机制文档（键=机制 doc.rawKey，如 seals/natures）——由对应 Mechanic.compile 自取校验。 */
   [mechDoc: string]: unknown;
 }
+
+/** 核心所有字段：其余字段必须由某个注册机制认领（unitFieldClaims/moveFieldClaims），
+ *  否则视为"机制缺席但字段还在"——拒载而非静默忽略。 */
+const CORE_UNIT_FIELDS = new Set(["id", "name", "base", "moveIds", "types", "revives", "mode"]);
+const CORE_BASE_KEYS = new Set(["hp", "atk", "def", "spd"]);
+const CORE_MOVE_FIELDS = new Set(["id", "name", "pp", "priority", "effects", "type"]);
 
 /** Pure: compile from already-parsed JSON documents (usable in Worker/browser). */
 export function compilePack(raw: RawContent): FrozenPack {
@@ -168,8 +138,6 @@ export function compilePack(raw: RawContent): FrozenPack {
     damageKinds?: string[];
     typeChartFile?: string;
     stabMultiplier?: number;
-    statModel?: "six-stat";
-    naturesFile?: string;
     modeOverlays?: Record<string, { immuneControl?: boolean; immuneClearStages?: boolean }>;
     statStageRange: [number, number];
     limits: { maxEffectApplications: number; maxCauseDepth: number; maxTurns: number; maxBenchSize?: number };
@@ -209,35 +177,23 @@ export function compilePack(raw: RawContent): FrozenPack {
     fail("typeChart document provided but ruleset declares no typeChartFile");
   }
 
-  // six-stat：性格表随规则注入（与 typeChart 同纪律——声明了文件就必须给文档）。
-  let natures: Map<string, { up?: StageStatKey; down?: StageStatKey }> | undefined;
-  if (ruleset.naturesFile !== undefined) {
-    if (raw.natures === undefined) fail(`ruleset declares naturesFile "${ruleset.naturesFile}" but no natures document was provided`);
-    if (!vNatures(raw.natures)) fail(`natures schema: ${ajv.errorsText(vNatures.errors)}`);
-    natures = new Map(Object.entries((raw.natures as { natures: Record<string, { up?: StageStatKey; down?: StageStatKey }> }).natures));
-  } else if (raw.natures !== undefined) {
-    fail("natures document provided but ruleset declares no naturesFile");
-  }
-  // statModel 依赖：公式含 STAB+性格修正 → 必须同时声明克制表和性格表。
-  if (ruleset.statModel === "six-stat") {
-    if (typeChart === undefined) fail('statModel "six-stat" requires typeChartFile (damage formula includes STAB)');
-    if (natures === undefined) fail('statModel "six-stat" requires naturesFile');
-  } else {
-    if (ruleset.naturesFile !== undefined) fail("naturesFile declared without statModel");
-  }
-
-  // 机制编译：各注册模块自校验文档与规则 → pack.mechanics[id] + contentHash 附加。
-  // 模块内部自判 pack.files 声明；未声明而注入文档 → 模块自己拒。
+  // 机制编译：各注册模块自校验文档与规则 → pack.mechanics[id] + 哈希附加。
+  // 模块内部自判声明位（pack.files/ruleset 字段）；未声明而注入文档 → 模块自己拒。
   const mechData: Record<string, unknown> = {};
   const mechHashExtra: Record<string, string> = {};
+  const mechRulesetHash: Record<string, string> = {};
   const mechView = { rules: { rulesetId: (ruleset as { rulesetId: string }).rulesetId }, mechanics: mechData };
   for (const m of MECHANICS) {
     const c = m.compile?.({ raw: raw as Record<string, unknown>, ruleset: ruleset as Record<string, unknown>, fail });
     if (c !== undefined) {
       mechData[m.id] = c.data;
       if (c.hashExtra !== undefined) Object.assign(mechHashExtra, c.hashExtra);
+      if (c.rulesetHashExtra !== undefined) Object.assign(mechRulesetHash, c.rulesetHashExtra);
     }
   }
+  // 字段认领表：schema 已知但非核心的字段必须由注册机制认领，否则拒载。
+  const unitFieldOwners = new Map(MECHANICS.flatMap((m) => (m.unitFieldClaims ?? []).map((f) => [f, m.id])));
+  const moveFieldOwners = new Map(MECHANICS.flatMap((m) => (m.moveFieldClaims ?? []).map((f) => [f, m.id])));
 
   if (pack.rulesetId !== ruleset.rulesetId) {
     fail(`pack rulesetId "${pack.rulesetId}" != ruleset "${ruleset.rulesetId}"`);
@@ -277,12 +233,15 @@ export function compilePack(raw: RawContent): FrozenPack {
       if (m.type === undefined) fail(`move ${m.id} lacks type (ruleset has type chart)`);
       else if (!typeChart.has(m.type)) fail(`move ${m.id} type "${m.type}" is not an attack row of the type chart`);
     }
-    if (ruleset.statModel === "six-stat") {
-      const dealsScaled = m.effects.some((f) => f.op === "damage" && (f.kind === undefined || f.kind === "standard" || f.kind === "true"));
-      if (dealsScaled && m.category === undefined) fail(`move ${m.id} has standard/true damage but no category (six-stat)`);
-      if (!dealsScaled && m.category !== undefined) fail(`move ${m.id} sets category but deals no scaled damage (six-stat)`);
-    } else if (m.category !== undefined) {
-      fail(`move ${m.id} sets category but statModel is not "six-stat"`);
+    // 机制字段认领：非核心字段须由注册机制认领（如 category → sixstat）。
+    for (const k of Object.keys(m)) {
+      if (!CORE_MOVE_FIELDS.has(k) && !moveFieldOwners.has(k)) {
+        fail(`move ${m.id} field "${k}" not claimed by any registered mechanic`);
+      }
+    }
+    for (const mech of MECHANICS) {
+      const err = mech.checkMove?.(m, mechView);
+      if (err !== null && err !== undefined) fail(err);
     }
     movesById.set(m.id, { id: m.id, pp: m.pp, priority: m.priority, effects: m.effects, ...(m.type !== undefined ? { type: m.type } : {}), ...(m.category !== undefined ? { category: m.category } : {}) });
   }
@@ -314,26 +273,23 @@ export function compilePack(raw: RawContent): FrozenPack {
         }
       }
     }
-    const hasSixFields = u.level !== undefined || u.ivs !== undefined || u.evs !== undefined || u.nature !== undefined || u.base.spa !== undefined || u.base.sdf !== undefined;
-    if (ruleset.statModel === "six-stat") {
-      if (u.base.spa === undefined || u.base.sdf === undefined) fail(`unit ${u.id} lacks spa/sdf base stats (six-stat)`);
-      if (u.ivs !== undefined) {
-        for (const [s, v] of Object.entries(u.ivs)) if (v > 31) fail(`unit ${u.id} ivs.${s}=${v} exceeds 31`);
+    // 机制字段认领：非核心字段须由注册机制认领（level/ivs/evs/nature/base.spa/sdf → sixstat，seals → seals）。
+    for (const k of Object.keys(u)) {
+      if (!CORE_UNIT_FIELDS.has(k) && !unitFieldOwners.has(k)) {
+        fail(`unit ${u.id} field "${k}" not claimed by any registered mechanic`);
       }
-      if (u.evs !== undefined) {
-        const total = Object.values(u.evs).reduce((a, b) => a + b, 0);
-        if (total > 510) fail(`unit ${u.id} evs total ${total} exceeds 510`);
-      }
-      if (u.nature !== undefined && !natures!.has(u.nature)) fail(`unit ${u.id} nature "${u.nature}" not in natures table`);
-    } else if (hasSixFields) {
-      fail(`unit ${u.id} sets six-stat fields (level/ivs/evs/nature/spa/sdf) but statModel is not "six-stat"`);
     }
-    // 机制单位钩子：声明校验 + 编译附加字段（如 seals 预设）
+    for (const k of Object.keys(u.base)) {
+      if (!CORE_BASE_KEYS.has(k) && !unitFieldOwners.has(`base.${k}`)) {
+        fail(`unit ${u.id} base.${k} not claimed by any registered mechanic`);
+      }
+    }
+    // 机制单位钩子：声明校验 + 编译附加字段（默认注入/预设）。
     const mechFields: Record<string, unknown> = {};
     for (const m of MECHANICS) {
       const err = m.checkUnit?.(u, mechView);
       if (err !== null && err !== undefined) fail(err);
-      const extra = m.unitFields?.(u);
+      const extra = m.unitFields?.(u, mechView);
       if (extra !== undefined) Object.assign(mechFields, extra);
     }
     unitsById.set(u.id, {
@@ -341,14 +297,6 @@ export function compilePack(raw: RawContent): FrozenPack {
       ...(u.types !== undefined ? { types: u.types } : {}),
       ...(u.revives !== undefined ? { revives: u.revives } : {}),
       ...(u.mode !== undefined ? { mode: u.mode } : {}),
-      ...(ruleset.statModel === "six-stat"
-        ? {
-            level: u.level ?? 100,
-            ivs: u.ivs ?? { hp: 31, atk: 31, def: 31, spa: 31, sdf: 31, spd: 31 },
-            evs: u.evs ?? { hp: 0, atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 },
-            ...(u.nature !== undefined ? { nature: u.nature } : {}),
-          }
-        : {}),
       ...mechFields,
     });
   }
@@ -363,7 +311,7 @@ export function compilePack(raw: RawContent): FrozenPack {
   if (ruleset.typeChartFile === undefined && ruleset.stabMultiplier !== undefined) {
     fail("stabMultiplier declared without typeChartFile");
   }
-  const rulesetHash = `sha256:${sha256hex(canonicalJson(typeChartInt === undefined && raw.natures === undefined
+  const rulesetHash = `sha256:${sha256hex(canonicalJson(typeChartInt === undefined && Object.keys(mechRulesetHash).length === 0
     ? raw.ruleset
     : (() => {
         const rest = { ...(raw.ruleset as Record<string, unknown>) };
@@ -372,7 +320,7 @@ export function compilePack(raw: RawContent): FrozenPack {
           ruleset: rest,
           ...(ruleset.stabMultiplier !== undefined ? { stabMultiplier16: Math.round(stab * 16) } : {}),
           ...(raw.typeChart !== undefined ? { typeChartSha256: sha256hex(JSON.stringify(raw.typeChart)) } : {}),
-          ...(raw.natures !== undefined ? { naturesSha256: sha256hex(JSON.stringify(raw.natures)) } : {}),
+          ...mechRulesetHash,
         };
       })()))}`;
   const contentHash = `sha256:${sha256hex(canonicalJson(
@@ -395,8 +343,6 @@ export function compilePack(raw: RawContent): FrozenPack {
     movesById,
     ...(typeChart !== undefined ? { typeChart } : {}),
     stabMultiplier: ruleset.stabMultiplier ?? 1.5,
-    ...(ruleset.statModel !== undefined ? { statModel: ruleset.statModel } : {}),
-    ...(natures !== undefined ? { natures } : {}),
     ...(Object.keys(mechData).length > 0 ? { mechanics: mechData } : {}),
     limits: ruleset.limits,
     stageRange: { min: ruleset.statStageRange[0], max: ruleset.statStageRange[1] },
@@ -418,12 +364,16 @@ export function loadPackFromDir(contentRoot: string, packId: string): FrozenPack
     rulesetId: string;
     files?: Record<string, string>;
   };
-  const ruleset = read(join("rulesets", `${pack.rulesetId}.json`)) as { typeChartFile?: string; naturesFile?: string };
-  // 机制文档：pack.files.<packFileKey> → raw[packFileKey]（由注册模块各自校验）
+  const ruleset = read(join("rulesets", `${pack.rulesetId}.json`)) as { typeChartFile?: string; [k: string]: unknown };
+  // 机制文档：doc.packFile → pack 目录文件；doc.rulesetFile → rulesets/ 目录文件（由注册模块各自校验）
   const mechDocs: Record<string, unknown> = {};
   for (const m of MECHANICS) {
-    const file = m.packFileKey !== undefined ? pack.files?.[m.packFileKey] : undefined;
-    if (file !== undefined) mechDocs[m.packFileKey!] = read(join(packId, file));
+    const d = m.doc;
+    if (d === undefined) continue;
+    const file = d.packFile !== undefined ? pack.files?.[d.packFile] : undefined;
+    const rfile = d.rulesetFile !== undefined ? ruleset[d.rulesetFile] : undefined;
+    if (typeof file === "string") mechDocs[d.rawKey] = read(join(packId, file));
+    if (typeof rfile === "string") mechDocs[d.rawKey] = read(join("rulesets", rfile));
   }
   return compilePack({
     ruleset,
@@ -431,7 +381,6 @@ export function loadPackFromDir(contentRoot: string, packId: string): FrozenPack
     units: read(join(packId, pack.files?.units ?? "units.json")),
     moves: read(join(packId, pack.files?.moves ?? "moves.json")),
     ...(ruleset.typeChartFile !== undefined ? { typeChart: read(join("rulesets", ruleset.typeChartFile)) } : {}),
-    ...(ruleset.naturesFile !== undefined ? { natures: read(join("rulesets", ruleset.naturesFile)) } : {}),
     ...mechDocs,
   });
 }
