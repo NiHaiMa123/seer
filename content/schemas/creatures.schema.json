@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/creatures.schema.json",
+  "title": "Creature catalog（4399 精灵图鉴库）",
+  "description": "4399 精灵图鉴抓取库：数据源参考，未接入战斗规则。fifthSkill=页面显式标记，fifthSkillInferred=按新页惯例推断（signatureSkill 命中 lv71/高威力，或末行≥160威力技能）。字段缺失为 null，不臆造。",
+  "type": "object",
+  "required": ["schemaVersion", "source", "creatures"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "source": {
+      "type": "object",
+      "required": ["name", "indexUrl", "fetchedAt", "recordCount"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "indexUrl": { "type": "string" },
+        "fetchedAt": { "type": "string" },
+        "recordCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "creatures": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/creature" },
+      "propertyNames": { "pattern": "^pet-[0-9?]+(-[a-z])?$" }
+    }
+  },
+  "definitions": {
+    "statBlock": {
+      "type": "object",
+      "required": ["hp", "atk", "def", "spa", "sdf", "spd", "total"],
+      "additionalProperties": false,
+      "properties": {
+        "hp": { "type": ["integer", "null"] },
+        "atk": { "type": ["integer", "null"] },
+        "def": { "type": ["integer", "null"] },
+        "spa": { "type": ["integer", "null"] },
+        "sdf": { "type": ["integer", "null"] },
+        "spd": { "type": ["integer", "null"] },
+        "total": { "type": ["integer", "null"] }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "required": ["name", "kind", "power", "pp", "level", "effect", "fifth", "recommended"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "type": ["string", "null"] },
+        "power": { "type": ["integer", "null"] },
+        "pp": { "type": ["integer", "null"] },
+        "level": { "type": ["integer", "null"] },
+        "effect": { "type": ["string", "null"], "maxLength": 2000 },
+        "fifth": { "type": "boolean" },
+        "recommended": { "type": "boolean" }
+      }
+    },
+    "creature": {
+      "type": "object",
+      "required": ["id", "name", "petNo", "detailUrl", "fetchedAt", "parseNotes"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^pet-" },
+        "name": { "type": "string", "minLength": 1 },
+        "petNo": { "type": "string" },
+        "detailUrl": { "type": "string" },
+        "image": { "type": ["string", "null"] },
+        "iconId": { "type": ["string", "null"] },
+        "letter": { "type": ["string", "null"] },
+        "type": { "type": ["string", "null"] },
+        "typeLabel": { "type": ["string", "null"] },
+        "signatureSkill": { "type": ["string", "null"] },
+        "obtainUrl": { "type": ["string", "null"] },
+        "indexTotal": { "type": ["integer", "null"] },
+        "dex": {
+          "type": ["object", "null"],
+          "required": ["gender", "grade", "kind"],
+          "additionalProperties": false,
+          "properties": {
+            "gender": { "type": ["string", "null"] },
+            "grade": { "type": ["string", "null"] },
+            "kind": { "type": ["string", "null"] },
+            "extra": { "type": "object" }
+          }
+        },
+        "typeRelations": { "type": "array", "items": { "type": "string" } },
+        "baseStats": { "anyOf": [{ "$ref": "#/definitions/statBlock" }, { "type": "null" }] },
+        "soulMark": {
+          "type": ["object", "null"],
+          "required": ["text", "url"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "type": ["string", "null"], "maxLength": 8000 },
+            "url": { "type": ["string", "null"] }
+          }
+        },
+        "build": {
+          "type": ["object", "null"],
+          "required": ["nature", "evs", "moves", "raw"],
+          "additionalProperties": false,
+          "properties": {
+            "nature": { "type": ["string", "null"] },
+            "evs": { "type": ["string", "null"] },
+            "moves": { "type": "array", "items": { "type": "string" } },
+            "raw": { "type": "string" }
+          }
+        },
+        "skills": { "type": "array", "items": { "$ref": "#/definitions/skill" } },
+        "fifthSkill": { "type": ["string", "null"] },
+        "fifthSkillInferred": { "type": ["string", "null"] },
+        "forms": { "type": "array", "items": { "type": "string" } },
+        "obtainText": { "type": ["string", "null"], "maxLength": 4000 },
+        "fetchedAt": { "type": "string" },
+        "parseNotes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

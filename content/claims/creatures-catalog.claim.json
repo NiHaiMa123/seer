@@ -1,0 +1,16 @@
+{
+  "claimId": "CLAIM-CREATURES-4399",
+  "targetSnapshot": "content/creatures/creatures.json",
+  "mode": "catalog-ingest",
+  "statement": "4399 精灵图鉴抓取的精灵库（名称/属性/种族值/魂印/第五技能/技能表/培养方案/形态/获得方式）。仅作数据源，未接入战斗规则。",
+  "boundaries": "数值与文本为 4399 编辑页面内容；魂印长文经文章页二段抓取；字段缺失时保留 null 不臆造。",
+  "source": {
+    "kind": "community",
+    "uri": "https://news.4399.com/seer/jinglingdaquan/"
+  },
+  "observedAt": "2026-09-29",
+  "evidenceDigest": "sha256:f10a630d64a9b30b89fba75324361074db9ebed8b52123532272bff7a65026ea",
+  "reviewer": "devin-scraper",
+  "verification": "UNVERIFIED",
+  "fixtureIds": []
+}

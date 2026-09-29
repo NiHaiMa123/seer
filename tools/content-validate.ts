@@ -256,6 +256,21 @@ function validateRoot(root: string, schemasDir: string): Result {
     }
   }
 
+  // --- 独立数据库目录（无 pack.json 的内容库，如 creatures/）---
+  // 约定：目录内 <name>.json 用 <name> schema 校验（creatures.json → creatures schema）
+  for (const dir of existsSync(root)
+    ? readdirSync(root).filter(
+        (d) => !RESERVED_DIRS.has(d) && !packDirs.includes(d) && existsSync(join(root, d)),
+      )
+    : []) {
+    for (const f of listJsonFiles(join(root, dir))) {
+      const schemaName = basename(f, ".json");
+      if (!validators.has(schemaName)) continue;
+      filesChecked.push(f);
+      check(schemaName, loadJson(f, findings), f);
+    }
+  }
+
   return { findings, filesChecked, claimVerification, packs };
 }
 
