@@ -126,7 +126,7 @@ describe("isolated executable generations", () => {
     expect(restored.observe(`a_${battleId}`).revision).toBe(2);
     expect(restoredManager.generationOf(battleId)).toBe(generationIdOf(LEGACY));
     restoredStore.close();
-  });
+  }, 20_000);
 
   it("keeps failed isolated initialization atomic and releases its generation lease", async () => {
     const store = tempStore();

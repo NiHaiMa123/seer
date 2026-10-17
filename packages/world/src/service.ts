@@ -139,6 +139,12 @@ export class WorldService {
     return { result, opsLeft: this.session(sessionId).opsLeft };
   }
 
+  /** act 已扣预算、但下游翻译失败（如 challenge 建局失败）时的补偿退回 */
+  refundAct(sessionId: string): void {
+    this.session(sessionId);
+    this.store.refundOp(sessionId);
+  }
+
   registerPlayer(playerId: string, name: string): void {
     this.store.ensurePlayer(playerId, name);
   }
@@ -184,7 +190,8 @@ export class WorldService {
     return this.store.tx(() => {
       const { row, fresh } = this.store.insertRewardOnce(outcome.battleId, playerId, outcome.revision, items);
       if (fresh) {
-        this.store.bumpResult(playerId, won);
+        // 平局不计胜也不计负——胜负计数与奖励表解耦（draw 奖励照常发）
+        if (!draw) this.store.bumpResult(playerId, won);
         for (const q of QUESTS) {
           const cur = this.store.getQuests(playerId).find((x) => x.questId === q.id);
           if (cur !== undefined && cur.done) continue;

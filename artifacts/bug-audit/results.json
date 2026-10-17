@@ -1,0 +1,298 @@
+[
+  {
+    "id": "control-normal-entry",
+    "status": "PASS",
+    "evidence": {
+      "atk": 1
+    }
+  },
+  {
+    "id": "control-starting-passive",
+    "status": "PASS",
+    "evidence": {
+      "effects": [
+        "dmg_taken_down"
+      ]
+    }
+  },
+  {
+    "id": "control-normal-on-move-used",
+    "status": "PASS",
+    "evidence": {
+      "count": 2
+    }
+  },
+  {
+    "id": "control-host-normal-turn",
+    "status": "PASS",
+    "evidence": {
+      "ok": true
+    }
+  },
+  {
+    "id": "host-rejects-valid-pp-delta-event",
+    "status": "PASS",
+    "evidence": {
+      "coreOk": true,
+      "types": [
+        "action-declared",
+        "pp-spent",
+        "pp-delta"
+      ]
+    }
+  },
+  {
+    "id": "initial-entry-hook",
+    "status": "PASS",
+    "evidence": {
+      "atk": 1,
+      "entryEvents": 1
+    }
+  },
+  {
+    "id": "bench-passive-initialization",
+    "status": "PASS",
+    "evidence": {
+      "turn": 4,
+      "effects": [
+        "dmg_taken_down"
+      ]
+    }
+  },
+  {
+    "id": "replacement-resumes-on-move-used",
+    "status": "PASS",
+    "evidence": {
+      "actions": [
+        {
+          "type": "action-declared",
+          "detail": {
+            "side": "p2",
+            "actionId": "act_syn-strike",
+            "moveId": "syn-strike"
+          }
+        }
+      ],
+      "soulHooks": 1
+    }
+  },
+  {
+    "id": "forced-switch-entry-hook",
+    "status": "PASS",
+    "evidence": {
+      "species": "syn-epsilon",
+      "atk": 1,
+      "entryEvents": 1
+    }
+  },
+  {
+    "id": "reactive-lethal-damage-suspends-action",
+    "status": "PASS",
+    "evidence": {
+      "hp": 0,
+      "suspension": {
+        "koSide": "p1",
+        "remaining": {
+          "p1": null,
+          "p2": "act_syn-hex"
+        },
+        "firstSide": "p1"
+      },
+      "damage": [
+        {
+          "type": "damage",
+          "detail": {
+            "side": "p1",
+            "amount": 10,
+            "hpAfter": {
+              "current": 0,
+              "max": 444
+            },
+            "damageKind": "fixed"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "turn-end-resumes-remaining-hooks",
+    "status": "PASS",
+    "evidence": {
+      "suspension": {
+        "koSide": "p2",
+        "remaining": {
+          "p1": null,
+          "p2": null
+        },
+        "firstSide": "p1",
+        "teDone": true,
+        "teCursor": {
+          "side": "p1",
+          "unitId": "unit_p1",
+          "win": 18,
+          "item": 3
+        }
+      },
+      "atk": 1,
+      "turn": 2
+    }
+  },
+  {
+    "id": "first-turn-endure-restores-stages",
+    "status": "PASS",
+    "evidence": {
+      "hp": 444,
+      "atk": 0,
+      "soulEvents": [
+        {
+          "type": "soulmark",
+          "detail": {
+            "side": "p1",
+            "mark": "sm-holy-guard",
+            "name": "圣灵庇护",
+            "effect": "endure"
+          }
+        },
+        {
+          "type": "soulmark",
+          "detail": {
+            "side": "p1",
+            "mark": "sm-holy-guard",
+            "name": "圣灵庇护",
+            "effect": "endure_rewind"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "mutual-on-damaged-respects-effect-budget",
+    "status": "PASS",
+    "evidence": {
+      "ok": false,
+      "fault": "EFFECT_LIMIT"
+    }
+  },
+  {
+    "id": "parser-foe-order-condition",
+    "status": "PASS",
+    "evidence": {
+      "first": {
+        "entries": [
+          {
+            "hook": "onMoveUsed",
+            "actor": "foe",
+            "guard": {
+              "order": "first"
+            },
+            "ops": [
+              {
+                "op": "heal",
+                "flat": 100,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "unparsed": [],
+        "bossGate": false,
+        "clauseTotal": 1,
+        "clausesParsed": 1
+      },
+      "last": {
+        "entries": [
+          {
+            "hook": "onMoveUsed",
+            "actor": "foe",
+            "guard": {
+              "order": "last"
+            },
+            "ops": [
+              {
+                "op": "heal",
+                "flat": 100,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "unparsed": [],
+        "bossGate": false,
+        "clauseTotal": 1,
+        "clausesParsed": 1
+      },
+      "real": {
+        "id": "pet-4613",
+        "name": "艾克特希",
+        "text": "问：赛尔号艾克特希是什么？艾克特希专属特性是什么？ 答：赛尔号艾克特希是： 对手先出手时当回合自身受到的攻击伤害减少20%，若对手为自身天敌则额外包括百分比伤害且效果翻倍;自身先出手时当回合自身造成的攻击伤害提升30%，若自身为对手天敌则额外包括固定伤害且效果翻倍; 每回合结束后自身恢复当前体力的30%，然后若自身体力为满则全属性+1，若自身体力不为满则下回合所有技能先制+1(boss无效) 精灵资料：赛尔号号艾克特希进化图种族值技能表>>>",
+        "entries": [
+          {
+            "hook": "onMoveUsed",
+            "actor": "foe",
+            "guard": {
+              "order": "first"
+            },
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_taken_down",
+                "target": "self",
+                "params": {
+                  "pct": 20
+                },
+                "turns": 1
+              },
+              {
+                "op": "apply_status",
+                "name": "dmg_taken_down",
+                "target": "self",
+                "params": {
+                  "pct": 20
+                },
+                "turns": 1,
+                "if": {
+                  "foeCountersUs": true
+                }
+              }
+            ]
+          },
+          {
+            "hook": "onMoveUsed",
+            "actor": "self",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_boost",
+                "target": "self",
+                "if": {
+                  "order": "first"
+                },
+                "params": {
+                  "pct": 30
+                }
+              },
+              {
+                "op": "apply_status",
+                "name": "dmg_boost",
+                "target": "self",
+                "if": {
+                  "and": [
+                    {
+                      "weCounterFoe": true
+                    },
+                    {
+                      "order": "first"
+                    }
+                  ]
+                },
+                "params": {
+                  "pct": 30
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

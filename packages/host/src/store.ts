@@ -43,6 +43,10 @@ CREATE TABLE IF NOT EXISTS resolved_inputs (
   state_hash  TEXT NOT NULL,          -- 该 transition 之后的 canonical state hash
   PRIMARY KEY (battle_id, decision_id)
 );
+CREATE TABLE IF NOT EXISTS battle_registrations (
+  battle_id   TEXT PRIMARY KEY,
+  json        TEXT NOT NULL           -- 建局登记（players/deadline/token/席位/worldMeta）——重启恢复所需的非权威元数据
+);
 `;
 
 export class StoreError extends Error {
@@ -211,6 +215,23 @@ export class BattleStore {
   loadResolvedInputs(battleId: string): { resolved: ResolvedInput; stateHash: string }[] {
     const rows = this.db.prepare("SELECT json, state_hash FROM resolved_inputs WHERE battle_id=? ORDER BY seq").all(battleId) as { json: string; state_hash: string }[];
     return rows.map((r) => ({ resolved: JSON.parse(r.json) as ResolvedInput, stateHash: r.state_hash }));
+  }
+
+  /** 建局登记（重启恢复的元数据通道——token/席位/worldMeta 由注册方自定义形状） */
+  saveRegistration(battleId: string, data: unknown): void {
+    this.tx(() => {
+      this.db.prepare("INSERT OR REPLACE INTO battle_registrations VALUES (?,?)").run(battleId, canonicalJson(data));
+    });
+  }
+
+  loadRegistrations(): { battleId: string; data: unknown }[] {
+    const rows = this.db.prepare("SELECT battle_id, json FROM battle_registrations").all() as { battle_id: string; json: string }[];
+    return rows.map((r) => ({ battleId: r.battle_id, data: JSON.parse(r.json) as unknown }));
+  }
+
+  /** 库内全部对局 id（启动恢复枚举用） */
+  listBattleIds(): string[] {
+    return (this.db.prepare("SELECT battle_id FROM battles ORDER BY battle_id").all() as { battle_id: string }[]).map((r) => r.battle_id);
   }
 
   /** 未决提交：inbox 里有但 resolved_inputs 中无该 decision → 恢复时要补 resolve。 */

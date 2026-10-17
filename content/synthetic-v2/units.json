@@ -37,7 +37,9 @@
         "syn-jab",
         "syn-hex",
         "syn-blast"
-      ]
+      ],
+      "soulMark": "sm-holy-guard",
+      "fifthMoveId": "fifth-verdant-aegis"
     },
     {
       "id": "syn-delta",
@@ -77,7 +79,9 @@
         "syn-slam",
         "syn-purge-mind"
       ],
-      "revives": 1
+      "revives": 1,
+      "soulMark": "sm-tide-vein",
+      "fifthMoveId": "fifth-tidal-crash"
     },
     {
       "id": "syn-epsilon",
@@ -123,6 +127,96 @@
       "seals": [
         "seal-42240",
         "seal-42240"
+      ],
+      "soulMark": "sm-drake-shroud",
+      "fifthMoveId": "fifth-drake-ruin"
+    },
+    {
+      "id": "syn-markcaster",
+      "name": "MarkCaster",
+      "base": {
+        "hp": 120,
+        "atk": 60,
+        "def": 80,
+        "spa": 95,
+        "sdf": 85,
+        "spd": 70
+      },
+      "level": 100,
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "sdf": 31,
+        "spd": 31
+      },
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 0,
+        "spa": 252,
+        "sdf": 0,
+        "spd": 6
+      },
+      "nature": "保守",
+      "types": [
+        "战斗"
+      ],
+      "moveIds": [
+        "syn-strike",
+        "syn-markunit",
+        "syn-markfield",
+        "syn-markslot",
+        "syn-markconsume",
+        "syn-markcond",
+        "syn-markflat",
+        "syn-markscalemul",
+        "syn-flatim",
+        "syn-flatdmg",
+        "syn-pctkii",
+        "syn-forceswitch"
+      ]
+    },
+    {
+      "id": "syn-marktank",
+      "name": "MarkTank",
+      "base": {
+        "hp": 110,
+        "atk": 70,
+        "def": 90,
+        "spa": 70,
+        "sdf": 90,
+        "spd": 60
+      },
+      "level": 100,
+      "ivs": {
+        "hp": 31,
+        "atk": 31,
+        "def": 31,
+        "spa": 31,
+        "sdf": 31,
+        "spd": 31
+      },
+      "evs": {
+        "hp": 252,
+        "atk": 0,
+        "def": 252,
+        "spa": 0,
+        "sdf": 6,
+        "spd": 0
+      },
+      "nature": "大胆",
+      "types": [
+        "战斗"
+      ],
+      "moveIds": [
+        "syn-strike",
+        "syn-jab",
+        "syn-flatim",
+        "syn-flatdmg",
+        "syn-pctkii",
+        "syn-markunit"
       ]
     }
   ]

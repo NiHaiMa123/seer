@@ -210,7 +210,15 @@ function validateRoot(root: string, schemasDir: string): Result {
               });
             }
             const stat = eff["stat"];
-            if (stat !== undefined && (!isStr(stat) || !stats.has(stat))) {
+            // all/random 是招式 schema 里的能力通配，不在规则包 stats 列表里。all 只表示「强化翻倍」，必须带 multiplySelf。
+            const stageWildcard = isStr(op) && op === "apply_stat_stage" && (stat === "all" || stat === "random");
+            if (stat === "all" && eff["multiplySelf"] !== true) {
+              findings.push({
+                code: "SCHEMA",
+                file: moveFile,
+                message: `move "${String(mid)}" stat "all" requires multiplySelf`,
+              });
+            } else if (!stageWildcard && stat !== undefined && (!isStr(stat) || !stats.has(stat))) {
               findings.push({
                 code: "SCHEMA",
                 file: moveFile,

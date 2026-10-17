@@ -33,9 +33,12 @@
           "evs": { "$ref": "#/definitions/statSpread" },
           "nature": { "type": "string", "minLength": 1 },
           "seals": { "type": "array", "items": { "type": "string", "pattern": "^seal-\\d+$" }, "maxItems": 6 },
+          "soulMark": { "type": "string", "pattern": "^sm-[a-z0-9-]+$" },
+          "fifthMoveId": { "type": "string" },
           "moveIds": { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true },
           "types": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "maxItems": 2, "uniqueItems": true },
           "revives": { "type": "integer", "minimum": 0 },
+          "gender": { "enum": ["male", "female", "none"] },
           "mode": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
         }
       }

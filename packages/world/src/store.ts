@@ -129,6 +129,11 @@ export class WorldStore {
     return s.opsLeft - 1;
   }
 
+  /** 预算退回——补偿路径：spendOp 已提交后下游失败（如挑战建局失败）时退回 1 op */
+  refundOp(sessionId: string): void {
+    this.db.prepare("UPDATE sessions SET opsLeft=opsLeft+1 WHERE sessionId=?").run(sessionId);
+  }
+
   stopSession(sessionId: string): void {
     this.db.prepare("UPDATE sessions SET stopped=1 WHERE sessionId=?").run(sessionId);
   }

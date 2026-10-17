@@ -36,7 +36,11 @@ export const eventInternalSchema: Record<string, unknown> = {
         "stages-cleared",
         "switch",
         "revive",
+        "soulmark",
         "action-failed",
+        "missed",
+        "protected",
+        "pp-delta",
         "struggle-used",
         "rng-draw",
         "ko",
@@ -110,7 +114,11 @@ export interface InternalEvent {
     | "stages-cleared"
     | "switch"
     | "revive"
+    | "soulmark"
     | "action-failed"
+    | "missed"
+    | "protected"
+    | "pp-delta"
     | "struggle-used"
     | "rng-draw"
     | "ko"

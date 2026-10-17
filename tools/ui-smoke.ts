@@ -1,6 +1,6 @@
 /**
  * ui-smoke.ts —— Phase 1：全链路浏览器冒烟。
- * 大厅→编队→PVE 战局→打到终局→再来一局→世界闭环（存档/跑图/挑战/认输/领奖/回世界）。
+ * 主界面→仓库编队→大厅开战→打到终局→再来一局→世界闭环（存档/跑图/挑战/认输/领奖/回世界）。
  * 每步断言 testid 可见 + 截图留 artifacts/ui-check/。
  */
 import { chromium } from "@playwright/test";
@@ -28,17 +28,27 @@ page.setDefaultTimeout(8000);
 page.on("pageerror", (e) => console.log(`  [pageerror] ${e.message}`));
 page.on("console", (m) => { if (m.type() === "error") console.log(`  [console.error] ${m.text().slice(0, 120)}`); });
 
-// ── 大厅 → 编队 → 开战 ─────────────────────────────
-await step("大厅加载+精灵列表", async () => {
+// ── 主界面 → 仓库编队 → 大厅开战 ─────────────────────────────
+await step("主界面→仓库精灵列表", async () => {
+  // teamStore 服务端落盘——先清空，保证从空编队开始
+  await fetch(`${BASE}/api/local/team`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ team: [], loadout: {}, carried: {} }) });
   await page.goto(BASE);
+  await vis(page, "home-screen");
+  await page.getByTestId("nav-storage").click();
   await vis(page, "team-builder");
-  await vis(page, "pick-syn-gamma");
+  await page.getByTestId("warehouse-q").fill("pet-5000");
+  await vis(page, "pick-pet-5000");
   await page.screenshot({ path: `${SHOTS}/01-lobby.png` });
 });
 await step("编队→开始对战→进入战局", async () => {
-  await page.getByTestId("pick-syn-gamma").click();
-  await page.getByTestId("pick-syn-delta").click();
-  await page.getByTestId("pick-syn-epsilon").click();
+  // 名册分页——按编号搜索后点选
+  await page.getByTestId("pick-pet-5000").click();
+  await page.getByTestId("warehouse-q").fill("pet-3550");
+  await page.getByTestId("pick-pet-3550").click();
+  await page.getByTestId("warehouse-q").fill("pet-3577");
+  await page.getByTestId("pick-pet-3577").click();
+  await page.getByTestId("nav-lobby").click();
+  await vis(page, "lobby-screen");
   await page.getByTestId("btn-start").click();
   await page.waitForURL(/battle=btl_/, { timeout: 8000 });
   await vis(page, "ucard-own");
@@ -59,7 +69,7 @@ await step("连续出招打到终局", async () => {
         continue;
       }
     }
-    const mv = page.locator("button.skill:not(.switch)").first(); // 技能/挣扎钮（换人钮是 .skill.switch，撤退是 .warn）
+    const mv = page.locator("button.skill:not(.switch):enabled").first(); // 首个可用技能/挣扎钮（PP 耗尽的技能是 disabled）
     const tid = await mv.getAttribute("data-testid").catch(() => null);
     const en = await mv.isEnabled().catch(() => false);
     console.log(`    [t${i}] btn=${tid} enabled=${en}`);
@@ -87,8 +97,8 @@ await step("终局横幅+再来一局回大厅", async () => {
   await vis(page, "result-banner");
   await page.screenshot({ path: `${SHOTS}/03-terminal.png` });
   await page.getByTestId("back-lobby").locator("button").click();
-  await page.waitForURL(/\/$/, { timeout: 8000 });
-  await vis(page, "team-builder");
+  await page.waitForURL(/screen=lobby/, { timeout: 8000 });
+  await vis(page, "lobby-screen");
 });
 
 // ── 世界闭环 ──────────────────────────────────────
@@ -101,8 +111,10 @@ await step("进世界→会话→地图", async () => {
   await page.screenshot({ path: `${SHOTS}/04-world.png` });
 });
 await step("存档队伍", async () => {
-  await page.getByTestId("pick-syn-gamma").click();
-  await page.getByTestId("pick-syn-delta").click();
+  await page.getByTestId("warehouse-q").fill("pet-5000");
+  await page.getByTestId("pick-pet-5000").click();
+  await page.getByTestId("warehouse-q").fill("pet-3550");
+  await page.getByTestId("pick-pet-3550").click();
   await page.getByTestId("btn-save-team").click();
   await page.waitForTimeout(400);
   await vis(page, "load-main");

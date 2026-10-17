@@ -1,0 +1,3257 @@
+{
+  "generated": "2026-10-04",
+  "effects": {
+    "skills": 62647,
+    "withText": 53798,
+    "fully": 45871,
+    "partial": 5461,
+    "clauses": 114579,
+    "parsed": 104384,
+    "clauseCoverage": "91.1",
+    "skillCoverage": "85.3",
+    "reasons": [
+      {
+        "reason": "no-rule",
+        "count": 8504,
+        "samples": [
+          "每次对手主动切换下场则令对方下只精灵出战时100%进入冻伤状态",
+          "恢复自身其他技能此技能剩余PP值的50%",
+          "若对手体力未变化则恢复自身等量体力值",
+          "命中的能力提升状态",
+          "平均自身的能力等级",
+          "每增加了1项能力的等级令对手下次攻击造成的伤害减少10%"
+        ]
+      },
+      {
+        "reason": "stage/hp-scaled power — coefficient undocumented (UNVERIFIED)",
+        "count": 135,
+        "samples": [
+          "对方能力等级越高",
+          "此技能威力越大",
+          "对方能力等级越高",
+          "此技能威力越大",
+          "对方能力等级越高",
+          "此技能威力越大"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: apply_status.params",
+        "count": 115,
+        "samples": [
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "miss-reactive — E4",
+        "count": 102,
+        "samples": [
+          "使对手下2回合攻击必定MISS",
+          "对手下次使用的攻击技能必定MISS",
+          "若MISS则自身死亡",
+          "对方物攻必定miss",
+          "若miss则恢复自身1/4体力",
+          "对手miss"
+        ]
+      },
+      {
+        "reason": "per-use stacking — unquantified",
+        "count": 81,
+        "samples": [
+          "每次使用该技能击败对手则恢复自身全部体力",
+          "每次使用增加2项",
+          "连续使用时威力提升100%",
+          "每次使用自身攻击+2",
+          "每次使用后此技能造成的攻击伤害额外提升30%",
+          "连续使用每次加4%"
+        ]
+      },
+      {
+        "reason": "heal echo without heal/drain",
+        "count": 80,
+        "samples": [
+          "<healEcho>",
+          "<healEcho>",
+          "<healEcho>",
+          "<healEcho>",
+          "<healEcho>",
+          "<healEcho>"
+        ]
+      },
+      {
+        "reason": "next-unit effect — E4",
+        "count": 78,
+        "samples": [
+          "使自身下只出场精灵前2回合100%闪避对手的攻击技能",
+          "使下只出场精灵前2回合必定先手必定暴击",
+          "对手下只出场精灵速度-2",
+          "吸取下只出场精灵1/3最大HP",
+          "减少下次出战精灵最大体力1/3",
+          "吸收下只出场精灵1/3最大HP"
+        ]
+      },
+      {
+        "reason": "punish — standalone keyword, mechanic undocumented (UNVERIFIED)",
+        "count": 60,
+        "samples": [
+          "惩罚",
+          "惩罚",
+          "惩罚",
+          "惩罚",
+          "惩罚",
+          "惩罚"
+        ]
+      },
+      {
+        "reason": "reactive trigger — E4",
+        "count": 59,
+        "samples": [
+          "若对手使用属性技能，则使用属性技能后的下1回合攻击技能无法造成伤害",
+          "若受到的伤害超过200则对手疲惫2回合",
+          "若对手使用攻击技能，则使用攻击技能后的下1回合攻击技能无法造成伤害",
+          "若对手使用属性技能，则使用属性技能后的下1回合攻击技能无法造成伤害",
+          "若对手使用攻击技能，则使用攻击技能后的下1回合属性技能命中效果失效",
+          "若对手使用属性技能，则使用属性技能后的下1回合攻击技能无法造成伤害"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: apply_stat_stage.delta",
+        "count": 57,
+        "samples": [
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "reactive on-hit trigger — E4",
+        "count": 48,
+        "samples": [
+          "受到攻击对手20%害怕",
+          "受到攻击恢复100点体力",
+          "受到攻击",
+          "受到攻击消除对方强化状态",
+          "受到攻击自身防御和特防+1",
+          "受到攻击消除对手能力强化状态"
+        ]
+      },
+      {
+        "reason": "reactive damage-taken trigger orphan",
+        "count": 35,
+        "samples": [
+          "若受到的伤害大于300，则恢复自身所有体力",
+          "若受到的伤害大于300，则恢复自身所有体力",
+          "若受到的伤害大于200，则恢复自身所有体力",
+          "若受到的伤害大于200，则恢复自身所有体力",
+          "若受到的伤害大于200，则恢复自身所有体力",
+          "若受到的伤害大于300，则恢复自身所有体力"
+        ]
+      },
+      {
+        "reason": "next-unit target — deferred batch",
+        "count": 34,
+        "samples": [
+          "自身下次被击败后下一只出场的精灵攻击+1",
+          "使下一只出战精灵的防御和特攻能力提升1个等级",
+          "使下一只出战精灵的防御和特防能力提升1个等级",
+          "使下一只出战精灵4回合内每回合恢复300点体力",
+          "使下一只出战精灵的防御和特攻能力提升1个等级",
+          "使下一只出战精灵的攻击和速度提升1个等级"
+        ]
+      },
+      {
+        "reason": "stage-scaled power (coefficient undocumented) — UNVERIFIED",
+        "count": 30,
+        "samples": [
+          "体力越低威力越大",
+          "惩罚效果",
+          "体力越低威力越大",
+          "接触自身的能力下降状态惩罚",
+          "自身体力越低威力越大",
+          "体力越低威力越大"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: attachDamage.scaleIf",
+        "count": 28,
+        "samples": [
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "stacking per-use — unquantified",
+        "count": 24,
+        "samples": [
+          "连续使用叠加最高100",
+          "连续使用会增加威力",
+          "连续使用会增加威力",
+          "连续使用增加20威力",
+          "连续使用攻击数+1",
+          "连续使用叠加最高100"
+        ]
+      },
+      {
+        "reason": "truncated source fragment (UNVERIFIED)",
+        "count": 24,
+        "samples": [
+          "对手的状态变化会",
+          "造成的伤害提升",
+          "造成的伤害提升",
+          "造成的伤害提升",
+          "造成的伤害提升",
+          "造成的伤害提升"
+        ]
+      },
+      {
+        "reason": "level-scaled flat damage formula undocumented (UNVERIFIED)",
+        "count": 22,
+        "samples": [
+          "附加额外伤害",
+          "自身等级越高附加伤害越高",
+          "附加额外伤害",
+          "附加额外伤害",
+          "自身等级越高附加伤害越高",
+          "附加额外伤害"
+        ]
+      },
+      {
+        "reason": "damage-share fragment — destination clause missing (UNVERIFIED)",
+        "count": 22,
+        "samples": [
+          "给予对方损伤的1/3会回复自己的体力",
+          "给予对方损伤的1/2会恢复自身HP",
+          "给予对方损伤的1/5会恢复自身HP",
+          "给予对方损伤的1/3恢复自身体力",
+          "给予对方损伤的1/3会回复自己的体力",
+          "给予对方损伤的1/2会恢复自身HP"
+        ]
+      },
+      {
+        "reason": "shield lifecycle fragment (UNVERIFIED)",
+        "count": 20,
+        "samples": [
+          "护罩效果",
+          "护罩",
+          "护罩效果",
+          "护罩",
+          "护罩",
+          "护罩效果"
+        ]
+      },
+      {
+        "reason": "dmg_floor echo without floor",
+        "count": 19,
+        "samples": [
+          "造成等同于伤害量的固定伤害",
+          "造成等同于伤害量的固定伤害",
+          "造成等同于伤害量的固定伤害",
+          "造成等同于伤害量的固定伤害",
+          "造成等同于伤害量的固定伤害",
+          "造成等同于伤害量的固定伤害"
+        ]
+      },
+      {
+        "reason": "formula cross-ref — arithmetic chain unmodeled (deferred)",
+        "count": 17,
+        "samples": [
+          "自身每有1级先制则连击次数+1",
+          "自身每有1级能力提升吸取对手20点体力",
+          "自身每有1级先制则连击次数+1",
+          "自身每有1级先制则连击次数+1",
+          "自身上回合每有1级先制",
+          "自身每有1级能力下降状态吸取对手60点体力"
+        ]
+      },
+      {
+        "reason": "multiplier counter — per-effect stack unmodeled (deferred)",
+        "count": 16,
+        "samples": [
+          "最高增加60",
+          "最高增加130",
+          "最高增加60",
+          "最高增加130",
+          "最高增加60",
+          "最高提升40"
+        ]
+      },
+      {
+        "reason": "stage rewind — stage history not tracked (deferred)",
+        "count": 15,
+        "samples": [
+          "将自身能力等级返回至上一回合结束时",
+          "将自身能力等级返回至上一回合结束时",
+          "将自身能力等级返回至上一回合结束时",
+          "将自身能力等级返回至上一回合结束时",
+          "将自身能力等级返回至上一回合结束时",
+          "将自身能力等级返回至上一回合结束时"
+        ]
+      },
+      {
+        "reason": "shield lifecycle — E4",
+        "count": 14,
+        "samples": [
+          "将当回合护盾所吸收的伤害值以固定伤害的形式100%反弹给对手",
+          "若当前护罩值低于200则造成的固定伤害翻倍",
+          "消耗自身所有护盾值造成等量固伤",
+          "若当前护罩值低于300则造成的固定伤害翻倍",
+          "将当回合护盾所吸收的伤害值以固定伤害的形式100%反弹给对手",
+          "将当回合护盾所吸收的伤害值以固定伤害的形式100%反弹给对手"
+        ]
+      },
+      {
+        "reason": "next-apply window — single-use mounting not modeled (deferred)",
+        "count": 14,
+        "samples": [
+          "下次翻倍概率额外提升50%",
+          "下次翻倍概率额外提升20%",
+          "下次击败对手时",
+          "下次击败对手时",
+          "下次击败对手时",
+          "下次翻倍概率额外提升20%"
+        ]
+      },
+      {
+        "reason": "bare number fragment",
+        "count": 14,
+        "samples": [
+          "0",
+          "1",
+          "2",
+          "2",
+          "3",
+          "135"
+        ]
+      },
+      {
+        "reason": "control-class ailment subset undocumented (UNVERIFIED)",
+        "count": 13,
+        "samples": [
+          "反弹所有受到的控制类异常状态",
+          "反弹所有受到的控制类异常状态",
+          "反弹所有受到的控制类异常状态",
+          "反弹所有受到的控制类异常状态",
+          "反弹控制类异常状态",
+          "反弹控制类异常状态"
+        ]
+      },
+      {
+        "reason": "excess/reflect tail — deferred",
+        "count": 13,
+        "samples": [
+          "反弹给对手原本超出部分60%的百分比伤害",
+          "反弹给对手原本超出部分100%的百分比伤害",
+          "反弹给对手造成伤害值100%的百分比伤害",
+          "反弹给对手造成伤害值50%的百分比伤害",
+          "反弹给对手原本超出部分100%的百分比伤害",
+          "反弹给对手造成伤害值50%的固定伤害"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: heal.flat",
+        "count": 13,
+        "samples": [
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "use-scaling power — coefficient undocumented (UNVERIFIED)",
+        "count": 13,
+        "samples": [
+          "连续使用可以增加威力",
+          "连续使用增加威力",
+          "连续使用可以增加威力",
+          "连续使用可以增加威力",
+          "连续使用可以增加威力",
+          "连续使用增加威力"
+        ]
+      },
+      {
+        "reason": "self-KO revive — checkpoint hook not modeled (deferred)",
+        "count": 12,
+        "samples": [
+          "自身死亡",
+          "自身死亡",
+          "自身死亡",
+          "自身死亡",
+          "自身死亡",
+          "自身死亡"
+        ]
+      },
+      {
+        "reason": "type-advantage cond — E4",
+        "count": 12,
+        "samples": [
+          "遇到天敌几率翻倍",
+          "遇到天敌威力翻倍",
+          "遇到天敌附加160固伤",
+          "遇到天敌威力翻倍",
+          "遇到天敌威力翻倍",
+          "遇到天敌威力翻倍"
+        ]
+      },
+      {
+        "reason": "per-mark scaling — unquantified target (UNVERIFIED)",
+        "count": 11,
+        "samples": [
+          "自身每有1层狩杀之魂",
+          "对手每存在1层神印则100%使对手随机1项技能PP值归零",
+          "自身每存在1层蓄力则连击上限次数额外增加10次",
+          "自身每存在3层蓄力先制额外+1",
+          "自身每存在1层堕恶神祇则攻击次数+1",
+          "自身每有1层群辉加护提升10%"
+        ]
+      },
+      {
+        "reason": "scaled power — E4",
+        "count": 11,
+        "samples": [
+          "自身天赋值越高则技能威力越大",
+          "自身天赋值越高则技能威力越大",
+          "自身天赋值越高则技能威力越大",
+          "自身天赋值越高则技能威力越大",
+          "自身天赋值越高则技能威力越大",
+          "自身天赋值越高则技能威力越大"
+        ]
+      },
+      {
+        "reason": "escalating multiplier-on-miss state machine (UNVERIFIED)",
+        "count": 10,
+        "samples": [
+          "伤害提升变为3倍",
+          "伤害提升变为3倍",
+          "伤害提升变为6倍",
+          "伤害提升变为3倍",
+          "伤害提升变为3倍",
+          "伤害提升变为3倍"
+        ]
+      },
+      {
+        "reason": "echo amount referent undefined (UNVERIFIED)",
+        "count": 10,
+        "samples": [
+          "附加等同于消除护盾",
+          "附加等同于消除护盾",
+          "附加等同于消除护盾",
+          "附加等同于消除护盾",
+          "附加等同于消除护盾",
+          "附加等同于消除护盾"
+        ]
+      },
+      {
+        "reason": "modifier with no target op",
+        "count": 10,
+        "samples": [
+          "<attachAll turnsTail>",
+          "<attachAll turnsTail>",
+          "<attachAll mirrorStages>",
+          "<attachAll mirrorStages>",
+          "<attachAll chanceDouble>",
+          "<attachAll flatPerRemoved>"
+        ]
+      },
+      {
+        "reason": "team-battle ally targeting — deferred",
+        "count": 10,
+        "samples": [
+          "组队可向己方任意目标使用",
+          "组队可向己方任意目标使用",
+          "组队可向己方任意目标使用",
+          "组队可向己方任意目标使用",
+          "组队可向己方任意目标使用",
+          "组队可向己方任意目标使用"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 受到自身防御",
+        "count": 10,
+        "samples": [
+          "对手使用攻击技能时受到自身防御",
+          "对手使用攻击技能时受到自身防御",
+          "对手使用攻击技能时受到自身防御",
+          "对手使用攻击技能时受到自身防御",
+          "对手使用攻击技能时受到自身防御",
+          "对手使用攻击技能时受到自身防御"
+        ]
+      },
+      {
+        "reason": "control/weaken-class ailment subset undocumented (UNVERIFIED)",
+        "count": 9,
+        "samples": [
+          "不存在回合类效果且不处于能力提升状态则70%令对手随机进入1种控制类异常状态",
+          "使对手随机进入1控制类异常状态",
+          "令对手随机进入1种控制类异常状态",
+          "50%概率使对手随机进入1控制类异常状态",
+          "不存在回合类效果且不处于能力提升状态则100%令对手随机进入2种控制类异常状态",
+          "使对手随机进入2控制类异常状态"
+        ]
+      },
+      {
+        "reason": "reactive on foe action choice — E4",
+        "count": 9,
+        "samples": [
+          "对手使用的属性技能无限",
+          "对手使用的属性技能无限",
+          "对手使用的属性技能无效",
+          "对手使用的属性技能无效",
+          "对手使用的属性技能无效",
+          "对手使用的属性技能无效"
+        ]
+      },
+      {
+        "reason": "hp-scaled power — coefficient undocumented (UNVERIFIED)",
+        "count": 9,
+        "samples": [
+          "威力根据自身体力变化",
+          "威力根据自身体力变化",
+          "威力根据自身体力变化",
+          "威力根据自身体力变化",
+          "威力根据自身体力变化",
+          "威力根据自身体力变化"
+        ]
+      },
+      {
+        "reason": "nullification-cond — own-move-voided predicate not modeled (deferred)",
+        "count": 8,
+        "samples": [
+          "技能无效时减少对手所有技能PP1点",
+          "技能无效时减少对手所有技能PP1点",
+          "技能无效时减少对手所有技能PP1点",
+          "技能无效时消耗自身全部体力",
+          "技能无效时则免疫下1次受到的攻击",
+          "技能无效时消耗自身全部体力"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: apply_status.turns",
+        "count": 8,
+        "samples": [
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "foe-immunity-conditional true damage — immunity query cond not modeled (UNVERIFIED)",
+        "count": 8,
+        "samples": [
+          "对手免疫百分比伤害时额外附加300点真实伤害",
+          "对手免疫百分比伤害时额外附加250点真实伤害",
+          "对手免疫百分比伤害时额外附加250点真实伤害",
+          "对手免疫百分比伤害时额外附加250点真实伤害",
+          "对手免疫百分比伤害时额外附加200点真实伤害",
+          "对手免疫百分比伤害时额外附加170点真实伤害"
+        ]
+      },
+      {
+        "reason": "nullify tail fragment — host clause carries move_null",
+        "count": 8,
+        "samples": [
+          "攻击无效",
+          "攻击无效",
+          "攻击无效",
+          "攻击无效",
+          "攻击无效",
+          "攻击无效"
+        ]
+      },
+      {
+        "reason": "OHKO on max-hit-count — instant-kill mechanic not modeled (UNVERIFIED)",
+        "count": 8,
+        "samples": [
+          "若本回合攻击次数达到最大则必定秒杀对手",
+          "若本回合攻击次数达到最大则必定秒杀对手",
+          "若本回合攻击次数达到最大则必定秒杀对手",
+          "若本回合攻击次数达到最大则必定秒杀对手",
+          "若本回合攻击次数达到最大则必定秒杀对手",
+          "若本回合攻击次数达到最大则必定秒杀对手"
+        ]
+      },
+      {
+        "reason": "per-missing modifier without step tail (UNVERIFIED)",
+        "count": 8,
+        "samples": [
+          "每损失5%体力",
+          "每损失5%体力",
+          "每损失5%体力",
+          "每损失5%体力",
+          "每损失5%体力",
+          "每损失5%体力"
+        ]
+      },
+      {
+        "reason": "per-dead-unit flat — side scope ambiguous (UNVERIFIED)",
+        "count": 8,
+        "samples": [
+          "每有一只精灵死亡则附加100点固定伤害",
+          "每有一只精灵死亡则附加100点固定伤害",
+          "每有一只精灵死亡则附加80点固定伤害",
+          "每有一只精灵死亡则附加100点固定伤害",
+          "每有一只精灵死亡则附加100点固定伤害",
+          "每有一只精灵死亡则附加100点固定伤害"
+        ]
+      },
+      {
+        "reason": "scale-by-stages tail fragment — coefficient UNVERIFIED",
+        "count": 8,
+        "samples": [
+          "威力越大",
+          "威力越大",
+          "威力越大",
+          "威力越大",
+          "威力越大",
+          "威力越大"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 减少1/3的最大体力",
+        "count": 8,
+        "samples": [
+          "对手使用属性技能则减少1/3的最大体力",
+          "若对手使用属性技能则减少1/3的最大体力",
+          "对手使用属性技能则减少1/3的最大体力",
+          "对手使用攻击技能则减少1/3的最大体力",
+          "对手使用属性技能则减少1/3的最大体力",
+          "对手使用属性技能则减少1/3的最大体力"
+        ]
+      },
+      {
+        "reason": "hits cap without hits",
+        "count": 7,
+        "samples": [
+          "<hitsCap>",
+          "<hitsCap>",
+          "<hitsCap>",
+          "<hitsCap>",
+          "<hitsCap>",
+          "<hitsCap>"
+        ]
+      },
+      {
+        "reason": "crit-rate unquantified",
+        "count": 7,
+        "samples": [
+          "增加致命一击的概率",
+          "致命几率提升",
+          "致命一击几率提升",
+          "增加致命一击的概率",
+          "增加致命一击的概率",
+          "增加致命一击的概率"
+        ]
+      },
+      {
+        "reason": "drain→echo conversion — transformation semantics undocumented (UNVERIFIED)",
+        "count": 7,
+        "samples": [
+          "吸取效果转变为附加翻倍吸取量的百分比伤害",
+          "吸取效果转变为附加翻倍吸取量的百分比伤害",
+          "吸取效果转变为附加翻倍吸取量的百分比伤害",
+          "吸取效果转变为附加翻倍吸取量的百分比伤害",
+          "吸取效果转变为附加翻倍吸取量的百分比伤害",
+          "吸取效果转变为附加翻倍吸取量的百分比伤害"
+        ]
+      },
+      {
+        "reason": "foe stage-mirror mechanic not modeled (UNVERIFIED)",
+        "count": 7,
+        "samples": [
+          "作用在自己身上",
+          "作用在自己身上",
+          "作用在自己身上",
+          "作用在自己身上",
+          "作用在自己身上",
+          "作用在自己身上"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: delta:0",
+        "count": 6,
+        "samples": [
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>",
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "random power — E4",
+        "count": 6,
+        "samples": [
+          "威力随机150-300",
+          "威力随机150-300",
+          "威力随机50~150",
+          "威力随机50~150",
+          "威力随机50~150",
+          "威力随机50~150"
+        ]
+      },
+      {
+        "reason": "variable-n reference (paren-defined quantity) — E4",
+        "count": 5,
+        "samples": [
+          "若护盾值总和超过300点则转变为附加护盾值140%的百分比伤害",
+          "若护盾值总和超过300点则转变为附加护盾值200%的百分比伤害",
+          "若护盾值总和超过600点则转变为附加护盾值100%的百分比伤害",
+          "若护盾值总和超过300点则转变为附加护盾值100%的百分比伤害",
+          "若护盾值总和超过300点则转变为附加护盾值150%的百分比伤害"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身下1次使用的攻击技能附加与双方最大体力差护盾值相同的威力",
+        "count": 5,
+        "samples": [
+          "护盾被击破时自身下1次使用的攻击技能附加与双方最大体力差护盾值相同的威力",
+          "护盾被击破时自身下1次使用的攻击技能附加与双方最大体力差护盾值相同的威力",
+          "护盾被击破时自身下1次使用的攻击技能附加与双方最大体力差护盾值相同的威力",
+          "护盾被击破时自身下1次使用的攻击技能附加与双方最大体力差护盾值相同的威力",
+          "护盾被击破时自身下1次使用的攻击技能附加与双方最大体力差护盾值相同的威力"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手的防御-1",
+        "count": 5,
+        "samples": [
+          "若对手使用攻击技能则对手的防御-1",
+          "若对手使用攻击技能则对手的防御-1",
+          "若对手使用属性技能则对手的防御-1",
+          "若对手使用属性技能则对手的防御-1",
+          "若对手使用攻击技能则对手的防御-1"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使用属性技能的下2回合无法使用攻击技能",
+        "count": 5,
+        "samples": [
+          "对手使用属性技能则使用属性技能的下2回合无法使用攻击技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用攻击技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用攻击技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用攻击技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用攻击技能"
+        ]
+      },
+      {
+        "reason": "modifier-replace fragment — referent in prior clause",
+        "count": 4,
+        "samples": [
+          "改为提升50%",
+          "改为提升50%",
+          "改为提升50%",
+          "改为提升50%"
+        ]
+      },
+      {
+        "reason": "last-alive cond — E4",
+        "count": 4,
+        "samples": [
+          "自身为己方最后一只存活精灵时先制+1",
+          "自身为己方最后一只存活精灵时先制+1",
+          "自身为己方最后一只存活精灵时先制+1",
+          "自身为己方最后一只存活精灵时先制+1"
+        ]
+      },
+      {
+        "reason": "per-shield-flat mul — stacking semantics undocumented (UNVERIFIED)",
+        "count": 4,
+        "samples": [
+          "对手每存在200点护盾则造成的攻击伤害提升1倍",
+          "对手每存在100点护盾则造成的攻击伤害提升1倍",
+          "对手每存在250点护盾则造成的攻击伤害提升1倍",
+          "对手每存在60点护盾则造成的攻击伤害提升6倍"
+        ]
+      },
+      {
+        "reason": "per-PP-count prio scaling — UNVERIFIED",
+        "count": 4,
+        "samples": [
+          "对手每有1个技能PP值小于3先制+1",
+          "对手每有1个技能PP值小于3先制+1",
+          "对手每有1个技能PP值小于3先制+1",
+          "对手每有1个技能PP值小于3先制+1"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手的特防-1",
+        "count": 4,
+        "samples": [
+          "若对手使用攻击技能则对手的特防-1",
+          "若对手使用攻击技能则对手的特防-1",
+          "若对手使用攻击技能则对手的特防-1",
+          "若对手使用攻击技能则对手的特防-1"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 令对手下1次使用的技能无效",
+        "count": 4,
+        "samples": [
+          "反馈成功则令对手下1次使用的技能无效",
+          "反馈成功则令对手下1次使用的技能无效",
+          "反馈成功则令对手下1次使用的技能无效",
+          "反馈成功则令对手下1次使用的技能无效"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 必",
+        "count": 4,
+        "samples": [
+          "若对方使用属性技能则必",
+          "若对方使用属性技能则必",
+          "若对方使用属性技能则必",
+          "若对方使用属性技能则必"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手的双攻-1",
+        "count": 4,
+        "samples": [
+          "若对手使用攻击技能则对手的双攻-1",
+          "若对手使用攻击技能则对手的双攻-1",
+          "若对手使用攻击技能则对手的双攻-1",
+          "若对手使用攻击技能则对手的双攻-1"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 减少1/3最大HP",
+        "count": 4,
+        "samples": [
+          "若对手使用属性技能则减少1/3最大HP",
+          "若对手使用属性技能则减少1/3最大HP",
+          "若对手使用属性技能则减少1/3最大HP",
+          "若对手使用属性技能则减少1/3最大HP"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使用属性技能的下2回合无法使用属性技能",
+        "count": 4,
+        "samples": [
+          "对手使用属性技能则使用属性技能的下2回合无法使用属性技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用属性技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用属性技能",
+          "对手使用属性技能则使用属性技能的下2回合无法使用属性技能"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 令对手所有技能降低2点PP值",
+        "count": 4,
+        "samples": [
+          "若对手使用属性技能则令对手所有技能降低2点PP值",
+          "若对手使用属性技能则令对手所有技能降低2点PP值",
+          "若对手使用属性技能则令对手所有技能降低2点PP值",
+          "若对手使用属性技能则令对手所有技能降低2点PP值"
+        ]
+      },
+      {
+        "reason": "source-filter — named-origin immunity unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "免疫对手下次攻击技能造成的伤害",
+          "免疫对手下1次攻击技能造成的伤害",
+          "免疫对手下次攻击技能造成的伤害"
+        ]
+      },
+      {
+        "reason": "next-turn taken-damage ×2 window — dmgTakenMul timed deferred (UNVERIFIED)",
+        "count": 3,
+        "samples": [
+          "使对手下回合受到其他技能的伤害翻倍",
+          "使对手下回合受到其他技能的伤害翻倍",
+          "使对手下回合受到其他技能的伤害翻倍"
+        ]
+      },
+      {
+        "reason": "mulIf cond unparsed: 命中前对手不处于异常状态",
+        "count": 3,
+        "samples": [
+          "若命中前对手不处于异常状态则造成的伤害翻倍",
+          "若命中前对手不处于异常状态则造成的伤害翻倍",
+          "若命中前对手不处于异常状态则造成的伤害翻倍"
+        ]
+      },
+      {
+        "reason": "punish: foe-stage scaling coefficient absent in text — UNVERIFIED",
+        "count": 3,
+        "samples": [
+          "对方等级越高威力越大",
+          "对方等级越高",
+          "对方等级越高威力越大"
+        ]
+      },
+      {
+        "reason": "bare drain verb — pair with prior clause",
+        "count": 3,
+        "samples": [
+          "吸收",
+          "吸收",
+          "吸收"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入自然庇佑",
+        "count": 3,
+        "samples": [
+          "受到攻击则100%进入自然庇佑",
+          "受到攻击则100%进入自然庇佑",
+          "受到攻击则100%进入自然庇佑"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有50%机率将对手麻痹",
+        "count": 3,
+        "samples": [
+          "受到物理攻击时有50%机率将对手麻痹",
+          "受到物理攻击时有50%机率将对手麻痹",
+          "受到物理攻击时有50%机率将对手麻痹"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手下1次使用的攻击技能附加效果失效",
+        "count": 3,
+        "samples": [
+          "若自身回合类效果被消除则对手下1次使用的攻击技能附加效果失效",
+          "若自身回合类效果被消除则对手下1次使用的攻击技能附加效果失效",
+          "若自身回合类效果被消除则对手下1次使用的攻击技能附加效果失效"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 己方在场精灵100%做出超强反击",
+        "count": 3,
+        "samples": [
+          "若对手攻击技能命中则己方在场精灵100%做出超强反击",
+          "若对手攻击技能命中则己方在场精灵100%做出超强反击",
+          "若对手攻击技能命中则己方在场精灵100%做出超强反击"
+        ]
+      },
+      {
+        "reason": "negative-priority clamp — mechanism UNVERIFIED",
+        "count": 2,
+        "samples": [
+          "无视自身负先制等级",
+          "无视自身负先制等级"
+        ]
+      },
+      {
+        "reason": "pp-zero-count scaled drain — slot-count mechanic deferred",
+        "count": 2,
+        "samples": [
+          "双方每有1项技能PP值为0吸取对手70点体力",
+          "双方每有1项技能PP值为0吸取对手150点体力"
+        ]
+      },
+      {
+        "reason": "stat-cap raise — stage ceiling unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "最高+3",
+          "最高+120"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手下1次使用的攻击技能命中效果失效",
+        "count": 2,
+        "samples": [
+          "若自身回合类效果被消除则对手下1次使用的攻击技能命中效果失效",
+          "若自身回合类效果被消除则对手下1次使用的攻击技能命中效果失效"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 回1/3Hp",
+        "count": 2,
+        "samples": [
+          "对手使用属性技能则回1/3Hp",
+          "对手使用属性技能则回1/3Hp"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 伤害不超过250",
+        "count": 2,
+        "samples": [
+          "若受到攻击则伤害不超过250",
+          "若受到攻击则伤害不超过250"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 减少1/4最大HP",
+        "count": 2,
+        "samples": [
+          "若对手使用属性技能则减少1/4最大HP",
+          "若对手使用属性技能则减少1/4最大HP"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 降低1/3最大HP",
+        "count": 2,
+        "samples": [
+          "对手使用属性技能则降低1/3最大HP",
+          "对手使用属性技能则降低1/3最大HP"
+        ]
+      },
+      {
+        "reason": "reflect-down — degrade bounce unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "反弹能力下降状态",
+          "反弹能力下降状态"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 下1回合造成的伤害翻倍",
+        "count": 2,
+        "samples": [
+          "吸收成功则下1回合造成的伤害翻倍",
+          "吸收成功则下1回合造成的伤害翻倍"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 前体力高于对手",
+        "count": 2,
+        "samples": [
+          "当前体力高于对手时强化效果翻倍",
+          "当前体力高于对手时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "random stat pick — E4",
+        "count": 2,
+        "samples": [
+          "随机吸取对手2项属性-2并附加给自己",
+          "随机吸取对手2项属性-2并附加给自己"
+        ]
+      },
+      {
+        "reason": "mulIf cond unparsed: 当回合体力高于对手",
+        "count": 2,
+        "samples": [
+          "若当回合体力高于对手则效果翻倍",
+          "若当回合体力高于对手则效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使对手一个技能pp归零",
+        "count": 2,
+        "samples": [
+          "若受到攻击则使对手一个技能pp归零",
+          "若受到攻击则使对手一个技能pp归零"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 全属性+1自身体力高于1/2",
+        "count": 2,
+        "samples": [
+          "全属性+1自身体力高于1/2时强化效果翻倍",
+          "全属性+1自身体力高于1/2时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身免疫下1次受到攻击",
+        "count": 2,
+        "samples": [
+          "若对手使用属性技能则自身免疫下1次受到攻击",
+          "若对手使用属性技能则自身免疫下1次受到攻击"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入害怕状态",
+        "count": 2,
+        "samples": [
+          "若对手攻击MISS则100%进入害怕状态",
+          "若对手攻击MISS则100%进入害怕状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有100%机率令对手冻伤",
+        "count": 2,
+        "samples": [
+          "若受到攻击则有100%机率令对手冻伤",
+          "若受到攻击则有100%机率令对手冻伤"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入疲惫",
+        "count": 2,
+        "samples": [
+          "对手使用攻击技能则100%进入疲惫",
+          "对手使用攻击技能则100%进入疲惫"
+        ]
+      },
+      {
+        "reason": "immune-convert with no percent-kind damage op",
+        "count": 2,
+        "samples": [
+          "<kindConv>",
+          "<kindConv>"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手下2回合造成的攻击伤害减少300点",
+        "count": 2,
+        "samples": [
+          "对手使用属性技能则对手下2回合造成的攻击伤害减少300点",
+          "若对手使用属性技能则对手下2回合造成的攻击伤害减少300点"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 附加对手最大体",
+        "count": 2,
+        "samples": [
+          "护罩消失时附加对手最大体",
+          "护罩消失时附加对手最大体"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手不为水系",
+        "count": 2,
+        "samples": [
+          "对手不为水系时强化效果翻倍",
+          "对手不为水系时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有50几率将对手麻痹",
+        "count": 2,
+        "samples": [
+          "受到物理攻击时有50几率将对手麻痹",
+          "受到物理攻击时有50几率将对手麻痹"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手不为机械系",
+        "count": 1,
+        "samples": [
+          "对手不为机械系时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 己方在场精灵100%做出绝对方击",
+        "count": 1,
+        "samples": [
+          "若对手攻击技能命中则己方在场精灵100%做出绝对方击"
+        ]
+      },
+      {
+        "reason": "mark mechanic — mark system deferred (UNVERIFIED)",
+        "count": 1,
+        "samples": [
+          "将对手标记为狩杀之的"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手不为混沌系",
+        "count": 1,
+        "samples": [
+          "对手不为混沌系时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 主动恢复自身全部体力",
+        "count": 1,
+        "samples": [
+          "受到的伤害大于200则主动恢复自身全部体力"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 50%令对手8",
+        "count": 1,
+        "samples": [
+          "受到攻击则50%令对手8"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手处于1状态",
+        "count": 1,
+        "samples": [
+          "对手处于1状态时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有100%概率令对手5",
+        "count": 1,
+        "samples": [
+          "若受到攻击则有100%概率令对手5"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%使对手52回合",
+        "count": 1,
+        "samples": [
+          "若自身能力提升状态被消除或吸取则100%使对手52回合"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有100%概率令对手8",
+        "count": 1,
+        "samples": [
+          "若受到攻击则有100%概率令对手8"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 6",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则6"
+        ]
+      },
+      {
+        "reason": "crit+non-must-hit move null — compound gate undocumented",
+        "count": 1,
+        "samples": [
+          "对手打出致命一击的非必中技能无效"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手沸涌",
+        "count": 1,
+        "samples": [
+          "每回合使用技能100%令对手沸涌"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手的速度-2",
+        "count": 1,
+        "samples": [
+          "若对手使用攻击技能则对手的速度-2"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 若当回合开始后100%令对手狂信",
+        "count": 1,
+        "samples": [
+          "触发后2回合内对手主动切换精灵则若当回合开始后100%令对手狂信"
+        ]
+      },
+      {
+        "reason": "effectDouble cond unparsed: 双方处于异常状态",
+        "count": 1,
+        "samples": [
+          "双方处于异常状态时效果翻倍"
+        ]
+      },
+      {
+        "reason": "effectDouble cond unparsed: 自身先制等级高于3",
+        "count": 1,
+        "samples": [
+          "自身先制等级高于3时效果翻倍"
+        ]
+      },
+      {
+        "reason": "moveset type-composition cond — no such dimension (UNVERIFIED)",
+        "count": 1,
+        "samples": [
+          "自身携带技能中含有的光系不少于暗影系时必定打出致命一击"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手不为远古系",
+        "count": 1,
+        "samples": [
+          "对手不为远古系时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 回合开始后100%随机附加1种异常状态",
+        "count": 1,
+        "samples": [
+          "对手主动切换精灵则回合开始后100%随机附加1种异常状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有40%几",
+        "count": 1,
+        "samples": [
+          "若受到攻击则有40%几"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自恢复体力",
+        "count": 1,
+        "samples": [
+          "对手MISS则自恢复体力"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 进入异常状态",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则进入异常状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使对手攻",
+        "count": 1,
+        "samples": [
+          "受到攻击则使对手攻"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 随机受到一种异常状态",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则随机受到一种异常状态"
+        ]
+      },
+      {
+        "reason": "bare stat-alias fragment (delta in separate clause)",
+        "count": 1,
+        "samples": [
+          "双防"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使用属性技能下2回合无法用攻击技能",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则使用属性技能下2回合无法用攻击技能"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 抵挡下3回合对手的攻击伤害",
+        "count": 1,
+        "samples": [
+          "清除成功则抵挡下3回合对手的攻击伤害"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%回复100点体力",
+        "count": 1,
+        "samples": [
+          "受到攻击则100%回复100点体力"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 下1回合伤害翻倍",
+        "count": 1,
+        "samples": [
+          "吸收成功则下1回合伤害翻倍"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 对手下1回合所有技能失效",
+        "count": 1,
+        "samples": [
+          "吸收成功则对手下1回合所有技能失效"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身立刻恢复1/3生命值",
+        "count": 1,
+        "samples": [
+          "对方使用属性技能则自身立刻恢复1/3生命值"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%使对手1个技能PP值归零",
+        "count": 1,
+        "samples": [
+          "受到攻击则100%使对手1个技能PP值归零"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 附加自身防御",
+        "count": 1,
+        "samples": [
+          "受到攻击则附加自身防御"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 降低1/3最大体力",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则降低1/3最大体力"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%几率回复300点体力",
+        "count": 1,
+        "samples": [
+          "受到攻击则100%几率回复300点体力"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 降低1/3HP",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则降低1/3HP"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 随机减少对手所有技能1-3点pp值",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则随机减少对手所有技能1-3点pp值"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使其随机2个技能pp归零",
+        "count": 1,
+        "samples": [
+          "若对手使用攻击技能则使其随机2个技能pp归零"
+        ]
+      },
+      {
+        "reason": "effectDouble cond unparsed: 自身处于强化状态",
+        "count": 1,
+        "samples": [
+          "自身处于强化状态时效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对对手造成350点固伤",
+        "count": 1,
+        "samples": [
+          "护盾消失时对对手造成350点固伤"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 免疫下1次异常",
+        "count": 1,
+        "samples": [
+          "吸收成功则免疫下1次异常"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有100%概率使对手携带的两个技能pp值归零",
+        "count": 1,
+        "samples": [
+          "若受到攻击则有100%概率使对手携带的两个技能pp值归零"
+        ]
+      },
+      {
+        "reason": "effectDouble cond unparsed: 对手不为混沌系",
+        "count": 1,
+        "samples": [
+          "对手不为混沌系时效果翻倍"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 全属性+1.对手不处于能力提升状态",
+        "count": 1,
+        "samples": [
+          "全属性+1.对手不处于能力提升状态时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 回复1/3最大体力值",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则回复1/3最大体力值"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 体力大于1/2",
+        "count": 1,
+        "samples": [
+          "体力大于1/2时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身下2次攻击技能必定触发邪龙之噬",
+        "count": 1,
+        "samples": [
+          "对手使用攻击技能则自身下2次攻击技能必定触发邪龙之噬"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对对手造成400点固伤",
+        "count": 1,
+        "samples": [
+          "护盾消失时对对手造成400点固伤"
+        ]
+      },
+      {
+        "reason": "flat_taken variable 'n' — referent undefined (UNVERIFIED)",
+        "count": 1,
+        "samples": [
+          "使自身下次受到的伤害减少n点"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有100%记录随机进入烧伤、冻伤、中毒、麻痹、害怕、睡眠中的一种异常状态",
+        "count": 1,
+        "samples": [
+          "若对手使用攻击技能则有100%记录随机进入烧伤、冻伤、中毒、麻痹、害怕、睡眠中的一种异常状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手所有能力加强效果失效",
+        "count": 1,
+        "samples": [
+          "被对手击败则对手所有能力加强效果失效"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对对手造成250点固伤",
+        "count": 1,
+        "samples": [
+          "护盾消失时对对手造成250点固伤"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 受到300点固伤",
+        "count": 1,
+        "samples": [
+          "若对手成功使用属性技能则受到300点固伤"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对对手造成200点固伤",
+        "count": 1,
+        "samples": [
+          "护盾消失时对对手造成200点固伤"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有50%概率使对手携带的1个技能值PP归零",
+        "count": 1,
+        "samples": [
+          "若受到攻击则有50%概率使对手携带的1个技能值PP归零"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入焚烬状态",
+        "count": 1,
+        "samples": [
+          "若对手MISS则100%进入焚烬状态"
+        ]
+      },
+      {
+        "reason": "crit reflect — deferred",
+        "count": 1,
+        "samples": [
+          "反弹对手的致命一击伤害"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 回合结束时需求对手最大体力的1/3",
+        "count": 1,
+        "samples": [
+          "若对手攻击MISS则回合结束时需求对手最大体力的1/3"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%机率使对手冰封2回合",
+        "count": 1,
+        "samples": [
+          "若能力强化状态消失则100%机率使对手冰封2回合"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入中毒状态",
+        "count": 1,
+        "samples": [
+          "若对手攻击MISS则100%进入中毒状态"
+        ]
+      },
+      {
+        "reason": "prevApplied payload unparsed: 令对手随机受到1-500点固定伤害",
+        "count": 1,
+        "samples": [
+          "清除成功则令对手随机受到1-500点固定伤害"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 有100%机率令对手烧伤",
+        "count": 1,
+        "samples": [
+          "若受到攻击则有100%机率令对手烧伤"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手存在神印",
+        "count": 1,
+        "samples": [
+          "对手存在神印时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身恢复最大体力值的1/2",
+        "count": 1,
+        "samples": [
+          "若对手MISS则自身恢复最大体力值的1/2"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 80%进入睡眠状态",
+        "count": 1,
+        "samples": [
+          "若对手攻击MISS则80%进入睡眠状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身下1次使用的攻击技能附加与护盾值相同的威力",
+        "count": 1,
+        "samples": [
+          "护盾被击破时自身下1次使用的攻击技能附加与护盾值相同的威力"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使用属性技能的下1回合无法使用攻击技能",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则使用属性技能的下1回合无法使用攻击技能"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入睡眠",
+        "count": 1,
+        "samples": [
+          "对手使用攻击技能则100%进入睡眠"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%机率令对手害怕",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则100%机率令对手害怕"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%进入睡眠状态",
+        "count": 1,
+        "samples": [
+          "若对手MISS则100%进入睡眠状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%使",
+        "count": 1,
+        "samples": [
+          "受到攻击则100%使"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手损失500点体力值",
+        "count": 1,
+        "samples": [
+          "若被对手击败则对手损失500点体力值"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 被处决精灵所有技能PP值-1",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则被处决精灵所有技能PP值-1"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手的防御-2",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则对手的防御-2"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 令对手",
+        "count": 1,
+        "samples": [
+          "自身回合类效果被消除则令对手"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 下2回合造成的伤害减少300点",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则下2回合造成的伤害减少300点"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 登场",
+        "count": 1,
+        "samples": [
+          "触发后3回合内对手主动切换精灵则登场"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 恢复自身全部",
+        "count": 1,
+        "samples": [
+          "受到的伤害大于300则恢复自身全部"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 水封",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则水封"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使用属性技能的下1回合无法使用属性技能",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则使用属性技能的下1回合无法使用属性技能"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使用攻击技能的下1回合无法使用攻击技能",
+        "count": 1,
+        "samples": [
+          "对手使用攻击技能则使用攻击技能的下1回合无法使用攻击技能"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手下2回合造成的攻击伤害减少250点",
+        "count": 1,
+        "samples": [
+          "对手使用属性技能则对手下2回合造成的攻击伤害减少250点"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 自身下1次受到的固定伤害和百分比伤害减少100%",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则自身下1次受到的固定伤害和百分比伤害减少100%"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 自身拥有的永昌玺数量≥3方",
+        "count": 1,
+        "samples": [
+          "自身拥有的永昌玺数量≥3方时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使",
+        "count": 1,
+        "samples": [
+          "受到攻击则使"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 己方在场精灵100%做出完美反击",
+        "count": 1,
+        "samples": [
+          "若对手攻击技能命中则己方在场精灵100%做出完美反击"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 自身持有龙鳞",
+        "count": 1,
+        "samples": [
+          "自身持有龙鳞时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "soulmark-gated",
+        "count": 1,
+        "samples": [
+          "该技能在战斗中需要通过武心婵专属特性解封后才可选择使用"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 50%令对手随机个技能PP值归零",
+        "count": 1,
+        "samples": [
+          "受到攻击则50%令对手随机个技能PP值归零"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 命中前令自身吸取对手最大体力的1/3",
+        "count": 1,
+        "samples": [
+          "若对手使用攻击技能则命中前令自身吸取对手最大体力的1/3"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 令对手所有技能降低3点PP值",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则令对手所有技能降低3点PP值"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 随机附加给对手2种异常状态",
+        "count": 1,
+        "samples": [
+          "对手使用攻击技能后随机附加给对手2种异常状态"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 100%使对手0",
+        "count": 1,
+        "samples": [
+          "自身能力提升状态被消除或吸取则100%使对手0"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 拥有",
+        "count": 1,
+        "samples": [
+          "拥有时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "mulIf cond unparsed: 星执记录的异常状态为控制类",
+        "count": 1,
+        "samples": [
+          "若星执记录的异常状态为控制类则效果翻倍"
+        ]
+      },
+      {
+        "reason": "non-integer/null fields dropped: apply_status.turns,apply_status.payload:empty",
+        "count": 1,
+        "samples": [
+          "<malformed>"
+        ]
+      },
+      {
+        "reason": "stageIf cond unparsed: 对手不为草系",
+        "count": 1,
+        "samples": [
+          "对手不为草系时强化效果翻倍"
+        ]
+      },
+      {
+        "reason": "effectDouble cond unparsed: 自身拥有命运晨星",
+        "count": 1,
+        "samples": [
+          "自身拥有命运晨星时效果翻倍"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 对手进入烧伤冻伤中毒麻痹害怕睡眠",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则对手进入烧伤冻伤中毒麻痹害怕睡眠"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 必定命中等级-1",
+        "count": 1,
+        "samples": [
+          "若对手使用属性技能则必定命中等级-1"
+        ]
+      },
+      {
+        "reason": "punish scaling — coefficient undocumented",
+        "count": 1,
+        "samples": [
+          "对方等级能力越高此技能威力越大"
+        ]
+      }
+    ]
+  },
+  "soulmarks": {
+    "pets": 3526,
+    "withMark": 1884,
+    "fully": 769,
+    "partial": 862,
+    "clauses": 2896,
+    "parsed": 2809,
+    "clauseCoverage": "97.0",
+    "markCoverage": "40.8",
+    "reasons": [
+      {
+        "reason": "no-rule",
+        "count": 1324,
+        "samples": [
+          "重置此效果",
+          "为对手与狩杀之的附加等同于威力值的真实伤害",
+          "对场下精灵造成致死伤害时其保留1点体力",
+          "满足时",
+          "自身体力每减少10%",
+          "本次造成此效果提升150点"
+        ]
+      },
+      {
+        "reason": "no-trigger-prefix",
+        "count": 339,
+        "samples": [
+          "boss对战中自身拥有神话（仅boss有效）",
+          "对手对自身微弱时",
+          "自身每次登场之后2回合内每回合开始时令对手速度、命中-2",
+          "自身1号、3号位技能命中后自身获得200点护盾并令对手随机3项能力等级-1",
+          "自身2号、4号位技能命中后为自身恢复200点体力并令自身随机3项能力等级+1 回合开始时，若双方能力提升等级之和不小于能力下降等级之和，为双方附加双方能力提升等级之和*15的护盾",
+          "自身造成的攻击伤害额外恢复至自身体力，恢复量每溢出2点"
+        ]
+      },
+      {
+        "reason": "guard unmodeled — condition dropped (UNVERIFIED)",
+        "count": 265,
+        "samples": [
+          "若对手的体力不低于狩杀之的的体力则",
+          "若对手的体力不高于狩杀之的的体力则",
+          "若直到战斗阶段结束时未免疫异常状态则",
+          "若自身的体力上限高于600则",
+          "若当回合自身未选择技能则",
+          "若不处于能力下降状态则"
+        ]
+      },
+      {
+        "reason": "cond-orphan",
+        "count": 84,
+        "samples": [
+          "自身造成的攻击伤害不低于150",
+          "自身处于沸涌",
+          "自身使用攻击技能时触发时空加速",
+          "自身受到攻击后若攻击伤害高于对方阵亡精灵体力上限之和的60%则触发时空乱流",
+          "未触发则本次在场此概率提高25%，最高100%",
+          "自身先出手时效果回合数-1且对手的烧伤回合数+1"
+        ]
+      },
+      {
+        "reason": "attr-domain — typechart mutation unmodeled (deferred)",
+        "count": 28,
+        "samples": [
+          "自身克制对手时，战斗阶段结束吸取对手所有技能1点PP值并恢复最大体力的1/3",
+          "自身攻击造成的伤害额外除以对手对自身的克制倍数",
+          "对手处于能力提升状态时效果翻倍 自身微弱对手时，对手计算攻击伤害时的乘以克制倍数改为除以",
+          "自身克制对手时",
+          "若自身不为龙系则消耗所有的风龙结，自身恢复全部体力值、PP值",
+          "自身变更为龙系"
+        ]
+      },
+      {
+        "reason": "per-unit-scaling (deferred)",
+        "count": 28,
+        "samples": [
+          "首位精灵每损失10%的体力",
+          "自身体力每损失217点以上效果的前1项效果翻倍",
+          "每降低50点体力概率提升5%，最高50%",
+          "体力每损失1%，技能伤害提提升1%，体力低于1/2后，体力每损失1%，技能伤害提升2%",
+          "体力每降低10%，减伤效果降低15%",
+          "体力每降低10%，伤害提升效果降低10%"
+        ]
+      },
+      {
+        "reason": "revive/checkpoint — hook not modeled (deferred)",
+        "count": 27,
+        "samples": [
+          "退出事象观测以消除对手的能力提升状态、回合类效果并复活 自身登场之后，记录当回合自身首个进入的异常状态和对手所使用技能的类型，记录成功则当回合结束时解除自身所处的异常状态",
+          "重生同时清除双防能力提升、下降状态",
+          "重生时清除敌我双方的能力上升和下降状态",
+          "重生时清除敌我双方的能力上升和下降状态",
+          "重生后2回合内所有技能威力提升50%",
+          "若被击败则有50%随机复活出战背包内已被击败的1只精灵（无法复活自己） （强化后概率为100%） ② 自身可以储存最多5层神耀能量，神耀能量的层数越多"
+        ]
+      },
+      {
+        "reason": "empty-body",
+        "count": 26,
+        "samples": [
+          "自身使用技能时",
+          "回合结束后",
+          "战斗开始时",
+          "击败对手后",
+          "自身每次受到攻击伤害后",
+          "回合结束后"
+        ]
+      },
+      {
+        "reason": "named-mechanic — pet-specific domain unmodeled (deferred)",
+        "count": 18,
+        "samples": [
+          "己方危机感+1 自身登场时1回合内免疫并反弹受到的异常状态",
+          "若自身为对手天敌则所有技能恢复1点PP值且当回合先制+1  希望之花：每回合结束后己方每有1点危机感成长2点，成长至100点时转化为希望",
+          "己方精灵被秒杀效果击败时希冀之种摧毁且对手所有技能PP值归0 危机感：战斗中恒常存在的规则值",
+          "对手使用技能时若对手不存在勘定中的技能",
+          "则TOH勘定该技能 自身使用技能时若双方不存在勘定中的技能或勘定中的技能PP值合计为0",
+          "则TOH勘定对手当回合选择的技能"
+        ]
+      },
+      {
+        "reason": "max-HP manipulation — E4",
+        "count": 14,
+        "samples": [
+          "每回合开始时提升1%的体力上限",
+          "每回合开始时减少自身10%的体力上限",
+          "登场时首回合使用攻击技能后减少对手120点体力上限",
+          "自身增加100点体力上限",
+          "令对手的体力上限减少35%",
+          "自身减少体力上限的50%"
+        ]
+      },
+      {
+        "reason": "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
+        "count": 13,
+        "samples": [
+          "自身被击败后，若对手处于能力提升状态",
+          "继承自身被击败时累计的概率",
+          "当自身首次受到技能伤害后，或回合开始时自身体力上限不低于己方所有精灵体力上限之和的一半，本场战斗自身失去上述效果",
+          "若本场战斗自身已经通过上述方式附加过四种异常状态",
+          "重置上述效果",
+          "上述效果的触发无需消耗狩杀之魂 狩杀之的：在场的精灵被标记为狩杀之的时体力上限减少60%直到当回合结束，然后获得等同于体力值的护盾、护罩，此护盾、护罩同时存在时狩杀之的无法对阿尔忒弥斯附加异常状态"
+        ]
+      },
+      {
+        "reason": "gender-cond — foe-gender predicate not modeled (deferred)",
+        "count": 13,
+        "samples": [
+          "若对手不为雌性精灵，自身受到的固定伤害、百分比伤害减少30%",
+          "减少200来自雄性精灵的伤害",
+          "减少30%来自雄性精灵的攻击伤害",
+          "对雄性精灵造成的伤害提升30%",
+          "雄性精灵攻击我方时75%令对方烧伤，未触发则对手随机3项能力值-1",
+          "雌性精灵攻击我方时75%令对方失明，未触发则自身随机3项能力值-1"
+        ]
+      },
+      {
+        "reason": "modifier with no target op",
+        "count": 13,
+        "samples": [
+          "<attachAll chanceDouble>",
+          "<attachAll stageChanceMulDown>",
+          "<attachAll healEcho>",
+          "<attachAll chanceSet>",
+          "<attachAll chanceSet>",
+          "<attachAll chanceSet>"
+        ]
+      },
+      {
+        "reason": "inventory-count — external item ref (deferred)",
+        "count": 11,
+        "samples": [
+          "自身登场时每拥有一种其他精灵的击败类效果获得1层狩杀之魂",
+          "受到伤害减少1%（背包内额外每拥有一只神兽战团精灵提升1%）",
+          "每次登场时获得2方永昌玺",
+          "若登场上回合对方选择主动切换精灵（登场当回合对手进行2次切换操作时除外）则额外获得2方永昌玺",
+          "若当回合对手使用技能则消耗1方永昌玺",
+          "若当回合对手未使用技能则获得1方永昌玺"
+        ]
+      },
+      {
+        "reason": "hit-window — move-landed second-phase trigger unmodeled (deferred)",
+        "count": 11,
+        "samples": [
+          "自身体力高于对手时",
+          "当回合自身属性技能命中则在回合结束后吸取对手最大体力的1/4",
+          "当回合自身攻击技能命中则在回合结束后有30%的几率使对手随机进入一种异常状态",
+          "自身攻击技能命中则对手下1次属性技能无效",
+          "属性技能命中则附加对手上次造成伤害数值一半的固伤",
+          "若对手未命中则回合结束时令对手随机3项能力值-1"
+        ]
+      },
+      {
+        "reason": "formula cross-ref — arithmetic chain unmodeled (deferred)",
+        "count": 10,
+        "samples": [
+          "每因此损失5点PP值对手1回合内受到的攻击伤害额外提升三分之一",
+          "对手每有1级先制等级该比例降低15%",
+          "恢复200*的体力",
+          "对手每有1级先制等级该比例提高5%",
+          "附加500*该比例的固定伤害",
+          "自身第五技能每有1点PP自身获得1种鬼祰"
+        ]
+      },
+      {
+        "reason": "no-op",
+        "count": 10,
+        "samples": [
+          "自身受到的攻击伤害高于300时",
+          "比例为100%，最低50%",
+          "（除三大形态及变声效果外的）",
+          "（除三大形态及变声效果外的）",
+          "（）",
+          "若自身高于最大体力的1/2则当回受到的攻击伤害-30%"
+        ]
+      },
+      {
+        "reason": "calendar trigger — non-battle timescale (deferred)",
+        "count": 10,
+        "samples": [
+          "每个月的25日，它将爆发出惊人的力量：自身所有能力值+50！",
+          "每个月的5日，冠绝火龙神力爆发：攻击值增加200点",
+          "每个月的10日，冠绝飞龙神力爆发：速度值增加100点",
+          "每个月的15日，冠绝岩龙神力爆发：双防值增加100点",
+          "每个月的1日-5日，冠绝火龙神力爆发：攻击值增加200点，攻击命中后100%令对手烧伤",
+          "每个月的6日-10日，冠绝飞龙神力爆发：速度值增加100点，先出手时100%闪避对手的攻击"
+        ]
+      },
+      {
+        "reason": "party-scope",
+        "count": 9,
+        "samples": [
+          "己方每有一只存活精灵受到的攻击伤害额外减少5%，造成伤害的5%恢复至自身体力，若存活的精灵为皮皮、比波、波克尔则上述效果中的百分比分别提升为10%、11%、12%",
+          "己方每有1点危机感5%解除痴愚，解除时反转双方能力提升状态",
+          "己方每有1个特性中不含有概率不高于50%的异常状态附加效果的其他精灵，自身获得1层英雄之耀，每有1个含有的其他精灵，自身失去1层英雄之耀",
+          "未触发则己方场下所有精灵恢复99点体力",
+          "己方每有一只精灵死亡则混元天尊闪避率提升6%，若对手为英雄圣殿成员则几率翻倍",
+          "己方每有一只精灵死亡则混元天尊闪避率提升6%，若对手为英雄圣殿成员则几率翻倍"
+        ]
+      },
+      {
+        "reason": "edge-trigger — ailment-entry transition hook not modeled (deferred)",
+        "count": 9,
+        "samples": [
+          "自身进入疲惫状态时恢复自身全部体力值，每场战斗限1次",
+          "自身每次进入控制类异常状态时，与自身隔位的精灵恢复所有技能2点PP值",
+          "对方进入附属类异常状态时，己方打开天之门、地之门、神之门中首个未打开的神域之门",
+          "令对手的体力上限增加20%并减少其他能力值等量的数值 自身进入异常状态时，若此异常状态位于自身异常状态抗性的1号位，则自身恢复所有技能PP值，若此异常状态位于自身异常状态抗性的2号位，则对手下回合属性",
+          "自身每次进入异常状态时恢复自身所有技能PP值且下1次攻击技能先制+1",
+          "己方精灵进入此记录的异常状态时转化为3回合星赐 蓓丽安特被击败时解放星执，消逝自身并化身为星执者，星执者的初始拥有等同于蓓丽安特本次登场时最大体力的能量"
+        ]
+      },
+      {
+        "reason": "shield lifecycle fragment (UNVERIFIED)",
+        "count": 9,
+        "samples": [
+          "若自身不为满体力则获得等同于已损失体力值50%的护盾、护罩且战斗阶段结束时自身恢复所拥有护盾、护罩之和的体力 自身击败对手时自身所有能力值提升35点并获得2层魔王咒怨",
+          "护罩",
+          "护罩",
+          "此护盾消失时100%令对手烧伤、失明",
+          "护罩",
+          "护盾消失时令对手立刻受到400点固伤且下3回合内每回合吸取对手150点体力"
+        ]
+      },
+      {
+        "reason": "bench-position predicate (UNVERIFIED)",
+        "count": 8,
+        "samples": [
+          "自身位于出战背包时",
+          "自身位于出战背包时双方精灵登场时受到砥砺1回合",
+          "然后若自身不处于烧伤则自身下1次进入的异常状态转化为2回合的烧伤 自身存活于出战背包时，对手免疫能力下降状态时视为处于烧伤状态 神惧劫炎：回合结束后",
+          "自身位于出战背包时，己方免疫受到的失明状态",
+          "与自身本次在场的所有回合均不同时每有1回合不同下回合造成的攻击伤害提升30% 自身位于出战背包时",
+          "自身存活于出战背包时，己方精灵免疫混乱状态"
+        ]
+      },
+      {
+        "reason": "variable-n reference (paren-defined quantity) — E4",
+        "count": 8,
+        "samples": [
+          "②.恢复n点体力",
+          "受到攻击伤害减少n点",
+          "附加n点固伤",
+          "自身每回合受到的攻击伤害减少n点",
+          ".恢复n点体力",
+          "自身根据双方体力上限值之差n触发如下效果：①.当回合受到的攻击伤害减少n点"
+        ]
+      },
+      {
+        "reason": "turn-start snapshot — hp-vs-turn-start predicate not modeled (deferred)",
+        "count": 8,
+        "samples": [
+          "若自身体力低于当回合开始时的体力，则附加自身最大体力25%的固定伤害",
+          "若自身体力高于当回合开始时的体力，则下1次攻击附加当前体力25%的固定伤害",
+          "其效果为回合结束时若对手体力高于当回合开始时，则下回合自身攻击先制+3且造成的伤害翻倍",
+          "回合结束时若自身体力低于回合开始时，则恢复自身最大体力的1/3",
+          "回合结束时若自身体力低于当回合开始时的50%，则恢复自身最大体力的1/3并造成等量固定伤害",
+          "若自身体力高于回合开始时则令自身下回合攻击100%打出致命一击"
+        ]
+      },
+      {
+        "reason": "foe-apply react — ailment-application trigger unmodeled (deferred)",
+        "count": 7,
+        "samples": [
+          "对手每次执行异常状态附加效果后，自身的风龙结数量+50并除以附加的概率，然后若风龙结大于500个则额外解除自身所处的异常状态 回合开始时",
+          "每次出场时自身附加300点护盾，自身带有护盾时每次攻击有25%的几率威力翻倍，若护盾被击破则回合结束后吸取对方最大体力1/4",
+          "每次登场首回合受到攻击附加给对手自身最大体力的50%的固定伤害，之后每回合固定伤害效果降低10%",
+          "每次登场时为自身附加2回合的寄生、流血，双方每阵亡一只精灵回合数+1，然后双方恢复全部PP值与等同于所恢复PP值*50的体力",
+          "每次登场时，若自身为对手天敌则为对手附加3回合的星火之灼，自身每次使用攻击后附加3回合的星火之灼 战斗中自身攻击、特攻等于原本二者最高值",
+          "每次登场时，若自身为对手天敌则为对手附加3回合的星海之浸，自身每次使用攻击后附加3回合的星海之浸 自身所有技能必定打出致命一击"
+        ]
+      },
+      {
+        "reason": "fatal-trigger",
+        "count": 7,
+        "samples": [
+          "自身受到致死伤害时",
+          "受到致死攻击时",
+          "受到致死攻击时若对手体力不足1/4时残留1点体力",
+          "每次击败对手后自身下1次受到致命攻击时残留1点血，消除对手回合类效果并吸取对手能力提升",
+          "100%令对手害怕",
+          "自身受到致命伤害时反弹给对手造成伤害值2倍的固定伤害"
+        ]
+      },
+      {
+        "reason": "checkpoint-restore — hp snapshot/restore pair not modeled (deferred)",
+        "count": 6,
+        "samples": [
+          "每次登场时记录自身的体力值，自身受到致死攻击伤害时",
+          "使自身的体力值回归记录的体力值",
+          "记录此伤害",
+          "自身使用属性技能后恢复上述记录50%的体力，自身每携带一个属性技能效果提升10%",
+          "然后自身记录自身的体力上限，之后本场战斗自身登场时，若对手的体力上限低于此记录值",
+          "直到下场自身每回合结束后恢复此记录值的体力，最高不超过自身的体力值"
+        ]
+      },
+      {
+        "reason": "named state-machine — mode-track unmodeled (deferred)",
+        "count": 6,
+        "samples": [
+          "登场时自身开启武道",
+          "初始为血之道",
+          "武道会以血、邪、天、血的轨迹进行衍化",
+          "每完成一次完成轨迹的衍化，自身恢复全部PP值 回合结束时自身恢复最大体力的1/6",
+          "自身处于血之道时效果翻倍",
+          "自身处于邪之道时效果翻倍"
+        ]
+      },
+      {
+        "reason": "miss-reactive — E4",
+        "count": 6,
+        "samples": [
+          "对手下1次使用的非必中技能必定MISS",
+          "miss时下回合自身免疫异常",
+          "令对手当回合攻击技能必定MISS",
+          "对手技能MISS则令对手防御-2",
+          "对手攻击技能必定MISS",
+          "有一定概率令对手当回合攻击技能必定MISS"
+        ]
+      },
+      {
+        "reason": "heal-react — heal-event trigger unmodeled (deferred)",
+        "count": 6,
+        "samples": [
+          "对手当回合每恢复1次体力，自身恢复1次两百点体力，最高3次",
+          "自身恢复体力时，一回合内造成的攻击伤害提升20%，最多叠加3次",
+          "对手每次通过技能恢复体力时下回合自身有50%的几率免疫受到的攻击伤害",
+          "自身每次恢复体力时(不包括使用药剂)下回合自身攻击技能额外先制+1且造成的攻击伤害提升50%",
+          "对手恢复体力时每处于1种能力下降状态则恢复效果减少10%",
+          "奇数回合登场后3回合内对手恢复体力时恢复效果减少100%（该效果为回合类效果）"
+        ]
+      },
+      {
+        "reason": "mark-declaration — named-mark state machine unmodeled (deferred)",
+        "count": 6,
+        "samples": [
+          "若对手未受到此伤害则令对手焚烬 风龙结：风龙结的数量达到1000时",
+          "获得的效果越多： 1层：减少自身受到伤害的8%，每增加1层额外获得8%减伤",
+          "自身出手时若体力低于250则立刻进入百步穿杨状态:消耗所有技能PP值令当回合使用的技能必定命中且必定秒杀对手()",
+          "神王血契：首回合免疫异常状态",
+          "诫罚之刻：消除并获得对手的护盾、护罩",
+          "持续到自身下场： 1柄：造成的攻击伤害提升10%，每增加1柄额外提升10%"
+        ]
+      },
+      {
+        "reason": "reactive trigger — E4",
+        "count": 6,
+        "samples": [
+          "对手使用属性技能消耗的PP翻倍",
+          "受到的伤害超过300则对手下2回合属性技能无效",
+          "受到的攻击后100%令对手随机进入1种异常状态",
+          "对手使用属性技能先制-1",
+          "对手使用攻击技能额外有100%的概率全属性-1",
+          "受到的攻击"
+        ]
+      },
+      {
+        "reason": "battle-limit-count — per-battle trigger count >1 unmodeled (deferred)",
+        "count": 6,
+        "samples": [
+          "登场后2回合内对手的属性技能无效（每场战斗只能触发2次，首次出场触发1次，切换再次上场时触发第2次）",
+          "回合开始时若自身体力低于1/2,则下2次技能先制+3，且100%使对手烧伤（登场后仅触发1次，重复登场无效）",
+          "登场后首回合，对手使用攻击技能则自身受到的攻击伤害减少50%且对手下1次属性技能失效，对手使用属性技能则自身免疫异常状态且对手下1次攻击技能失效（每场战斗只能触发2次，首次出场触发1次，切换再次上场时",
+          "登场首回合免疫异常状态和能力下降状态且当回合攻击100%打出致命一击（每场战斗仅触发2次）",
+          "登场首回合免疫受到致命1击伤害和能力下降（每场战斗仅触发2次）",
+          "登场首回合为自身附加一个自身最大体力值1/3的护盾每场战斗仅触发2次)"
+        ]
+      },
+      {
+        "reason": "form-state — mode switching unmodeled (deferred)",
+        "count": 6,
+        "samples": [
+          "极速形态（出场开启，可切换）：所有技能先制额外+1",
+          "毁灭形态（出场不开启，可切换）：所有攻击技能威力提升70%",
+          "若当前为毁灭形态，则下回合变为极速形态且当回合吸取对手最大HP1/3",
+          "极速形态（出场开启，可切换）：所有技能先制额外+1",
+          "毁灭形态（出场不开启，可切换）：所有攻击技能威力提升70%",
+          "若当前为毁灭形态，则下回合变为极速形态且当回合吸取对手最大HP1/3"
+        ]
+      },
+      {
+        "reason": "consecutive-use — streak tracking not modeled (deferred)",
+        "count": 6,
+        "samples": [
+          "连续使用叠加10%，最高忽略45%",
+          "若对手连续使用同一技能则回合结束时吸取对手300点体力",
+          "对手连续使用相同的技能时所消耗的PP值为2倍",
+          "对手连续使用相同类型的技能则减少对手所有技能1点PP",
+          "自身连续使用相同类型的技能则吸取对手最大体力的1/3并恢复所有技能1点PP值",
+          "每连续使用1回合则附加的百分比系数提升25%，最高提升至100%"
+        ]
+      },
+      {
+        "reason": "stacking per-use — unquantified",
+        "count": 6,
+        "samples": [
+          "对手每次使用攻击技能是50%令对手失明",
+          "自身每次使用第五技能时若终阶源盾已激活则必定打出致命一击",
+          "之后每次使用触发几率增加10%",
+          "自身每次使用技能有30%的几率令对手害怕",
+          "之后每次使用连击次数+2",
+          "自身每次使用第五技能时"
+        ]
+      },
+      {
+        "reason": "party-scope — adjacent/bench ally referent unmodeled (deferred)",
+        "count": 5,
+        "samples": [
+          "自身拥有己方其他精灵专属特性中的击败类效果",
+          "与自身相邻的精灵恢复150点体力",
+          "回合开始时释放1支灵烁之箭攻击对手场下满体力的首位精灵，直接扣除其100点体力",
+          "对手使用攻击技能后己方场下体力最低的首位精灵恢复此次攻击伤害值等量的体力，然后己方每有1只精灵体力为满该技能PP值-1",
+          "己方其他精灵被击败时，星执者额外获得300点能量"
+        ]
+      },
+      {
+        "reason": "insta-KO domain — one-shot mechanic unmodeled (deferred)",
+        "count": 5,
+        "samples": [
+          "对方的秒杀效果改为使自身获得1层魔王咒怨 对手使用技能时",
+          "初始为1 希望：己方免疫秒杀",
+          "自身免疫受到的秒杀",
+          "对手执行秒杀效果时，消除对手的回合类效果并令对手石化",
+          "己方免疫首次受到的秒杀效果"
+        ]
+      },
+      {
+        "reason": "source-filter — named-origin immunity unmodeled (deferred)",
+        "count": 5,
+        "samples": [
+          "自身免疫B-ROBO造成的攻击伤害",
+          "50%免疫对手造成的攻击伤害",
+          "本回合受到攻击则下回合免疫对手造成的攻击伤害",
+          "50%的几率免疫对手造成的攻击伤害",
+          "未触发则免疫下回合对手造成的攻击伤害"
+        ]
+      },
+      {
+        "reason": "stat-cap raise — stage ceiling unmodeled (deferred)",
+        "count": 5,
+        "samples": [
+          "最高+3",
+          "增加30点防御上限和30点特防上限",
+          "增加20点防御上限和20点特防上限",
+          "增加20点攻击、特攻上限",
+          "最高+3"
+        ]
+      },
+      {
+        "reason": "cleanse-immune — anti-cleanse domain unmodeled (deferred)",
+        "count": 5,
+        "samples": [
+          "回合类效果无法被消除",
+          "自身体力高于1/2则自身回合类效果无法被消除，自身体力低于1/2则自身所有技能先制+1",
+          "天启帝君为最后一只存活精灵时自身回合类效果无法被消除",
+          "若对手处于异常状态则令自身下回合能力提升状态无法被消除或吸取",
+          "自身体力高于对手时能力提升状态无法被消除或吸取，低于对手时每回合开始令对手速度、防御-2"
+        ]
+      },
+      {
+        "reason": "per-use stacking — unquantified",
+        "count": 5,
+        "samples": [
+          "每次使用攻击技能在回合结束时降低对手1/3当前体力",
+          "每次使用几率增加10％",
+          "每次使用增加10％",
+          "每次使用增加100点",
+          "每次使用增加100点"
+        ]
+      },
+      {
+        "reason": "grow-tail-orphan",
+        "count": 5,
+        "samples": [
+          "未触发则下次冰封的几率提升10%，最高100%",
+          "，每次使用增加25%，最高100%",
+          "未触发则下次触发几率提升25%",
+          "未触发则下次提升15%，最高提升30%",
+          "未触发则下次触发几率提升25%"
+        ]
+      },
+      {
+        "reason": "per-mark scaling — unquantified target (UNVERIFIED)",
+        "count": 5,
+        "samples": [
+          "对手每存在1层处决印记额外附加100点真实伤害",
+          "自身每有1层命起威力阈值提升40",
+          "自身每有1层魂落威力阈值提升40",
+          "对手每有1层碧叶猛毒自身攻击技能命中时恢复100点体力",
+          "每有1层命运晨星"
+        ]
+      },
+      {
+        "reason": "external-mechanic ref (deferred)",
+        "count": 5,
+        "samples": [
+          "战斗开始时萨芙凯特获得3道未来指令",
+          "未来指令会在技能崩溃时减少1道以取消技能崩溃，最多拥有3道 萨芙凯特所有技能必定命中，当萨芙凯特的技能无效或命中效果失效时会将技能视为命中并强制执行命中效果，强制执行的技能会在使用后崩溃，技能崩溃之后",
+          "每崩溃1个技能萨芙凯特的攻击伤害提升40% 根据拥有的未来指令道数",
+          "对手体力未减少",
+          "未来指令会在技能崩溃时减少1道以取消技能崩溃 强制执行：强制执行会使原本无效、命中效果失效的技能重新视为命中、生效并触发原有效果，但因为无效而导致的攻击伤害归0不会因为强制执行而恢复正常伤害 崩溃：萨"
+        ]
+      },
+      {
+        "reason": "mark-expiry refund — removal-side-effect unmodeled (deferred)",
+        "count": 4,
+        "samples": [
+          "记忆破碎结束时对手恢复因此损失的所有PP值",
+          "合结束时，自身当回合受到攻击伤害则下回合免疫受到的攻击伤害",
+          "领域效果结束时贝狄薇尔获得1个500点的护盾和500点的护罩 机械领域：对手造成的攻击伤害不超过自身最大体力的60%",
+          "自身技能结束时"
+        ]
+      },
+      {
+        "reason": "bench-state — off-field scope unmodeled (deferred)",
+        "count": 4,
+        "samples": [
+          "自身位于场下时，与自身相邻的精灵每次受到攻击伤害后，自身恢复150点体力",
+          "自身位于场下时，自身每损失10%的体力，首位精灵造成的攻击伤害提升3%",
+          "自身位于场下时，与自身隔位的精灵进入控制类异常状态时，自身下次登场时免疫下1次受到的异常状态",
+          "自身位于场下时，自身每有10%的体力，末位精灵使用技能5%不消耗PP值"
+        ]
+      },
+      {
+        "reason": "control/weaken-class ailment subset undocumented (UNVERIFIED)",
+        "count": 4,
+        "samples": [
+          "100%令对手随机进入1种控制类异常",
+          "100%令对手随机进入1种控制类异常状态",
+          "令对手随机进入1种弱化类异常状态",
+          "令对手随机进入2种弱化类异常状态"
+        ]
+      },
+      {
+        "reason": "mark-holder-ref — cross-unit mark referent unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "若对方不存在狩杀之的则将存活的对手标记为狩杀之的 自身拥有狩杀之魂时",
+          "则令对方场下处于痴愚的精灵所有技能PP值-1 回合开始时",
+          "若对方处于痴愚的精灵已阵亡"
+        ]
+      },
+      {
+        "reason": "mark-duration — turns-mutation unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "使回合数+2",
+          "令对手其回合数+1",
+          "回合数+2"
+        ]
+      },
+      {
+        "reason": "attr-record — stored-type reference not modeled (deferred)",
+        "count": 3,
+        "samples": [
+          "每次登场时记录对手属性并令自身3回合内造成的伤害提升50%",
+          "若自身克制该属性，该伤害提升效果增加25%",
+          "若自身微弱该属性，该伤害提升效果增加50%"
+        ]
+      },
+      {
+        "reason": "sub-ailment class unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "若己方其他精灵处于附属类异常状态，则关闭首个未关闭的神域之门 神域之门：天之门、地之门、神之门的总称 天之门：己方予天繁星的选择使用不受PP值限制",
+          "若对手处于异常状态则将对手所处的有效果的附属类异常状态转化为4回合诅咒",
+          "失去所有能量后星执者消失 星赐：附属类异常状态，该状态下的精灵造成的攻击伤害提升30%"
+        ]
+      },
+      {
+        "reason": "entry-count dispatch — per-entry selector unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "根据本场战斗自身的出战次数",
+          "依次触发等量下列效果： 2回合内自身受到的技能伤害不超过自身最大体力的25% 2回合内自身造成的攻击伤害提升100% 2回合内自身抵挡受到的致命一击 2回合内令对手体力恢复效果减少50% 2回合内每回",
+          "自身每出战1次，为对手附加300点固定伤害"
+        ]
+      },
+      {
+        "reason": "stage-change — transition tracking unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "若对手本回合能力等级发生变化，则回合结束时恢复1/6最大HP",
+          "回合开始时和回合结束时若对手能力等级发生变化则下回合自身攻击50%令对手害怕",
+          "若对手当回合能力等级发生变化则回合结束时50%令对手害怕"
+        ]
+      },
+      {
+        "reason": "named-move trigger — external move ref not modeled (deferred)",
+        "count": 3,
+        "samples": [
+          "回合结束时60%触发空间折跃，恢复自身已损失体力50%并造成等量固伤",
+          "自身攻击技能命中后50%触发百刃斩(随机1-100刃，每1刃可提升2%的攻击伤害和1%的疲惫控场几率)",
+          "每次登场首回合攻击先制+3且100%触发百刃斩，造成的伤害低于对手最大体力的1/2则附加等量固定伤害"
+        ]
+      },
+      {
+        "reason": "next-unit effect — E4",
+        "count": 3,
+        "samples": [
+          "减少对手下只出场精灵250点体力",
+          "吸取对手下只出场精灵1/3的最大体力",
+          "减少对手下只出场精灵最大体力的1/3"
+        ]
+      },
+      {
+        "reason": "bare number fragment",
+        "count": 3,
+        "samples": [
+          "2",
+          "3",
+          "3"
+        ]
+      },
+      {
+        "reason": "ally-death — victim:ally scope unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "己方精灵(包括天启帝君)登场时若为满体力则当回合所有技能先制+1 帝君之御：天启帝君免疫所有固定伤害和百分比伤害以及异常状态(BOSS无效) 帝君之阵：己方每有一只精灵死亡则自身受到的伤害降低10%",
+          "己方背包内每有一只精灵死亡则卡巴咔吧即可从中汲取力量:使自身造成的攻击伤害提高10%",
+          "则当前己方场下每有一只精灵死亡"
+        ]
+      },
+      {
+        "reason": "companion/summon — contract entity unmodeled (deferred)",
+        "count": 3,
+        "samples": [
+          "混元天尊登场后与“辛”缔结契约，“辛”存活期间可守护混元天尊，初始体力为混元天尊的100%，作用如下： ①帮助混元天尊抵挡战斗中受到伤害的60%（包括固定伤害和百分比伤害）",
+          "混元天尊登场后与“辛”缔结契约，“辛”存活期间可守护混元天尊，初始体力为混元天尊的100%，作用如下： ①帮助混元天尊抵挡战斗中受到伤害的60%（包括固定伤害和百分比伤害）",
+          "自身登场后触发虐龙古咒：奇数次选择的属性技能附加250点龙系伤害且使用时消除对手回合类效果，偶数次选择的属性技能附加250点邪灵系伤害且使用时消除对手能力提升状态 回合开始时，若自身体力未高于上回合开"
+        ]
+      },
+      {
+        "reason": "consecutive-use — move-power scaling stays deferred",
+        "count": 3,
+        "samples": [
+          "连续使用属性技能时附加的固定伤害翻倍且恢复附加固定伤害值50%的体力",
+          "自身连续使用攻击技能时每次威力提升20%，最高提升100%",
+          "自身连续使用攻击技能每次威力提升30%，最高提升120%"
+        ]
+      },
+      {
+        "reason": "stack-cap — accumulate ceiling unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "可叠加至2次",
+          "可叠加至2次"
+        ]
+      },
+      {
+        "reason": "status-end trigger — ailment-expiry hook unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "效果结束后本次在场忽略对手特防值的25%",
+          "若触发麻痹则麻痹效果结束后使对手烧伤2回合"
+        ]
+      },
+      {
+        "reason": "named-effect ref — external-effect snapshot not modeled (deferred)",
+        "count": 2,
+        "samples": [
+          "战斗阶段结束时触发时空折跃 回合结束时若对手体力大于0且本回合未受到时空加速的伤害则触发时空交错",
+          "当回合自身未受到的攻击伤害则回合结束时令自身全属性+1"
+        ]
+      },
+      {
+        "reason": "reactive on foe action choice — E4",
+        "count": 2,
+        "samples": [
+          "对手使用的攻击技能微弱自身时改为受到的固定伤害和百分比伤害减少30%",
+          "对手使用的属性技能无效"
+        ]
+      },
+      {
+        "reason": "multiplier counter — per-effect stack unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "使此效果的倍数+1",
+          "最高增加至9"
+        ]
+      },
+      {
+        "reason": "instant-KO (deferred)",
+        "count": 2,
+        "samples": [
+          "对手体力少于200时",
+          "自身攻击造成的伤害等于对手最大体力的1/3则直接秒杀对手"
+        ]
+      },
+      {
+        "reason": "truncated fragment — referent lost (UNVERIFIED)",
+        "count": 2,
+        "samples": [
+          "增加50点",
+          "增加100点"
+        ]
+      },
+      {
+        "reason": "missing-pct-chance — dynamic probability unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "攻击有自身已损失体力百分比的几率威力翻倍",
+          "自身体力不满时额外附加自身已损失体力百分比的几率"
+        ]
+      },
+      {
+        "reason": "shield-break trigger — soulmark hook unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "自身护盾被击破时给对手附加300点固定伤害",
+          "自身护盾被击破时附加对手最大体力1/3的固伤同时使自身下1次受到的攻击伤害减少50%"
+        ]
+      },
+      {
+        "reason": "slot-mark",
+        "count": 2,
+        "samples": [
+          "使用第五技能王·异甲同心时，若当前为极速形态，则下回合变为毁灭形态，且本回合附加对手最大体力1/3固伤",
+          "使用第五技能王·异甲同心时，若当前为极速形态，则下回合变为毁灭形态，且本回合附加对手最大体力1/3固伤"
+        ]
+      },
+      {
+        "reason": "excess/reflect tail — deferred",
+        "count": 2,
+        "samples": [
+          "反弹给对手250点固定伤害",
+          "反弹给对手150-300点固定伤害"
+        ]
+      },
+      {
+        "reason": "progressive-weaken — staged magnitude override unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "每次登场时触发效果削弱到1/9的最大体力 帝君之赐：首次登场时恢复己方所有不在场精灵1/3的最大体力",
+          "每次登场时触发效果削弱到1/9的最大体力 帝君之援：天启帝君在出战背包时"
+        ]
+      },
+      {
+        "reason": "damage reclassification (deferred)",
+        "count": 2,
+        "samples": [
+          "若自身体力低于对手则伤害改判为300",
+          "若自身体力低于对手则伤害改判为400"
+        ]
+      },
+      {
+        "reason": "escalating multiplier-on-miss state machine (UNVERIFIED)",
+        "count": 2,
+        "samples": [
+          "翻倍几率额外提升20%",
+          "攻击伤害翻倍几率额外提升20%"
+        ]
+      },
+      {
+        "reason": "heal echo without heal/drain",
+        "count": 2,
+        "samples": [
+          "<healEcho>",
+          "<healEcho>"
+        ]
+      },
+      {
+        "reason": "companion — ally-entity lifecycle unmodeled (deferred)",
+        "count": 2,
+        "samples": [
+          "每次登场首回合若对手使用攻击技能则命中前穹明号会开启拥君之盾守护自身",
+          "若对手使用属性技能则命中前穹明号会开启绝缘之罩守护自身"
+        ]
+      },
+      {
+        "reason": "order-context",
+        "count": 1,
+        "samples": [
+          "自身选择技能的回合自身的先制等级随机增加0~2，随机到0时对手当回合属性技能无效，随机到1时自身当回合技能命中后获取300点护盾，随机到2时自身当回合技能使用后吸取对手300点体力"
+        ]
+      },
+      {
+        "reason": "skill-type-usage — per-entry move-type tracking unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "若此技能的类型本次登场未使用过则消除对手回合类效果并70%令对手诅咒 回合开始时，若对手处于异常状态，自身所有技能恢复1点PP值且当回合造成的攻击伤害提升70%"
+        ]
+      },
+      {
+        "reason": "remount-hook — trigger relocation unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "未触发则此效果改为回合开始时触发"
+        ]
+      },
+      {
+        "reason": "random-choice — listed-effect selection unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "随机触发以下效果中的1个：恢复250点体力、全属性+1、下次受到的攻击伤害减少50%"
+        ]
+      },
+      {
+        "reason": "apply-counter — per-apply counting unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "自身进入烧伤状态每累计3次"
+        ]
+      },
+      {
+        "reason": "cleanse-react — turn-effect-removal trigger unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "对手的回合类效果被消除时，2回合内技能无法附加异常状态"
+        ]
+      },
+      {
+        "reason": "effect-decay — magnitude decay ref unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "效果减少5%"
+        ]
+      },
+      {
+        "reason": "damage-step — per-damage-unit counter unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "每造成100点伤害"
+        ]
+      },
+      {
+        "reason": "trait-count — external trait roster unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "除此特性外对方精灵每有一个含有“秒杀”的特性"
+        ]
+      },
+      {
+        "reason": "next-taken — incoming next-hit window unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "对手下1次受到的非必中技能必定命中"
+        ]
+      },
+      {
+        "reason": "pierce-shield — shield-bypass unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "护盾承伤效果"
+        ]
+      },
+      {
+        "reason": "threshold-delta — mark threshold lifecycle unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "阈值降低100点"
+        ]
+      },
+      {
+        "reason": "prio-snapshot — cross-turn prio compare unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "若当回合自身先制等级与上回合不相等则下回合所有技能先制+1，高于上回合时恢复自身最大体力的30%，低于上回合时额外解除自身所处的异常状态"
+        ]
+      },
+      {
+        "reason": "prio-cap — priority ceiling unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "自身先制等级不高于0"
+        ]
+      },
+      {
+        "reason": "onKO-suppression — defeat-effect suppression unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "其无法触发被击败效果"
+        ]
+      },
+      {
+        "reason": "pp-range — per-slot random amount unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "使自身所有技能的pp值分别随机变化为m-n中的一个值，然后若自身所有技能的pp值总和不低于25则获得所有技能pp值总和*10点护罩且1回合内自身造成的固定伤害和百分比伤害提高25%"
+        ]
+      },
+      {
+        "reason": "self-KO revive — checkpoint hook not modeled (deferred)",
+        "count": 1,
+        "samples": [
+          "自身被击败时"
+        ]
+      },
+      {
+        "reason": "shield-copy — foe-shield snapshot unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "获得等同于对手的护盾"
+        ]
+      },
+      {
+        "reason": "element-typed boost — move-type restriction unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "电系技能伤害提升"
+        ]
+      },
+      {
+        "reason": "ailment-duration-cap — debuff turn clamp not modeled (deferred)",
+        "count": 1,
+        "samples": [
+          "所有自身受到的异常状态只持续1回合"
+        ]
+      },
+      {
+        "reason": "conditional-stat",
+        "count": 1,
+        "samples": [
+          "速度+1"
+        ]
+      },
+      {
+        "reason": "reflect-down — degrade bounce unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "反弹对手给予的能力下降状态"
+        ]
+      },
+      {
+        "reason": "reactive on-hit trigger — E4",
+        "count": 1,
+        "samples": [
+          "受到攻击将消除对手能力强化状态"
+        ]
+      },
+      {
+        "reason": "contextual-stat — referent-stat indirection unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "自身对应的能力值+1"
+        ]
+      },
+      {
+        "reason": "damage redirect — taken-damage reroute unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "自身受到的固定伤害转移到对手身上"
+        ]
+      },
+      {
+        "reason": "proportional flatEcho — dynamic scale unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "附加造成伤害一定比例的固定伤害"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 下回合自身攻击有50%的几率使对手害怕",
+        "count": 1,
+        "samples": [
+          "触发闪避则下回合自身攻击有50%的几率使对手害怕"
+        ]
+      },
+      {
+        "reason": "next-unit target — deferred batch",
+        "count": 1,
+        "samples": [
+          "死亡时下一只出战精灵继承自己的能力强化状态和回合类效果"
+        ]
+      },
+      {
+        "reason": "delayed-start — next-turn window unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "当回合若自身未受到攻击伤害则从下回合开始自身所有技能额外先制+1，可叠加3次"
+        ]
+      },
+      {
+        "reason": "cleanse-prio — priority-window removal unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "受到攻击伤害时清除所有先制效果"
+        ]
+      },
+      {
+        "reason": "unquantified flat — no amount (UNVERIFIED)",
+        "count": 1,
+        "samples": [
+          "附加固定伤害"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 随机减少对手所有技能1-2点pp",
+        "count": 1,
+        "samples": [
+          "受到攻击则随机减少对手所有技能1-2点pp"
+        ]
+      },
+      {
+        "reason": "persist-on-switch — buff retention across switch-out unmodeled (deferred)",
+        "count": 1,
+        "samples": [
+          "，下场后保留"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 使对手其下次受到的伤害提高100%",
+        "count": 1,
+        "samples": [
+          "对手使用攻击技能则使对手其下次受到的伤害提高100%"
+        ]
+      },
+      {
+        "reason": "down-push tail without cleanse",
+        "count": 1,
+        "samples": [
+          "反弹给对手"
+        ]
+      },
+      {
+        "reason": "stage-snapshot-transfer (deferred)",
+        "count": 1,
+        "samples": [
+          "将自身能力提升状态附加给己方下只出战精灵"
+        ]
+      },
+      {
+        "reason": "react payload unparsed: 下回合自身攻击造成的伤害提升50%",
+        "count": 1,
+        "samples": [
+          "触发闪避则下回合自身攻击造成的伤害提升50%"
+        ]
+      },
+      {
+        "reason": "last-alive cond — E4",
+        "count": 1,
+        "samples": [
+          "对手为最后一只存活精灵时使对手无法通过自身技能恢复体力"
+        ]
+      },
+      {
+        "reason": "mark cap without apply_mark",
+        "count": 1,
+        "samples": [
+          "<attachAll markCap>"
+        ]
+      },
+      {
+        "reason": "move-flag",
+        "count": 1,
+        "samples": [
+          "attachDamage:drainMul"
+        ]
+      },
+      {
+        "reason": "effectDouble cond unparsed: 对手技能微弱自身",
+        "count": 1,
+        "samples": [
+          "对手技能微弱自身时效果翻倍"
+        ]
+      },
+      {
+        "reason": "entry-effect replay (deferred)",
+        "count": 1,
+        "samples": [
+          "自身击败对手时重新触发自身的登场效果"
+        ]
+      }
+    ]
+  },
+  "noRuleTop": [
+    {
+      "pattern": "无视对手速度",
+      "count": 56,
+      "sample": "无视对手速度"
+    },
+    {
+      "pattern": "特防总和#%的固定伤害",
+      "count": 56,
+      "sample": "特防总和10%的固定伤害"
+    },
+    {
+      "pattern": "防御能力强化状态",
+      "count": 51,
+      "sample": "防御能力强化状态"
+    },
+    {
+      "pattern": "随机自身#项属性+#",
+      "count": 37,
+      "sample": "随机自身3项属性+1"
+    },
+    {
+      "pattern": "#%概率使对手的属性技能失效",
+      "count": 35,
+      "sample": "50%概率使对手的属性技能失效"
+    },
+    {
+      "pattern": "使对手#项能力值-#",
+      "count": 33,
+      "sample": "使对手3项能力值-1"
+    },
+    {
+      "pattern": "自身在烧伤、冻伤",
+      "count": 26,
+      "sample": "自身在烧伤、冻伤"
+    },
+    {
+      "pattern": "中毒效果",
+      "count": 23,
+      "sample": "中毒效果"
+    },
+    {
+      "pattern": "免疫伤害",
+      "count": 22,
+      "sample": "免疫伤害"
+    },
+    {
+      "pattern": "附加自身防御",
+      "count": 22,
+      "sample": "附加自身防御"
+    },
+    {
+      "pattern": "#%的几率造成#倍伤害",
+      "count": 20,
+      "sample": "9%的几率造成9倍伤害"
+    },
+    {
+      "pattern": "使对手#项能力值-#并附加到自己身上",
+      "count": 20,
+      "sample": "使对手三项能力值-1并附加到自己身上"
+    },
+    {
+      "pattern": "自身攻击伤害附加防御",
+      "count": 17,
+      "sample": "自身攻击伤害附加防御"
+    },
+    {
+      "pattern": "附加防御",
+      "count": 16,
+      "sample": "附加防御"
+    },
+    {
+      "pattern": "中毒状态下造成的伤害反而加倍",
+      "count": 15,
+      "sample": "中毒状态下造成的伤害反而加倍"
+    },
+    {
+      "pattern": "#%的概率使对手的随机#项技能PP值变#",
+      "count": 13,
+      "sample": "50%的概率使对手的随机2项技能PP值变0"
+    },
+    {
+      "pattern": "造成的伤害将全额恢复体力",
+      "count": 12,
+      "sample": "造成的伤害将全额恢复体力"
+    },
+    {
+      "pattern": "若被对方击败，则对手所有能力加强状态消失",
+      "count": 10,
+      "sample": "若被对方击败，则对手所有能力加强状态消失"
+    },
+    {
+      "pattern": "若自身能力强化状态消失，则#回合对手无法使用属性技能",
+      "count": 10,
+      "sample": "若自身能力强化状态消失，则2回合对手无法使用属性技能"
+    },
+    {
+      "pattern": "特防的等级-#",
+      "count": 9,
+      "sample": "特防的等级-1"
+    },
+    {
+      "pattern": "在烧伤、中毒",
+      "count": 9,
+      "sample": "在烧伤、中毒"
+    },
+    {
+      "pattern": "的能力提升状态无法被消除或吸取",
+      "count": 8,
+      "sample": "的能力提升状态无法被消除或吸取"
+    },
+    {
+      "pattern": "处在烧伤、中毒",
+      "count": 8,
+      "sample": "处在烧伤、中毒"
+    },
+    {
+      "pattern": "自身攻击",
+      "count": 8,
+      "sample": "自身攻击"
+    },
+    {
+      "pattern": "#%自身攻击",
+      "count": 8,
+      "sample": "100%自身攻击"
+    },
+    {
+      "pattern": "#%使自身速度提升#个等级",
+      "count": 8,
+      "sample": "100%使自身速度提升1个等级"
+    },
+    {
+      "pattern": "#%令对方疲惫#回合无法攻击",
+      "count": 8,
+      "sample": "10%令对方疲惫1回合无法攻击"
+    },
+    {
+      "pattern": "将此状态刷新至#回合",
+      "count": 8,
+      "sample": "将此状态刷新至4回合"
+    },
+    {
+      "pattern": "后若对方没有将自己击败，则对方死亡",
+      "count": 7,
+      "sample": "后若对方没有将自己击败，则对方死亡"
+    },
+    {
+      "pattern": "自身等级越高",
+      "count": 7,
+      "sample": "自身等级越高"
+    },
+    {
+      "pattern": "自身攻击、防御",
+      "count": 7,
+      "sample": "自身攻击、防御"
+    },
+    {
+      "pattern": "闪避率#%",
+      "count": 7,
+      "sample": "闪避率55%"
+    },
+    {
+      "pattern": "受攻击",
+      "count": 7,
+      "sample": "受攻击"
+    },
+    {
+      "pattern": "自身hp小于#/#时威力加倍",
+      "count": 7,
+      "sample": "自身hp小于1/3时威力加倍"
+    },
+    {
+      "pattern": "对对方造成伤害的#%恢复自身体力",
+      "count": 7,
+      "sample": "对对方造成伤害的40%恢复自身体力"
+    },
+    {
+      "pattern": "自身速度能力每提升#段",
+      "count": 7,
+      "sample": "自身速度能力每提升1段"
+    },
+    {
+      "pattern": "双倍反转自身的能力下降",
+      "count": 7,
+      "sample": "双倍反转自身的能力下降"
+    },
+    {
+      "pattern": "自身下次造成的伤害提升#%",
+      "count": 7,
+      "sample": "自身下次造成的伤害提升100%"
+    },
+    {
+      "pattern": "自身攻击技能命中则对手全属性-#",
+      "count": 7,
+      "sample": "自身攻击技能命中则对手全属性-1"
+    },
+    {
+      "pattern": "对手下#次攻击技能都有#%的概率被闪避",
+      "count": 7,
+      "sample": "对手下1次攻击技能都有100%的概率被闪避"
+    },
+    {
+      "pattern": "每回合吸收对手最大体力#/#",
+      "count": 7,
+      "sample": "每回合吸收对手最大体力1/3"
+    },
+    {
+      "pattern": "攻击技能附加自身当前体力#%的固定伤害",
+      "count": 7,
+      "sample": "攻击技能附加自身当前体力35%的固定伤害"
+    },
+    {
+      "pattern": "对手#回合内无法通过技能恢复体力",
+      "count": 7,
+      "sample": "对手2回合内无法通过技能恢复体力"
+    },
+    {
+      "pattern": "附加自身特攻与速度总和#%的固定伤害",
+      "count": 7,
+      "sample": "附加自身特攻与速度总和20%的固定伤害"
+    },
+    {
+      "pattern": "免疫反弹所有异常",
+      "count": 7,
+      "sample": "免疫反弹所有异常"
+    },
+    {
+      "pattern": "下#次自身技能先制+#",
+      "count": 7,
+      "sample": "下1次自身技能先制+2"
+    },
+    {
+      "pattern": "每回合#%令对手害怕",
+      "count": 7,
+      "sample": "每回合100%令对手害怕"
+    },
+    {
+      "pattern": "回合结束时附加#%伤害量的固定伤害",
+      "count": 7,
+      "sample": "回合结束时附加100%伤害量的固定伤害"
+    },
+    {
+      "pattern": "下#次攻击技能无视对手攻击免疫效果",
+      "count": 7,
+      "sample": "下2次攻击技能无视对手攻击免疫效果"
+    },
+    {
+      "pattern": "每回合有#%的几率降低对手最大体力的#/#",
+      "count": 7,
+      "sample": "每回合有50%的几率降低对手最大体力的1/3"
+    },
+    {
+      "pattern": "若有#方处于能力下降状态则附加#固定伤害",
+      "count": 7,
+      "sample": "若有一方处于能力下降状态则附加200固定伤害"
+    },
+    {
+      "pattern": "受到物攻伤害减半",
+      "count": 7,
+      "sample": "受到物攻伤害减半"
+    },
+    {
+      "pattern": "使对手受到自身最大体力#/#的固定伤害",
+      "count": 7,
+      "sample": "使对手受到自身最大体力1/2的固定伤害"
+    },
+    {
+      "pattern": "受到攻击#%概率做出绝对方击",
+      "count": 7,
+      "sample": "受到攻击50%概率做出绝对方击"
+    },
+    {
+      "pattern": "附加的固定伤害翻倍",
+      "count": 7,
+      "sample": "附加的固定伤害翻倍"
+    },
+    {
+      "pattern": "攻击击败对手时",
+      "count": 7,
+      "sample": "攻击击败对手时"
+    },
+    {
+      "pattern": "若出手时自身为满体力则几率翻倍",
+      "count": 7,
+      "sample": "若出手时自身为满体力则几率翻倍"
+    },
+    {
+      "pattern": "若对手的体力小于#则造成的伤害增加#%",
+      "count": 7,
+      "sample": "若对手的体力小于300则造成的伤害增加30%"
+    },
+    {
+      "pattern": "使对手受到相当于自身当前体力#/#的固定伤害",
+      "count": 7,
+      "sample": "使对手受到相当于自身当前体力1/3的固定伤害"
+    },
+    {
+      "pattern": "为己方所有不在场精灵恢复#点体力",
+      "count": 7,
+      "sample": "为己方所有不在场精灵恢复100点体力"
+    }
+  ]
+}

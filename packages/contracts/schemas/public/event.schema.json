@@ -38,6 +38,11 @@
         "stab": { "type": "boolean" },
         "moveType": { "type": "string" },
         "category": { "enum": ["physical", "special"] },
+        "cause": { "type": "string", "description": "伤害来源标记：struggle=挣扎反噬 / 魂印固伤=sm-* 等公开归因" },
+        "crit": { "type": "boolean", "description": "致命一击" },
+        "recoil": { "type": "boolean" },
+        "hit": { "type": "integer", "minimum": 1, "description": "连击第几击（hits>1 时出现）" },
+        "hits": { "type": "integer", "minimum": 2, "description": "连击总次数" },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,
@@ -57,6 +62,7 @@
         "type": { "const": "heal" },
         "side": { "enum": ["p1", "p2"] },
         "amount": { "type": "integer", "minimum": 0 },
+        "source": { "type": "string", "description": "回复来源标记（如魂印 id）" },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,
@@ -87,7 +93,32 @@
       "properties": {
         "type": { "const": "action-failed" },
         "side": { "enum": ["p1", "p2"] },
-        "reason": { "enum": ["stage-at-cap", "hp-full", "invalid-action", "controlled", "overlay_immune", "no-stages", "no-control"] }
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "stage-at-cap",
+                "hp-full",
+                "invalid-action",
+                "controlled",
+                "overlay_immune",
+                "no-stages",
+                "no-control",
+                "status-locked",
+                "move-nullified",
+                "bound",
+                "heal-blocked",
+                "down_lock",
+                "up_lock",
+                "no-bench",
+                "no-boost",
+                "pp-delta-noop",
+                "pp-slot-missing"
+              ]
+            },
+            { "type": "string", "pattern": "^status:[a-z_-]{1,30}$" }
+          ]
+        }
       }
     },
     {
@@ -97,6 +128,35 @@
       "properties": {
         "type": { "const": "struggle-used" },
         "side": { "enum": ["p1", "p2"] }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side"],
+      "properties": {
+        "type": { "const": "missed" },
+        "side": { "enum": ["p1", "p2"] },
+        "moveId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side"],
+      "properties": {
+        "type": { "const": "protected" },
+        "side": { "enum": ["p1", "p2"] }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "delta"],
+      "properties": {
+        "type": { "const": "pp-delta" },
+        "side": { "enum": ["p1", "p2"] },
+        "delta": { "type": "integer", "description": "PP 增减量（脱敏后仅透出侧别与增减量——不公开 moveId/ppAfter）" }
       }
     },
     {
@@ -186,7 +246,7 @@
         "side": { "enum": ["p1", "p2"] },
         "outUnitId": { "type": "string", "minLength": 1 },
         "inUnitId": { "type": "string", "minLength": 1 },
-        "via": { "enum": ["action", "replacement"] }
+        "via": { "enum": ["action", "replacement", "forced"] }
       }
     },
     {
@@ -205,6 +265,18 @@
             "max": { "type": "integer", "minimum": 1 }
           }
         }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "side", "mark", "effect"],
+      "properties": {
+        "type": { "const": "soulmark" },
+        "side": { "enum": ["p1", "p2"] },
+        "mark": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "effect": { "type": "string", "minLength": 1 }
       }
     }
   ]

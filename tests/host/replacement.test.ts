@@ -49,7 +49,7 @@ describe("replacement decision 协议", () => {
     // 己方 bench 可见 + 合法集是 act_switch-0 + concede
     expect(oR.own.bench).toHaveLength(1);
     expect(oR.own.bench![0]!.speciesId).toBe("syn-gamma");
-    expect(oR.own.bench![0]!.ppByMoveId).toEqual({ "syn-strike": 35, "syn-jab": 30, "syn-hex": 10, "syn-blast": 20 });
+    expect(oR.own.bench![0]!.ppByMoveId).toEqual({ "syn-strike": 35, "syn-jab": 30, "syn-hex": 10, "syn-blast": 20, "fifth-verdant-aegis": 5 });
     expect(oR.own.bench![0]!.stages).toEqual({ atk: 0, def: 0, spa: 0, sdf: 0, spd: 0 });
     expect(oR.own.bench![0]!.effects).toEqual([]);
     expect(oR.legalActions.some((a) => a.actionId === "act_switch-0")).toBe(true);

@@ -5,7 +5,7 @@
  * 加一个域 = 写 PluginSpec + 进 profile；删一个域 = profile 去掉它（端点随之消失）。
  */
 import { createServer } from "node:http";
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -26,10 +26,11 @@ import { contentPlugin, CONTENT_CATALOG_SERVICE, type ContentCatalog } from "./p
 import { battleApiPlugin, BATTLE_API_POLICY } from "./plugins/battle.ts";
 import { worldApiPlugin, WORLD_API_POLICY, WORLD_SERVICE_KEY } from "./plugins/world.ts";
 import { staticPlugin, STATIC_POLICY } from "./plugins/static.ts";
+import { localBagPlugin } from "./plugins/localbag.ts";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const PACKS = Object.fromEntries(
-  ["synthetic-v1", "synthetic-v2"].map((id) => [id, loadPackFromDir(join(ROOT, "content"), id)]),
+  ["synthetic-v1", "synthetic-v2", "peak"].map((id) => [id, loadPackFromDir(join(ROOT, "content"), id)]),
 );
 const CLIENT_DIST = join(ROOT, "apps", "client");
 
@@ -55,7 +56,8 @@ export async function startServer(port = 0, dbPath?: string, opts?: { exclude?: 
     : dbPath.replace(/battle\.db$/, "world.db");
   const world = new WorldService(new WorldStore(worldDbPath));
   const artifacts = new RuntimeArtifactCatalog(Object.values(PACKS));
-  const generations = new RuntimeGenerationRegistry();
+  // 每个已装载规则包各占一代。默认上限是 2，第三包会一直排队，启动卡死。
+  const generations = new RuntimeGenerationRegistry(Object.keys(PACKS).length);
   const generationByPackId = new Map<string, string>();
   for (const [packId, pack] of Object.entries(PACKS)) {
     generationByPackId.set(packId, generationIdOf(pack));
@@ -83,6 +85,12 @@ export async function startServer(port = 0, dbPath?: string, opts?: { exclude?: 
         res.end("not found");
       }
     } catch (error) {
+      // handler 已写响应后抛错——头不可再写，仅收尾并记录（否则 ERR_HTTP_HEADERS_SENT 打挂进程）
+      if (res.headersSent) {
+        console.error("post-response handler error:", error);
+        res.end();
+        return;
+      }
       const json = (status: number, body: unknown) => {
         res.writeHead(status, { "content-type": "application/json" });
         res.end(JSON.stringify(body));
@@ -122,11 +130,15 @@ function defaultModulesFor(manager: BattleManager, catalog: ContentCatalog): Mod
     { spec: battleManagerPlugin(manager), policy: BATTLE_MANAGER_POLICY },
     { spec: battleApiPlugin(), policy: BATTLE_API_POLICY },
     { spec: worldApiPlugin(), policy: WORLD_API_POLICY },
+    { spec: localBagPlugin(join(ROOT, "data", "local-team.json")), policy: { grantedCapabilities: [] } },
     { spec: staticPlugin(CLIENT_DIST), policy: STATIC_POLICY },
   ];
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const port = Number(process.argv[2] ?? 8787);
-  startServer(port).then((server) => console.log(`seer host-server @ ${server.url}`));
+  // CLI 默认用稳定库路径——对局/令牌/世界归属跨进程重启可恢复（测试仍走临时库）
+  const dbDir = join(ROOT, "data");
+  mkdirSync(dbDir, { recursive: true });
+  startServer(port, join(dbDir, "battle.db")).then((server) => console.log(`seer host-server @ ${server.url}`));
 }

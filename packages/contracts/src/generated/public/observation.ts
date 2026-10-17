@@ -265,6 +265,9 @@ export const observationSchema: Record<string, unknown> = {
           },
           "maxItems": 6
         },
+        "soul": {
+          "$ref": "#/definitions/soulState"
+        },
         "hp": {
           "$ref": "#/definitions/hp"
         },
@@ -297,6 +300,14 @@ export const observationSchema: Record<string, unknown> = {
           "type": "array",
           "items": {
             "$ref": "#/definitions/benchEntry"
+          }
+        },
+        "stocks": {
+          "description": "己方本场消耗品剩余。对手观察不得出现。无机制不写。",
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       }
@@ -337,6 +348,9 @@ export const observationSchema: Record<string, unknown> = {
             "pattern": "^seal-\\d+$"
           },
           "maxItems": 6
+        },
+        "soul": {
+          "$ref": "#/definitions/soulState"
         },
         "hp": {
           "$ref": "#/definitions/hp"
@@ -451,9 +465,35 @@ export const observationSchema: Record<string, unknown> = {
           "type": "string",
           "pattern": "^[a-z][a-z0-9-]*$"
         },
+        "soul": {
+          "$ref": "#/definitions/soulState"
+        },
         "benchAlive": {
           "type": "integer",
           "minimum": 0
+        }
+      }
+    },
+    "soulState": {
+      "description": "soulmark 投影：魂印 id + 公开消耗标记（endured/revived/shield 对双方可见）。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^sm-[a-z0-9-]+$"
+        },
+        "endured": {
+          "type": "boolean"
+        },
+        "revived": {
+          "type": "boolean"
+        },
+        "shield": {
+          "type": "boolean"
         }
       }
     },
@@ -604,6 +644,27 @@ export const observationSchema: Record<string, unknown> = {
                   "const": "concede"
                 }
               }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "itemId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "item"
+                },
+                "itemId": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]*$"
+                },
+                "moveId": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9][a-z0-9-]*$"
+                }
+              }
             }
           ]
         },
@@ -649,6 +710,7 @@ export interface OwnUnit {
    * @maxItems 6
    */
   seals?: string[];
+  soul?: SoulState;
   hp: Hp;
   ppByMoveId: {
     [k: string]: number;
@@ -661,6 +723,12 @@ export interface OwnUnit {
    * v2：己方后备单位（含血量/PP——自身秘密可知）；v1 局不出现该字段。
    */
   bench?: BenchEntry[];
+  /**
+   * 己方本场消耗品剩余。对手观察不得出现。无机制不写。
+   */
+  stocks?: {
+    [k: string]: number;
+  };
 }
 /**
  * six-stat：推导后的六维面板值（含种族/个体/努力/性格）。只对己方单位公开。
@@ -672,6 +740,15 @@ export interface PanelStats {
   spa: number;
   sdf: number;
   spd: number;
+}
+/**
+ * soulmark 投影：魂印 id + 公开消耗标记（endured/revived/shield 对双方可见）。
+ */
+export interface SoulState {
+  id: string;
+  endured?: boolean;
+  revived?: boolean;
+  shield?: boolean;
 }
 export interface Hp {
   current: number;
@@ -698,6 +775,7 @@ export interface BenchEntry {
    * @maxItems 6
    */
   seals?: string[];
+  soul?: SoulState;
   hp: Hp;
   ppByMoveId: {
     [k: string]: number;
@@ -725,6 +803,7 @@ export interface VisibleOpponent {
   stages: Stages;
   effects: PublicEffect[];
   mode?: string;
+  soul?: SoulState;
   benchAlive?: number;
 }
 export interface DecisionInfo {
@@ -758,6 +837,11 @@ export interface LegalAction {
       }
     | {
         kind: "concede";
+      }
+    | {
+        kind: "item";
+        itemId: string;
+        moveId?: string;
       };
   label: string;
 }

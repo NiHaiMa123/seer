@@ -103,4 +103,28 @@ describe("世界探索 op", () => {
       await server.close();
     }
   }, 15_000);
+
+  it("challenge 建局失败 → 行动点退回（bug-audit #9）", async () => {
+    const server = await startServer(0);
+    try {
+      await post(`${server.url}/api/world/player`, { playerId: "wpl_bad", name: "B" });
+      // 存一个含非法 species 的 main 队——建局时 teamToConfig 会抛 → 退款路径
+      await fetch(`${server.url}/api/world/player/wpl_bad/team`, {
+        method: "PUT", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: "main", pack: "peak", species: ["no-such-species"] }),
+      });
+      const ses = await post(`${server.url}/api/world/session`, { playerId: "wpl_bad", ops: 8 }) as { sessionId: string };
+      for (const n of ["route-1", "route-2", "arena"]) {
+        await post(`${server.url}/api/world/op`, { sessionId: ses.sessionId, op: "move", nodeId: n });
+      }
+      const r = await post(`${server.url}/api/world/op`, { sessionId: ses.sessionId, op: "act", actionId: "challenge" }, true);
+      expect(r.status).toBe(400);
+      const after = await post(`${server.url}/api/world/op`, { sessionId: ses.sessionId, op: "act", actionId: "challenge" }, true);
+      expect(after.status).toBe(400); // 第二次失败同样退款——预算不该被失败烧光
+      const s = await post(`${server.url}/api/world/op`, { sessionId: ses.sessionId, op: "move", nodeId: "route-2" }) as { opsLeft: number };
+      expect(s.opsLeft).toBe(4); // 8 - 3 出 - 1 回；两次 challenge 失败均退回未烧预算
+    } finally {
+      await server.close();
+    }
+  });
 });

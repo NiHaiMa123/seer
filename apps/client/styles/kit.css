@@ -1,0 +1,211 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   kit.css —— 通用结构与组件：基础排版 / 切角晶体框 / 按钮 / 芯片 / 属性晶石 / 头像框 / 弹层 / 输入 / 顶部导航。
+   造型语言：左上 + 右下切角（敌方镜像），描边沿切角走（边框层 + 填充层两片 clip-path，内容不被裁）。
+   ════════════════════════════════════════════════════════════════════════════ */
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  color: var(--t-1); font-family: var(--font); font-size: var(--fs-13); line-height: var(--lh);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  background: radial-gradient(120% 80% at 50% -10%, #12224e 0%, var(--n-950) 55%, var(--n-990) 100%) fixed, var(--n-990);
+}
+button, input, select { font: inherit; color: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+a { color: var(--cy-300); }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+::selection { background: rgba(79, 224, 255, .35); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(120, 160, 235, .28); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(120, 180, 255, .45); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ── 切角晶体框 ──────────────────────────────────────────────────────────────
+   .cx            左上 + 右下切角
+   .cx.cx-m       镜像：右上 + 左下（敌方 / 右侧元素）
+   .cx.cx-4       四角切（徽章、格子）
+   变量：--cut 切角；--edge 描边层；--fill 填充层；--bw 描边宽 */
+.cx { --cut: var(--cut-md); --bw: 1px; --edge: var(--edge-metal); --fill: var(--panel);
+  --poly: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  --cut-in: max(0px, calc(var(--cut) - var(--bw) * .6));
+  --poly-in: polygon(var(--cut-in) 0, 100% 0, 100% calc(100% - var(--cut-in)), calc(100% - var(--cut-in)) 100%, 0 100%, 0 var(--cut-in));
+  position: relative; isolation: isolate; }
+.cx.cx-m {
+  --poly: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut)));
+  --poly-in: polygon(0 0, calc(100% - var(--cut-in)) 0, 100% var(--cut-in), 100% 100%, var(--cut-in) 100%, 0 calc(100% - var(--cut-in))); }
+.cx.cx-4 {
+  --poly: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  --poly-in: polygon(var(--cut-in) 0, calc(100% - var(--cut-in)) 0, 100% var(--cut-in), 100% calc(100% - var(--cut-in)), calc(100% - var(--cut-in)) 100%, var(--cut-in) 100%, 0 calc(100% - var(--cut-in)), 0 var(--cut-in)); }
+.cx::before, .cx::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; clip-path: var(--poly); }
+.cx::before { background: var(--edge); transition: background var(--dur-2), opacity var(--dur-2); }
+.cx::after { inset: var(--bw); background: var(--sheen), var(--fill); clip-path: var(--poly-in); transition: background var(--dur-2); }
+
+/* 材质 / 描边修饰 */
+.m-glass { --fill: var(--glass); }
+.m-raise { --fill: var(--panel-raise); }
+.m-deep { --fill: linear-gradient(180deg, #0b1636, #070e24); }
+.e-cy { --edge: var(--edge-crystal); }
+.e-au { --edge: var(--edge-gold); }
+.e-foe { --edge: var(--edge-foe); }
+.e-soft { --edge: linear-gradient(180deg, var(--line-2), var(--line)); }
+
+/* 晶体纹理底（Krea2 生成，低对比） */
+.tex::after { background: var(--sheen), url("/assets/ui/tex_crystal.webp") center / 640px auto, var(--fill); background-blend-mode: normal, soft-light, normal; }
+
+/* ── 区块标题：左侧晶棱 + 字距 ── */
+.h-sec { display: flex; align-items: center; gap: 10px; margin: 0; font-size: var(--fs-14); font-weight: 700; letter-spacing: .12em; color: var(--t-1); }
+.h-sec::before { content: ""; width: 8px; height: 14px; background: linear-gradient(180deg, var(--cy-300), var(--cy-600));
+  clip-path: polygon(50% 0, 100% 30%, 100% 70%, 50% 100%, 0 70%, 0 30%); box-shadow: var(--glow-cy); }
+.h-sec small { font-size: var(--fs-11); font-weight: 400; letter-spacing: .04em; color: var(--t-3); }
+
+/* ── 按钮 ─────────────────────────────────────────────────────────────────── */
+.btn { --cut: var(--cut-sm); --edge: var(--edge-metal); --fill: var(--panel-raise);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 0 18px;
+  border: none; background: none; cursor: pointer; text-decoration: none; white-space: nowrap;
+  font-size: var(--fs-14); font-weight: 700; letter-spacing: .06em; color: var(--t-1);
+  transition: transform var(--dur-2) var(--ease), filter var(--dur-2); }
+.btn:hover:not(:disabled) { filter: brightness(1.18); transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0) scale(.97); transition-duration: var(--dur-1); }
+.btn:disabled { cursor: default; filter: saturate(.3) brightness(.7); opacity: .6; }
+.btn:focus-visible { outline: 2px solid var(--cy-300); outline-offset: 3px; }
+.btn--primary { --edge: var(--edge-gold); --fill: linear-gradient(180deg, #ffe08a 0%, #f6b938 48%, #c47a1d 100%); color: #2a1604; text-shadow: 0 1px 0 rgba(255, 240, 200, .5); }
+.btn--primary:hover:not(:disabled) { filter: brightness(1.08) drop-shadow(0 0 12px rgba(246, 185, 56, .55)); }
+.btn--cy { --edge: var(--edge-crystal); --fill: linear-gradient(180deg, #1d6fb0 0%, #12508e 55%, #0b3a6e 100%); }
+.btn--ghost { --edge: linear-gradient(180deg, var(--line-2), var(--line)); --fill: rgba(14, 27, 62, .55); font-weight: 600; color: var(--t-2); }
+.btn--danger { --edge: linear-gradient(135deg, #ffb0b8, #ff5468 40%, #7a1a2a); --fill: linear-gradient(180deg, #5a1626, #3a0d1a); color: #ffd6db; }
+.btn--sm { min-height: 30px; padding: 0 12px; font-size: var(--fs-12); --cut: var(--cut-xs); }
+.btn--lg { min-height: 52px; padding: 0 30px; font-size: var(--fs-18); --cut: var(--cut-md); letter-spacing: .14em; }
+.btn .ico { width: 18px; height: 18px; flex: none; }
+
+/* ── 图标（内联 SVG，currentColor） ── */
+.ico { width: 1em; height: 1em; display: inline-block; vertical-align: -.125em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ico.solid { fill: currentColor; stroke: none; }
+
+/* ── 属性晶石：六棱晶体 + 属性首字 ── */
+.tgem { --tc: #707888; position: relative; flex: none; display: inline-grid; place-items: center; width: 22px; height: 24px;
+  font-size: 11px; font-weight: 700; line-height: 1; color: #fff; text-shadow: 0 1px 1px rgba(0, 0, 0, .55);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .55) 0 18%, transparent 19% 100%),
+    linear-gradient(200deg, color-mix(in srgb, var(--tc) 55%, white), var(--tc) 45%, color-mix(in srgb, var(--tc) 55%, black)); }
+.tgem::after { content: ""; position: absolute; inset: 0; clip-path: inherit; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3); pointer-events: none; }
+.tgem.lg { width: 30px; height: 34px; font-size: 14px; }
+
+/* 属性胶囊（带文字） */
+.tchip { --tc: #707888; display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px 0 3px;
+  font-size: var(--fs-12); font-weight: 700; font-style: normal; white-space: nowrap; color: color-mix(in srgb, var(--tc) 45%, white);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 38%, transparent), color-mix(in srgb, var(--tc) 12%, transparent));
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.tchip.plain { padding: 0 10px; }
+.tchip.mode { --tc: var(--au-400); padding: 0 10px; }
+.tchip.info { --tc: #6c86c0; padding: 0 10px; }
+.tchip.seal { --tc: var(--au-400); padding: 0 10px; }
+
+/* 状态 / 能力芯片（.chip 由 badges.tsx 产出） */
+.chips { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.chip { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; font-size: var(--fs-11); font-weight: 700; white-space: nowrap;
+  background: color-mix(in srgb, currentColor 16%, rgba(6, 12, 31, .7)); box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent);
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
+.soul-chip { position: relative; display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 9px;
+  font-size: var(--fs-11); font-weight: 700; white-space: nowrap; color: #e6d4ff;
+  background: linear-gradient(90deg, rgba(184, 132, 255, .42), rgba(184, 132, 255, .12)); box-shadow: inset 0 0 0 1px rgba(200, 160, 255, .45);
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
+.soul-chip.dim { opacity: .5; text-decoration: line-through; }
+.soul-chip.shielded { color: var(--cy-200); background: linear-gradient(90deg, rgba(79, 224, 255, .38), rgba(79, 224, 255, .1)); }
+
+/* ── 头像框：六棱晶体框 + 精灵立绘（portrait.ts）── */
+.pt { --tc: var(--cy-500); --ring: var(--edge-metal); --sz: 64px; position: relative; display: inline-block; flex: none; width: var(--sz); height: calc(var(--sz) * 1.1); vertical-align: middle; }
+.pt::before, .pt::after, .pt > .pt-in { position: absolute; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+.pt::before { content: ""; inset: 0; background: var(--ring); }
+.pt::after { content: ""; inset: 2px; z-index: 2; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 38%); }
+.pt > .pt-in { inset: 2px; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(90% 70% at 50% 35%, color-mix(in srgb, var(--tc) 55%, #10204a), color-mix(in srgb, var(--tc) 18%, #071029) 70%); }
+.pt > .pt-in img { width: 108%; height: 108%; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .45)); }
+.pt > .pt-in .pt-fb { font-size: calc(var(--sz) * .42); font-weight: 700; color: rgba(255, 255, 255, .9); text-shadow: 0 2px 6px rgba(0, 0, 0, .4); }
+.pt.e-au { --ring: var(--edge-gold); }
+.pt.e-cy { --ring: var(--edge-crystal); }
+.pt.e-foe { --ring: var(--edge-foe); }
+.pt.dead > .pt-in { filter: grayscale(1) brightness(.6); }
+
+/* ── 弹层（悬停说明） ── */
+.tip { display: none; position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%); z-index: 80;
+  min-width: 220px; max-width: 320px; padding: 12px 14px; pointer-events: none; white-space: normal; text-align: left;
+  font-size: var(--fs-12); font-weight: 400; line-height: 1.55; color: var(--t-2);
+  background: linear-gradient(180deg, rgba(24, 44, 93, .98), rgba(10, 20, 48, .98));
+  box-shadow: 0 0 0 1px var(--line-2), 0 0 0 2px rgba(0, 0, 0, .35), var(--drop-lg);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+.tip .tt { display: flex; align-items: center; gap: 8px; font-size: var(--fs-14); font-weight: 700; color: var(--t-1); margin-bottom: 6px; }
+.tip .tl { line-height: 1.6; }
+.tip .tm { margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--line); font-size: var(--fs-11); color: var(--t-3); }
+@keyframes pop { from { opacity: 0; translate: 0 6px; } }
+
+/* ── 输入 / 选择 ── */
+.field { height: 34px; padding: 0 12px; border: none; outline: none; color: var(--t-1); background: rgba(6, 12, 31, .7);
+  box-shadow: inset 0 0 0 1px var(--line-2); clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  transition: box-shadow var(--dur-2); }
+.field:focus { box-shadow: inset 0 0 0 1px var(--cy-400), inset 0 0 12px rgba(79, 224, 255, .18); }
+.field::placeholder { color: var(--t-3); }
+select.field option { background: var(--n-900); color: var(--t-1); }
+
+/* ── 页面背景（Krea2 场景图 + 渐变压暗）── */
+.scene-bg { position: fixed; inset: 0; z-index: -1; background-size: cover; background-position: center; }
+.scene-bg::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(3, 7, 18, .35) 0%, rgba(3, 7, 18, .2) 40%, rgba(3, 7, 18, .78) 100%); }
+
+/* ── 顶部导航（主界面 / 战斗 / 仓库 / 背包 共用）── */
+.topnav { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 22px; height: 64px; padding: 0 28px;
+  background: linear-gradient(180deg, rgba(5, 10, 26, .92), rgba(5, 10, 26, .55) 70%, rgba(5, 10, 26, 0));
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--t-1); }
+.brand-mark { width: 30px; height: 34px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: linear-gradient(135deg, var(--cy-200), var(--cy-500) 45%, var(--n-600)); box-shadow: var(--glow-cy); }
+.brand b { font-family: var(--font-num); font-size: 20px; font-weight: 700; letter-spacing: .22em; line-height: 1;
+  background: linear-gradient(180deg, #fff, var(--cy-300)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand small { display: block; font-size: 10px; letter-spacing: .5em; color: var(--t-3); margin-top: 3px; }
+.navtabs { display: flex; gap: 4px; margin-left: 12px; }
+.navtab { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 18px; text-decoration: none;
+  font-size: var(--fs-14); font-weight: 700; letter-spacing: .1em; color: var(--t-2); transition: color var(--dur-2); }
+.navtab .ico { width: 17px; height: 17px; opacity: .8; }
+.navtab::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 2px; height: 3px; transform: scaleX(0);
+  background: linear-gradient(90deg, transparent, var(--cy-300), transparent); transition: transform var(--dur-3) var(--ease-out); }
+.navtab:hover { color: var(--t-1); }
+.navtab:hover::after { transform: scaleX(.6); }
+.navtab.on { color: var(--t-1); text-shadow: 0 0 12px rgba(79, 224, 255, .6); }
+.navtab.on::after { transform: scaleX(1); }
+.navtab.on .ico { opacity: 1; color: var(--cy-300); }
+.topnav .spacer { flex: 1; }
+.player-chip { --cut: var(--cut-sm); display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 14px 0 6px; }
+.player-chip .pt { --sz: 30px; }
+.player-chip b { display: block; font-size: var(--fs-13); line-height: 1.1; }
+.player-chip small { display: block; font-size: var(--fs-11); color: var(--t-3); line-height: 1.2; }
+.res { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px 0 8px; font-size: var(--fs-13); font-weight: 700;
+  background: rgba(6, 12, 31, .6); box-shadow: inset 0 0 0 1px var(--line); clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); }
+.res i { width: 14px; height: 16px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); background: linear-gradient(135deg, var(--au-200), var(--au-500)); }
+.res i.cy { background: linear-gradient(135deg, var(--cy-200), var(--cy-600)); }
+
+/* 页面骨架 */
+.page { min-height: 100vh; display: flex; flex-direction: column; }
+.page-body { flex: 1; width: min(1360px, 100% - 48px); margin: 0 auto; padding: 8px 0 32px; }
+
+/* ── 六维条（各维度有自己的辅助色） ── */
+.statbars { display: grid; gap: 7px; }
+.sb { --sc: var(--cy-400); display: grid; grid-template-columns: 34px minmax(0, 1fr) 40px; align-items: center; gap: 10px; font-size: var(--fs-12); }
+.sb-k { color: var(--t-2); font-weight: 700; letter-spacing: .04em; }
+.sb-bar { height: 7px; background: rgba(0, 0, 0, .45); box-shadow: inset 0 0 0 1px rgba(143, 182, 255, .1); overflow: hidden;
+  clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%); }
+.sb-bar > i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--sc) 55%, transparent), var(--sc)); box-shadow: 0 0 8px var(--sc);
+  transition: width var(--dur-4) var(--ease-out); }
+.sb b { text-align: right; font-size: var(--fs-14); font-weight: 700; color: var(--t-1); }
+.sb-hp { --sc: var(--hp-hi); } .sb-atk { --sc: #ff8a5c; } .sb-def { --sc: #5aa8ff; }
+.sb-spa { --sc: #c58aff; } .sb-sdf { --sc: #4fe0d0; } .sb-spd { --sc: var(--au-300); }
+
+/* 全身立绘 */
+.creature-art { position: relative; display: inline-block; flex: none; }
+.creature-art img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* 等级金签 */
+.lvtag { display: inline-flex; align-items: baseline; gap: 2px; height: 22px; padding: 0 9px; font-size: var(--fs-14); font-weight: 700; color: #2a1604; line-height: 22px;
+  background: linear-gradient(180deg, var(--au-200), var(--au-400) 60%, var(--au-500));
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0 50%); }
+.lvtag small { font-size: 9px; letter-spacing: .06em; }

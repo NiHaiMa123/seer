@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "seer/soulmarks.schema.json",
+  "title": "Soulmark catalog（魂印库）",
+  "description": "魂印=精灵固有被动能力（数据驱动 op 集合）。unit.soulMark 按 id 引用；effects 语义由 mechanics/soulmark 结算。",
+  "type": "object",
+  "required": ["soulmarks"],
+  "additionalProperties": false,
+  "properties": {
+    "soulmarks": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/soulmark" },
+      "propertyNames": { "pattern": "^sm-[a-z0-9-]+$" }
+    }
+  },
+  "definitions": {
+    "soulOp": {
+      "type": "object",
+      "required": ["op"],
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "enum": [
+            "immune_control",
+            "immune_stage_down",
+            "priority_high_hp",
+            "endure",
+            "revive",
+            "turn_heal",
+            "turn_pp_restore",
+            "turn_flat",
+            "entry_dispel",
+            "hit_shield"
+          ]
+        },
+        "boost": { "type": "integer", "minimum": 1, "maximum": 9 },
+        "numerator": { "type": "integer", "minimum": 1 },
+        "denominator": { "type": "integer", "minimum": 1 },
+        "count": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "of": { "enum": ["lost", "max"] },
+        "chance": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "bossGate": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "op": { "const": "priority_high_hp" } }, "required": ["op"] },
+          "then": { "required": ["boost"], "properties": { "boost": { "type": "integer", "minimum": 1, "maximum": 9 } } }
+        },
+        {
+          "if": { "properties": { "op": { "const": "turn_heal" } }, "required": ["op"] },
+          "then": {
+            "required": ["numerator", "denominator"],
+            "properties": {
+              "numerator": { "type": "integer", "minimum": 1 },
+              "denominator": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "op": { "const": "turn_pp_restore" } }, "required": ["op"] },
+          "then": { "required": ["count"], "properties": { "count": { "type": "integer", "minimum": 1, "maximum": 4 } } }
+        },
+        {
+          "if": { "properties": { "op": { "const": "turn_flat" } }, "required": ["op"] },
+          "then": {
+            "required": ["numerator", "denominator", "of"],
+            "properties": {
+              "numerator": { "type": "integer", "minimum": 1 },
+              "denominator": { "type": "integer", "minimum": 1 },
+              "of": { "enum": ["lost", "max"] }
+            }
+          }
+        }
+      ]
+    },
+    "soulGuard": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "actor": { "enum": ["self", "foe"] },
+        "victim": { "enum": ["self", "foe"] },
+        "who": { "enum": ["self", "foe"] },
+        "switcher": { "enum": ["self", "foe"] },
+        "cat": {
+          "oneOf": [
+            { "type": "integer", "enum": [1, 2, 3] },
+            { "type": "array", "minItems": 1, "items": { "type": "integer", "enum": [1, 2, 3] } }
+          ]
+        },
+        "alwaysHit": { "type": "boolean" },
+        "streak": { "enum": ["attack", "status"] },
+        "streakN": { "type": "integer", "minimum": 2 },
+        "sameMove": { "type": "boolean" },
+        "if": { "$ref": "moves.schema.json#/definitions/condition" }
+      }
+    },
+    "soulChance": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "base": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "dyn": { "enum": ["selfHpPct", "selfMissingHpPct", "foeHpPct", "foeMissingHpPct"] },
+        "grow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["add"],
+          "properties": {
+            "add": { "type": "integer", "minimum": -100, "maximum": 100 },
+            "cap": { "type": "integer", "minimum": 1, "maximum": 100 },
+            "on": { "enum": ["fail", "always"] }
+          }
+        },
+        "resetOnFire": { "const": true },
+        "once": { "const": true }
+      }
+    },
+    "soulHook": {
+      "type": "object",
+      "required": ["hook", "ops"],
+      "additionalProperties": false,
+      "properties": {
+        "hook": {
+          "enum": [
+            "onTurnStart",
+            "onTurnEnd",
+            "onEntry",
+            "onDamaged",
+            "onKO",
+            "onSwitchOut",
+            "onMoveUsed",
+            "onBattleStart",
+            "beforeOrder",
+            "onDamageDealt",
+            "onMiss"
+          ]
+        },
+        "guard": {
+          "oneOf": [
+            { "$ref": "moves.schema.json#/definitions/condition" },
+            { "$ref": "#/definitions/soulGuard" }
+          ]
+        },
+        "chance": { "$ref": "#/definitions/soulChance" },
+        "bossGate": { "type": "boolean" },
+        "ops": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "moves.schema.json#/properties/moves/items/properties/effects/items" }
+        },
+        "elseOps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "moves.schema.json#/properties/moves/items/properties/effects/items" }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "required": ["elseOps"], "properties": { "elseOps": true } },
+          "then": { "required": ["chance"], "properties": { "chance": { "type": "object", "required": ["base"], "properties": { "base": { "type": "integer", "minimum": 1, "maximum": 100 } } } } }
+        },
+        {
+          "if": { "properties": { "hook": { "const": "onKO" } }, "required": ["hook"] },
+          "then": { "required": ["guard"], "properties": { "guard": { "type": "object", "required": ["victim"], "properties": { "victim": { "enum": ["self", "foe"] } } } } }
+        },
+        {
+          "if": { "properties": { "hook": { "const": "onMoveUsed" } }, "required": ["hook"] },
+          "then": { "required": ["guard"], "properties": { "guard": { "type": "object", "required": ["actor"], "properties": { "actor": { "enum": ["self", "foe"] } } } } }
+        }
+      ]
+    },
+    "soulmark": {
+      "type": "object",
+      "required": ["id", "name", "effects"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^sm-[a-z0-9-]+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "desc": { "type": "string", "maxLength": 2000 },
+        "effects": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "anyOf": [{ "$ref": "#/definitions/soulOp" }, { "$ref": "#/definitions/soulHook" }] }
+        }
+      }
+    }
+  }
+}

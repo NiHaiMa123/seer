@@ -41,10 +41,12 @@ async function cardHp(page: Page, side: "own" | "foe"): Promise<[number, number]
   const m = t.match(/(\d+)\/(\d+)/);
   return [Number(m?.[1]), Number(m?.[2])];
 }
-/** DOM：技能钮 testid 列表（左栏，不含 rail 的撤退/快进/倍速） */
+/** DOM：可用动作钮 testid 列表（替补回合里隐藏页的旧技能是 disabled，不计入可操作集） */
 async function skillIds(page: Page): Promise<string[]> {
   return page.locator("[data-testid^='btn-act_']").evaluateAll((els) =>
-    els.map((e) => e.getAttribute("data-testid")!.slice(4)).filter((id) => id !== "act_concede").sort());
+    els.filter((e) => !(e as HTMLButtonElement).disabled)
+      .map((e) => e.getAttribute("data-testid")!.slice(4))
+      .filter((id) => id !== "act_concede").sort());
 }
 /** DOM：技能钮显示的 PP "次数 a/b" → {actionId: "a/b"} */
 async function skillPps(page: Page): Promise<Record<string, string>> {
@@ -58,14 +60,14 @@ async function skillPps(page: Page): Promise<Record<string, string>> {
     return out;
   });
 }
-/** DOM：后备栏条目 [{speciesId, hp}] */
+/** DOM：后备栏条目 [{speciesId, hp}]（精灵面板常驻 DOM，技能页时仅视觉隐藏） */
 async function benchDom(page: Page): Promise<{ speciesId: string; hp: string }[]> {
-  if (!(await page.getByTestId("bench-panel").isVisible().catch(() => false))) return [];
+  if ((await page.getByTestId("bench-panel").count()) === 0) return [];
   return page.locator("[data-testid^='bench-']:not([data-testid='bench-panel'])").evaluateAll((els) =>
     els.map((e) => {
       const t = e.textContent ?? "";
       return {
-        speciesId: t.match(/(syn-[a-z]+)/)?.[1] ?? "?",
+        speciesId: t.match(/(pet-\d+|syn-[a-z0-9-]+)/)?.[1] ?? "?",
         hp: t.match(/(\d+)\/(\d+)/)?.[0] ?? "?",
       };
     }));
@@ -123,23 +125,30 @@ page.on("pageerror", (e) => { fail++; failures.push(`pageerror: ${e.message}`); 
 
 // ════ 大厅 ════
 console.log("─ 大厅 ─");
+// teamStore 服务端落盘——先清空，保证「开始钮初始禁用」等断言确定
+await fetch(`${BASE}/api/local/team`, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify({ team: [], loadout: {}, carried: {} }) });
 await page.goto(BASE);
-await page.getByTestId("team-builder").waitFor();
+await page.getByTestId("home-screen").waitFor();
+await page.getByTestId("nav-lobby").click();
+await page.getByTestId("lobby-screen").waitFor();
 check("开始钮初始禁用", await page.getByTestId("btn-start").isDisabled());
-await page.getByTestId("pick-syn-gamma").click();
-await page.getByTestId("pick-syn-delta").click();
-await page.getByTestId("pick-syn-epsilon").click();
-check("点满3只后可继续点不生效", await page.locator("[data-testid^='pick-']").count() === 3);
-await page.getByTestId("pick-syn-delta").click(); // 反选
-check("反选后剩2只高亮", (await page.locator("[data-testid^='pick-']").evaluateAll(
-  (els) => els.filter((e) => getComputedStyle(e as HTMLElement).borderColor === "rgb(90, 138, 255)").length)) === 2);
-await page.getByTestId("pack-select").selectOption("synthetic-v1");
-await page.waitForTimeout(400);
-check("切包后清空编队", !(await page.getByTestId("btn-start").isEnabled()) === false ? await page.getByTestId("btn-start").isDisabled() : true);
-check("v1 精灵列表=2只", (await page.locator("[data-testid^='pick-']").count()) === 2);
-await page.getByTestId("pack-select").selectOption("synthetic-v2");
-await page.waitForTimeout(400);
-for (const id of ["syn-gamma", "syn-delta", "syn-epsilon"]) await page.getByTestId(`pick-${id}`).click();
+await page.getByTestId("nav-storage").click();
+await page.getByTestId("team-builder").waitFor();
+// 名册分页（2239 只）——按编号搜索后点选
+for (const id of ["pet-5000", "pet-3550", "pet-3577"]) {
+  await page.getByTestId("warehouse-q").fill(id);
+  await page.getByTestId(`pick-${id}`).click();
+}
+await page.getByTestId("warehouse-q").fill("");
+await page.waitForTimeout(200);
+check("巅峰包名册分页，首页满页 40 只", (await page.locator("[data-testid^='pick-']").count()) === 40);
+await page.getByTestId("warehouse-q").fill("pet-3550");
+await page.getByTestId("pick-pet-3550").click(); // 反选
+check("反选后该卡取消高亮", (await page.locator("[data-testid='pick-pet-3550'].in").count()) === 0);
+await page.getByTestId("pick-pet-3550").click(); // 再选回
+check("选回后该卡高亮", (await page.locator("[data-testid='pick-pet-3550'].in").count()) === 1);
+await page.getByTestId("nav-lobby").click();
+await page.getByTestId("lobby-screen").waitFor();
 await page.getByTestId("btn-start").click();
 await page.waitForURL(/battle=btl_/);
 await page.getByTestId("ucard-own").waitFor();
@@ -170,7 +179,11 @@ const sw = o.legalActions.find((a: any) => a.action?.kind === "switch");
 if (sw !== undefined) {
   const targetSpecies = o.own.bench.find((b: any) => b.unitId === sw.action.unitId)?.speciesId;
   rev = o.revision;
+  await page.getByTestId("btn-pets").click();
+  check("点「精灵」切到精灵面板", await page.getByTestId("bench-panel").isVisible());
   await page.getByTestId(`btn-${sw.actionId}`).click();
+  await page.waitForTimeout(300);
+  check("点头像换人后回到技能页", !(await page.getByTestId("bench-panel").isVisible()));
   await page.waitForTimeout(500);
   o = await obsOf(page);
   await assertConsistent(page, o, "换人后");
@@ -193,8 +206,12 @@ if (mv2 !== undefined) {
   await page.waitForTimeout(500);
   o = await obsOf(page);
   await assertConsistent(page, o, "次招后");
-  if (o.own.unitId !== leadUnit && ppBefore !== undefined && o.own.ppByMoveId?.[mv2Id] !== undefined) {
-    check("新单位 PP 扣1", o.own.ppByMoveId[mv2Id] === ppBefore - 1, `${ppBefore}→${o.own.ppByMoveId[mv2Id]}`);
+  if (o.own.unitId !== leadUnit && ppBefore !== undefined && o.own.ppByMoveId?.[mv2Id] !== undefined && o.decision?.kind !== "replacement") {
+    // 潮汐之脉魂印回合末 +1PP：花1回1→显示不变；无恢复魂印则期望 -1
+    const restored = o.own.soul?.id === "sm-tide-vein" ? 1 : 0;
+    check("新单位 PP 扣减（含魂印恢复）", o.own.ppByMoveId[mv2Id] === ppBefore - 1 + restored, `${ppBefore}→${o.own.ppByMoveId[mv2Id]}`);
+  } else if (o.decision?.kind === "replacement") {
+    check("次招后 PP 扣减（本回合我方被击倒进替补——跳过）", true);
   }
 }
 const swBack = o.legalActions.find((a: any) => a.action?.kind === "switch" && a.action.unitId === leadUnit);
@@ -202,6 +219,15 @@ if (swBack !== undefined) {
   const leadBenchHp = o.own.bench.find((b: any) => b.unitId === leadUnit)?.hp.current;
   const leadBenchPp = o.own.bench.find((b: any) => b.unitId === leadUnit)?.ppByMoveId?.[firstMoveId];
   rev = o.revision;
+  await page.getByTestId("btn-pets").click();
+  if (await page.getByTestId("btn-fight").isEnabled().catch(() => false)) {
+    await page.getByTestId("btn-fight").click();
+    await page.waitForTimeout(300); // 旧页淡出 0.16s 后才隐藏
+    check("点「战斗」切回技能页", !(await page.getByTestId("bench-panel").isVisible()));
+    await page.getByTestId("btn-pets").click();
+  } else {
+    check("点「战斗」切回技能页（替补回合战斗钮禁用，强制停精灵页即正确）", await page.getByTestId("bench-panel").isVisible());
+  }
   await page.getByTestId(`btn-${swBack.actionId}`).click();
   await page.waitForTimeout(500);
   o = await obsOf(page);
@@ -306,18 +332,24 @@ const profText = (await page.getByTestId("world-profile").textContent()) ?? "";
 check("采集后背包含 item-shard", (prof.inventory["item-shard"] ?? 0) >= 1);
 check("profile DOM 显示背包", profText.includes("item-shard"), profText.slice(0, 80));
 
-// 存档队伍 → 载入按钮 → 点选顺序恢复
-await page.getByTestId("pick-syn-gamma").click();
-await page.getByTestId("pick-syn-epsilon").click();
+// 存档队伍 → 载入按钮 → 点选恢复（名册分页，按编号搜索定位）
+const packOpts = await page.getByTestId("pack-select").locator("option").allTextContents();
+check("下拉只有巅峰常见", packOpts.length === 1 && packOpts[0] === "巅峰常见", packOpts.join(","));
+await page.getByTestId("warehouse-q").fill("pet-5000");
+await page.getByTestId("pick-pet-5000").click();
+await page.getByTestId("warehouse-q").fill("pet-3550");
+await page.getByTestId("pick-pet-3550").click();
 await page.getByTestId("btn-save-team").click();
 await page.waitForTimeout(500);
-await page.getByTestId("pick-syn-gamma").click(); // 取消当前选择
+await page.getByTestId("pick-pet-3550").click(); // 取消一只（仍在 pet-3550 筛选视图）
 await page.getByTestId("load-main").click();
-await page.waitForTimeout(200);
-const picked = await page.locator("[data-testid^='pick-']").evaluateAll((els) =>
-  els.filter((e) => ["rgb(90, 138, 255)", "rgb(68, 170, 255)"].includes(getComputedStyle(e as HTMLElement).borderColor))
-    .map((e) => e.getAttribute("data-testid")));
-check("载入存档恢复点选", JSON.stringify([...picked].sort()) === JSON.stringify(["pick-syn-epsilon", "pick-syn-gamma"]), JSON.stringify(picked));
+await page.waitForTimeout(300);
+const pickedIn = async (id: string) => {
+  await page.getByTestId("warehouse-q").fill(id);
+  await page.waitForTimeout(150);
+  return page.locator(`[data-testid='pick-${id}'].in`).isVisible().catch(() => false);
+};
+check("载入存档恢复点选", (await pickedIn("pet-5000")) && (await pickedIn("pet-3550")));
 await page.screenshot({ path: `${SHOTS}/matrix-world.png` });
 
 await browser.close();

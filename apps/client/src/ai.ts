@@ -16,10 +16,23 @@ export function chooseAction(obs: any): string | null {
   const pick = (id: string) => (legal.has(`act_${id}`) ? `act_${id}` : null);
   const pp = (m: string) => own.ppByMoveId[m] ?? 0;
 
-  if (own.hp.current < own.hp.max * 0.4 && pp("syn-recover") > 0) return pick("syn-recover");
-  if (own.stages.atk < 2 && pp("syn-bolster") > 0) return pick("syn-bolster");
-  if (pp("syn-strike") > 0) return pick("syn-strike");
+  // 优先招当前不合法时不得返回 null——继续向下回退到合法动作（否则本侧空转超时）
+  if (own.hp.current < own.hp.max * 0.4 && pp("syn-recover") > 0) {
+    const a = pick("syn-recover");
+    if (a !== null) return a;
+  }
+  if (own.stages.atk < 2 && pp("syn-bolster") > 0) {
+    const a = pick("syn-bolster");
+    if (a !== null) return a;
+  }
+  if (pp("syn-strike") > 0) {
+    const a = pick("syn-strike");
+    if (a !== null) return a;
+  }
   if (legal.has("act_struggle")) return "act_struggle";
-  if (pp("syn-jab") > 0) return pick("syn-jab");
+  if (pp("syn-jab") > 0) {
+    const a = pick("syn-jab");
+    if (a !== null) return a;
+  }
   return "act_concede";
 }

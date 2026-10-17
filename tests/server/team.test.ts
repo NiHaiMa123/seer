@@ -25,8 +25,12 @@ describe("teamToConfig", () => {
     expect(() => teamToConfig(V2, ["syn-gamma", "syn-mewtwo"])).toThrow(TeamError);
     expect(() => teamToConfig(V2, ["syn-mewtwo"])).toThrow(TeamError);
   });
-  it("超 maxBenchSize=2 拒绝", () => {
-    expect(() => teamToConfig(V2, ["syn-gamma", "syn-delta", "syn-epsilon", "syn-gamma"]))
+  it("6 只出战（1+maxBenchSize=5）接受", () => {
+    expect(teamToConfig(V2, ["syn-gamma", "syn-delta", "syn-epsilon", "syn-gamma", "syn-delta", "syn-epsilon"]).bench)
+      .toHaveLength(5);
+  });
+  it("超 maxBenchSize=5 拒绝", () => {
+    expect(() => teamToConfig(V2, ["syn-gamma", "syn-delta", "syn-epsilon", "syn-gamma", "syn-delta", "syn-epsilon", "syn-gamma"]))
       .toThrowError(/maxBenchSize/);
   });
   it("v1 规则集（无 bench feature）拒绝任何 bench", () => {

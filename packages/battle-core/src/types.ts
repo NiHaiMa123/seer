@@ -24,27 +24,61 @@ export interface CoreState {
   terminal: BattleState["terminal"];
 }
 
+export type CoreEventType =
+  | "turn-begin"
+  | "action-declared"
+  | "pp-spent"
+  | "damage"
+  | "heal"
+  | "stat-stage"
+  | "effect-applied"
+  | "effect-faded"
+  | "control-immune"
+  | "stages-transferred"
+  | "stages-cleared"
+  | "switch"
+  | "revive"
+  | "soulmark"
+  | "action-failed"
+  | "missed"
+  | "protected"
+  | "pp-delta"
+  | "struggle-used"
+  | "rng-draw"
+  | "ko"
+  | "battle-end";
+
+/** 事件类型唯一权威清单——Host 校验/投影/测试共用此表，漏一个成员即 typecheck 失败。 */
+export const CORE_EVENT_TYPES: readonly CoreEventType[] = [
+  "turn-begin",
+  "action-declared",
+  "pp-spent",
+  "damage",
+  "heal",
+  "stat-stage",
+  "effect-applied",
+  "effect-faded",
+  "control-immune",
+  "stages-transferred",
+  "stages-cleared",
+  "switch",
+  "revive",
+  "soulmark",
+  "action-failed",
+  "missed",
+  "protected",
+  "pp-delta",
+  "struggle-used",
+  "rng-draw",
+  "ko",
+  "battle-end",
+];
+const _eventTypesExhaustive: Exclude<CoreEventType, (typeof CORE_EVENT_TYPES)[number]> extends never ? true : never = true;
+void _eventTypesExhaustive;
+
 /** core 发出的事件负载：detail 形状与公共/内部事件 union 一致；Host 负责包 seq/revision/causeId。 */
 export interface CoreEvent {
-  type:
-    | "turn-begin"
-    | "action-declared"
-    | "pp-spent"
-    | "damage"
-    | "heal"
-    | "stat-stage"
-    | "effect-applied"
-    | "effect-faded"
-    | "control-immune"
-    | "stages-transferred"
-    | "stages-cleared"
-    | "switch"
-    | "revive"
-    | "action-failed"
-    | "struggle-used"
-    | "rng-draw"
-    | "ko"
-    | "battle-end";
+  type: CoreEventType;
   detail: Record<string, unknown>;
   rngDraw?: { purpose: string; value: number };
 }

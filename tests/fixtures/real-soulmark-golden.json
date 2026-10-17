@@ -1,0 +1,904 @@
+{
+  "seed": "cc33cc33cc33cc33cc33cc33cc33cc33",
+  "pets": [
+    {
+      "petNo": "2852",
+      "name": "赤瞳·缪斯",
+      "type": "超能",
+      "skills": [
+        "拳击",
+        "哀叹",
+        "冲击",
+        "幻光盾"
+      ],
+      "soulmarkText": "缪:每回合特攻+1、速度+1，每回合附加150点固定伤害(boss无效)",
+      "soulmarkEntries": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": 1,
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 150,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "unparsed": []
+    },
+    {
+      "petNo": "3055",
+      "name": "天弓黄忠",
+      "type": "远古",
+      "skills": [
+        "痛击",
+        "虚招",
+        "乱击",
+        "迟缓波"
+      ],
+      "soulmarkText": "弓：击败对手时恢复自身所有体力",
+      "soulmarkEntries": [
+        {
+          "hook": "onKO",
+          "guard": { "victim": "foe" },
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 1,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "unparsed": []
+    },
+    {
+      "petNo": "3126",
+      "name": "魔龙·加洛斯格",
+      "type": "龙",
+      "skills": [
+        "龙爪",
+        "锋利",
+        "爆射龙息",
+        "追猎"
+      ],
+      "soulmarkText": "加：受到攻击时自身防御+2、特防+2",
+      "soulmarkEntries": [
+        {
+          "hook": "onDamaged",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": 2,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": 2,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "unparsed": []
+    },
+    {
+      "petNo": "2522",
+      "name": "卧龙诸葛",
+      "type": "光神秘",
+      "skills": [
+        "抓",
+        "加速",
+        "光弹",
+        "沉稳"
+      ],
+      "soulmarkText": "龍：登场时使对手命中-1",
+      "soulmarkEntries": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "acc",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "unparsed": []
+    }
+  ],
+  "summary": {
+    "turns": 6,
+    "terminal": {
+      "result": "p1",
+      "reason": "ko"
+    },
+    "hp": {
+      "p1": 284,
+      "p2": 0
+    }
+  },
+  "events": [
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-2852-1",
+        "moveId": "mv-2852-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-2852-1",
+        "ppAfter": 34
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "spa",
+        "deltaApplied": -1,
+        "stageAfter": -1
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3126-2",
+        "moveId": "mv-3126-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3126-2",
+        "ppAfter": 29
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 245
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 66,
+        "hpAfter": {
+          "current": 355,
+          "max": 421
+        },
+        "eff16": 16,
+        "stab": true,
+        "moveType": "龙",
+        "category": "special"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spa",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spd",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 150,
+        "hpAfter": {
+          "current": 271,
+          "max": 421
+        },
+        "damageKind": "fixed"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p2",
+        "mark": "sm-3126",
+        "name": "魔龙·加洛斯格魂印",
+        "effect": "hook:onDamaged"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "def",
+        "deltaApplied": 2,
+        "stageAfter": 2
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "sdf",
+        "deltaApplied": 2,
+        "stageAfter": 2
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-2852-2",
+        "moveId": "mv-2852-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-2852-2",
+        "ppAfter": 29
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 251
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 41,
+        "hpAfter": {
+          "current": 230,
+          "max": 421
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "special"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p2",
+        "mark": "sm-3126",
+        "name": "魔龙·加洛斯格魂印",
+        "effect": "hook:onDamaged"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "def",
+        "deltaApplied": 2,
+        "stageAfter": 4
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "sdf",
+        "deltaApplied": 2,
+        "stageAfter": 4
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3126-3",
+        "moveId": "mv-3126-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3126-3",
+        "ppAfter": 29
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "spa",
+        "deltaApplied": 1,
+        "stageAfter": 0
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "acc",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spa",
+        "deltaApplied": 1,
+        "stageAfter": 2
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spd",
+        "deltaApplied": 1,
+        "stageAfter": 2
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 150,
+        "hpAfter": {
+          "current": 80,
+          "max": 421
+        },
+        "damageKind": "fixed"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p2",
+        "mark": "sm-3126",
+        "name": "魔龙·加洛斯格魂印",
+        "effect": "hook:onDamaged"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "def",
+        "deltaApplied": 2,
+        "stageAfter": 6
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "sdf",
+        "deltaApplied": 2,
+        "stageAfter": 6
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-2852-3",
+        "moveId": "mv-2852-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-2852-3",
+        "ppAfter": 24
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "def",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "sdf",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3126-0",
+        "moveId": "mv-3126-0"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3126-0",
+        "ppAfter": 39
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 252
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 29,
+        "hpAfter": {
+          "current": 326,
+          "max": 421
+        },
+        "eff16": 16,
+        "stab": true,
+        "moveType": "龙",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spa",
+        "deltaApplied": 1,
+        "stageAfter": 3
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spd",
+        "deltaApplied": 1,
+        "stageAfter": 3
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 150,
+        "hpAfter": {
+          "current": 0,
+          "max": 421
+        },
+        "damageKind": "fixed"
+      }
+    },
+    {
+      "type": "ko",
+      "detail": {
+        "side": "p2"
+      }
+    },
+    {
+      "type": "switch",
+      "detail": {
+        "side": "p2",
+        "outUnitId": "unit_p2",
+        "inUnitId": "unit_p2-b0",
+        "via": "replacement"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p2",
+        "mark": "sm-2522",
+        "name": "卧龙诸葛魂印",
+        "effect": "hook:onEntry"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "acc",
+        "deltaApplied": -1,
+        "stageAfter": -1
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-2852-0",
+        "moveId": "mv-2852-0"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-2852-0",
+        "ppAfter": 39
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 223
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 25,
+        "hpAfter": {
+          "current": 372,
+          "max": 397
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-2522-1",
+        "moveId": "mv-2522-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-2522-1",
+        "ppAfter": 34
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "spd",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spa",
+        "deltaApplied": 1,
+        "stageAfter": 4
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spd",
+        "deltaApplied": 1,
+        "stageAfter": 4
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 150,
+        "hpAfter": {
+          "current": 222,
+          "max": 397
+        },
+        "damageKind": "fixed"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-2852-1",
+        "moveId": "mv-2852-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-2852-1",
+        "ppAfter": 33
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "spa",
+        "deltaApplied": -1,
+        "stageAfter": -1
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-2522-2",
+        "moveId": "mv-2522-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-2522-2",
+        "ppAfter": 39
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 227
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 42,
+        "hpAfter": {
+          "current": 284,
+          "max": 421
+        },
+        "eff16": 32,
+        "stab": false,
+        "moveType": "光",
+        "category": "special"
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spa",
+        "deltaApplied": 1,
+        "stageAfter": 5
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "spd",
+        "deltaApplied": 1,
+        "stageAfter": 5
+      }
+    },
+    {
+      "type": "soulmark",
+      "detail": {
+        "side": "p1",
+        "mark": "sm-2852",
+        "name": "赤瞳·缪斯魂印",
+        "effect": "hook:onTurnEnd"
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 150,
+        "hpAfter": {
+          "current": 72,
+          "max": 397
+        },
+        "damageKind": "fixed"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-2852-2",
+        "moveId": "mv-2852-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-2852-2",
+        "ppAfter": 28
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 217
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 325,
+        "hpAfter": {
+          "current": 0,
+          "max": 397
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "special"
+      }
+    },
+    {
+      "type": "ko",
+      "detail": {
+        "side": "p2"
+      }
+    },
+    {
+      "type": "battle-end",
+      "detail": {
+        "result": "p1",
+        "reason": "ko"
+      }
+    }
+  ]
+}

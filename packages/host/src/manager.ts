@@ -57,6 +57,20 @@ export class BattleManager {
     return [...this.hosts.keys()].sort();
   }
 
+  /** 库内已持久化的对局 id（含未加载进内存的——启动恢复枚举用） */
+  storedIds(): string[] {
+    return this.store.listBattleIds();
+  }
+
+  /** 建局登记持久化（token/席位/归属等非权威元数据——随 battles 表同库存活） */
+  saveRegistration(battleId: string, data: unknown): void {
+    this.store.saveRegistration(battleId, data);
+  }
+
+  registrations(): { battleId: string; data: unknown }[] {
+    return this.store.loadRegistrations();
+  }
+
   generationOf(battleId: string): string {
     const managed = this.hosts.get(battleId);
     if (!managed) throw new HostError("NOT_FOUND", `battle ${battleId} not loaded`);

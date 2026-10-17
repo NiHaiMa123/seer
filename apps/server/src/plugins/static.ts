@@ -13,6 +13,10 @@ const MIME: Record<string, string> = {
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css",
   ".map": "application/json",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".jpg": "image/jpeg",
+  ".svg": "image/svg+xml",
 };
 
 const MANIFEST: PluginManifest = {

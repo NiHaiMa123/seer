@@ -21,6 +21,13 @@ export interface CreateBattleRequest {
   team?: { p1: string[]; p2: string[] };
   /** 刻印 loadout：loadout.p1[i] 是队伍第 i 槽位（[0]=首发）的刻印 id 列表 */
   loadout?: { p1?: string[][]; p2?: string[][] };
+  /** 魂印装配：soulmarks.p1[i] 是队伍第 i 槽位的魂印 id（省略=物种预设） */
+  soulmarks?: { p1?: (string | undefined)[]; p2?: (string | undefined)[] };
+  /**
+   * 通用机制装配袋：mechanics.<id>.<side>[i] = 队伍第 i 槽位的机制自有装配数据
+   * （元素形状归机制管——seals=数组 / soulmark=标量；loadout/soulmarks 是这两项的语法糖）。
+   */
+  mechanics?: Record<string, { p1?: unknown[]; p2?: unknown[] }>;
   pack?: string;
   /** pve：p2 为服务端 bot 席位（不发 token，自动提交） */
   mode?: "pvp" | "pve";
@@ -99,6 +106,43 @@ const loadout = (value: unknown): { p1?: string[][]; p2?: string[][] } => {
   };
 };
 
+const SOULMARK_ID = /^sm-[a-z0-9-]+$/;
+const soulmarksSide = (value: unknown, label: string): (string | undefined)[] => {
+  if (!Array.isArray(value) || value.length > 16) throw new TransportError(400, `${label} is invalid`);
+  return value.map((item, i) => (item === undefined || item === null ? undefined : text(item, `${label}[${i}]`, SOULMARK_ID)));
+};
+const soulmarks = (value: unknown): { p1?: (string | undefined)[]; p2?: (string | undefined)[] } => {
+  const input = asRecord(value, "soulmarks");
+  exact(input, ["p1", "p2"], "soulmarks");
+  return {
+    ...(input.p1 !== undefined ? { p1: soulmarksSide(input.p1, "soulmarks.p1") } : {}),
+    ...(input.p2 !== undefined ? { p2: soulmarksSide(input.p2, "soulmarks.p2") } : {}),
+  };
+};
+
+/**
+ * 通用机制装配袋：transport 只做形状校验（id 键 / p1|p2 / 每槽位数组 ≤16），
+ * 元素语义由 battle-core 的 Mechanic.checkInitSlots/applyUnit 裁决——新机制落地不改传输层。
+ */
+const mechanicsBag = (value: unknown): Record<string, { p1?: unknown[]; p2?: unknown[] }> => {
+  const input = asRecord(value, "mechanics");
+  const out: Record<string, { p1?: unknown[]; p2?: unknown[] }> = {};
+  for (const [id, bag] of Object.entries(input)) {
+    text(id, `mechanics key`, /^[a-z0-9][a-z0-9-]*$/);
+    const b = asRecord(bag, `mechanics.${id}`);
+    exact(b, ["p1", "p2"], `mechanics.${id}`);
+    const side = (v: unknown, label: string): unknown[] => {
+      if (!Array.isArray(v) || v.length > 16) throw new TransportError(400, `${label} must be an array (<=16 slots)`);
+      return v;
+    };
+    out[id] = {
+      ...(b.p1 !== undefined ? { p1: side(b.p1, `mechanics.${id}.p1`) } : {}),
+      ...(b.p2 !== undefined ? { p2: side(b.p2, `mechanics.${id}.p2`) } : {}),
+    };
+  }
+  return out;
+};
+
 const worldPlayer = (value: unknown, label: string): string =>
   text(value, label, /^wpl_[a-z0-9-]{1,60}$/);
 
@@ -113,7 +157,7 @@ const owners = (value: unknown): { p1?: string; p2?: string } => {
 
 export function parseCreateBattle(value: unknown): CreateBattleRequest {
   const input = asRecord(value, "create battle body");
-  exact(input, ["seedHex", "species", "bench", "team", "loadout", "pack", "mode", "owners", "deadlineMs"], "create battle body");
+  exact(input, ["seedHex", "species", "bench", "team", "loadout", "soulmarks", "mechanics", "pack", "mode", "owners", "deadlineMs"], "create battle body");
   if (input.mode !== undefined && input.mode !== "pvp" && input.mode !== "pve") {
     throw new TransportError(400, "mode must be pvp or pve");
   }
@@ -126,6 +170,8 @@ export function parseCreateBattle(value: unknown): CreateBattleRequest {
     ...(input.team !== undefined ? { team: teamPair(input.team) } : {}),
     ...(input.bench !== undefined ? { bench: bench(input.bench) } : {}),
     ...(input.loadout !== undefined ? { loadout: loadout(input.loadout) } : {}),
+    ...(input.soulmarks !== undefined ? { soulmarks: soulmarks(input.soulmarks) } : {}),
+    ...(input.mechanics !== undefined ? { mechanics: mechanicsBag(input.mechanics) } : {}),
     ...(input.pack !== undefined ? { pack: text(input.pack, "pack", /^[a-z0-9][a-z0-9-]*$/) } : {}),
     ...(input.mode !== undefined ? { mode: input.mode as "pvp" | "pve" } : {}),
     ...(input.owners !== undefined ? { owners: owners(input.owners) } : {}),

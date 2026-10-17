@@ -1,0 +1,707 @@
+{
+  "soulmarks": {
+    "sm-holy-guard": {
+      "id": "sm-holy-guard",
+      "name": "圣灵庇护",
+      "desc": "免疫控制类效果；每场战斗一次：受到致命伤害时保留 1 点体力，回合结束时回到上回合结束时的状态。",
+      "effects": [
+        {
+          "op": "immune_control"
+        },
+        {
+          "op": "endure"
+        }
+      ]
+    },
+    "sm-revive": {
+      "id": "sm-revive",
+      "name": "不灭之魂",
+      "desc": "SYNTHETIC：死亡时 100% 重生一次，复活至最大体力的一半。",
+      "effects": [
+        {
+          "op": "revive"
+        }
+      ]
+    },
+    "sm-tide-vein": {
+      "id": "sm-tide-vein",
+      "name": "潮汐之脉",
+      "desc": "体力高于对手时必定先手（+2 优先级）；每回合结束时所有招式恢复 1 点 PP。",
+      "effects": [
+        {
+          "op": "priority_high_hp",
+          "boost": 2
+        },
+        {
+          "op": "turn_pp_restore",
+          "count": 1
+        }
+      ]
+    },
+    "sm-drake-shroud": {
+      "id": "sm-drake-shroud",
+      "name": "龙魂蔽障",
+      "desc": "免疫能力下降；登场时消除对手所有回合类效果。",
+      "effects": [
+        {
+          "op": "immune_stage_down"
+        },
+        {
+          "op": "entry_dispel"
+        }
+      ]
+    },
+    "sm-vitality": {
+      "id": "sm-vitality",
+      "name": "生生不息",
+      "desc": "每回合结束时恢复最大体力的 1/8。",
+      "effects": [
+        {
+          "op": "turn_heal",
+          "numerator": 1,
+          "denominator": 8
+        }
+      ]
+    },
+    "sm-echo-shell": {
+      "id": "sm-echo-shell",
+      "name": "回响甲壳",
+      "desc": "受击获得一次伤害护盾（抵挡下一次受到的攻击伤害）；每回合结束时对对手造成其已损失体力 1/8 的固定伤害。",
+      "effects": [
+        {
+          "op": "hit_shield"
+        },
+        {
+          "op": "turn_flat",
+          "numerator": 1,
+          "denominator": 8,
+          "of": "lost"
+        }
+      ]
+    },
+    "sm-hook-start": {
+      "id": "sm-hook-start",
+      "name": "开场威压",
+      "desc": "每回合开始时令对手防御-1。（合成：hook×ops 通用派发验证）",
+      "effects": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-ko": {
+      "id": "sm-hook-ko",
+      "name": "胜者收割",
+      "desc": "击败对手时恢复自身最大体力的1/4。",
+      "effects": [
+        {
+          "hook": "onKO",
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 4,
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "victim": "foe"
+          }
+        }
+      ]
+    },
+    "sm-hook-down": {
+      "id": "sm-hook-down",
+      "name": "临终诅咒",
+      "desc": "自身倒下时令对手攻击-1。",
+      "effects": [
+        {
+          "hook": "onKO",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ],
+          "guard": {
+            "victim": "self"
+          }
+        }
+      ]
+    },
+    "sm-hook-exit": {
+      "id": "sm-hook-exit",
+      "name": "金蝉脱壳",
+      "desc": "换下时恢复自身最大体力的1/10。",
+      "effects": [
+        {
+          "hook": "onSwitchOut",
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 10,
+              "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-use": {
+      "id": "sm-hook-use",
+      "name": "战意沸腾",
+      "desc": "自身使用攻击技能时对对手造成30点固定伤害；对手使用技能时自身恢复15点体力。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 30,
+              "target": "opponent"
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": 2
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 15,
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "actor": "foe"
+          }
+        }
+      ]
+    },
+    "sm-hook-gamble": {
+      "id": "sm-hook-gamble",
+      "name": "命运赌局",
+      "desc": "每回合开始时50%恢复自身30点体力，未触发则对对手造成10点固定伤害。",
+      "effects": [
+        {
+          "hook": "onTurnStart",
+          "chance": {
+            "base": 50
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 30,
+              "target": "self"
+            }
+          ],
+          "elseOps": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 10,
+              "target": "opponent"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-order": {
+      "id": "sm-hook-order",
+      "name": "疾风意志",
+      "desc": "自身选择技能的回合先制等级随机增加0~2。",
+      "effects": [
+        {
+          "hook": "beforeOrder",
+          "ops": [
+            {
+              "op": "priority",
+              "min": 0,
+              "max": 2
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-boss": {
+      "id": "sm-hook-boss",
+      "name": "凡界之契",
+      "desc": "每回合结束时对对手造成10点固定伤害（boss无效）。",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 10,
+              "target": "opponent"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-battle": {
+      "id": "sm-hook-battle",
+      "name": "战前觉醒",
+      "desc": "战斗开始时恢复自身50点体力。（合成：onBattleStart 仅首回合触发一次）",
+      "effects": [
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 50,
+              "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-foeswitch": {
+      "id": "sm-hook-foeswitch",
+      "name": "乘虚而入",
+      "desc": "对手换下时恢复自身30点体力。（合成：switcher:foe 双侧派发）",
+      "effects": [
+        {
+          "hook": "onSwitchOut",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 30,
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "switcher": "foe"
+          }
+        }
+      ]
+    },
+    "sm-hook-grow": {
+      "id": "sm-hook-grow",
+      "name": "蓄势连锁",
+      "desc": "每回合结束时30%令对手麻痹，每次判定后概率提升50%（封顶80%）。（合成：chanceGrow 累积）",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "chance": {
+            "base": 30,
+            "grow": {
+              "add": 50,
+              "cap": 80
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "paralysis",
+              "target": "opponent"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-maggrow": {
+      "id": "sm-hook-maggrow",
+      "name": "汲能回流",
+      "desc": "每回合结束时恢复自身最大体力20%，每次结算增加10%（封顶40%）。（合成：growStep/magAcc 幅度累积）",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "grow",
+              "of": "magnitude",
+              "step": 10,
+              "magCap": 40
+            },
+            {
+              "op": "heal",
+              "numerator": 20,
+              "denominator": 100,
+              "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-atcap": {
+      "id": "sm-hook-atcap",
+      "name": "达顶余波",
+      "desc": "回合结束时恢复10点，每次结算幅度+10，封顶20；达顶后对对手造成7点固定伤害。",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "grow",
+              "of": "magnitude",
+              "step": 10,
+              "magCap": 20,
+              "payload": [
+                {
+                  "op": "damage",
+                  "kind": "fixed",
+                  "power": 7,
+                  "target": "opponent"
+                }
+              ]
+            },
+            {
+              "op": "heal",
+              "flat": 10,
+              "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-limit": {
+      "id": "sm-hook-limit",
+      "name": "孤注一掷",
+      "desc": "每场战斗限一次：回合结束时恢复自身40点体力。",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 40,
+              "target": "self"
+            }
+          ],
+          "chance": {
+            "once": true
+          }
+        }
+      ]
+    },
+    "sm-passive-ward": {
+      "id": "sm-passive-ward",
+      "name": "金身护体",
+      "desc": "受到的伤害减少50%。（合成：onBattleStart + 永久 apply_status 被动族）",
+      "effects": [
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-entry": {
+      "id": "sm-hook-entry",
+      "name": "入场威慑",
+      "desc": "登场时令对手防御-1。（合成：B4 登场生命周期回归fixture——首发/force_switch 换入均派发）",
+      "effects": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-hit": {
+      "id": "sm-hook-hit",
+      "name": "受创反噬",
+      "desc": "受到攻击伤害时对攻击方反弹5点固定伤害。（合成：B2 魂印互弹链预算回归fixture）",
+      "effects": [
+        {
+          "hook": "onDamaged",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 5,
+              "target": "opponent"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-hook-orderlast": {
+      "id": "sm-hook-orderlast",
+      "name": "后发制人",
+      "desc": "每回合结束时若自身后出手则恢复自身25点体力。（合成：onTurnEnd firstSide 序位推导——仅持有者当回合后行动时触发）",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "order": "last"
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 25,
+              "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-nextchance": {
+      "id": "sm-nextchance",
+      "name": "合成·几率窗",
+      "desc": "SYNTHETIC：使用技能后挂载 next_chance{add:100,count:1}；回合结束 30% 回复 10（下次判定必中→验证单次窗消费）。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "next_chance",
+              "target": "self",
+              "params": {
+                "add": 100,
+                "count": 1,
+                "ei": 1
+              }
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        },
+        {
+          "hook": "onTurnEnd",
+          "chance": {
+            "base": 30
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 10,
+              "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-reactwin": {
+      "id": "sm-reactwin",
+      "name": "合成·单次窗",
+      "desc": "SYNTHETIC：回合结束回复60并挂载 react{trigger:11,count:1}(下次使用技能给对手造成等同于恢复量的固定伤害) + dmg_boost{count:1,pct:100}。",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 60,
+              "target": "self"
+            },
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "count": 1
+              },
+              "payload": [
+                {
+                  "op": "damage",
+                  "kind": "fixed",
+                  "power": 0,
+                  "target": "opponent"
+                },
+                {
+                  "op": "flat",
+                  "of": "flatSelfLastHeal",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "count": 1,
+                "pct": 100
+              }
+            }
+          ],
+          "chance": {
+            "once": true
+          }
+        }
+      ]
+    },
+    "sm-samemove-flat": {
+      "id": "sm-samemove-flat",
+      "name": "合成·同招固伤",
+      "desc": "SYNTHETIC：连续使用同一技能时对对手造成40点固定伤害。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 40,
+              "target": "opponent"
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "sameMove": true
+          }
+        }
+      ]
+    },
+    "sm-streak-flat": {
+      "id": "sm-streak-flat",
+      "name": "合成·连用固伤",
+      "desc": "SYNTHETIC：连续使用攻击技能时对对手造成40点固定伤害。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 40,
+              "target": "opponent"
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ],
+            "streak": "attack"
+          }
+        }
+      ]
+    },
+    "sm-streak-boost": {
+      "id": "sm-streak-boost",
+      "name": "合成·连用增伤",
+      "desc": "SYNTHETIC：连续使用攻击技能时本次伤害提升100%（出伤窗，本击消耗）。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100
+              }
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ],
+            "streak": "attack"
+          }
+        }
+      ]
+    },
+    "sm-streak-prio": {
+      "id": "sm-streak-prio",
+      "name": "合成·连用先制",
+      "desc": "SYNTHETIC：连续使用攻击技能时先制+1。",
+      "effects": [
+        {
+          "hook": "beforeOrder",
+          "guard": {
+            "cat": [
+              2,
+              3
+            ],
+            "streak": "attack"
+          },
+          "ops": [
+            {
+              "op": "priority",
+              "min": 1,
+              "max": 1
+            }
+          ]
+        }
+      ]
+    },
+    "sm-streak-status": {
+      "id": "sm-streak-status",
+      "name": "合成·连用属性",
+      "desc": "SYNTHETIC：连续使用属性技能时令对手防御-1。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": 1,
+            "streak": "status"
+          }
+        }
+      ]
+    },
+    "sm-streak-foe": {
+      "id": "sm-streak-foe",
+      "name": "合成·对手连用",
+      "desc": "SYNTHETIC：对手连续使用属性技能时对对手造成25点固定伤害。",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 25,
+              "target": "opponent"
+            }
+          ],
+          "guard": {
+            "actor": "foe",
+            "cat": 1,
+            "streak": "status"
+          }
+        }
+      ]
+    }
+  }
+}

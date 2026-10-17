@@ -5,3 +5,18 @@ test-results/
 .DS_Store
 Thumbs.db
 artifacts/creatures/
+
+# 本地服务持久库（apps/server CLI 默认路径）
+data/
+
+# 本地探针，以及误把 CLI 参数当成输出路径生成的目录。不是源码。
+scratch/
+/_*
+/tmp-*
+/tmp_*
+/fix-*.mjs
+/probe-*.mjs
+/scan_uv.ps1
+/nul
+/.r-probe/
+/--*/

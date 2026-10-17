@@ -169,6 +169,283 @@
           "target": "opponent"
         }
       ]
+    },
+    {
+      "id": "fifth-verdant-aegis",
+      "name": "万物生发",
+      "type": "草",
+      "pp": 5,
+      "priority": 0,
+      "fifth": true,
+      "effects": [
+        {
+          "op": "damage",
+          "power": 160
+        },
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 4,
+          "target": "self"
+        }
+      ],
+      "category": "special"
+    },
+    {
+      "id": "fifth-tidal-crash",
+      "name": "覆海惊涛",
+      "type": "水",
+      "pp": 5,
+      "priority": 0,
+      "fifth": true,
+      "effects": [
+        {
+          "op": "damage",
+          "power": 160
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
+          "delta": -1,
+          "target": "opponent"
+        }
+      ],
+      "category": "special"
+    },
+    {
+      "id": "fifth-drake-ruin",
+      "name": "灭世龙吟",
+      "type": "龙",
+      "pp": 5,
+      "priority": 0,
+      "fifth": true,
+      "effects": [
+        {
+          "op": "damage",
+          "power": 170
+        },
+        {
+          "op": "clear_stages",
+          "target": "opponent"
+        }
+      ],
+      "category": "physical"
+    },
+    {
+      "id": "syn-markunit",
+      "name": "MarkUnit",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "apply_mark",
+          "mark": "裂痕",
+          "target": "opponent",
+          "at": "unit",
+          "count": 1,
+          "cap": 3
+        }
+      ]
+    },
+    {
+      "id": "syn-markfield",
+      "name": "MarkField",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "apply_mark",
+          "mark": "金之肃革",
+          "target": "self",
+          "at": "field",
+          "count": 1,
+          "turns": 2
+        },
+        {
+          "op": "apply_mark",
+          "mark": "木之涤生",
+          "target": "self",
+          "at": "field",
+          "count": 1,
+          "turns": 2
+        }
+      ]
+    },
+    {
+      "id": "syn-markslot",
+      "name": "MarkSlot",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "apply_mark",
+          "mark": "致命印记",
+          "target": "opponent",
+          "at": "slot",
+          "count": 2,
+          "cap": 3,
+          "pick": "randomMove"
+        }
+      ]
+    },
+    {
+      "id": "syn-markconsume",
+      "name": "MarkConsume",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "consume_mark",
+          "mark": "裂痕",
+          "target": "opponent",
+          "at": "unit",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "syn-markcond",
+      "name": "MarkCond",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "atk",
+          "delta": 2,
+          "target": "self",
+          "if": {
+            "markCountAtLeast": {
+              "mark": "裂痕",
+              "n": 2,
+              "on": "foe"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "syn-markflat",
+      "name": "MarkFlat",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "damage",
+          "power": 5
+        },
+        {
+          "op": "flat",
+          "of": "flatPerMark",
+          "value": {
+            "mark": "裂痕",
+            "add": 50,
+            "on": "foe"
+          }
+        }
+      ],
+      "category": "physical"
+    },
+    {
+      "id": "syn-markscalemul",
+      "name": "MarkScaleMul",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "damage",
+          "power": 40
+        },
+        {
+          "op": "scale",
+          "of": "mulPerMark",
+          "value": {
+            "kinds": true,
+            "at": "field",
+            "on": "both",
+            "add": 25
+          }
+        }
+      ],
+      "category": "physical"
+    },
+    {
+      "id": "syn-flatim",
+      "name": "FlatImmune",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "apply_status",
+          "name": "flat_immune",
+          "target": "self",
+          "turns": 3
+        }
+      ]
+    },
+    {
+      "id": "syn-flatdmg",
+      "name": "FlatDmg",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "damage",
+          "kind": "fixed",
+          "power": 60
+        }
+      ]
+    },
+    {
+      "id": "syn-pctkii",
+      "name": "PctKii",
+      "type": "战斗",
+      "pp": 20,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "damage",
+          "kind": "percent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 4
+          }
+        },
+        {
+          "op": "formula",
+          "of": "kindIfImmune",
+          "value": {
+            "from": "percent",
+            "flat": 250
+          }
+        }
+      ]
+    },
+    {
+      "id": "syn-forceswitch",
+      "name": "Force Switch",
+      "type": "战斗",
+      "pp": 10,
+      "priority": 0,
+      "effects": [
+        {
+          "op": "force_switch",
+          "target": "opponent"
+        }
+      ]
     }
   ]
 }

@@ -102,6 +102,27 @@ export const eventSchema: Record<string, unknown> = {
             "special"
           ]
         },
+        "cause": {
+          "type": "string",
+          "description": "伤害来源标记：struggle=挣扎反噬 / 魂印固伤=sm-* 等公开归因"
+        },
+        "crit": {
+          "type": "boolean",
+          "description": "致命一击"
+        },
+        "recoil": {
+          "type": "boolean"
+        },
+        "hit": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "连击第几击（hits>1 时出现）"
+        },
+        "hits": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "连击总次数"
+        },
         "hpAfter": {
           "type": "object",
           "additionalProperties": false,
@@ -144,6 +165,10 @@ export const eventSchema: Record<string, unknown> = {
         "amount": {
           "type": "integer",
           "minimum": 0
+        },
+        "source": {
+          "type": "string",
+          "description": "回复来源标记（如魂印 id）"
         },
         "hpAfter": {
           "type": "object",
@@ -223,14 +248,32 @@ export const eventSchema: Record<string, unknown> = {
           ]
         },
         "reason": {
-          "enum": [
-            "stage-at-cap",
-            "hp-full",
-            "invalid-action",
-            "controlled",
-            "overlay_immune",
-            "no-stages",
-            "no-control"
+          "anyOf": [
+            {
+              "enum": [
+                "stage-at-cap",
+                "hp-full",
+                "invalid-action",
+                "controlled",
+                "overlay_immune",
+                "no-stages",
+                "no-control",
+                "status-locked",
+                "move-nullified",
+                "bound",
+                "heal-blocked",
+                "down_lock",
+                "up_lock",
+                "no-bench",
+                "no-boost",
+                "pp-delta-noop",
+                "pp-slot-missing"
+              ]
+            },
+            {
+              "type": "string",
+              "pattern": "^status:[a-z_-]{1,30}$"
+            }
           ]
         }
       }
@@ -251,6 +294,72 @@ export const eventSchema: Record<string, unknown> = {
             "p1",
             "p2"
           ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "side"
+      ],
+      "properties": {
+        "type": {
+          "const": "missed"
+        },
+        "side": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "moveId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "side"
+      ],
+      "properties": {
+        "type": {
+          "const": "protected"
+        },
+        "side": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "side",
+        "delta"
+      ],
+      "properties": {
+        "type": {
+          "const": "pp-delta"
+        },
+        "side": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "delta": {
+          "type": "integer",
+          "description": "PP 增减量（脱敏后仅透出侧别与增减量——不公开 moveId/ppAfter）"
         }
       }
     },
@@ -475,7 +584,8 @@ export const eventSchema: Record<string, unknown> = {
         "via": {
           "enum": [
             "action",
-            "replacement"
+            "replacement",
+            "forced"
           ]
         }
       }
@@ -517,6 +627,38 @@ export const eventSchema: Record<string, unknown> = {
           }
         }
       }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "side",
+        "mark",
+        "effect"
+      ],
+      "properties": {
+        "type": {
+          "const": "soulmark"
+        },
+        "side": {
+          "enum": [
+            "p1",
+            "p2"
+          ]
+        },
+        "mark": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
     }
   ]
 };
@@ -545,6 +687,23 @@ export type BattleEvent =
       stab?: boolean;
       moveType?: string;
       category?: "physical" | "special";
+      /**
+       * 伤害来源标记：struggle=挣扎反噬 / 魂印固伤=sm-* 等公开归因
+       */
+      cause?: string;
+      /**
+       * 致命一击
+       */
+      crit?: boolean;
+      recoil?: boolean;
+      /**
+       * 连击第几击（hits>1 时出现）
+       */
+      hit?: number;
+      /**
+       * 连击总次数
+       */
+      hits?: number;
       hpAfter: {
         current: number;
         max: number;
@@ -554,6 +713,10 @@ export type BattleEvent =
       type: "heal";
       side: "p1" | "p2";
       amount: number;
+      /**
+       * 回复来源标记（如魂印 id）
+       */
+      source?: string;
       hpAfter: {
         current: number;
         max: number;
@@ -570,17 +733,47 @@ export type BattleEvent =
       type: "action-failed";
       side: "p1" | "p2";
       reason:
-        | "stage-at-cap"
-        | "hp-full"
-        | "invalid-action"
-        | "controlled"
-        | "overlay_immune"
-        | "no-stages"
-        | "no-control";
+        | (
+            | "stage-at-cap"
+            | "hp-full"
+            | "invalid-action"
+            | "controlled"
+            | "overlay_immune"
+            | "no-stages"
+            | "no-control"
+            | "status-locked"
+            | "move-nullified"
+            | "bound"
+            | "heal-blocked"
+            | "down_lock"
+            | "up_lock"
+            | "no-bench"
+            | "no-boost"
+            | "pp-delta-noop"
+            | "pp-slot-missing"
+          )
+        | string;
     }
   | {
       type: "struggle-used";
       side: "p1" | "p2";
+    }
+  | {
+      type: "missed";
+      side: "p1" | "p2";
+      moveId?: string;
+    }
+  | {
+      type: "protected";
+      side: "p1" | "p2";
+    }
+  | {
+      type: "pp-delta";
+      side: "p1" | "p2";
+      /**
+       * PP 增减量（脱敏后仅透出侧别与增减量——不公开 moveId/ppAfter）
+       */
+      delta: number;
     }
   | {
       type: "ko";
@@ -625,7 +818,7 @@ export type BattleEvent =
       side: "p1" | "p2";
       outUnitId: string;
       inUnitId: string;
-      via: "action" | "replacement";
+      via: "action" | "replacement" | "forced";
     }
   | {
       type: "revive";
@@ -634,4 +827,11 @@ export type BattleEvent =
         current: number;
         max: number;
       };
+    }
+  | {
+      type: "soulmark";
+      side: "p1" | "p2";
+      mark: string;
+      name?: string;
+      effect: string;
     };

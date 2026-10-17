@@ -57,6 +57,12 @@ function legalActionFor(state: BattleState, side: SideId, allowed: readonly stri
     if (moveSlot >= 0) {
       return { actionId, action: { kind: "move", moveSlot, target: "opponent" }, label: MOVE_LABEL[moveId] ?? moveId };
     }
+    for (const m of MECHANICS) {
+      const projected = m.projectLegal?.(actionId);
+      if (projected !== undefined) {
+        return { actionId, action: projected.action as LegalAction["action"], label: projected.label };
+      }
+    }
     throw new Error(`legal action ${actionId} cannot be projected`);
   });
 }
@@ -92,6 +98,7 @@ export function projectObservation(state: BattleState, side: SideId, allowedActi
       effects: publicEffects(me.effects, /* self: show all */ true),
       ...(me.mode !== undefined ? { mode: me.mode } : {}),
       ...(me.revives !== undefined ? { revives: me.revives } : {}),
+      ...(sMe.stocks !== undefined ? { stocks: { ...sMe.stocks } } : {}),
       ...(sMe.bench !== undefined
         ? {
             bench: sMe.bench.map((b) => ({

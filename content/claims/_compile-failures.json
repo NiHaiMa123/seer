@@ -1,0 +1,12 @@
+{
+  "generated": "2026-10-15",
+  "movesChecked": 53697,
+  "emptyMoves": {
+    "total": 337,
+    "flagsOnly": 47,
+    "withUnparsed": 290
+  },
+  "failures": 0,
+  "failKinds": [],
+  "items": []
+}

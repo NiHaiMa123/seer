@@ -21,7 +21,7 @@ export function createReadOnlyView(host: BattleHost, playerId: string): ReadOnly
     legalActions: () => {
       const obs = host.observe(playerId);
       const side: SideId = obs.side;
-      return [...legalActionIds(host.state.battle, side)].sort();
+      return [...legalActionIds(host.pack, host.state.battle, side)].sort();
     },
     history: (sinceSeq = 0) => host.history(playerId, sinceSeq),
     resync: (sinceSeq = 0) => host.resync(playerId, sinceSeq),

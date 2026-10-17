@@ -4,7 +4,7 @@
  */
 import type { PluginManifest } from "@seer/contracts";
 import type { PluginSpec, SeerPluginContext } from "@seer/plugin-runtime";
-import { deriveBaseFor, effectivenessOf, MECHANICS, type FrozenPack } from "@seer/battle-core";
+import { deriveBaseFor, MECHANICS, type FrozenPack } from "@seer/battle-core";
 import { HTTP_ROUTER_SERVICE, type Router } from "../router.ts";
 
 export const CONTENT_CATALOG_SERVICE = "content.catalog";
@@ -41,26 +41,23 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
         if (!pack) return r.json(404, { code: "NOT_FOUND", message: "pack" });
         r.json(200, {
           packId,
+          // 克制表整体下发（types×types 几十项）——客户端本地查表算 eff，
+          // 不再按 move×unit 预展开（peak 包 4w×2k 矩阵会把 JSON.stringify 撑爆）
+          ...(pack.typeChart !== undefined
+            ? { typeChart: Object.fromEntries([...pack.typeChart.entries()].map(([k, v]) => [k, Object.fromEntries(v)])) }
+            : {}),
           moves: Object.fromEntries(
             [...pack.movesById.values()].map((m) => {
               const dmg = m.effects.find((e) => e.op === "damage") as { power?: number; kind?: string } | undefined;
-              // 克制矩阵：招式属性 × 包内每种守方精灵属性 → eff（公开规则知识）
-              const effVs = pack.typeChart !== undefined && m.type !== undefined && dmg !== undefined && (dmg.kind === undefined || dmg.kind === "standard" || dmg.kind === "true")
-                ? Object.fromEntries(
-                    [...pack.unitsById.values()]
-                      .filter((u) => u.types !== undefined)
-                      .map((u) => [u.id, effectivenessOf(pack.typeChart!, m.type!, u.types!) / 16]),
-                  )
-                : undefined;
               return [m.id, {
-                label: m.id,
+                label: m.name ?? m.id,
                 power: dmg?.power ?? 0,
                 damageKind: dmg?.kind ?? "standard",
                 ...(m.type !== undefined ? { type: m.type } : {}),
-                ...(effVs !== undefined ? { effVs } : {}),
                 pp: m.pp,
                 priority: m.priority,
                 ...(m.category !== undefined ? { category: m.category } : {}),
+                ...(m.fifth === true ? { fifth: true } : {}),
                 ops: m.effects.map((e) => e.op),
                 effects: m.effects,
               }];
@@ -79,9 +76,13 @@ export function contentPlugin(catalog: ContentCatalog): PluginSpec {
                   ...(panel !== undefined
                     ? { level: u.level ?? 100, nature: u.nature, stats: panel }
                     : {}),
+                moveIds: u.moveIds,
                 ...(u.types !== undefined ? { types: u.types } : {}),
                 // 预设刻印（物种默认 loadout——如 boss 预装）
                 ...(u.seals !== undefined && u.seals.length > 0 ? { seals: u.seals } : {}),
+                // 预设魂印 / 第五技能（物种固有内容，公开知识）
+                ...(u.soulMark !== undefined ? { soulMark: u.soulMark } : {}),
+                ...(u.fifthMoveId !== undefined ? { fifthMoveId: u.fifthMoveId } : {}),
                 };
               })(),
             ]),

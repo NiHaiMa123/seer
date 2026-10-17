@@ -7,7 +7,7 @@
 import type { Command, Observation, BattleEvent } from "@seer/contracts";
 import type { InternalEvent, ResolvedInput } from "@seer/contracts/internal";
 import { canonicalJson } from "@seer/contracts";
-import { legalActions as coreLegalActions, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
+import { MECHANICS, legalActions as coreLegalActions, sha256hex, type FrozenPack, type SideId } from "@seer/battle-core";
 import {
   ExecutorError,
   InProcessTransitionExecutor,
@@ -25,7 +25,7 @@ const SIDES: SideId[] = ["p1", "p2"];
 
 export class BattleHost {
   readonly state: HostState;
-  private readonly pack: FrozenPack;
+  readonly pack: FrozenPack;
   private readonly executor: TransitionExecutor;
   private readonly players: Readonly<Record<SideId, string>>;
   private readonly deadlineMs: number;
@@ -164,6 +164,7 @@ export class BattleHost {
         const switched = /^act_switch-(\d+)$/.exec(actionId);
         if (switched && state.bench?.[Number(switched[1])] !== undefined) continue;
         if (actionId.startsWith("act_") && state.unit.moves.some((move) => move.moveId === actionId.slice(4))) continue;
+        if (MECHANICS.some((m) => m.parseAction?.(actionId) !== undefined)) continue;
         throw new ExecutorError(`executor legal action ${actionId} cannot be projected`);
       }
       return actions;
@@ -368,7 +369,7 @@ export class BattleHost {
 
 const dec_actors = (b: HostState["battle"]): SideId[] => b.decision?.actors ?? [];
 
-/** Host 视角 legality：直接复用 core legalActions（switch/suspension 语义已内建）。 */
-export function legalActionIds(battle: HostState["battle"], side: SideId): Set<string> {
-  return new Set(coreLegalActions(toCore(battle), side));
+/** Host 视角 legality：直接复用 core legalActions（switch/suspension 语义已内建）。pack 用来展开机制动作。 */
+export function legalActionIds(pack: FrozenPack, battle: HostState["battle"], side: SideId): Set<string> {
+  return new Set(coreLegalActions(toCore(battle), side, pack));
 }

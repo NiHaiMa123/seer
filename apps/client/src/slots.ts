@@ -36,6 +36,10 @@ export const slots = {
   panels(area: string): PanelComponent<any>[] {
     return (panelAreas.get(area) ?? []).map((e) => e.component);
   },
+  /** 带稳定 id 的条目——渲染处应以其为 React key，动态拔插不会错位组件 state */
+  panelEntries(area: string): { id: string; component: PanelComponent<any> }[] {
+    return panelAreas.get(area) ?? [];
+  },
 };
 
 /** 战斗页 panel 上下文——插件面板拿到的全部公开数据（Observation 是隐私投影，不含对手隐藏态） */

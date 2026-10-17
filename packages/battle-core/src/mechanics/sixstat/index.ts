@@ -12,6 +12,7 @@ import naturesSchemaJson from "../../../../../content/schemas/natures.schema.jso
 import { sha256hex } from "../../sha256.ts";
 import type { StageStatKey, StatKey, StatSpread } from "../../loader.ts";
 import type { Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MechanicUnit, PackMechView, ScaledDamageCtx } from "../types.ts";
+import { effectDefOf, isMod } from "../../ops/effects.ts";
 
 /** 性格修正项：up=+10% stat，down=-10% stat（平衡性格为空对象）。 */
 export interface NatureMod {
@@ -152,9 +153,10 @@ export const sixstatMechanic: Mechanic = {
     });
   },
 
-  /** spa/sdf 参与 stage 增减（六维模式下）。 */
+  /** spa/sdf 参与 stage 增减（六维模式下）；accuracy 特性开时补 acc（命中——第 6 维，无 base 值、独立倍率表）。 */
   stageKeys(pack): readonly StageStatKey[] {
-    return sixstatOf(pack) !== undefined ? ["spa", "sdf"] : [];
+    if (sixstatOf(pack) === undefined) return [];
+    return pack.features?.has("accuracy") ? ["spa", "sdf", "acc"] : ["spa", "sdf"];
   },
 
   /** 单位状态附加 level 字段（观测/伤害公式用）。 */
@@ -173,10 +175,22 @@ export const sixstatMechanic: Mechanic = {
     const cat = move.category ?? "physical";
     const aKey: StageStatKey = cat === "special" ? "spa" : "atk";
     const dKey: StageStatKey = cat === "special" ? "sdf" : "def";
-    const atk = effStat(unit.base[aKey]!, unit.stages[aKey] ?? 0);
-    const def = effStat(foe.base[dKey]!, kind === "true" ? 0 : (foe.stages[dKey] ?? 0));
+    // 致命一击：×2 + 无视攻方负级与守方正级（UNVERIFIED——原作语义为多源一致口径）
+    const crit = ctx.crit === true;
+    // stage_alias（"防御、特防能力提升分别视为攻击、特攻能力提升"）：攻侧 stage 读映射守侧键（atk←def / spa←sdf）
+    const alias = unit.effects.some((e) => isMod(e, "stageAlias"));
+    const aliasKey: StageStatKey | undefined = alias ? (aKey === "spa" ? "sdf" : "def") : undefined;
+    const stOf = (k: StageStatKey) => (crit ? Math.max(0, unit.stages[k] ?? 0) : (unit.stages[k] ?? 0));
+    let atk = effStat(unit.base[aKey]!, stOf(aliasKey ?? aKey));
+    // unify_offense（"攻击和特攻等于其中最高的一项"——魂印常驻）：攻/特攻生效值取高
+    if (unit.effects.some((e) => isMod(e, "unifyOffense"))) {
+      const oKey: StageStatKey = aKey === "atk" ? "spa" : "atk";
+      atk = Math.max(atk, effStat(unit.base[oKey] ?? unit.base[aKey]!, stOf(oKey)));
+    }
+    const def = effStat(foe.base[dKey]!, kind === "true" ? 0 : crit ? Math.min(0, foe.stages[dKey] ?? 0) : (foe.stages[dKey] ?? 0));
     const lvf = Math.floor((unit.level ?? 100) * 0.4 + 2);
     let core = Math.floor((lvf * power * atk) / (def * 50)) + 2;
+    if (crit) core *= 2;
     if (eff16 !== undefined) {
       if (stab) core = Math.floor(core * (ctx.pack.stabMultiplier ?? 1.5));
       core = Math.floor((core * eff16) / 16);

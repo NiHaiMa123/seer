@@ -24,7 +24,7 @@
     "test:executables": "vitest run tests/host/executable-isolation.test.ts",
     "test:determinism": "vitest run experiments/determinism/tests/determinism.test.ts",
     "test:core": "vitest run tests/battle-core",
-    "test:interactions": "vitest run tests/battle-core/interactions-v2.test.ts",
+    "test:interactions": "vitest run tests/battle-core/engine/interactions-v2.test.ts",
     "test:protocol": "vitest run tests/host/protocol.test.ts tests/host/privacy.test.ts tests/host/replacement.test.ts",
     "test:recovery": "vitest run tests/host/recovery.test.ts",
     "replay:verify": "node tools/replay-verify.ts",
@@ -45,7 +45,17 @@
     "verify:m3": "node tools/verify-m3.ts",
     "verify:m4": "node tools/verify-m4.ts",
     "test:ui-smoke": "node --experimental-strip-types tools/ui-smoke.ts",
-    "test:ui-matrix": "node --experimental-strip-types tools/ui-matrix.ts"
+    "test:ui-matrix": "node --experimental-strip-types tools/ui-matrix.ts",
+    "test:effects-coverage": "node tools/effects-parse.mjs",
+    "test:effects-compile": "node tools/effects-compile-check.ts",
+    "test:effects-ratchet": "node tools/effects-ratchet.ts",
+    "test:effects-golden": "vitest run tests/battle-core/parser/parser-golden.test.ts",
+    "test:effects-golden:update": "node tools/effects-golden.ts",
+    "test:soulmark-parse": "node tools/soulmark-parse.mjs",
+    "test:soulmark-parse:test": "vitest run tests/battle-core/parser/soulmark-parse.test.ts tests/battle-core/mechanics/soulmark-hooks.test.ts",
+    "test:soulmark-compile": "node tools/soulmark-compile-check.ts",
+    "test:schema-sync": "node tools/schema-sync-check.ts",
+    "perf:baseline": "node tools/perf-baseline.ts"
   },
   "dependencies": {
     "@seer/agent": "workspace:*",

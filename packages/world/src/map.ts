@@ -41,11 +41,11 @@ export const WORLD_MAP: WorldNode[] = [
   },
   {
     id: "arena", label: "斗技场",
-    actions: [{ id: "challenge", desc: "挑战守擂队", effect: { kind: "challenge", pack: "synthetic-v2", bossTeam: ["syn-epsilon", "syn-delta"] } }],
+    actions: [{ id: "challenge", desc: "挑战守擂队", effect: { kind: "challenge", pack: "peak", bossTeam: ["pet-3550", "pet-3577"] } }],
   },
   {
     id: "cave", label: "幽暗洞窟",
-    actions: [{ id: "challenge", desc: "挑战洞窟 boss", effect: { kind: "challenge", pack: "synthetic-v2", bossTeam: ["syn-epsilon", "syn-gamma"] } }],
+    actions: [{ id: "challenge", desc: "挑战洞窟 boss", effect: { kind: "challenge", pack: "peak", bossTeam: ["pet-4169", "pet-5000"] } }],
   },
 ];
 

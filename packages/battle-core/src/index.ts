@@ -16,5 +16,6 @@ export { applyReplacement, applyTurn, defaultAction, defaultReplacement, effecti
 export {
   EngineFault,
   OTHER,
+  CORE_EVENT_TYPES,
 } from "./types.ts";
-export type { CoreAction, CoreEvent, CoreResult, CoreState, SideId } from "./types.ts";
+export type { CoreAction, CoreEvent, CoreEventType, CoreResult, CoreState, SideId } from "./types.ts";

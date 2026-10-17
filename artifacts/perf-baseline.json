@@ -1,0 +1,15 @@
+{
+  "generated": "2026-10-02T16:14:37.803Z",
+  "node": "v24.18.0",
+  "metrics": {
+    "compilePackMeanMs": 28.9,
+    "compilePackP95Ms": 50.1,
+    "turnCount": 1800,
+    "turnMeanMs": 0.052,
+    "turnP50Ms": 0.039,
+    "turnP95Ms": 0.084,
+    "turnMaxMs": 3.351,
+    "corpusSkills": 53798,
+    "compileGateMs": 1344
+  }
+}

@@ -56,7 +56,7 @@ export function execute(request: ProcessExecutionRequest): unknown {
     return { ok: true, state: {}, events: [] };
   }
   if (request.kind === "init") return initBattle(pack, request.options);
-  if (request.kind === "legal") return legalActions(request.state, request.side);
+  if (request.kind === "legal") return legalActions(request.state, request.side, pack);
   if (request.kind === "replacement") return serializable(applyReplacement(pack, request.state, request.actions));
   return serializable(applyTurn(pack, request.state, request.actions));
 }

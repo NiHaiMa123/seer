@@ -6,23 +6,34 @@
 export interface MoveEffect {
   op: string; power?: number; kind?: string; stat?: string; delta?: number;
   numerator?: number; denominator?: number; name?: string; turns?: number; target?: string;
+  hits?: { min: number; max: number }; drain?: { numerator: number; denominator: number }; flatBonus?: number;
 }
 export interface StatPanel { hp: number; atk: number; def: number; spa: number; sdf: number; spd: number }
-export interface MoveMeta { label: string; power: number; damageKind: string; type?: string; category?: "physical" | "special"; effVs?: Record<string, number>; pp?: number; priority?: number; ops: string[]; effects?: MoveEffect[] }
-export interface UnitMeta { speciesId: string; name?: string; hp: number; types?: string[]; level?: number; nature?: string; stats?: StatPanel; seals?: string[] }
+export interface MoveMeta { label: string; power: number; damageKind: string; type?: string; category?: "physical" | "special"; pp?: number; priority?: number; fifth?: boolean; ops: string[]; effects?: MoveEffect[] }
+export interface UnitMeta { speciesId: string; name?: string; hp: number; types?: string[]; level?: number; nature?: string; stats?: StatPanel; seals?: string[]; soulMark?: string; fifthMoveId?: string; moveIds?: string[] }
 export interface SealMeta { id: string; name: string; type: string; series?: string; stats: StatPanel; hidden?: StatPanel; exclusive?: string; desc?: string }
 export interface SealRules { maxPerUnit: number; maxIdentical: number; maxPerSeries: number }
-export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, UnitMeta>; seals?: Record<string, SealMeta>; sealRules?: SealRules }
+export interface SoulmarkMeta { name: string; desc?: string; effects?: { op: string;[k: string]: unknown }[] }
+export interface ItemMeta {
+  id: string; name: string; kind: "pp" | "hp" | "cleanse";
+  cap: number; pp?: number; heal?: number; clearDown?: boolean; cleanse?: boolean; note: string;
+}
+export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; units: Record<string, UnitMeta>; typeChart?: Record<string, Record<string, number>>; seals?: Record<string, SealMeta>; sealRules?: SealRules; soulmarks?: Record<string, SoulmarkMeta>; items?: Record<string, ItemMeta> }
 
-let cache: Promise<PackMeta> | null = null;
+const cache = new Map<string, Promise<PackMeta>>();
 
 export function packIdOf(obs: any): string {
   return obs?.rules?.rulesetId ?? "synthetic-v1";
 }
 
 export function loadMeta(packId: string): Promise<PackMeta> {
-  cache ??= fetch(`/api/content/${packId}`).then((r) => r.json() as Promise<PackMeta>);
-  return cache;
+  let p = cache.get(packId);
+  if (p === undefined) {
+    p = fetch(`/api/content/${packId}`).then((r) => r.json() as Promise<PackMeta>);
+    p.catch(() => cache.delete(packId)); // 失败不留毒缓存
+    cache.set(packId, p);
+  }
+  return p;
 }
 
 const KIND_BADGE: Record<string, { tag: string; color: string }> = {
@@ -48,27 +59,43 @@ const ZH_MOVE: Record<string, string> = {
   "syn-strike": "重击", "syn-jab": "突刺", "syn-bolster": "强化", "syn-recover": "回复",
   "syn-drain": "汲取", "syn-purge": "净化", "syn-slam": "猛击", "syn-blast": "爆破",
   "syn-hex": "咒印", "syn-purge-mind": "清心", "syn-ward": "守护", "syn-brand": "烙印",
+  "fifth-verdant-aegis": "万物生发", "fifth-tidal-crash": "覆海惊涛", "fifth-drake-ruin": "灭世龙吟",
 };
 const ZH_MODE: Record<string, string> = { boss: "首领" };
 const ZH_REASON: Record<string, string> = { ko: "击倒", concede: "认输", "turn-limit": "回合上限" };
 
-export const zhSpecies = (id: string): string => ZH_SPECIES[id] ?? id;
-export const zhMove = (id: string): string => ZH_MOVE[id] ?? id;
+/** 自建包走固定中文表（伽马 / 重击）。表里没有的，用内容接口的名字，不再把 id 当名字。 */
+export function zhSpecies(id: string, meta?: PackMeta | null): string {
+  const mapped = ZH_SPECIES[id];
+  if (mapped !== undefined) return mapped;
+  const name = meta?.units[id]?.name;
+  return name !== undefined && name !== id ? name : id;
+}
+export function zhMove(id: string, meta?: PackMeta | null): string {
+  const mapped = ZH_MOVE[id];
+  if (mapped !== undefined) return mapped;
+  const label = meta?.moves[id]?.label;
+  return label !== undefined && label !== id ? label : id;
+}
 export const zhMode = (id: string): string => ZH_MODE[id] ?? id;
 export const zhReason = (id: string): string => ZH_REASON[id] ?? id;
 
-const ZH_EVENT: Record<string, string> = {
+export const ZH_EVENT: Record<string, string> = {
   "action-declared": "出招", "damage": "伤害", "heal": "回复", "ko": "击倒",
   "switch": "换人", "revive": "复活", "stat-stage": "能力变化", "stages-transferred": "能力转移",
   "stages-cleared": "能力清除", "effect-applied": "效果附加", "effect-faded": "效果消退",
   "control-immune": "免疫", "action-failed": "失败", "battle-end": "战斗结束", "turn-end": "回合结束",
+  "soulmark": "魂印", "protected": "保护", "pp-delta": "PP变化", "struggle-used": "挣扎", "missed": "未命中",
+  "turn-begin": "回合开始",
 };
 export const zhEvent = (type: string): string => ZH_EVENT[type] ?? type;
 
-const ZH_EFFECT: Record<string, string> = { control: "控制", immune_control: "免控", tag: "标记" };
-export const zhEffect = (kind: string): string => kind.startsWith("tag:") ? `标记:${kind.slice(4)}` : (ZH_EFFECT[kind] ?? kind);
+const ZH_EFFECT: Record<string, string> = { control: "控制", immune_control: "免控", tag: "标记", periodic: "持续", modifier: "增益", shield: "护盾", seal: "封印" };
+export const zhEffect = (kind: string): string => kind.startsWith("tag:") ? `标记:${zhStatus(kind.slice(4))}` : (ZH_EFFECT[kind] ?? zhStatus(kind));
+/** 状态/效果内部名 → 中文（未收录的去下划线显示，不露 snake_case） */
+export const zhStatus = (name: string): string => ZH_STATUS[name] ?? (/^[a-z0-9_]+$/.test(name) ? "特殊状态" : name);
 
-const ZH_STAT: Record<string, string> = { hp: "体力", atk: "攻击", def: "防御", spa: "特攻", sdf: "特防", spd: "速度" };
+const ZH_STAT: Record<string, string> = { hp: "体力", atk: "攻击", def: "防御", spa: "特攻", sdf: "特防", spd: "速度", acc: "命中" };
 export const zhStat = (k: string): string => ZH_STAT[k] ?? k;
 const ZH_CATEGORY: Record<string, string> = { physical: "物攻", special: "特攻" };
 
@@ -82,6 +109,15 @@ export const TYPE_COLOR: Record<string, string> = {
   飞龙: "#6860a8",
 };
 export const typeColor = (t: string): string => TYPE_COLOR[t] ?? "#707888";
+/** 本地克制计算（typeChart 整表下发后按 move 属性 × 守方属性查表）——与引擎 effectivenessOf 同构：双属性倒序兜底、缺省 16/16。 */
+export function effOf(meta: PackMeta | null, mMeta: MoveMeta | undefined, defenderSpeciesId: string | undefined): number | undefined {
+  const row = meta?.typeChart?.[mMeta?.type ?? ""];
+  const types = defenderSpeciesId !== undefined ? meta?.units[defenderSpeciesId]?.types : undefined;
+  if (row === undefined || mMeta === undefined || types === undefined || types.length === 0) return undefined;
+  if (mMeta.damageKind !== "standard" && mMeta.damageKind !== "true") return undefined;
+  const v = row[types.join("")] ?? (types.length === 2 ? row[`${types[1]}${types[0]}`] : undefined) ?? 16;
+  return v / 16;
+}
 /** 克制倍率 → 飘字标签（中性 null 不飘） */
 export function effTag(eff: number | undefined): { text: string; color: string } | null {
   if (eff === undefined || eff === 1) return null;
@@ -90,7 +126,13 @@ export function effTag(eff: number | undefined): { text: string; color: string }
   return { text: "微弱", color: "#7ab8ff" };
 }
 const ZH_TARGET: Record<string, string> = { self: "自身", opponent: "对方" };
-const ZH_STATUS: Record<string, string> = { stun: "眩晕", immune_control: "免控", marked: "烙印" };
+const ZH_STATUS: Record<string, string> = {
+  stun: "眩晕", immune_control: "免控", marked: "烙印",
+  burn: "烧伤", frostbite: "冻伤", poison: "中毒", paralysis: "麻痹",
+  fear: "害怕", sleep: "睡眠", blind: "失明", daze: "失神",
+  hot: "持续恢复", dot_field: "持续固伤", prio_up: "先制提升",
+  immune_status: "免疫异常", must_miss: "必定闪避", must_miss_phys: "物理闪避", must_miss_spec: "特殊闪避",
+};
 const ZH_DMGKIND: Record<string, string> = { standard: "普通", fixed: "固定", percent: "百分比", true: "真实" };
 
 /** 单个招式效果 → 中文说明行（公开规则知识） */
@@ -99,10 +141,11 @@ export function describeEffect(e: MoveEffect): string {
   switch (e.op) {
     case "damage": {
       const k = e.kind ?? "standard";
-      if (k === "percent") return `造成对方最大体力 ${e.power}% 的伤害`;
-      if (k === "true") return `造成 ${e.power} 点真实伤害（无视攻防）`;
-      if (k === "fixed") return `造成 ${e.power} 点固定伤害`;
-      return `造成伤害，威力 ${e.power}`;
+      const sfx = `${e.hits !== undefined ? `${e.hits.min === e.hits.max ? `${e.hits.min}` : `${e.hits.min}~${e.hits.max}`} 连击 · ` : ""}${e.drain !== undefined ? `吸血 ${e.drain.numerator}/${e.drain.denominator} · ` : ""}`;
+      if (k === "percent") return `${sfx}造成对方最大体力 ${e.power}% 的伤害`;
+      if (k === "true") return `${sfx}造成 ${e.power} 点真实伤害（无视攻防）`;
+      if (k === "fixed") return `${sfx}造成 ${(e.power ?? 0) + (e.flatBonus ?? 0)} 点固定伤害`;
+      return `${sfx}造成伤害，威力 ${e.power}${e.flatBonus !== undefined ? `（另附 ${e.flatBonus} 点固伤）` : ""}`;
     }
     case "apply_stat_stage":
       return `${tgt}${ZH_STAT[e.stat ?? ""] ?? e.stat} ${(e.delta ?? 0) > 0 ? "+" : ""}${e.delta}`;
@@ -113,17 +156,22 @@ export function describeEffect(e: MoveEffect): string {
     case "clear_stages":
       return `清除${tgt}的能力等级变化`;
     case "control":
-      return `使${tgt}陷入「${ZH_STATUS[e.name ?? ""] ?? e.name}」${e.turns} 回合`;
+      return `使${tgt}陷入「${ZH_STATUS[e.name ?? ""] ?? e.name}」${e.turns !== undefined ? `${e.turns} 回合` : "持续"}`;
     case "cleanse":
       return `净化${tgt}的异常状态与标记`;
     case "apply_status":
-      return `${tgt}获得「${ZH_STATUS[e.name ?? ""] ?? e.name}」${e.turns} 回合`;
+      return `${tgt}获得「${ZH_STATUS[e.name ?? ""] ?? e.name}」${e.turns !== undefined ? `${e.turns} 回合` : "持续"}`;
     case "apply_effect":
-      return `使${tgt}附加「${ZH_STATUS[e.name ?? ""] ?? e.name}」标记 ${e.turns} 回合`;
+      return `使${tgt}附加「${ZH_STATUS[e.name ?? ""] ?? e.name}」标记 ${e.turns !== undefined ? `${e.turns} 回合` : "持续"}`;
     default:
-      return e.op;
+      return ZH_OP[e.op] ?? "附加特殊效果";
   }
 }
+
+const ZH_OP: Record<string, string> = {
+  pp_delta: "改变技能 PP", apply_seal: "附加刻印效果", stat_swap: "交换能力", revive: "复活",
+  shield: "获得护盾", reflect: "反弹伤害", drain: "吸取体力", priority: "改变先制",
+};
 
 /** 招式悬停提示的完整中文描述行 */
 export function describeMove(m: MoveMeta | undefined): string[] {

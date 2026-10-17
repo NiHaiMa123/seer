@@ -1,0 +1,2220 @@
+{
+  "generated": "2026-10-05",
+  "skippedUnits": [
+    {
+      "petNo": "2702",
+      "name": "伊泽雷尔",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "2741",
+      "name": "吉罗德",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "2817",
+      "name": "大地之神·卡修斯",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "2821",
+      "name": "天石灵尊",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "2841",
+      "name": "尤西比奥",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "2950",
+      "name": "安格瑞",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "2970",
+      "name": "睡神·修普诺斯",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3039",
+      "name": "华年·卡小修",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3061",
+      "name": "圣甲·卡修斯",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3251",
+      "name": "妖王·吉罗德",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3268",
+      "name": "暗地魔影·格莱奥丹",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3331",
+      "name": "奥斯里安",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3491",
+      "name": "梦天睡神·修普诺斯",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3513",
+      "name": "哈恩特",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3519",
+      "name": "沙悟净",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3702",
+      "name": "丝珂碧",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3704",
+      "name": "狂热之诚·吉罗德",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3803",
+      "name": "天石灵皇·阿洛比斯",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3867",
+      "name": "暗岩·格莱奥丹",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "reason": "moves all skipped"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "reason": "moves all skipped"
+    },
+    {
+      "petNo": "3898",
+      "name": "光天使·杰洛恩",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "3899",
+      "name": "妮娜",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "reason": "moves all skipped"
+    },
+    {
+      "petNo": "3997",
+      "name": "咔莫莫",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4012",
+      "name": "天幕神龙",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4104",
+      "name": "食晶怪",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4192",
+      "name": "安道尔",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4218",
+      "name": "沙丘之狭",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4250",
+      "name": "时钟试炼官·耀",
+      "reason": "base stat <1"
+    },
+    {
+      "petNo": "4251",
+      "name": "时钟试炼官·宙",
+      "reason": "base stat <1"
+    },
+    {
+      "petNo": "4262",
+      "name": "龙伽",
+      "reason": "base stat <1"
+    },
+    {
+      "petNo": "4278",
+      "name": "阿特洛波斯",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4281",
+      "name": "鲁利",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4282",
+      "name": "鲁塔",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4283",
+      "name": "阿森纳",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4284",
+      "name": "帕姵特",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4285",
+      "name": "未明",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4308",
+      "name": "尼拉格兽",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4370",
+      "name": "僧行",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4504",
+      "name": "阿浣",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4519",
+      "name": "里扎德",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4661",
+      "name": "无为觉者",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4675",
+      "name": "招财",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4756",
+      "name": "梦魇塔奇拉顿",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4831",
+      "name": "蝎子莱莱",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4842",
+      "name": "雷漠克怪",
+      "reason": "type 地暗影 unmappable"
+    },
+    {
+      "petNo": "4912",
+      "name": "生之焰·灰蛾",
+      "reason": "type 火虫 unmappable"
+    },
+    {
+      "petNo": "4923",
+      "name": "莫缇",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4925",
+      "name": "米罗博士",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4926",
+      "name": "酷酷鲨",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4932",
+      "name": "工程型TOH",
+      "reason": "no baseStats"
+    },
+    {
+      "petNo": "4933",
+      "name": "修罗铠甲",
+      "reason": "no baseStats"
+    }
+  ],
+  "fallbackMoves": [
+    {
+      "petNo": "2977",
+      "name": "神寂·克罗诺斯",
+      "moves": 4
+    },
+    {
+      "petNo": "4743",
+      "name": "星光·纳多雷",
+      "moves": 4
+    },
+    {
+      "petNo": "4833",
+      "name": "蟑螂恶霸",
+      "moves": 4
+    },
+    {
+      "petNo": "4838",
+      "name": "笛科特",
+      "moves": 4
+    },
+    {
+      "petNo": "4839",
+      "name": "麦迪亚",
+      "moves": 4
+    },
+    {
+      "petNo": "4840",
+      "name": "霞冠·星礼",
+      "moves": 4
+    },
+    {
+      "petNo": "4841",
+      "name": "凯莫兽",
+      "moves": 4
+    },
+    {
+      "petNo": "4843",
+      "name": "辛德拉缇",
+      "moves": 4
+    },
+    {
+      "petNo": "4846",
+      "name": "米鲁妹妹",
+      "moves": 4
+    },
+    {
+      "petNo": "4847",
+      "name": "蘑蘑蜗",
+      "moves": 4
+    },
+    {
+      "petNo": "4848",
+      "name": "谜之英雄",
+      "moves": 4
+    },
+    {
+      "petNo": "4849",
+      "name": "暖冬小貂",
+      "moves": 4
+    },
+    {
+      "petNo": "4851",
+      "name": "奥斯朗",
+      "moves": 4
+    },
+    {
+      "petNo": "4855",
+      "name": "祖帕",
+      "moves": 4
+    },
+    {
+      "petNo": "4856",
+      "name": "帕罗科",
+      "moves": 4
+    },
+    {
+      "petNo": "4864",
+      "name": "格拉西恩",
+      "moves": 4
+    },
+    {
+      "petNo": "4870",
+      "name": "康迪亚克",
+      "moves": 4
+    },
+    {
+      "petNo": "4873",
+      "name": "宵灵·午驹",
+      "moves": 4
+    },
+    {
+      "petNo": "4874",
+      "name": "瓏首",
+      "moves": 4
+    },
+    {
+      "petNo": "4875",
+      "name": "永烬劫炎·上古炎兽",
+      "moves": 4
+    },
+    {
+      "petNo": "4877",
+      "name": "锢魂铁犀",
+      "moves": 4
+    },
+    {
+      "petNo": "4878",
+      "name": "灯珑鱼",
+      "moves": 4
+    },
+    {
+      "petNo": "4880",
+      "name": "洛欧蒂",
+      "moves": 4
+    },
+    {
+      "petNo": "4881",
+      "name": "阿拿拿",
+      "moves": 4
+    },
+    {
+      "petNo": "4882",
+      "name": "阿波波",
+      "moves": 4
+    },
+    {
+      "petNo": "4883",
+      "name": "薇奥莱特",
+      "moves": 4
+    },
+    {
+      "petNo": "4884",
+      "name": "拓本-ε",
+      "moves": 4
+    },
+    {
+      "petNo": "4886",
+      "name": "阿华华",
+      "moves": 4
+    },
+    {
+      "petNo": "4893",
+      "name": "摩耶",
+      "moves": 4
+    },
+    {
+      "petNo": "4894",
+      "name": "安瑟伦",
+      "moves": 4
+    },
+    {
+      "petNo": "4895",
+      "name": "喧云",
+      "moves": 4
+    },
+    {
+      "petNo": "4896",
+      "name": "朝圣者",
+      "moves": 4
+    },
+    {
+      "petNo": "4900",
+      "name": "布洛斯奇",
+      "moves": 4
+    },
+    {
+      "petNo": "4901",
+      "name": "特维耶",
+      "moves": 4
+    },
+    {
+      "petNo": "4903",
+      "name": "帝录天锋",
+      "moves": 4
+    },
+    {
+      "petNo": "4908",
+      "name": "蕊沃尔",
+      "moves": 4
+    },
+    {
+      "petNo": "4910",
+      "name": "波动态幽魂",
+      "moves": 4
+    },
+    {
+      "petNo": "4914",
+      "name": "奇灵画像",
+      "moves": 4
+    },
+    {
+      "petNo": "4918",
+      "name": "波比提尔",
+      "moves": 4
+    },
+    {
+      "petNo": "4922",
+      "name": "墟婆",
+      "moves": 4
+    },
+    {
+      "petNo": "4927",
+      "name": "超级噗纽",
+      "moves": 4
+    },
+    {
+      "petNo": "4928",
+      "name": "维克佐斯",
+      "moves": 4
+    },
+    {
+      "petNo": "4931",
+      "name": "炎龙铠甲",
+      "moves": 4
+    },
+    {
+      "petNo": "4934",
+      "name": "刑天铠甲",
+      "moves": 3
+    },
+    {
+      "petNo": "4935",
+      "name": "苔岩·磐岳",
+      "moves": 4
+    },
+    {
+      "petNo": "4936",
+      "name": "拿瓦铠甲",
+      "moves": 4
+    },
+    {
+      "petNo": "4937",
+      "name": "星光·雷纳多",
+      "moves": 4
+    },
+    {
+      "petNo": "4938",
+      "name": "塞壬斯",
+      "moves": 4
+    },
+    {
+      "petNo": "4939",
+      "name": "决囚钢骨",
+      "moves": 4
+    },
+    {
+      "petNo": "4940",
+      "name": "王座守卫·古亚尼斯",
+      "moves": 4
+    },
+    {
+      "petNo": "4941",
+      "name": "瑞丁",
+      "moves": 4
+    },
+    {
+      "petNo": "4943",
+      "name": "瑞特拉尼",
+      "moves": 4
+    },
+    {
+      "petNo": "4944",
+      "name": "克律莎",
+      "moves": 4
+    }
+  ],
+  "skippedMoves": [
+    {
+      "petNo": "2513",
+      "name": "草灵灵",
+      "skill": "种子机关枪",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "2586",
+      "name": "圣刃·神力号",
+      "skill": "明亮",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "2693",
+      "name": "神魂·斩月",
+      "skill": "天光闪",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "2975",
+      "name": "格拉托尼",
+      "skill": "饕餮之吻",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3028",
+      "name": "红包侠",
+      "skill": "红包天天送",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3172",
+      "name": "莱茵哈特",
+      "skill": "无天壁垒",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3172",
+      "name": "莱茵哈特",
+      "skill": "破阵霸力",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3740",
+      "name": "怒涛·沧岚",
+      "skill": "王·碧海潮生",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3784",
+      "name": "翠伊",
+      "skill": "圣诞礼物",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3848",
+      "name": "时空幻零",
+      "skill": "灵动念力",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3848",
+      "name": "时空幻零",
+      "skill": "时空之望",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3848",
+      "name": "时空幻零",
+      "skill": "幻象冲击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3848",
+      "name": "时空幻零",
+      "skill": "时空之舞",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3848",
+      "name": "时空幻零",
+      "skill": "零·时空罗盘",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "念力压制",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "四散光线",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "见血封喉",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "寡宇劲乐",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "幻打击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "邪气凝结",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "恐惧杀意",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "逆转之刃",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "邪魅一笑",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "深渊绝息",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "怨灵浇筑",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "惊魂邪气斩",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3876",
+      "name": "伽玛·悍刀",
+      "skill": "九幽悍刀行",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3883",
+      "name": "暗夜·诺伊尔顿",
+      "skill": "摄魂之刃",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "撞击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "念力射线",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "万刃魔光",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "残影冲击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "超能合体",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "魂魄抽离",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "思维枷锁",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "秘影狂击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "意志掌控",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "蔚蓝流星",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3895",
+      "name": "艾斯德诺",
+      "skill": "寰宇星光阵",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "碎石击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "挽尘吟",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "岩石猛击",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "不忘之城",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "封岩术",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "天罡照岳",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "绝地落岩",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "尘风浩荡",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "幻星流沙阵",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3983",
+      "name": "灵·辰坤星魂",
+      "skill": "魂·诸法尘影",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3987",
+      "name": "混沌·阿内斯",
+      "skill": "黯烬璨光斩",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3995",
+      "name": "雪兔拉比",
+      "skill": "环体冰盾",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "3995",
+      "name": "雪兔拉比",
+      "skill": "境灵附体",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4102",
+      "name": "海奎特",
+      "skill": "坚硬铠甲",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4397",
+      "name": "沐怜",
+      "skill": "霜灵寄托",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4484",
+      "name": "卡莎",
+      "skill": "灵烁无双箭",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4576",
+      "name": "薇尔拉",
+      "skill": "霜星冰雪乐",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4612",
+      "name": "魂弦",
+      "skill": "苍生命弦",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4651",
+      "name": "天阶机器人",
+      "skill": "自启动核心",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4657",
+      "name": "浮掠双刃·卓尔布",
+      "skill": "月轮·极阴",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4657",
+      "name": "浮掠双刃·卓尔布",
+      "skill": "日轮·极阳",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "4901",
+      "name": "特维耶",
+      "skill": "枪火革命",
+      "reason": "pp missing"
+    },
+    {
+      "petNo": "5000",
+      "name": "圣灵谱尼",
+      "skill": "圣光气",
+      "reason": "pp missing"
+    }
+  ],
+  "guessCategory": [
+    {
+      "petNo": "2584",
+      "skill": "喷火",
+      "kind": "火系特功"
+    },
+    {
+      "petNo": "2584",
+      "skill": "双管火焰",
+      "kind": "火系特功"
+    },
+    {
+      "petNo": "3013",
+      "skill": "空间之变",
+      "kind": "属性技能"
+    },
+    {
+      "petNo": "3117",
+      "skill": "降龙神爪",
+      "kind": "--"
+    },
+    {
+      "petNo": "3409",
+      "skill": "灵光闪",
+      "kind": "灵光闪"
+    },
+    {
+      "petNo": "3412",
+      "skill": "复苏之泉",
+      "kind": "--"
+    },
+    {
+      "petNo": "3463",
+      "skill": "空间之变",
+      "kind": "属性技能"
+    },
+    {
+      "petNo": "3695",
+      "skill": "拳光",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "光速刺拳",
+      "kind": "战斗物功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "拳气",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "振山拳",
+      "kind": "战斗物功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "无形旋风",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "开天辟地",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "霸王冲锋拳",
+      "kind": "战斗物功"
+    },
+    {
+      "petNo": "3695",
+      "skill": "穿透打击",
+      "kind": "普通物功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "拳光",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "光速刺拳",
+      "kind": "战斗物功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "拳气",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "振山拳",
+      "kind": "战斗物功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "无形旋风",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "开天辟地",
+      "kind": "战斗特功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "霸王冲锋拳",
+      "kind": "战斗物功"
+    },
+    {
+      "petNo": "3713",
+      "skill": "穿透打击",
+      "kind": "普通物功"
+    },
+    {
+      "petNo": "3716",
+      "skill": "混沌之影",
+      "kind": "暗影特功"
+    },
+    {
+      "petNo": "3929",
+      "skill": "鸢·冥天惊神",
+      "kind": "--"
+    },
+    {
+      "petNo": "4040",
+      "skill": "尘封之绝意",
+      "kind": "--"
+    },
+    {
+      "petNo": "4050",
+      "skill": "空间之变",
+      "kind": "属性技能"
+    },
+    {
+      "petNo": "4112",
+      "skill": "无念无忧散",
+      "kind": "--"
+    },
+    {
+      "petNo": "4117",
+      "skill": "烈酒怒焰爆",
+      "kind": "--"
+    },
+    {
+      "petNo": "4136",
+      "skill": "社稷昌盛诀",
+      "kind": "--"
+    },
+    {
+      "petNo": "4166",
+      "skill": "绒羽霜漫天",
+      "kind": "--"
+    },
+    {
+      "petNo": "4177",
+      "skill": "落雷",
+      "kind": "电系特功"
+    },
+    {
+      "petNo": "4177",
+      "skill": "放电",
+      "kind": "电系特功"
+    },
+    {
+      "petNo": "4177",
+      "skill": "电闪雷鸣",
+      "kind": "电系特功"
+    },
+    {
+      "petNo": "4177",
+      "skill": "雷电化身",
+      "kind": "电系特功"
+    },
+    {
+      "petNo": "4228",
+      "skill": "碎裂震荡",
+      "kind": "--"
+    },
+    {
+      "petNo": "4228",
+      "skill": "沟壑纵横",
+      "kind": "--"
+    },
+    {
+      "petNo": "4228",
+      "skill": "惬意地沟",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4246",
+      "skill": "余烬黯天劫",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4280",
+      "skill": "落雷",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4280",
+      "skill": "电闪雷鸣",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4280",
+      "skill": "电光残影",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4280",
+      "skill": "美味套餐",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4280",
+      "skill": "怪味汤",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4286",
+      "skill": "寒冰冻气",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4286",
+      "skill": "凝冻冰雹",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4286",
+      "skill": "异界之寒",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4286",
+      "skill": "明澈水泡",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4286",
+      "skill": "清泉涤荡",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4289",
+      "skill": "逆命之川",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4289",
+      "skill": "九阶噬灵阵",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4289",
+      "skill": "逆流之源",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4289",
+      "skill": "芥子纳须弥",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4289",
+      "skill": "异·万维皆空",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4290",
+      "skill": "突斩",
+      "kind": "普通"
+    },
+    {
+      "petNo": "4290",
+      "skill": "刃气",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4290",
+      "skill": "双刃刀光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4290",
+      "skill": "禁灵狱锁",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4290",
+      "skill": "血海墨瞳",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4291",
+      "skill": "净火繁星",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4291",
+      "skill": "行空音爆",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4291",
+      "skill": "星辰突变",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4291",
+      "skill": "战斗节拍",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4291",
+      "skill": "幻影电波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4291",
+      "skill": "星空炫彩光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4292",
+      "skill": "地裂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4292",
+      "skill": "落石冲击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4292",
+      "skill": "机甲干扰",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4292",
+      "skill": "繁茂灵木",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4293",
+      "skill": "四散光波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4293",
+      "skill": "冲击波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4293",
+      "skill": "巨斧回旋",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4293",
+      "skill": "聚光热流",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4294",
+      "skill": "闪光波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4294",
+      "skill": "潜心参悟",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4294",
+      "skill": "波动气",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4294",
+      "skill": "长燃煤灯",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4294",
+      "skill": "壁画之灵",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4294",
+      "skill": "异技探寻术",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4294",
+      "skill": "古今阴阳触",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4295",
+      "skill": "战意",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4295",
+      "skill": "高压电击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4295",
+      "skill": "破甲电流",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4295",
+      "skill": "搏命一击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4296",
+      "skill": "突破",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4296",
+      "skill": "光能吸取",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4296",
+      "skill": "星系炎魂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4296",
+      "skill": "岩浆喷涌",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4297",
+      "skill": "穿透光束",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4297",
+      "skill": "激光四射",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4297",
+      "skill": "机炮扫射",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4297",
+      "skill": "强袭激光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4297",
+      "skill": "核动械甲",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4297",
+      "skill": "寻敌激光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4310",
+      "skill": "鳞纹压制",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4310",
+      "skill": "不羁龙纹",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4310",
+      "skill": "灼热拳风",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4319",
+      "skill": "地裂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4319",
+      "skill": "落石冲击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4319",
+      "skill": "露露弹弓",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4319",
+      "skill": "兽型石像",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4321",
+      "skill": "破晓",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4321",
+      "skill": "终章",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4321",
+      "skill": "神明谕令",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4321",
+      "skill": "苍生待赎",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4321",
+      "skill": "荡尽芜杂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4321",
+      "skill": "圣御·征伐四方",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4325",
+      "skill": "锐化龙皮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4325",
+      "skill": "枯瞳凝视",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4326",
+      "skill": "冬日沐心",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4326",
+      "skill": "次声低语",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4326",
+      "skill": "飞蛾扑火",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4326",
+      "skill": "晴雨迎风舞",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4333",
+      "skill": "逆世之契",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4333",
+      "skill": "魂源离散",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4333",
+      "skill": "一念生死叹",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4333",
+      "skill": "哀·魂归四方",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4343",
+      "skill": "寒刃啸灭",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4344",
+      "skill": "炽热引燃",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4347",
+      "skill": "断忆残影",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4359",
+      "skill": "净火繁星",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4359",
+      "skill": "次元绞杀",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4359",
+      "skill": "星辰突变",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4359",
+      "skill": "错综交汇",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4359",
+      "skill": "异维同轴",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4359",
+      "skill": "逆矩阵之源",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4373",
+      "skill": "龙舞·罠",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4373",
+      "skill": "龙舞·祭",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4373",
+      "skill": "龙舞·仪",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4385",
+      "skill": "掌风",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4385",
+      "skill": "光像虚影",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4385",
+      "skill": "狂暴光裂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4385",
+      "skill": "沐光清风",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4385",
+      "skill": "空灵折光域",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4385",
+      "skill": "浮虚光翼闪",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4386",
+      "skill": "净火繁星",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4386",
+      "skill": "重返初识",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4386",
+      "skill": "星辰突变",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4386",
+      "skill": "十三之约",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4386",
+      "skill": "叶叶联芳",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4386",
+      "skill": "相知如故",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4386",
+      "skill": "缔·永世羁绊",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4386",
+      "skill": "笙·形影合弦",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4387",
+      "skill": "相术·心结",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4387",
+      "skill": "灵魂之书",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4387",
+      "skill": "咒术·魂狩",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4387",
+      "skill": "禁术·契灭",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4395",
+      "skill": "冻气飓风",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4395",
+      "skill": "极寒冰暴",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4395",
+      "skill": "碎型冰雾",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4395",
+      "skill": "佳酿调制",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4395",
+      "skill": "秘械幻影",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4396",
+      "skill": "龙吼",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4396",
+      "skill": "噩梦龙牙",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4396",
+      "skill": "魔龙降世",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4396",
+      "skill": "迅捷剑斩",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4396",
+      "skill": "炽血长啸",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4397",
+      "skill": "暗光冰裂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4397",
+      "skill": "寒颜叱",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4397",
+      "skill": "极寒冰锥",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4397",
+      "skill": "雪舞风殇",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4397",
+      "skill": "沐花释离愁",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "交叉闪电",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "飞云掣电",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "雷电化身",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "雷电之风",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "银索璨璨",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "阗阗驱静迹",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4398",
+      "skill": "飒飒驰夜光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4401",
+      "skill": "鳞纹压制",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4401",
+      "skill": "不羁龙纹",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4401",
+      "skill": "灼热拳风",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4401",
+      "skill": "困龙斗",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4402",
+      "skill": "影球",
+      "kind": "暗影特功"
+    },
+    {
+      "petNo": "4402",
+      "skill": "彻夜灵火",
+      "kind": "暗影特功"
+    },
+    {
+      "petNo": "4402",
+      "skill": "猎魅火痕",
+      "kind": "暗影特功"
+    },
+    {
+      "petNo": "4413",
+      "skill": "三相聚能炮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4418",
+      "skill": "自由探险家",
+      "kind": "属性技能"
+    },
+    {
+      "petNo": "4419",
+      "skill": "次级龙息",
+      "kind": "龙系特功"
+    },
+    {
+      "petNo": "4419",
+      "skill": "龙鳞光",
+      "kind": "龙系特功"
+    },
+    {
+      "petNo": "4419",
+      "skill": "星烁龙腾决",
+      "kind": "龙系特功"
+    },
+    {
+      "petNo": "4466",
+      "skill": "王·极冥妖天",
+      "kind": "--"
+    },
+    {
+      "petNo": "4472",
+      "skill": "净火繁星",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4472",
+      "skill": "星辰突变",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4582",
+      "skill": "虚昼幻空斥",
+      "kind": "--"
+    },
+    {
+      "petNo": "4683",
+      "skill": "海啸·聚能光线",
+      "kind": "--"
+    },
+    {
+      "petNo": "4867",
+      "skill": "神光解",
+      "kind": "圣灵飞行"
+    },
+    {
+      "petNo": "4922",
+      "skill": "怀古",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4922",
+      "skill": "伪装孢子",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4922",
+      "skill": "翡翠灵歌",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4922",
+      "skill": "滩涂玄冢",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4922",
+      "skill": "静籁染潮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4922",
+      "skill": "沧海铭刻",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4927",
+      "skill": "磁力波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4927",
+      "skill": "激光四射",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4927",
+      "skill": "净化之光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4927",
+      "skill": "刚性植被",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4927",
+      "skill": "根茎马力",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4928",
+      "skill": "炎爆",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "争言",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "火焰利爪",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "魔动光波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "彻夜灵火",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "夜魔之力",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4928",
+      "skill": "夜灵闪光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "自诉败笔",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4928",
+      "skill": "思途执枉",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4929",
+      "skill": "沙尘瀑布",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4929",
+      "skill": "钢之咆哮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4929",
+      "skill": "巨灵咆哮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4930",
+      "skill": "五影必杀",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4931",
+      "skill": "无畏印",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4931",
+      "skill": "烈焰弓",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4935",
+      "skill": "悠悠光线",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4935",
+      "skill": "爱心",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4935",
+      "skill": "五芒星",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4935",
+      "skill": "岩壁建构",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4937",
+      "skill": "电光波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "重力波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "激光扫射",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "穿透光束",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "极速射线",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "激光四射",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "魔动能量",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "能源吸取",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "机械能量炮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "星光·极速射线",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "星光·能源吸收",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4937",
+      "skill": "星光·魔动能量",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4938",
+      "skill": "电气震",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4938",
+      "skill": "放电",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4938",
+      "skill": "电光波",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4938",
+      "skill": "能量冲击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4938",
+      "skill": "扭曲片像",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4938",
+      "skill": "心灵震颤",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4939",
+      "skill": "穿透光束",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4939",
+      "skill": "异空之光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4939",
+      "skill": "钢铁切割",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4939",
+      "skill": "裂解坍压",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4940",
+      "skill": "电磁射线",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4940",
+      "skill": "雷之枪",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4940",
+      "skill": "超电弧",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4941",
+      "skill": "净火繁星",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4941",
+      "skill": "星辰突变",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4941",
+      "skill": "惊爆闪光",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4941",
+      "skill": "次元之灵",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4941",
+      "skill": "升维论",
+      "kind": "属性"
+    },
+    {
+      "petNo": "4943",
+      "skill": "尘土",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4943",
+      "skill": "地裂",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4943",
+      "skill": "土龙破",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4943",
+      "skill": "地缚术",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4943",
+      "skill": "盲目攻击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4943",
+      "skill": "土飞岩落",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4944",
+      "skill": "雷电击",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4944",
+      "skill": "电磁炮",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4944",
+      "skill": "雷霆万钧",
+      "kind": "特殊"
+    },
+    {
+      "petNo": "4944",
+      "skill": "闪电撞击",
+      "kind": "普通"
+    }
+  ],
+  "noFifth": [
+    {
+      "petNo": "3969",
+      "name": "库库"
+    },
+    {
+      "petNo": "4943",
+      "name": "瑞特拉尼"
+    },
+    {
+      "petNo": "4944",
+      "name": "克律莎"
+    }
+  ],
+  "smAttached": 1641,
+  "smResidual": 796,
+  "units": 2239,
+  "moves": 41524,
+  "droppedAccCrt": 3205,
+  "fifthNotAttack": 51,
+  "soulmarks": 1641,
+  "newUnits": 2227
+}

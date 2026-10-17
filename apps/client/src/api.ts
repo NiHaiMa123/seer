@@ -24,18 +24,22 @@ export class BattleClient {
     return `player=${encodeURIComponent(this.token)}`;
   }
 
+  private static timeout(): AbortSignal {
+    return AbortSignal.timeout(8000);
+  }
+
   async observe(): Promise<any> {
-    const r = await fetch(`${this.base}/api/battle/${this.battleId}/observe?${this.q}`);
+    const r = await fetch(`${this.base}/api/battle/${this.battleId}/observe?${this.q}`, { signal: BattleClient.timeout() });
     return r.json();
   }
 
   async history(since = 0): Promise<{ cursor: number; events: any[] }> {
-    const r = await fetch(`${this.base}/api/battle/${this.battleId}/history?${this.q}&since=${since}`);
+    const r = await fetch(`${this.base}/api/battle/${this.battleId}/history?${this.q}&since=${since}`, { signal: BattleClient.timeout() });
     return r.json();
   }
 
   async resync(since = 0): Promise<{ cursor: number; events: any[]; observation: any }> {
-    const r = await fetch(`${this.base}/api/battle/${this.battleId}/resync?${this.q}&since=${since}`);
+    const r = await fetch(`${this.base}/api/battle/${this.battleId}/resync?${this.q}&since=${since}`, { signal: BattleClient.timeout() });
     return r.json();
   }
 
@@ -65,9 +69,12 @@ export class BattleClient {
       this.inFlight = true;
       try {
         const r = await this.history(cursor);
-        cursor = r.cursor;
-        onEvents(r.cursor, r.events);
-      } finally {
+        // 错误体（500/超时重试前的半截响应）不携带 events——跳过但保活轮询
+        if (typeof r.cursor === "number" && Array.isArray(r.events)) {
+          cursor = r.cursor;
+          onEvents(r.cursor, r.events);
+        }
+      } catch { /* 网络抖动 → 下一轮重试 */ } finally {
         this.inFlight = false;
       }
     }, ms);

@@ -2,77 +2,5296 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "seer/moves.schema.json",
   "type": "object",
-  "required": ["moves"],
+  "required": [
+    "moves"
+  ],
   "additionalProperties": false,
+  "definitions": {
+    "fraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "numerator": {
+          "type": "integer"
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 1,
+      "properties": {
+        "selfHpBelow": {
+          "$ref": "#/definitions/fraction"
+        },
+        "selfHpAbove": {
+          "$ref": "#/definitions/fraction"
+        },
+        "selfHpBelowAbs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "selfHpAboveAbs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "selfDealtAboveAbs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "eitherAilOrDown": {
+          "const": true
+        },
+        "foeHpBelow": {
+          "$ref": "#/definitions/fraction"
+        },
+        "foeHpBelowAbs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "foeBelowSelfHpFrac": {
+          "$ref": "#/definitions/fraction"
+        },
+        "foeHpAboveAbs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "foeHpAbove": {
+          "$ref": "#/definitions/fraction"
+        },
+        "order": {
+          "enum": [
+            "first",
+            "last"
+          ]
+        },
+        "foeHas": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selfHas": {
+          "type": "string",
+          "minLength": 1
+        },
+        "foeStatused": {
+          "const": true
+        },
+        "foeNoTimedFx": {
+          "const": true
+        },
+        "foeHasTimed": {
+          "const": true
+        },
+        "selfNoTimedFx": {
+          "const": true
+        },
+        "selfHasTimed": {
+          "const": true
+        },
+        "selfStatused": {
+          "const": true
+        },
+        "foeStageUp": {
+          "const": true
+        },
+        "foeStageDown": {
+          "const": true
+        },
+        "selfStageUp": {
+          "const": true
+        },
+        "selfStageDown": {
+          "const": true
+        },
+        "selfStageDownStart": {
+          "const": true
+        },
+        "foeStageDownStart": {
+          "const": true
+        },
+        "foeFlatImmune": {
+          "const": true
+        },
+        "noneApplied": {
+          "const": true
+        },
+        "selfShieldBelow": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "shieldConsumedAbove": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "shieldConsumedBelow": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "foeStageAboveSelf": {
+          "const": true
+        },
+        "selfStageAboveFoe": {
+          "const": true
+        },
+        "prevApplied": {
+          "const": true
+        },
+        "foeFainted": {
+          "const": true
+        },
+        "selfHpFull": {
+          "const": true
+        },
+        "prevDamageBelowAbs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selfMaxHpAbove": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selfMaxHpBelow": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selfPrioAbove": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prevDamageAboveAbs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prevDamageBelowFoeFrac": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "numerator",
+            "denominator"
+          ],
+          "properties": {
+            "numerator": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "denominator": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "prevDamageAboveFoeFrac": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "numerator",
+            "denominator"
+          ],
+          "properties": {
+            "numerator": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "denominator": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "prevHealBelow": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prevHealAbove": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prevCrit": {
+          "const": true
+        },
+        "prevDamageKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prevDamageNotKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prevDamageAboveFoeHp": {
+          "const": true
+        },
+        "prevDamageOdd": {
+          "const": true
+        },
+        "prevDamageEven": {
+          "const": true
+        },
+        "prevTakenZero": {
+          "const": true
+        },
+        "foeTakenZero": {
+          "const": true
+        },
+        "takenBelowHpFrac": {
+          "$ref": "#/definitions/fraction"
+        },
+        "takenBelowAbs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "takenAboveAbs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "takenAboveHpFrac": {
+          "$ref": "#/definitions/fraction"
+        },
+        "takenAboveCurFrac": {
+          "$ref": "#/definitions/fraction"
+        },
+        "takenKind": {
+          "type": "string",
+          "enum": [
+            "standard",
+            "fixed",
+            "percent",
+            "true"
+          ]
+        },
+        "turnEq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "turnParity": {
+          "enum": [
+            "odd",
+            "even"
+          ]
+        },
+        "foeMaxHpAboveSelf": {
+          "const": true
+        },
+        "prevEffWeak": {
+          "const": true
+        },
+        "effWeakVsFoe": {
+          "const": true
+        },
+        "foeCountersUs": {
+          "const": true
+        },
+        "foeHpMaxAbove": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "selfHpBelowFoe": {
+          "const": true
+        },
+        "selfHpAboveFoe": {
+          "const": true
+        },
+        "weCounterFoe": {
+          "const": true
+        },
+        "sameAttr": {
+          "const": true
+        },
+        "foeTypeIs": {
+          "type": "string"
+        },
+        "foeTypeNot": {
+          "type": "string"
+        },
+        "foePpLt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count",
+            "lt"
+          ],
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "lt": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "selfPpSumAboveFoe": {
+          "const": true
+        },
+        "ppAt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "slot",
+            "value"
+          ],
+          "properties": {
+            "slot": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9
+                },
+                {
+                  "enum": [
+                    "fifth",
+                    "any"
+                  ]
+                }
+              ]
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "on": {
+              "enum": [
+                "self",
+                "foe"
+              ]
+            }
+          }
+        },
+        "markCountAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mark",
+            "n"
+          ],
+          "properties": {
+            "mark": {
+              "type": "string",
+              "minLength": 1
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "on": {
+              "enum": [
+                "self",
+                "foe"
+              ]
+            },
+            "at": {
+              "enum": [
+                "unit",
+                "slot",
+                "field"
+              ]
+            }
+          }
+        },
+        "fieldMarkKindsAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "n"
+          ],
+          "properties": {
+            "n": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "on": {
+              "enum": [
+                "self",
+                "foe",
+                "both"
+              ]
+            }
+          }
+        },
+        "benchNameCount": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "substr",
+            "count"
+          ],
+          "properties": {
+            "substr": {
+              "type": "string",
+              "minLength": 1
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "benchAllFull": {
+          "type": "boolean"
+        },
+        "foeHpAboveSelf": {
+          "const": true
+        },
+        "foeAboveSelfHpFrac": {
+          "$ref": "#/definitions/fraction",
+          "description": "对手当前体力 > 自身最大体力 N/M（'对手体力高于自身最大HP的1/2'）"
+        },
+        "hpEqTurnStart": {
+          "const": true,
+          "description": "当前体力等于本回合开始快照（'若自身体力等于回合开始时'——turnStartHp 记账）"
+        },
+        "hpBelowTurnStart": {
+          "const": true,
+          "description": "当前体力低于本回合开始快照"
+        },
+        "hpBelowTurnStartFrac": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["numerator", "denominator"],
+          "properties": { "numerator": { "type": "integer" }, "denominator": { "type": "integer" } },
+          "description": "当前体力 < 回合开始快照×n/d（'体力低于当回合开始时的50%则X'）"
+        },
+        "hpAboveTurnStart": {
+          "const": true,
+          "description": "当前体力高于本回合开始快照（'自身体力高于回合开始时'）"
+        },
+        "foeHpBelowTurnStart": {
+          "const": true,
+          "description": "对手体力低于其回合开始快照（'对手损失体力则'）"
+        },
+        "foeHpAboveTurnStart": {
+          "const": true,
+          "description": "对手体力高于其回合开始快照"
+        },
+        "turnHpDiffAbove": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "本回合体力绝对差值大于 N（'体力与回合开始时差值大于200'）"
+        },
+        "selfStageSumAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stats",
+            "n"
+          ],
+          "properties": {
+            "stats": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "atk",
+                  "def",
+                  "spa",
+                  "sdf",
+                  "spd",
+                  "acc",
+                  "crt"
+                ]
+              },
+              "minItems": 1
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "description": "指定维提升等级总和 ≥ n（'双防提升等级总和大于等于6'）"
+        },
+        "selfAllStagesUp": {
+          "const": true,
+          "description": "自身全部 stage 键均处于提升（'不处于全能力提升状态'→not 包裹）"
+        },
+        "foeAllStagesUp": {
+          "const": true,
+          "description": "对手全部 stage 键均处于提升"
+        },
+        "selfStageSumAboveFoe": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stats"],
+          "properties": {
+            "stats": {
+              "type": "array",
+              "items": { "enum": ["atk", "def", "spa", "sdf", "spd", "acc", "crt"] },
+              "minItems": 1
+            }
+          },
+          "description": "指定维能力等级代数和 > 对手同维之和（'双防能力等级之和高于对手'）"
+        },
+        "selfStageSumBelowFoe": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stats"],
+          "properties": {
+            "stats": {
+              "type": "array",
+              "items": { "enum": ["atk", "def", "spa", "sdf", "spd", "acc", "crt"] },
+              "minItems": 1
+            }
+          },
+          "description": "指定维能力等级代数和 < 对手同维之和"
+        },
+        "ppFullAny": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["on"],
+          "properties": { "on": { "enum": ["self", "foe"] } },
+          "description": "存在 PP 为满的技能槽（'若自身存在技能PP值为满则'）"
+        },
+        "nullifiedCatMask": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "本回合招式被无效化类别位掩码（bit1=属性 bit2=物理 bit4=特殊）"
+        },
+        "foeNullifiedCatMask": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "对手侧招式被无效化类别位掩码"
+        },
+        "foeMovePrioAbove": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "对手声明招式先制 >N（'对手使用带有先手效果的技能'→prio>0）"
+        },
+        "foeBaseStatBelow": {
+          "enum": [
+            "atk",
+            "def",
+            "spa",
+            "sdf",
+            "spd",
+            "acc",
+            "crt"
+          ],
+          "description": "对手基础能力值低于自身（'对手的基础速度值低于自身'）"
+        },
+        "foeBaseStatAbove": {
+          "enum": [
+            "atk",
+            "def",
+            "spa",
+            "sdf",
+            "spd",
+            "acc",
+            "crt"
+          ],
+          "description": "对手基础能力值高于自身"
+        },
+        "foeAilCountAtLeast": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "对手异常状态种数 ≥ n（'对手处于2种及以上异常状态'）"
+        },
+        "foeImmunedThisTurn": {
+          "const": true,
+          "description": "对手本回合成功免疫过（'若对手免疫则'）"
+        },
+        "hpDiffAboveAbs": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "双方当前体力差 ≥ N（'自身体力与对手体力差值≥200'）"
+        },
+        "orderStreakAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "order",
+            "n"
+          ],
+          "properties": {
+            "order": {
+              "enum": [
+                "first",
+                "last"
+              ]
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "description": "连续 n 回合先/后出手（'连续3回合后出手则'——orderStreak 记账）"
+        },
+        "foeHitStreakAtLeast": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "对手连续命中 n 次（'对手连续命中则'——foe.hitStreak 记账）"
+        },
+        "selfHitStreakAtLeast": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "自身连续命中 n 次（'攻击技能连续命中2次则'——self.hitStreak 记账）"
+        },
+        "moveCatSameAsPrev": {
+          "const": true,
+          "description": "本招类别与上一动相同（'类型与上次相同则'——prevMoveCat 快照）"
+        },
+        "moveCatDiffPrev": {
+          "const": true,
+          "description": "本招类别与上一动不同（'类型与上次不同则'——prevMoveCat 快照）"
+        },
+        "moveSameAsPrev": {
+          "const": true,
+          "description": "本招与上一动同招（'使用技能与上次相同则'——prevMoveId 快照）"
+        },
+        "moveDiffPrev": {
+          "const": true,
+          "description": "本招与上一动不同招（'使用技能与上次不相同则'——prevMoveId 快照）"
+        },
+        "foeImmunedKind": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "对手侧免疫种类位掩码（'己方附加的固定伤害和百分比伤害被免疫时'——immunedMask 记在被免疫方）"
+        },
+        "immunedKind": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "本回合成功免疫的种类位掩码交集（bit1攻击伤害/bit2固伤/bit4百分比/bit8异常控制/bit16能力下降——'若当回合自身成功免疫X则'）"
+        },
+        "movePowerAtLeast": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "本动招式威力≥N（'若对手当回合使用的攻击技能威力大于等于80则'——读 move.effects 的 damage power）"
+        },
+        "movePowerBelow": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "本动招式威力<N（'威力低于100则'变体）"
+        },
+        "entryWasSwitch": {
+          "const": true,
+          "description": "本次登场为主动切换（'若本次登场为主动切换登场'）"
+        },
+        "turnHpLossAbove": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "本回合体力净减少量大于 N（'当回合自身体力减少量大于400'）"
+        },
+        "stageEqTurnStart": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd",
+                "acc",
+                "crt"
+              ]
+            }
+          },
+          "description": "指定能力等级等于回合开始快照（'与回合开始时的强化相同'）"
+        },
+        "everyNTurns": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "回合数整除门（'每N回合'/'战斗每开始N回合'）：turn % n === 0"
+        },
+        "missStreakAtLeast": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "连续闪避对手攻击次数 ≥N（'前N回合对手攻击均未命中'——对手攻击招式 MISS 累计）"
+        },
+        "stageUpSamePrev": {
+          "const": true,
+          "description": "本回合提升过的能力键与上回合相同（stageUpLog ⊆ prevStageUpLog 且非空）"
+        },
+        "stageUpDiffPrev": {
+          "const": true,
+          "description": "本回合提升过的能力键与上回合不同（存在上回合未提升的键）"
+        },
+        "foeGender": {
+          "enum": [
+            "male",
+            "female",
+            "none"
+          ],
+          "description": "对手性别门（'若对手为雄性/雌性则'——读 pack 单位 gender 字段；无数据按 none 处理）"
+        },
+        "benchAliveEq": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "己方背包存活单位数 === N（'背包内精灵全部阵亡'=0）"
+        },
+        "benchAllDead": {
+          "const": true,
+          "description": "己方背包内精灵全部阵亡（bench 无存活单位）"
+        },
+        "damageDigitEq": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9,
+          "description": "上次造成伤害个位数 === N（'若造成伤害值尾数为N'——lastDamage % 10）"
+        },
+        "takenDigitEq": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9,
+          "description": "最近承受伤害个位数 === N（lastTaken % 10）"
+        },
+        "selfStageMax": {
+          "enum": [
+            "atk",
+            "def",
+            "spa",
+            "sdf",
+            "spd",
+            "acc",
+            "crt",
+            "defSum",
+            "all"
+          ],
+          "description": "自身指定能力等级已达最高 +6；defSum=双防同时 +6；all=全部"
+        },
+        "dealtBelowAbs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "本回合已造成伤害 < N（'对手造成的伤害低于N'从受方视角=foe.lastTaken；'自身造成'=lastDamage）"
+        },
+        "dmgGtFoeHp": {
+          "const": true,
+          "description": "本次已造成伤害 > 对手当前体力（'若造成伤害大于对手体力则留1点血'——leaveHp 生效域谓词）"
+        },
+        "immunedThisTurn": {
+          "const": true,
+          "description": "本回合成功触发过免疫（'若成功触发免疫则'/'每次免疫成功后'——immuneThisTurn 计数 >0）"
+        },
+        "catStreakAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "n"
+          ],
+          "properties": {
+            "n": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "cat": {
+              "enum": [
+                "attack",
+                "status"
+              ]
+            }
+          },
+          "description": "同类技能连胜计数 ≥N（'若连续次数大于等于N次'——catStreak 记账；cat 限定连胜类别）"
+        },
+        "statAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat",
+            "stage"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd",
+                "acc",
+                "crt"
+              ]
+            },
+            "stage": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            }
+          }
+        },
+        "selfStatAtLeast": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat",
+            "stage"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd",
+                "acc",
+                "crt"
+              ]
+            },
+            "stage": {
+              "type": "integer",
+              "minimum": -6,
+              "maximum": 6
+            }
+          }
+        },
+        "and": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/condition"
+          }
+        },
+        "or": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/condition"
+          }
+        },
+        "not": {
+          "$ref": "#/definitions/condition"
+        },
+        "foeBaseStatAboveAbs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat",
+            "n"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd",
+                "acc",
+                "crt"
+              ]
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "foeBaseStatBelowAbs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat",
+            "n"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd",
+                "acc",
+                "crt"
+              ]
+            },
+            "n": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "selfDefSumAboveFoe": {
+          "const": true
+        },
+        "foeMoveCat": {
+          "enum": [
+            "attack",
+            "attr"
+          ]
+        },
+        "foeMoveAlwaysHit": {
+          "const": true
+        },
+        "stagesAllEqual": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "description": "双方 n 维能力等级全等（'双方6项能力等级状态全部相同'）"
+        },
+        "foeBenchDeadPer": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "description": "对手背包每阵亡 n 只计费谓词（'对方场下每死亡1只精灵则…'）"
+        }
+      }
+    },
+    "markScale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "add"
+      ],
+      "properties": {
+        "mark": {
+          "type": "string",
+          "minLength": 1
+        },
+        "add": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "per": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "on": {
+          "enum": [
+            "self",
+            "foe",
+            "both"
+          ]
+        },
+        "at": {
+          "enum": [
+            "unit",
+            "slot",
+            "field"
+          ]
+        },
+        "kinds": {
+          "const": true
+        }
+      }
+    },
+    "markCountSrc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mark"
+      ],
+      "properties": {
+        "mark": {
+          "type": "string",
+          "minLength": 1
+        },
+        "per": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "on": {
+          "enum": [
+            "self",
+            "foe"
+          ]
+        },
+        "at": {
+          "enum": [
+            "unit",
+            "slot",
+            "field"
+          ]
+        }
+      }
+    }
+  },
   "properties": {
     "moves": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "name", "pp", "priority", "effects"],
+        "required": [
+          "id",
+          "name",
+          "pp",
+          "priority",
+          "effects"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-          "name": { "type": "string", "minLength": 1 },
-          "type": { "type": "string", "minLength": 1 },
-          "category": { "enum": ["physical", "special"] },
-          "pp": { "type": "integer", "minimum": 1 },
-          "priority": { "type": "integer" },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fifth": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "physical",
+              "special"
+            ]
+          },
+          "pp": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "accuracy": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              {
+                "const": "always"
+              }
+            ]
+          },
+          "priorityIf": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "when"
+            ],
+            "properties": {
+              "when": {
+                "$ref": "#/definitions/condition"
+              },
+              "add": {
+                "type": "integer",
+                "not": {
+                  "const": 0
+                }
+              },
+              "min": {
+                "type": "integer"
+              }
+            }
+          },
+          "priorityMin": {
+            "type": "integer"
+          },
+          "hitIf": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "when"
+            ],
+            "properties": {
+              "when": {
+                "$ref": "#/definitions/condition"
+              }
+            }
+          },
+          "prioPerUse": {
+            "type": "integer",
+            "not": {
+              "const": 0
+            }
+          },
+          "ignoreFoeSpeed": {
+            "type": "boolean"
+          },
+          "ignoreFoePrioPos": {
+            "type": "boolean"
+          },
+          "targets": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "targetScope": {
+            "type": "string",
+            "enum": ["anyAlly", "any"]
+          },
+          "ppFreeIf": {
+            "$ref": "#/definitions/condition"
+          },
+          "prioPerFoeLowPp": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "below",
+              "per",
+              "add"
+            ],
+            "properties": {
+              "below": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "per": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "add": {
+                "type": "integer"
+              }
+            }
+          },
           "effects": {
             "type": "array",
-            "minItems": 1,
             "items": {
               "type": "object",
-              "required": ["op"],
+              "required": [
+                "op"
+              ],
               "additionalProperties": false,
               "properties": {
-                "op": { "type": "string", "minLength": 1 },
-                "power": { "type": "integer", "minimum": 1 },
-                "stat": { "enum": ["atk", "def", "spa", "sdf", "spd"] },
-                "delta": { "type": "integer", "not": { "const": 0 } },
-                "target": { "enum": ["self", "opponent"] },
-                "numerator": { "type": "integer", "minimum": 1 },
-                "denominator": { "type": "integer", "minimum": 1 },
-                "kind": { "enum": ["standard", "fixed", "percent", "true"] },
-                "name": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
-                "turns": { "type": "integer", "minimum": 1, "maximum": 10 }
+                "op": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "of": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": true,
+                "power": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "stat": {
+                  "enum": [
+                    "atk",
+                    "def",
+                    "spa",
+                    "sdf",
+                    "spd",
+                    "acc",
+                    "crt",
+                    "random",
+                    "all"
+                  ]
+                },
+                "delta": {
+                  "type": "integer",
+                  "not": {
+                    "const": 0
+                  }
+                },
+                "target": {
+                  "enum": [
+                    "self",
+                    "opponent",
+                    "nextFoe",
+                    "nextAlly",
+                    "bench"
+                  ]
+                },
+                "onEnterTarget": {
+                  "enum": [
+                    "self",
+                    "opponent"
+                  ]
+                },
+                "numerator": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "denominator": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "kind": {
+                  "enum": [
+                    "standard",
+                    "fixed",
+                    "percent",
+                    "true"
+                  ]
+                },
+                "name": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]*$"
+                },
+                "turns": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 99
+                },
+                "mark": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "at": {
+                  "enum": [
+                    "unit",
+                    "slot",
+                    "field",
+                    "all"
+                  ]
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "unitCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "to": {
+                  "enum": [
+                    "forward",
+                    "revert"
+                  ]
+                },
+                "clear": {
+                  "const": true
+                },
+                "remove": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1,
+                  "uniqueItems": true
+                },
+                "removeState": {
+                  "enum": [
+                    "forward",
+                    "revert"
+                  ]
+                },
+                "pick": {
+                  "enum": [
+                    "randomMove"
+                  ]
+                },
+                "chancePerMark": {
+                  "$ref": "#/definitions/markScale"
+                },
+                "chanceSelfCurPct": {
+                  "type": "boolean"
+                },
+                "extendIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "turns"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "turns": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "drainFlatIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "flat"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "pctSwapIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "n",
+                    "d"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "n": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "d": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "setFromThis": {
+                  "type": "boolean"
+                },
+                "swapPercent": {
+                  "type": "boolean"
+                },
+                "mulChancePerMark": {
+                  "$ref": "#/definitions/markScale"
+                },
+                "flatPerMark": {
+                  "$ref": "#/definitions/markScale"
+                },
+                "flatPerRemoved": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "按刚被清除的能力等级段数附加固伤（'若自身强化被消除，每消除1项附加N点'——react trigger7 语境）"
+                },
+                "mulPerMark": {
+                  "$ref": "#/definitions/markScale"
+                },
+                "countPerMark": {
+                  "$ref": "#/definitions/markCountSrc"
+                },
+                "pctPerAilTurn": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["pct", "per"],
+                  "properties": {
+                    "ail": { "type": "string" },
+                    "pct": { "type": "number" },
+                    "per": { "type": "number" },
+                    "cap": { "type": "number" }
+                  },
+                  "description": "按目标指定异常剩余回合数×pct 烘焙 params.pct（'每有1回合流血伤害提升15%最高90%'）"
+                },
+                "turnsRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "chance": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "flatBonus": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatSelfPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "flatSelfCurPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "flatSelfOverflowPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100,
+                  "description": "按当次回复溢出量百分比附加固伤（'附加溢出量26%的真实伤害'）"
+                },
+                "flatPerMissing": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "step",
+                    "add"
+                  ],
+                  "properties": {
+                    "step": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "pct": {
+                      "const": true
+                    }
+                  }
+                },
+                "ailmentOnHit": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "pct"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "selfHp": {
+                  "type": "boolean"
+                },
+                "fracRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "object",
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": {
+                          "type": "integer"
+                        },
+                        "denominator": {
+                          "type": "integer"
+                        }
+                      }
+                    },
+                    "max": {
+                      "type": "object",
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": {
+                          "type": "integer"
+                        },
+                        "denominator": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                },
+                "flatFoeShieldPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "flatFoeDefSumPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "flatSelfShieldPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "flatHpDiffPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "flatFoeLastDmg": {
+                  "type": "boolean"
+                },
+                "flatSelfLastHeal": {
+                  "type": "boolean"
+                },
+                "powerDropPerHit": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "drainTo": {
+                  "enum": [
+                    "foe"
+                  ]
+                },
+                "flatRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "mulRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatChance": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "flatIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "range": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "max": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "flat": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "full": {
+                  "const": true
+                },
+                "crit": {
+                  "const": true
+                },
+                "critChance": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "critPerUsePct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "critPerUseCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "critInitPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "hitsNoDecay": {
+                  "const": true
+                },
+                "flatPrevTakenPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "matchSelfHp": {
+                  "const": true
+                },
+                "match": {
+                  "const": true
+                },
+                "slot": {
+                  "oneOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9
+                    },
+                    {
+                      "const": "fifth"
+                    }
+                  ]
+                },
+                "set": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "kindIfImmune": {
+                  "anyOf": [
+                    {
+                      "const": "true"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "from"
+                      ],
+                      "properties": {
+                        "from": {
+                          "enum": [
+                            "fixed",
+                            "percent"
+                          ]
+                        },
+                        "flat": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "hitsPerPpGap": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "recoilFrac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "n",
+                    "d"
+                  ],
+                  "properties": {
+                    "n": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "d": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "powerAdd": {
+                  "type": "integer"
+                },
+                "powerRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "powerPerSelfStage": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "powerPerFoeStage": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "pctPerSelfStage": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatMul": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "drainMul": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "noResist": {
+                  "const": true
+                },
+                "foeEcho": {
+                  "anyOf": [
+                    {
+                      "const": true
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "denominator": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "selfEcho": {
+                  "anyOf": [
+                    {
+                      "const": true
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "denominator": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "foeEchoIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["when"],
+                  "properties": {
+                    "when": { "$ref": "#/definitions/condition" }
+                  }
+                },
+                "selfEchoIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["when"],
+                  "properties": {
+                    "when": { "$ref": "#/definitions/condition" }
+                  }
+                },
+                "missing": {
+                  "const": true
+                },
+                "cap": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "setPct": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "foeLastHealPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "setRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatPerAlive": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "perBelowAbs": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["threshold", "per", "add"],
+                  "properties": {
+                    "threshold": { "type": "integer" },
+                    "per": { "type": "integer", "minimum": 1 },
+                    "add": { "type": "integer", "minimum": 1 }
+                  },
+                  "description": "低于绝对阈值逐点回复（'自身体力低于500点则每低1点恢复1点'——floor((threshold-hp)/per)*add）"
+                },
+                "flatPerFoeBench": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "aliveOnly": {
+                      "type": "boolean"
+                    }
+                  },
+                  "description": "对手每有 N 只不在场精灵恢复 add 点（'对手每有一只不在场精灵则恢复N点'——bench 槽位计数）"
+                },
+                "fracPerFoeBench": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "n",
+                    "d"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "n": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "d": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "aliveOnly": {
+                      "type": "boolean"
+                    }
+                  },
+                  "description": "对手每有 N 只不在场精灵恢复 maxHp×n/d（'对手每有一只不在场精灵则恢复1/10'）"
+                },
+                "flatPerStage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "who",
+                    "sign",
+                    "per",
+                    "flat"
+                  ],
+                  "properties": {
+                    "who": {
+                      "enum": [
+                        "self",
+                        "foe",
+                        "both"
+                      ]
+                    },
+                    "sign": {
+                      "enum": [
+                        "up",
+                        "down"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "mode": {
+                      "enum": [
+                        "count",
+                        "levels"
+                      ]
+                    },
+                    "stat": {
+                      "enum": [
+                        "atk",
+                        "def",
+                        "spa",
+                        "sdf",
+                        "spd",
+                        "acc"
+                      ]
+                    },
+                    "stats": {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "atk",
+                          "def",
+                          "spa",
+                          "sdf",
+                          "spd",
+                          "acc",
+                          "crt"
+                        ]
+                      },
+                      "minItems": 1
+                    },
+                    "drain": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "flatSelfFrac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "base": {
+                      "enum": [
+                        "max",
+                        "current",
+                        "missing"
+                      ]
+                    }
+                  }
+                },
+                "flatFoeFrac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "base": {
+                      "enum": [
+                        "max",
+                        "current",
+                        "missing"
+                      ]
+                    }
+                  }
+                },
+                "flatFoeCurPctPerUse": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "base"
+                  ],
+                  "properties": {
+                    "base": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "step": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "cap": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatFoeFracIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "base": {
+                      "enum": [
+                        "max",
+                        "current",
+                        "missing"
+                      ]
+                    }
+                  }
+                },
+                "flatSelfFracIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "base": {
+                      "enum": [
+                        "max",
+                        "current",
+                        "missing"
+                      ]
+                    }
+                  }
+                },
+                "frac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "of": {
+                      "enum": [
+                        "max",
+                        "cur"
+                      ]
+                    }
+                  }
+                },
+                "fracSelf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "of": {
+                      "enum": [
+                        "max",
+                        "cur"
+                      ]
+                    }
+                  }
+                },
+                "selfStageFlat": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "flat"
+                  ],
+                  "properties": {
+                    "flat": {
+                      "type": "integer"
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "sign": {
+                      "enum": [
+                        "up",
+                        "down"
+                      ]
+                    }
+                  }
+                },
+                "ofSelfDealt": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "perImmuneFlat": {
+                  "type": "integer"
+                },
+                "healSelf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "of": {
+                      "enum": [
+                        "dealt",
+                        "amount"
+                      ]
+                    }
+                  }
+                },
+                "benchHeal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "flat"
+                  ],
+                  "properties": {
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "requireSelfFull": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "flatImmune": {
+                  "enum": [
+                    "respect",
+                    "ignore"
+                  ]
+                },
+                "flatImmuneConvert": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "flat"
+                  ],
+                  "properties": {
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "kill": {
+                  "const": true
+                },
+                "cause": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "label": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]*$"
+                },
+                "stack": {
+                  "const": true
+                },
+                "accFlat": {
+                  "const": true
+                },
+                "mulSelfStageLvl": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "stat",
+                    "per"
+                  ],
+                  "properties": {
+                    "stat": {
+                      "enum": [
+                        "atk",
+                        "def",
+                        "spa",
+                        "sdf",
+                        "spd",
+                        "acc"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "percentBase": {
+                  "enum": [
+                    "current",
+                    "max",
+                    "selfCur",
+                    "selfMax",
+                    "foeMissing"
+                  ]
+                },
+                "shieldEcho": {
+                  "type": "boolean"
+                },
+                "foeShieldEcho": {
+                  "type": "boolean"
+                },
+                "trueEcho": {
+                  "type": "boolean"
+                },
+                "trueEchoIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    }
+                  }
+                },
+                "flatMaxHpDiffPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                "healOnHit": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatRangeIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "min": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "flatOnHit": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "chance",
+                    "flat"
+                  ],
+                  "properties": {
+                    "chance": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatPerRemoved": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "onClear": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "ppZeroFoe": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "drainFlat": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatSelfDefSumPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                "flatFoeDefPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "critChanceFrac": {
+                  "$ref": "#/definitions/fraction"
+                },
+                "deltaMulChance": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "chance",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "chance": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "perBench": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "of",
+                        "per"
+                      ],
+                      "properties": {
+                        "of": {
+                          "enum": [
+                            "alive",
+                            "dead"
+                          ]
+                        },
+                        "per": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "stageOnHit": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "stat",
+                      "delta"
+                    ],
+                    "properties": {
+                      "stat": {
+                        "enum": [
+                          "atk",
+                          "def",
+                          "spa",
+                          "sdf",
+                          "spd",
+                          "acc",
+                          "crt"
+                        ]
+                      },
+                      "delta": {
+                        "type": "integer",
+                        "not": {
+                          "const": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "flatPerHpPct": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "who",
+                    "per",
+                    "flat"
+                  ],
+                  "properties": {
+                    "who": {
+                      "enum": [
+                        "self",
+                        "foe"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatPerAilment": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatPerFoeMissing": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "step",
+                    "add"
+                  ],
+                  "properties": {
+                    "step": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatPerMatchedStage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatFoePpMissing": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mul"
+                  ],
+                  "properties": {
+                    "mul": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "who": {
+                      "enum": [
+                        "foe",
+                        "both"
+                      ]
+                    }
+                  }
+                },
+                "flatRepIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "range"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "range": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "dmgPctPerFoeAil": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pct"
+                  ],
+                  "properties": {
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "cap": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "dmgPctPerFoeDownStage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pct"
+                  ],
+                  "properties": {
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "powerPerStageScale": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "who",
+                    "per",
+                    "add",
+                    "kind"
+                  ],
+                  "properties": {
+                    "who": {
+                      "enum": [
+                        "self",
+                        "foe"
+                      ]
+                    },
+                    "sign": {
+                      "enum": [
+                        "up",
+                        "down"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "mode": {
+                      "enum": [
+                        "count",
+                        "levels"
+                      ]
+                    },
+                    "kind": {
+                      "enum": [
+                        "flat",
+                        "pct"
+                      ]
+                    }
+                  }
+                },
+                "flatPerDead": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "who",
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "who": {
+                      "enum": [
+                        "self",
+                        "foe",
+                        "all"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "koIfHitsMax": {
+                  "type": "boolean"
+                },
+                "flatSelfLastTaken": {
+                  "type": "boolean"
+                },
+                "shieldAbsorbPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "flatIfFoeImmune": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatPerPpZero": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "who",
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "who": {
+                      "enum": [
+                        "self",
+                        "foe",
+                        "both"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "drain": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "flatSelfAtkPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "flatSelfSpdFrac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatEcho": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 300
+                    }
+                  }
+                },
+                "lastDmgFrac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "zero": {
+                  "type": "boolean"
+                },
+                "zeroMaxPower": {
+                  "type": "boolean"
+                },
+                "zeroRandom": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "zeroRandomMax": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "setRandom": {
+                  "type": "object",
+                  "required": [
+                    "count",
+                    "value"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "amountRandom": {
+                  "type": "object",
+                  "required": [
+                    "count",
+                    "delta"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "delta": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "amountRange": {
+                  "type": "object",
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "min": {
+                      "type": "integer"
+                    },
+                    "max": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "aliveOnly": {
+                  "type": "boolean"
+                },
+                "drainPerPpPoint": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "flat"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "amountFromThisPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "cat": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "minDamage": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "leaveHp": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pierce": {
+                  "const": true
+                },
+                "pierceShield": {
+                  "const": true
+                },
+                "powerMul": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "powerPerUse": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "powerPerUseCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "powerPerAliveDiff": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["per", "add"],
+                  "properties": {
+                    "per": { "type": "integer", "minimum": 1 },
+                    "add": { "type": "integer", "minimum": 1 }
+                  }
+                },
+                "powerPerMissing": {
+                  "type": "object",
+                  "required": [
+                    "per",
+                    "pow"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "pow": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "powerMulPerUse": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatPerUse": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatPerUseCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "useBestOffense": {
+                  "const": true
+                },
+                "useFoeBestOffense": {
+                  "const": true
+                },
+                "selfTradeFrac": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "n",
+                    "d"
+                  ],
+                  "properties": {
+                    "n": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "d": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "selfCostEcho": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "denominator": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "dmgPerUsePct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "dmgPerUsePctCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "forceStab": {
+                  "type": "boolean"
+                },
+                "percentSelfStatPct": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pct"
+                  ],
+                  "properties": {
+                    "stat": {
+                      "type": "string"
+                    },
+                    "stats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "forceStabIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    }
+                  }
+                },
+                "dmgPctPerSelfAilTurn": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pct"
+                  ],
+                  "properties": {
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "cap": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "foeNextMaxHpAcc": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pct"
+                  ],
+                  "properties": {
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "cap": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "powerMulPerUseCap": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "useCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "drainEcho": {
+                  "anyOf": [
+                    {
+                      "const": true
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "denominator": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  ]
+                },
+                "drainEchoIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["when"],
+                  "properties": {
+                    "when": { "$ref": "#/definitions/condition" }
+                  }
+                },
+                "drainIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "deltaMulIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "mul": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "mulChance": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "chance",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "chance": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "chanceMulIf": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "when",
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "when": {
+                          "$ref": "#/definitions/condition"
+                        },
+                        "numerator": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "denominator": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "mulChancePerUse": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "mulChanceUseCap": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "critIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    }
+                  }
+                },
+                "critChanceIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "chance"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "chance": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "mulIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatMulIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "drain": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "sign": {
+                  "enum": [
+                    "up",
+                    "down"
+                  ]
+                },
+                "stats": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "hp",
+                      "atk",
+                      "def",
+                      "spa",
+                      "sdf",
+                      "spd",
+                      "acc"
+                    ]
+                  },
+                  "minItems": 1
+                },
+                "add": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "pct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 300
+                },
+                "direction": {
+                  "enum": [
+                    "steal",
+                    "push",
+                    "pull",
+                    "upToDown"
+                  ]
+                },
+                "scope": {
+                  "enum": [
+                    "control",
+                    "timed",
+                    "ailment",
+                    "shield",
+                    "all",
+                    "current",
+                    "others"
+                  ]
+                },
+                "effect": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z0-9_-]*$"
+                    },
+                    {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_-]*$"
+                      }
+                    }
+                  ]
+                },
+                "echoPct": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                },
+                "stealShield": {
+                  "type": "boolean",
+                  "const": true,
+                  "description": "偷盾（'消除并获得对手的护盾、护罩'）——被移除的盾罩按种类与剩余 flat 转移给行动方"
+                },
+                "onClear": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "ppZeroFoe": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "random": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "list",
+                    "count"
+                  ],
+                  "properties": {
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "minItems": 1
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "countRange": {
+                      "type": "object",
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "properties": {
+                        "min": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "max": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "ailment": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_-]*$"
+                },
+                "moveType": {
+                  "type": "string",
+                  "description": "系别门控（'本方受到的火系攻击伤害减半'/'电系技能威力翻倍'——来招 type 与门控名不符则窗关）"
+                },
+                "amount": {
+                  "type": "integer",
+                  "not": {
+                    "const": 0
+                  }
+                },
+                "randomCount": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6
+                },
+                "multiplySelf": {
+                  "const": true
+                },
+                "randomDelta": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "randomCountRange": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "defSumPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "capFracN": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "capFracD": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "chancePerUse": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "chancePerUseCap": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "chancePerStage": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "chancePerMissing": {
+                  "type": "object",
+                  "required": [
+                    "per",
+                    "step"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "step": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "chanceMulIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "chanceSetIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "value"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "value": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  }
+                },
+                "flatIfBelow": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "flat": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "selfPct": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    }
+                  },
+                  "anyOf": [
+                    {
+                      "required": [
+                        "flat"
+                      ],
+                      "properties": {
+                        "flat": true
+                      }
+                    },
+                    {
+                      "required": [
+                        "selfPct"
+                      ],
+                      "properties": {
+                        "selfPct": true
+                      }
+                    }
+                  ]
+                },
+                "consumeShield": {
+                  "const": true
+                },
+                "shieldSum": {
+                  "const": true
+                },
+                "fracIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "payload": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": true
+                    }
+                  },
+                  "description": "react 触发器内嵌 op 列表（kind=react 时由 fireReactive 派发）"
+                },
+                "nullifyOnly": {
+                  "const": true
+                },
+                "if": {
+                  "$ref": "#/definitions/condition"
+                },
+                "scaleIf": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "when",
+                    "numerator",
+                    "denominator"
+                  ],
+                  "properties": {
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "hits": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "min",
+                    "max"
+                  ],
+                  "properties": {
+                    "min": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "max": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 300
+                    },
+                    "perUse": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "cap": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 300
+                    },
+                    "chance": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100
+                    },
+                    "capIf": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "when",
+                        "cap"
+                      ],
+                      "properties": {
+                        "when": {
+                          "$ref": "#/definitions/condition"
+                        },
+                        "cap": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 300
+                        }
+                      }
+                    },
+                    "capIfPpBelow": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "pp",
+                        "cap"
+                      ],
+                      "properties": {
+                        "pp": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "cap": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 400
+                        }
+                      }
+                    },
+                    "growPerHit": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatSelfStatPct": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "anyOf": [
+                    { "required": ["pct"], "properties": { "pct": true } },
+                    { "required": ["numerator", "denominator"], "properties": { "numerator": true, "denominator": true } }
+                  ],
+                  "properties": {
+                    "stat": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 300
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatFoeStatPct": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "anyOf": [
+                    { "required": ["pct"], "properties": { "pct": true } },
+                    { "required": ["numerator", "denominator"], "properties": { "numerator": true, "denominator": true } }
+                  ],
+                  "properties": {
+                    "stat": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "stats": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 300
+                    },
+                    "numerator": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "denominator": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "hitsPerStage": {
+                  "type": "object",
+                  "required": [
+                    "who",
+                    "per",
+                    "add"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "who": {
+                      "enum": [
+                        "self",
+                        "opponent"
+                      ]
+                    },
+                    "sign": {
+                      "enum": [
+                        "up",
+                        "down"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer"
+                  }
+                },
+                "flatPowerMul": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "hitsPerPrio": {
+                  "type": "object",
+                  "required": [
+                    "per",
+                    "add"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatStackCap": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatDefStageMul": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatPrevTurnTakenPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatSelfLastDmgPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatFoeStageUpCountMul": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatBothStageUpCountMul": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatStageUpCountMul": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "flatFoeCurPct": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "drainPer": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "ppZeroPer": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "resetStacks": {
+                  "type": "boolean"
+                },
+                "flatPerTurn": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mul"
+                  ],
+                  "properties": {
+                    "mul": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                },
+                "flatPerFoeDead": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "per",
+                    "add"
+                  ],
+                  "properties": {
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "step": { "type": "integer", "minimum": -10000, "maximum": 10000 },
+                "magCap": { "type": "integer", "minimum": -10000, "maximum": 10000 },
+                "point": { "const": true },
+                "resetOnCap": { "const": true },
+                "atCapMul": { "type": "number", "minimum": 0, "maximum": 100 },
+                "atCapNext": { "const": true },
+                "min": { "type": "integer", "minimum": 0, "maximum": 9 },
+                "max": { "type": "integer", "minimum": 0, "maximum": 9 }
               },
               "allOf": [
                 {
-                  "if": { "required": ["op"], "properties": { "op": { "const": "damage" } } },
-                  "then": { "required": ["power"], "properties": { "power": true } }
-                },
-                {
-                  "if": { "required": ["op"], "properties": { "op": { "const": "apply_stat_stage" } } },
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "damage"
+                      }
+                    }
+                  },
                   "then": {
-                    "required": ["stat", "delta", "target"],
-                    "properties": { "stat": true, "delta": true, "target": true }
+                    "allOf": [
+                      {
+                        "if": {
+                          "not": {
+                            "required": [
+                              "kind"
+                            ],
+                            "properties": {
+                              "kind": true
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "power"
+                          ],
+                          "properties": {
+                            "power": true
+                          }
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "power": true,
+                      "kind": true,
+                      "target": true
+                    }
                   }
                 },
                 {
-                  "if": { "required": ["op"], "properties": { "op": { "const": "transfer_stages" } } },
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyDrainRider"
+                      }
+                    }
+                  },
                   "then": {
-                    "properties": { "power": false, "stat": false, "delta": false, "target": false, "kind": false, "name": false, "turns": false, "numerator": false, "denominator": false }
+                    "properties": {
+                      "drain": true,
+                      "drainIf": true,
+                      "drainMul": true,
+                      "drainTo": true,
+                      "drainFlat": true,
+                      "drainEcho": true,
+                      "drainEchoIf": true
+                    }
                   }
                 },
                 {
-                  "if": { "required": ["op"], "properties": { "op": { "const": "clear_stages" } } },
-                  "then": { "required": ["target"], "properties": { "target": true } }
-                },
-                {
-                  "if": { "required": ["op"], "properties": { "op": { "enum": ["control", "apply_status", "apply_effect"] } } },
-                  "then": { "required": ["name", "turns", "target"], "properties": { "name": true, "turns": true, "target": true } }
-                },
-                {
-                  "if": { "required": ["op"], "properties": { "op": { "const": "cleanse" } } },
-                  "then": { "required": ["target"], "properties": { "target": true } }
-                },
-                {
-                  "if": { "required": ["op"], "properties": { "op": { "const": "heal" } } },
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyFlatIfFoeImmune" } }
+                  },
                   "then": {
-                    "required": ["numerator", "denominator", "target"],
-                    "properties": { "numerator": true, "denominator": true, "target": true }
+                    "properties": {
+                      "flatIfFoeImmune": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applySelfCostEcho" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "selfCostEcho": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyRecoilFrac" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "recoilFrac": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyFlatEcho" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "flatEcho": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyFoeNextMaxHpAcc" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "foeNextMaxHpAcc": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyShieldEcho" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "shieldEcho": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyFoeShieldEcho" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "foeShieldEcho": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyTrueEcho" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "trueEcho": true,
+                      "trueEchoIf": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyHealOnHit" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "healOnHit": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyFlatOnHit" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "flatOnHit": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyAilmentOnHit" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "ailmentOnHit": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "applyStageOnHit" } }
+                  },
+                  "then": {
+                    "properties": {
+                      "stageOnHit": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "power" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["powerAdd", "powerDropPerHit", "powerMul", "powerMulPerUse", "powerMulPerUseCap", "powerPerAliveDiff", "powerPerFoeStage", "powerPerMissing", "powerPerSelfStage", "powerPerStageScale", "powerPerUse", "powerPerUseCap", "powerRange", "resetStacks", "scaleIf", "useCap"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "formula" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["forceStab", "forceStabIf", "frac", "fracIf", "fracRange", "kindIfImmune", "noResist", "percentBase", "percentSelfStatPct", "selfHp", "selfTradeFrac", "useBestOffense", "useFoeBestOffense"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "crit" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["crit", "critChance", "critChanceFrac", "critChanceIf", "critIf", "critInitPct", "critPerUseCap", "critPerUsePct"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "scale" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["dmgPctPerFoeAil", "dmgPctPerFoeDownStage", "dmgPctPerSelfAilTurn", "dmgPerUsePct", "dmgPerUsePctCap", "mul", "mulChance", "mulChancePerMark", "mulChancePerUse", "mulChanceUseCap", "mulIf", "mulPerMark", "mulRange", "pctPerSelfStage"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "flat" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["flatBonus", "flatBothStageUpCountMul", "flatChance", "flatDefStageMul", "flatFoeCurPct", "flatFoeCurPctPerUse", "flatFoeDefPct", "flatFoeDefSumPct", "flatFoeFrac", "flatFoeFracIf", "flatFoeLastDmg", "flatFoePpMissing", "flatFoeShieldPct", "flatFoeStageUpCountMul", "flatFoeStatPct", "flatHpDiffPct", "flatIf", "flatMaxHpDiffPct", "flatMul", "flatMulIf", "flatPerAilment", "flatPerDead", "flatPerFoeDead", "flatPerFoeMissing", "flatPerHpPct", "flatPerMark", "flatPerMatchedStage", "flatPerMissing", "flatPerPpZero", "flatPerRemoved", "flatPerStage", "flatPerTurn", "flatPerUse", "flatPerUseCap", "flatPowerMul", "flatPrevTakenPct", "flatPrevTurnTakenPct", "flatRange", "flatRangeIf", "flatRepIf", "flatSelfAtkPct", "flatSelfCurPct", "flatSelfDefSumPct", "flatSelfFrac", "flatSelfFracIf", "flatSelfLastDmgPct", "flatSelfLastHeal", "flatSelfLastTaken", "flatSelfOverflowPct", "flatSelfPct", "flatSelfShieldPct", "flatSelfSpdFrac", "flatSelfStatPct", "flatStackCap", "flatStageUpCountMul", "lastDmgFrac", "shieldAbsorbPct"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "cap" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["cap", "flatIfBelow", "leaveHp", "matchSelfHp", "minDamage"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "strike" } }
+                  },
+                  "then": {
+                    "required": ["of", "value"],
+                    "properties": {
+                      "of": { "enum": ["consumeShield", "hits", "hitsNoDecay", "hitsPerPpGap", "hitsPerPrio", "hitsPerStage", "koIfHitsMax", "pierce", "pierceShield"] },
+                      "value": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "apply_stat_stage"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "stat",
+                      "delta",
+                      "target"
+                    ],
+                    "properties": {
+                      "stat": true,
+                      "randomCount": true,
+                      "multiplySelf": true,
+                      "delta": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "deltaMulIf": true,
+                      "deltaMulChance": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "transfer_stages"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "power": false,
+                      "delta": false,
+                      "target": false,
+                      "kind": false,
+                      "name": false,
+                      "turns": false,
+                      "numerator": false,
+                      "denominator": false,
+                      "direction": {
+                        "enum": [
+                          "steal",
+                          "push",
+                          "upToDown"
+                        ]
+                      },
+                      "stat": true,
+                      "sign": true,
+                      "randomCount": true,
+                      "randomDelta": true,
+                      "randomCountRange": true,
+                      "mul": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "clear_stages"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true,
+                      "sign": true,
+                      "stats": true,
+                      "flatPerRemoved": true,
+                      "onClear": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "control"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "name",
+                      "turns",
+                      "target"
+                    ],
+                    "properties": {
+                      "name": true,
+                      "turns": true,
+                      "target": true,
+                      "onEnterTarget": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "hp_delta"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "flat": true,
+                      "flatRange": true,
+                      "selfStageFlat": true,
+                      "frac": true,
+                      "fracSelf": true,
+                      "ofSelfDealt": true,
+                      "perImmuneFlat": true,
+                      "kind": true,
+                      "cause": true,
+                      "kill": true,
+                      "healSelf": true,
+                      "flatImmune": true,
+                      "flatImmuneConvert": true,
+                      "benchHeal": true,
+                      "if": true,
+                      "chance": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "apply_status"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "name",
+                      "target"
+                    ],
+                    "properties": {
+                      "name": true,
+                      "turns": true,
+                      "turnsRange": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "random": true,
+                      "payload": true,
+                      "countPerMark": true,
+                      "ailment": true,
+                      "moveType": true,
+                      "extendIf": true,
+                      "if": true,
+                      "chanceSelfCurPct": true,
+                      "chance": true,
+                      "label": true,
+                      "stack": true,
+                      "accFlat": true,
+                      "mulSelfStageLvl": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "apply_mark"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "mark",
+                      "target"
+                    ],
+                    "properties": {
+                      "mark": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "at": true,
+                      "count": true,
+                      "cap": true,
+                      "unitCap": true,
+                      "turns": true,
+                      "pick": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "consume_mark"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "mark",
+                      "target"
+                    ],
+                    "properties": {
+                      "mark": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "at": true,
+                      "count": true,
+                      "pick": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "apply_effect"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "name",
+                      "target"
+                    ],
+                    "properties": {
+                      "name": true,
+                      "turns": true,
+                      "target": true,
+                      "params": true,
+                      "turnsRange": false,
+                      "random": false,
+                      "payload": false
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "cleanse"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true,
+                      "scope": true,
+                      "effect": true,
+                      "echoPct": true,
+                      "onClear": true,
+                      "stealShield": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "heal"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "anyOf": [
+                      {
+                        "required": [
+                          "numerator",
+                          "denominator"
+                        ],
+                        "properties": {
+                          "numerator": true,
+                          "denominator": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "flat"
+                        ],
+                        "properties": {
+                          "flat": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "flatRange"
+                        ],
+                        "properties": {
+                          "flatRange": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "flatPerAlive"
+                        ],
+                        "properties": {
+                          "flatPerAlive": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "perBelowAbs"
+                        ],
+                        "properties": {
+                          "perBelowAbs": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "flatPerFoeBench"
+                        ],
+                        "properties": {
+                          "flatPerFoeBench": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "fracPerFoeBench"
+                        ],
+                        "properties": {
+                          "fracPerFoeBench": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "flatPerStage"
+                        ],
+                        "properties": {
+                          "flatPerStage": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "set"
+                        ],
+                        "properties": {
+                          "set": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "setPct"
+                        ],
+                        "properties": {
+                          "setPct": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "foeLastHealPct"
+                        ],
+                        "properties": {
+                          "foeLastHealPct": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "setRange"
+                        ],
+                        "properties": {
+                          "setRange": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "defSumPct"
+                        ],
+                        "properties": {
+                          "defSumPct": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "shieldSum"
+                        ],
+                        "properties": {
+                          "shieldSum": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "consumeShield"
+                        ],
+                        "properties": {
+                          "consumeShield": true
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "numerator": true,
+                      "denominator": true,
+                      "flat": true,
+                      "flatRange": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "mulIf": true,
+                      "foeEcho": true,
+                      "foeEchoIf": true,
+                      "selfEcho": true,
+                      "selfEchoIf": true,
+                      "fracIf": true,
+                      "missing": true,
+                      "cap": true,
+                      "set": true,
+                      "setPct": true,
+                      "setRange": true,
+                      "flatPerAlive": true,
+                      "flatPerFoeBench": true,
+                      "fracPerFoeBench": true,
+                      "flatPerStage": true,
+                      "defSumPct": true,
+                      "consumeShield": true,
+                      "shieldSum": true,
+                      "capFracN": true,
+                      "capFracD": true,
+                      "foeLastHealPct": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "pp_delta"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "anyOf": [
+                      {
+                        "required": [
+                          "amount"
+                        ],
+                        "properties": {
+                          "amount": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "set"
+                        ],
+                        "properties": {
+                          "set": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "full"
+                        ],
+                        "properties": {
+                          "full": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "zeroRandom"
+                        ],
+                        "properties": {
+                          "zeroRandom": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "amountRandom"
+                        ],
+                        "properties": {
+                          "amountRandom": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "amountRange"
+                        ],
+                        "properties": {
+                          "amountRange": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "setRandom"
+                        ],
+                        "properties": {
+                          "setRandom": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "zero"
+                        ],
+                        "properties": {
+                          "zero": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "slot"
+                        ],
+                        "properties": {
+                          "slot": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "setFromThis"
+                        ],
+                        "properties": {
+                          "setFromThis": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "amountFromThisPct"
+                        ],
+                        "properties": {
+                          "amountFromThisPct": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "zeroMaxPower"
+                        ],
+                        "properties": {
+                          "zeroMaxPower": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "zeroRandomMax"
+                        ],
+                        "properties": {
+                          "zeroRandomMax": true
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "amount": true,
+                      "set": true,
+                      "full": true,
+                      "zero": true,
+                      "zeroMaxPower": true,
+                      "zeroRandom": true,
+                      "zeroRandomMax": true,
+                      "setRandom": true,
+                      "setFromThis": true,
+                      "amountFromThisPct": true,
+                      "amountRandom": true,
+                      "amountRange": true,
+                      "slot": true,
+                      "cat": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "scope": true,
+                      "aliveOnly": true,
+                      "drainPerPpPoint": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "force_switch"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "copy_stages"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "sign": true,
+                      "match": {
+                        "const": true
+                      },
+                      "stat": true,
+                      "target": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "invert_stages"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "sign": true,
+                      "mul": true,
+                      "target": true,
+                      "onEnterTarget": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "swap_hp"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true,
+                      "swapPercent": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "banish_dead"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "stages_rewind"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "turns": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "eff_max"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "set_mode_flag"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "name",
+                      "target"
+                    ],
+                    "properties": {
+                      "name": true,
+                      "target": true,
+                      "onEnterTarget": true,
+                      "to": true,
+                      "clear": true,
+                      "remove": true,
+                      "removeState": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "transfer_ailments"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "target"
+                    ],
+                    "properties": {
+                      "target": true,
+                      "onEnterTarget": true,
+                      "direction": true,
+                      "drainPer": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "ppZeroPer": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "stat_boost"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "stats",
+                      "target"
+                    ],
+                    "anyOf": [
+                      {
+                        "required": [
+                          "add"
+                        ],
+                        "properties": {
+                          "add": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "pct"
+                        ],
+                        "properties": {
+                          "pct": true
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "stats": true,
+                      "add": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "pct": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 300
+                      },
+                      "target": true,
+                      "onEnterTarget": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "grow" } }
+                  },
+                  "then": {
+                    "required": ["of"],
+                    "properties": {
+                      "of": { "const": "magnitude" },
+                      "step": true,
+                      "magCap": true,
+                      "point": true,
+                      "resetOnCap": true,
+                      "atCapMul": true,
+                      "atCapNext": true,
+                      "payload": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["op"],
+                    "properties": { "op": { "const": "priority" } }
+                  },
+                  "then": {
+                    "required": ["min", "max"],
+                    "properties": {
+                      "min": true,
+                      "max": true
+                    }
                   }
                 }
               ]

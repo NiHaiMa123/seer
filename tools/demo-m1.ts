@@ -15,7 +15,7 @@ import { startServer } from "../apps/server/src/index.ts";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT = join(ROOT, "artifacts", "m1", "m1-06-demo.json");
 const SEED = "1a2b3c4d1a2b3c4d1a2b3c4d1a2b3c4d";
-const EXPECTED_LIVE_HASH = "sha256:6050356920d22418d8dc598d847fef463bdb35b1c51811a45ac18c05fe4dbd3e";
+const EXPECTED_LIVE_HASH = "sha256:90ed53a4266129fc56a996412086d0a344ab51e2d49f31fc22119917ba196eb2";
 
 interface Evidence {
   sequence: string[];
@@ -113,7 +113,10 @@ async function main(): Promise<void> {
     evidence.liveHash = liveHash;
     evidence.replayHashMatchesLive = replay.ok && replay.finalHash === liveHash;
     if (!evidence.replayHashMatchesLive) throw new Error(`replay mismatch: ${JSON.stringify(evidence.replay)} vs ${liveHash}`);
-    if (liveHash !== EXPECTED_LIVE_HASH) throw new Error(`v1 hash drift: expected ${EXPECTED_LIVE_HASH}, got ${liveHash}`);
+    // battleId 自 server 插件化后改为 randomBytes 随机生成（btl_<8hex>），coreHashOf 将其纳入 CORE_KEYS → 跨 run 必漂。
+    // 语义钉值用 battleId 归一化投影——保住"对局内容漂移检测"本意；replay 比对不受影响（两侧同 id）。
+    const stableHash = coreHashOf({ ...host.host.state.battle, battleId: "btl_demo" });
+    if (stableHash !== EXPECTED_LIVE_HASH) throw new Error(`v1 hash drift: expected ${EXPECTED_LIVE_HASH}, got ${stableHash}`);
     evidence.sequence.push("replay", "verify");
 
     evidence.terminal = (await fetch(`${server.url}/api/battle/${created.battleId}/observe?player=${created.tokens.p1}`).then((r) => r.json())).terminal;

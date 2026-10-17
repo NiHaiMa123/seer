@@ -91,18 +91,28 @@ export function worldApiPlugin(): PluginSpec {
         // challenge：翻译成真实 pve 建局（玩家队取存档 main，boss 队由动作给）
         const ch = actRes.result["challenge"] as { pack: string; bossTeam: string[] } | undefined;
         if (ch !== undefined) {
-          const sess = world.session(input.sessionId);
-          const pack = catalog.packs[ch.pack];
-          if (pack === undefined) throw new Error(`unknown pack ${ch.pack}`);
-          const saved = world.teams(sess.playerId).find((t) => t.name === "main" && t.pack === ch.pack)?.species;
-          const created = battles.create({
-            pack: ch.pack,
-            mode: "pve",
-            team: { p1: saved ?? [[...pack.unitsById.keys()][0]!], p2: ch.bossTeam },
-            owners: { p1: sess.playerId },
-            seedHex: randomBytes(16).toString("hex"),
-            deadlineMs: 30_000,
-          });
+          // act 已提交预算——建局任一步失败都退回行动点（补偿语义）
+          let created;
+          try {
+            const sess = world.session(input.sessionId);
+            const pack = catalog.packs[ch.pack];
+            if (pack === undefined) throw new Error(`unknown pack ${ch.pack}`);
+            const saved = world.teams(sess.playerId).find((t) => t.name === "main" && t.pack === ch.pack)?.species;
+            // 存档是背包（出战+待命，最多 12）。进战斗只带出战列，多出来的待命不进场。
+            const cap = 1 + (pack.limits.maxBenchSize ?? 0);
+            const raw = saved ?? [[...pack.unitsById.keys()][0]!];
+            created = battles.create({
+              pack: ch.pack,
+              mode: "pve",
+              team: { p1: raw.slice(0, cap), p2: ch.bossTeam },
+              owners: { p1: sess.playerId },
+              seedHex: randomBytes(16).toString("hex"),
+              deadlineMs: 30_000,
+            });
+          } catch (e) {
+            world.refundAct(input.sessionId);
+            throw e;
+          }
           r.json(200, { ...actRes, battle: { battleId: created.battleId, token: created.tokens.p1 } });
           return;
         }

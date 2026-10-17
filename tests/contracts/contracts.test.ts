@@ -186,6 +186,51 @@ const cases: C[] = [
     { type: "battle-end", result: "p1", reason: "cheat" },
     false,
   ),
+  // 2026-10-04 批：protected/pp-delta 公开 + action-failed reason 补齐 + pp-delta 脱敏
+  c("event protected", validators.event, { type: "protected", side: "p1" }, true),
+  c("event pp-delta 脱敏形状", validators.event, { type: "pp-delta", side: "p1", delta: -1 }, true),
+  c(
+    "event pp-delta 泄漏 moveId → 拒绝",
+    validators.event,
+    { type: "pp-delta", side: "p1", delta: -1, moveId: "syn-strike" },
+    false,
+  ),
+  c(
+    "event pp-delta 泄漏 ppAfter → 拒绝",
+    validators.event,
+    { type: "pp-delta", side: "p1", delta: -1, ppAfter: 4 },
+    false,
+  ),
+  c(
+    "event action-failed status-locked",
+    validators.event,
+    { type: "action-failed", side: "p1", reason: "status-locked" },
+    true,
+  ),
+  c(
+    "event action-failed move-nullified",
+    validators.event,
+    { type: "action-failed", side: "p2", reason: "move-nullified" },
+    true,
+  ),
+  c(
+    "event action-failed bound/up_lock/down_lock/heal-blocked/no-bench",
+    validators.event,
+    { type: "action-failed", side: "p1", reason: "up_lock" },
+    true,
+  ),
+  c(
+    "event action-failed 动态 status:* 前缀",
+    validators.event,
+    { type: "action-failed", side: "p1", reason: "status:sleep" },
+    true,
+  ),
+  c(
+    "event action-failed 未知 reason → 拒绝",
+    validators.event,
+    { type: "action-failed", side: "p1", reason: "invented" },
+    false,
+  ),
 
   // Manifest — 5
   c("manifest valid", validators.manifest, MANIFEST, true),

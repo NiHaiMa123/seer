@@ -10,8 +10,11 @@ import type { Mechanic, MechanicUnit, PackMechView } from "./types.ts";
 import type { StageStatKey, StatSpread } from "../loader.ts";
 import { sixstatMechanic } from "./sixstat/index.ts";
 import { sealsMechanic } from "./seals/index.ts";
+import { fifthMechanic } from "./fifth/index.ts";
+import { soulmarkMechanic } from "./soulmark/index.ts";
+import { itemsMechanic } from "./items/index.ts";
 
-export const MECHANICS: readonly Mechanic[] = [sixstatMechanic, sealsMechanic];
+export const MECHANICS: readonly Mechanic[] = [sixstatMechanic, sealsMechanic, fifthMechanic, soulmarkMechanic, itemsMechanic];
 
 /** 面板推导：首个接管的机制胜出；无接管 → undefined（调用方回落原始 base）。 */
 export const deriveBaseFor = (pack: PackMechView, unit: MechanicUnit): StatSpread | undefined => {
@@ -30,8 +33,22 @@ export const stageKeysFor = (pack: PackMechView): StageStatKey[] => [
   ...MECHANICS.flatMap((m) => m.stageKeys?.(pack) ?? []),
 ];
 
-export type { Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MechanicUnit, PackMechView, ScaledDamageCtx, UnitFieldProjection, UnitState } from "./types.ts";
+/** 招式槽列表：首个接管机制的返回值胜出（fifth：moveIds+fifthMoveId）；无接管 → moveIds。 */
+export const moveSlotsFor = (pack: PackMechView, unit: MechanicUnit): readonly string[] => {
+  for (const m of MECHANICS) {
+    const r = m.moveSlots?.(pack, unit);
+    if (r !== undefined) return r;
+  }
+  return unit.moveIds;
+};
+
+export type { Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MechanicUnit, PackMechView, ScaledDamageCtx, TurnEndCtx, UnitFieldProjection, UnitState } from "./types.ts";
 export { sixstatMechanic, sixstatOf, deriveStats } from "./sixstat/index.ts";
 export type { NatureMod, SixStatPackData } from "./sixstat/index.ts";
 export { sealsMechanic, sealsOf, checkSealLoadout } from "./seals/index.ts";
 export type { CompiledSeal, SealPackData, SealRules } from "./seals/index.ts";
+export { fifthMechanic } from "./fifth/index.ts";
+export { soulmarkMechanic, soulmarkOf } from "./soulmark/index.ts";
+export { itemsMechanic, itemsOf, parseItemAction } from "./items/index.ts";
+export type { ItemDef, ItemsPackData } from "./items/index.ts";
+export type { CompiledSoulMark, SoulmarkPackData, SoulOp, SoulState } from "./soulmark/index.ts";

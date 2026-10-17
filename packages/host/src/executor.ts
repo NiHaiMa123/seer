@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import {
+  CORE_EVENT_TYPES,
   ENGINE_EXECUTABLE_HASH,
   EngineFault,
   applyReplacement,
@@ -37,11 +38,8 @@ export class ExecutorError extends Error {
 
 const CORE_KEYS = new Set(["schemaVersion", "battleId", "rules", "revision", "turn", "phase", "rng", "sides", "suspension", "speedTiebreak", "terminal"]);
 const CORE_PHASES = new Set(["init", "collect", "checkpoint", "end"]);
-const EVENT_TYPES = new Set([
-  "turn-begin", "action-declared", "pp-spent", "damage", "heal", "stat-stage", "effect-applied", "effect-faded",
-  "control-immune", "stages-transferred", "stages-cleared", "switch", "revive", "action-failed", "struggle-used",
-  "rng-draw", "ko", "battle-end",
-]);
+// 事件类型唯一来源在 battle-core CORE_EVENT_TYPES（编译期完备断言）——新事件不再双侧漂移。
+const EVENT_TYPES = new Set<string>(CORE_EVENT_TYPES);
 
 const recordOf = (value: unknown): Record<string, unknown> | null =>
   value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -142,7 +140,7 @@ export class InProcessTransitionExecutor implements TransitionExecutor {
 
   legalActions(pack: FrozenPack, state: CoreState, side: SideId): string[] {
     this.assertPack(pack);
-    const actions = legalActions(state, side);
+    const actions = legalActions(state, side, pack);
     assertLegalActionIds(actions);
     return actions;
   }
