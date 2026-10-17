@@ -111,7 +111,7 @@ export const rules = [
   { id: "timed-48", re: new RegExp(`^${NUM}%的几率造成的伤害翻倍$|^${NUM}%的?几率伤害翻倍$|^${NUM}%概率伤害翻倍$`), go: (m) => ({ attachDamage: { mulChance: { chance: num(m[1] ?? m[2] ?? m[3]), numerator: 2, denominator: 1 } } }) },
   // 被击败触发（"若被对手击败则对手疲惫3回合"——trigger 5 作用于击杀方）
   // 对手限时异常（payload 变体："对手疲惫3回合"）
-  { id: "timed-49", re: new RegExp(`^(?:令|使|让)?(?:对手|对方|敌方)(${AIL_RE})(\\d+)回合$|^(?:对手|对方)进入(${AIL_RE})(\\d+)回合$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined); const ail = ns.map((x) => AILMENTS[x]).find(Boolean); const t = num(ns.find((x) => /^\\d+$/.test(x)) ?? "3"); return { effects: [{ op: "apply_status", name: ail ?? "fatigue", target: "opponent", turns: t }] }; } },
+  { id: "timed-49", re: new RegExp(`^(?:令|使|让)?(?:对手|对方|敌方)(${AIL_RE})(\\d+)回合$|^(?:对手|对方)进入(${AIL_RE})(\\d+)回合$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined); const ail = ns.map((x) => AILMENTS[x]).find(Boolean); const t = num(ns.find((x) => /^\d+$/.test(x)) ?? "3"); return { effects: [{ op: "apply_status", name: ail ?? "fatigue", target: "opponent", turns: t }] }; } },
   // 承伤定额减免裸句（"受到攻击伤害降低100点"→dmg_reduce）
   { id: "timed-50", re: new RegExp(`^受到攻击伤害降低(${NUM})点$|^受到(?:的)?攻击伤害降低(${NUM})点$|^受到的攻击伤害减少(${NUM})点$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { effects: [{ op: "apply_status", name: "dmg_reduce", target: "self", params: { flat: ns[0] } }] }; } },
   // 对手全 PP 扣减（"令对手随机2个技能的PP值归零" 已在位；此处补"的"变体）

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-07",
+  "generated": "2026-10-17",
   "count": 360,
   "entries": [
     {
@@ -252,23 +252,23 @@
       "key": "4861:赤绘",
       "text": "必中；消除双方能力提升、下降状态，消除任意一方成功则自身下2次攻击技能附加对手最大体力1/3的百分比伤害；100%令对手16，未触发则回合结束后消除对手回合类效果；对手每处于一种异常状态造成的伤害提升50%；3回合内对手回合类效果被消除后232回合；将0幕的颜色改为2",
       "flags": {
-        "accuracy": "always",
-        "attachDamage": {
-          "dmgPctPerFoeAil": {
-            "pct": 50
-          }
-        }
+        "accuracy": "always"
       },
       "effects": [
         {
-          "op": "clear_stages",
-          "target": "self",
-          "sign": "up"
+          "op": "scale",
+          "of": "dmgPctPerFoeAil",
+          "value": {
+            "pct": 50
+          }
         },
         {
           "op": "clear_stages",
-          "target": "opponent",
-          "sign": "up"
+          "target": "opponent"
+        },
+        {
+          "op": "clear_stages",
+          "target": "self"
         },
         {
           "op": "apply_status",
@@ -291,33 +291,21 @@
           "chance": 100
         },
         {
-          "op": "apply_status",
-          "name": "periodic",
-          "target": "self",
+          "op": "cleanse",
+          "target": "opponent",
+          "scope": "timed",
           "if": {
             "not": {
               "prevApplied": true
             }
           },
-          "chance": 100,
-          "params": {
-            "win": 13
-          },
-          "payload": [
-            {
-              "op": "cleanse",
-              "target": "opponent",
-              "scope": "timed",
-              "plain": true,
-              "noHooks": true
-            }
-          ]
+          "chance": 100
         }
       ],
       "unparsed": [
         {
           "clause": "对手回合类效果被消除后232回合",
-          "reason": "no-rule"
+          "reason": "timed-effect removal trigger unmodeled (deferred)"
         },
         {
           "clause": "将0幕的颜色改为2",
@@ -507,15 +495,17 @@
       "key": "4903:古语剑诀",
       "text": "必中；4回合内免疫并反弹所有受到的异常状态；3回合内若对手使用属性技能则随机附加2种异常状态，未触发则消除对手回合类效果；下2回合造成的攻击伤害额外提升100%",
       "flags": {
-        "accuracy": "always",
-        "attachDamage": {
-          "mul": {
+        "accuracy": "always"
+      },
+      "effects": [
+        {
+          "op": "scale",
+          "of": "mul",
+          "value": {
             "numerator": 200,
             "denominator": 100
           }
-        }
-      },
-      "effects": [
+        },
         {
           "op": "apply_status",
           "name": "immune_status",
@@ -525,7 +515,8 @@
         {
           "op": "apply_status",
           "name": "reflect_status",
-          "target": "self"
+          "target": "self",
+          "turns": 4
         },
         {
           "op": "apply_status",
@@ -631,12 +622,19 @@
           "chance": 100
         }
       ],
-      "unparsed": []
+      "unparsed": [
+        {
+          "clause": "若对手所选择的技能PP值为0则当回合对手无法行动",
+          "reason": "UNVERIFIED: 对手PP值检视谓词"
+        }
+      ]
     },
     {
       "key": "1421:涡轮磁暴",
       "text": "组队时可影响3个目标",
-      "flags": {},
+      "flags": {
+        "targets": 3
+      },
       "effects": [],
       "unparsed": []
     },
@@ -666,7 +664,7 @@
       "unparsed": [
         {
           "clause": "使对方伤害下降",
-          "reason": "no-rule"
+          "reason": "unquantified foe damage reduction — magnitude unstated"
         }
       ]
     },
@@ -1051,7 +1049,9 @@
     {
       "key": "1952:摆尾",
       "text": "改变自身速度等级+1，组队时可以向己方任意目标使用",
-      "flags": {},
+      "flags": {
+        "targetScope": "anyAlly"
+      },
       "effects": [
         {
           "op": "apply_stat_stage",
@@ -1281,13 +1281,19 @@
       "key": "1944:风暴之怒",
       "text": "10%机率额外附加100点固定伤害",
       "flags": {},
-      "effects": [],
-      "unparsed": [
+      "effects": [
         {
-          "clause": "10%机率额外附加100点固定伤害",
-          "reason": "no-rule"
+          "op": "flat",
+          "of": "flatBonus",
+          "value": 100
+        },
+        {
+          "op": "flat",
+          "of": "flatChance",
+          "value": 10
         }
-      ]
+      ],
+      "unparsed": []
     },
     {
       "key": "2250:魔灵刀锋",
@@ -1429,8 +1435,8 @@
           "op": "apply_status",
           "name": "fatigue",
           "target": "opponent",
-          "chance": 30,
-          "turns": 2
+          "turns": 2,
+          "chance": 30
         }
       ],
       "unparsed": []
@@ -1438,7 +1444,9 @@
     {
       "key": "2400:回旋盾击",
       "text": "组队时可以影响3个目标",
-      "flags": {},
+      "flags": {
+        "targets": 3
+      },
       "effects": [],
       "unparsed": []
     },
@@ -1566,13 +1574,28 @@
       "flags": {
         "accuracy": "always"
       },
-      "effects": [],
-      "unparsed": [
+      "effects": [
         {
-          "clause": "每回合收到攻击不超过280",
-          "reason": "no-rule"
+          "op": "apply_status",
+          "name": "react",
+          "target": "self",
+          "params": {
+            "trigger": 1
+          },
+          "payload": [
+            {
+              "op": "apply_status",
+              "name": "dmg_cap",
+              "target": "self",
+              "params": {
+                "cap": 280
+              }
+            }
+          ],
+          "turns": 2
         }
-      ]
+      ],
+      "unparsed": []
     },
     {
       "key": "2513:荧光",
@@ -1722,14 +1745,15 @@
           "stat": "acc",
           "delta": 1,
           "target": "self"
+        },
+        {
+          "op": "apply_status",
+          "name": "immune_status",
+          "target": "self",
+          "turns": 4
         }
       ],
-      "unparsed": [
-        {
-          "clause": "免疫常",
-          "reason": "no-rule"
-        }
-      ]
+      "unparsed": []
     },
     {
       "key": "2585:暗云垂野",
@@ -2013,7 +2037,7 @@
           "op": "apply_stat_stage",
           "stat": "acc",
           "delta": -1,
-          "target": "opponent"
+          "target": "self"
         },
         {
           "op": "apply_status",
@@ -2214,13 +2238,19 @@
       "key": "2838:蓄气",
       "text": "5回合攻击对象要害慨率增加1/16",
       "flags": {},
-      "effects": [],
-      "unparsed": [
+      "effects": [
         {
-          "clause": "攻击对象要害慨率增加1/16",
-          "reason": "no-rule"
+          "op": "apply_status",
+          "name": "crit_up",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 16
+          },
+          "turns": 5
         }
-      ]
+      ],
+      "unparsed": []
     },
     {
       "key": "2850:苍穹光舞",
@@ -2288,16 +2318,17 @@
     {
       "key": "2872:四翼双生",
       "text": "3回合，每回合恢复150HP；3回合内有50%几率免疫对手的攻击伤害；3回合内所有直接攻击都将降低对手1/5的HP",
-      "flags": {
-        "attachDamage": {
-          "flatFoeFrac": {
+      "flags": {},
+      "effects": [
+        {
+          "op": "flat",
+          "of": "flatFoeFrac",
+          "value": {
             "numerator": 1,
             "denominator": 5,
             "base": "max"
           }
-        }
-      },
-      "effects": [
+        },
         {
           "op": "apply_status",
           "name": "hot",
@@ -2309,12 +2340,10 @@
         },
         {
           "op": "apply_status",
-          "name": "dodge",
+          "name": "dmg_immune",
           "target": "self",
-          "params": {
-            "pct": 50
-          },
-          "turns": 3
+          "turns": 3,
+          "chance": 50
         }
       ],
       "unparsed": []
@@ -2492,21 +2521,27 @@
       "key": "2956:乐乐熊千斤坠",
       "text": "必中；2回合内，造成伤害40%恢复自身体力；附加自身最大HP25%的固定伤害",
       "flags": {
-        "accuracy": "always",
-        "attachDamage": {
+        "accuracy": "always"
+      },
+      "effects": [
+        {
+          "op": "flat",
+          "of": "flatSelfFrac",
+          "value": {
+            "numerator": 25,
+            "denominator": 100,
+            "base": "max"
+          }
+        },
+        {
+          "op": "applyDrainRider",
           "drain": {
             "numerator": 40,
             "denominator": 100
           }
         }
-      },
-      "effects": [],
-      "unparsed": [
-        {
-          "clause": "附加自身最大HP25%的固定伤害",
-          "reason": "no-rule"
-        }
-      ]
+      ],
+      "unparsed": []
     },
     {
       "key": "2966:光合作用",
@@ -2579,8 +2614,8 @@
           "op": "apply_status",
           "name": "must_miss",
           "target": "self",
-          "chance": 50,
-          "turns": 1
+          "turns": 1,
+          "chance": 50
         }
       ],
       "unparsed": []
@@ -2771,14 +2806,26 @@
           "name": "fear",
           "target": "opponent",
           "chance": 70
+        },
+        {
+          "op": "apply_status",
+          "name": "react",
+          "target": "self",
+          "params": {
+            "trigger": 1,
+            "chance": 100
+          },
+          "payload": [
+            {
+              "op": "heal",
+              "flat": 400,
+              "target": "self"
+            }
+          ],
+          "turns": 2
         }
       ],
-      "unparsed": [
-        {
-          "clause": "受到攻击100%自身恢复400HP",
-          "reason": "no-rule"
-        }
-      ]
+      "unparsed": []
     },
     {
       "key": "3101:百万吸收",
@@ -3021,12 +3068,23 @@
       "key": "3175:巨浪",
       "text": "自身HP在1/2以内的时候威力加2倍，最大为180",
       "flags": {},
-      "effects": [],
-      "unparsed": [
+      "effects": [
         {
-          "clause": "自身HP在1/2以内的时候威力加2倍",
-          "reason": "no-rule"
-        },
+          "op": "power",
+          "of": "scaleIf",
+          "value": {
+            "when": {
+              "selfHpBelow": {
+                "numerator": 1,
+                "denominator": 2
+              }
+            },
+            "numerator": 2,
+            "denominator": 1
+          }
+        }
+      ],
+      "unparsed": [
         {
           "clause": "最大为180",
           "reason": "no-rule"
@@ -3169,20 +3227,36 @@
             "d": 4
           },
           "turns": 4
+        },
+        {
+          "op": "apply_status",
+          "name": "react",
+          "target": "self",
+          "params": {
+            "trigger": 7
+          },
+          "payload": [
+            {
+              "op": "apply_status",
+              "name": "max_hp_down",
+              "target": "opponent",
+              "params": {
+                "n": 1,
+                "d": 3
+              }
+            }
+          ],
+          "turns": 4
         }
       ],
-      "unparsed": [
-        {
-          "clause": "若自身能力状态被消除则对手减少1/3最大体力",
-          "reason": "no-rule"
-        }
-      ]
+      "unparsed": []
     },
     {
       "key": "3239:意志集中",
       "text": "必中，自身防御+1，组队时可以向己方任意目标使用",
       "flags": {
-        "accuracy": "always"
+        "accuracy": "always",
+        "targetScope": "anyAlly"
       },
       "effects": [
         {
@@ -3427,7 +3501,7 @@
       "unparsed": [
         {
           "clause": "无异常",
-          "reason": "no-rule"
+          "reason": "truncated clause — complement missing"
         }
       ]
     },
@@ -3604,7 +3678,13 @@
             "mulLN": 1,
             "mulLD": 2
           },
-          "turns": 4
+          "turns": 4,
+          "if": {
+            "selfHpBelow": {
+              "numerator": 1,
+              "denominator": 2
+            }
+          }
         },
         {
           "op": "apply_status",
@@ -3647,14 +3727,19 @@
           "op": "damage",
           "power": 1,
           "kind": "percent",
-          "frac": {
-            "numerator": 1,
-            "denominator": 3
-          },
           "if": {
             "not": {
               "prevApplied": true
             }
+          },
+          "chance": 80
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 3
           }
         },
         {
@@ -3666,7 +3751,8 @@
             "not": {
               "prevApplied": true
             }
-          }
+          },
+          "chance": 80
         },
         {
           "op": "apply_status",
@@ -4099,15 +4185,7 @@
     {
       "key": "3510:三重洗礼",
       "text": "若对手体力不足280则直接秒杀；50%概率攻击5次",
-      "flags": {
-        "attachDamage": {
-          "hits": {
-            "min": 5,
-            "max": 5
-          },
-          "attachChance": 50
-        }
-      },
+      "flags": {},
       "effects": [
         {
           "op": "damage",
@@ -4115,6 +4193,15 @@
           "kind": "percent",
           "if": {
             "foeHpBelowAbs": 280
+          }
+        },
+        {
+          "op": "strike",
+          "of": "hits",
+          "value": {
+            "min": 1,
+            "max": 5,
+            "chance": 50
           }
         }
       ],
@@ -4166,31 +4253,31 @@
         {
           "op": "apply_stat_stage",
           "stat": "atk",
-          "delta": -1,
+          "delta": -2,
           "target": "opponent"
         },
         {
           "op": "apply_stat_stage",
           "stat": "def",
-          "delta": -1,
+          "delta": -2,
           "target": "opponent"
         },
         {
           "op": "apply_stat_stage",
           "stat": "spa",
-          "delta": -1,
+          "delta": -2,
           "target": "opponent"
         },
         {
           "op": "apply_stat_stage",
           "stat": "sdf",
-          "delta": -1,
+          "delta": -2,
           "target": "opponent"
         },
         {
           "op": "apply_stat_stage",
           "stat": "spd",
-          "delta": -1,
+          "delta": -2,
           "target": "opponent"
         },
         {
@@ -4229,12 +4316,7 @@
           "target": "opponent"
         }
       ],
-      "unparsed": [
-        {
-          "clause": "50%概率令弱化效果翻倍",
-          "reason": "no-rule"
-        }
-      ]
+      "unparsed": []
     },
     {
       "key": "3543:瑞·压迫",
@@ -4266,12 +4348,13 @@
       "key": "3552:燃影迷阵",
       "text": "必中；4回合内免疫并反弹异常状态；4回合内，每回合恢复自身最大体力的1/3并造成等量固定伤害；3回合内受到攻击则使对手焚烬，未触发则对手2回合无法使用属性技能",
       "flags": {
-        "accuracy": "always",
-        "attachDamage": {
-          "flatEcho": {}
-        }
+        "accuracy": "always"
       },
       "effects": [
+        {
+          "op": "applyFlatEcho",
+          "flatEcho": {}
+        },
         {
           "op": "apply_status",
           "name": "immune_status",
@@ -4281,7 +4364,8 @@
         {
           "op": "apply_status",
           "name": "reflect_status",
-          "target": "self"
+          "target": "self",
+          "turns": 4
         },
         {
           "op": "apply_status",
@@ -4441,23 +4525,7 @@
       "key": "3614:青丘之狐",
       "text": "必中；全属性+1，对手处于能力下降状态时效果翻倍；吸取对手200点体力，若自身体力低于对手则吸取效果翻倍；下2回合自身先制+2",
       "flags": {
-        "accuracy": "always",
-        "attachDamage": {
-          "scaleIf": {
-            "when": {
-              "foeStageDown": true
-            },
-            "numerator": 2,
-            "denominator": 1
-          },
-          "drainIf": {
-            "when": {
-              "selfHpBelowFoe": true
-            },
-            "numerator": 2,
-            "denominator": 1
-          }
-        }
+        "accuracy": "always"
       },
       "effects": [
         {
@@ -4528,7 +4596,31 @@
         {
           "op": "damage",
           "power": 200,
-          "kind": "fixed"
+          "kind": "fixed",
+          "if": {
+            "selfHpBelowFoe": true
+          }
+        },
+        {
+          "op": "power",
+          "of": "scaleIf",
+          "value": {
+            "when": {
+              "foeStageDown": true
+            },
+            "numerator": 2,
+            "denominator": 1
+          }
+        },
+        {
+          "op": "applyDrainRider",
+          "drainIf": {
+            "when": {
+              "selfHpBelowFoe": true
+            },
+            "numerator": 2,
+            "denominator": 1
+          }
         },
         {
           "op": "heal",
@@ -4540,6 +4632,9 @@
             },
             "numerator": 2,
             "denominator": 1
+          },
+          "if": {
+            "selfHpBelowFoe": true
           }
         },
         {
@@ -4563,6 +4658,7 @@
           "op": "apply_status",
           "name": "prio_up",
           "target": "self",
+          "turns": 1,
           "chance": 40,
           "params": {
             "add": 1
@@ -4834,7 +4930,12 @@
           "target": "self"
         }
       ],
-      "unparsed": []
+      "unparsed": [
+        {
+          "clause": "组队时可以向乙方任意目标使用",
+          "reason": "no-rule"
+        }
+      ]
     },
     {
       "key": "3779:防守",
@@ -5267,13 +5368,16 @@
       "key": "3913:导力光束",
       "text": "技能使用成功时，15%改边对方特防等级-1",
       "flags": {},
-      "effects": [],
-      "unparsed": [
+      "effects": [
         {
-          "clause": "15%改边对方特防等级-1",
-          "reason": "no-rule"
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": -1,
+          "target": "opponent",
+          "chance": 15
         }
-      ]
+      ],
+      "unparsed": []
     },
     {
       "key": "3924:电刃双闪",
@@ -5295,7 +5399,7 @@
       "unparsed": [
         {
           "clause": "为偶数30%速度+",
-          "reason": "no-rule"
+          "reason": "parity predicate unmodeled (deferred)"
         }
       ]
     },
@@ -5985,7 +6089,8 @@
         {
           "op": "apply_status",
           "name": "reflect_status",
-          "target": "self"
+          "target": "self",
+          "turns": 4
         },
         {
           "op": "apply_status",
@@ -6381,7 +6486,8 @@
         {
           "op": "apply_status",
           "name": "reflect_status",
-          "target": "self"
+          "target": "self",
+          "turns": 4
         },
         {
           "op": "apply_status",
@@ -6624,12 +6730,10 @@
         },
         {
           "op": "apply_status",
-          "name": "dodge",
+          "name": "dmg_immune",
           "target": "self",
-          "params": {
-            "pct": 50
-          },
-          "turns": 3
+          "turns": 3,
+          "chance": 50
         }
       ],
       "unparsed": []
@@ -6909,29 +7013,29 @@
       "text": "先制+3；必中；消除双方能力上升、下降状态，消除成功则附加消除总段数乘以50的固定伤害；命中后附加自身当前已损失技能PP值总和x30的固定伤害，若对手免疫固定伤害则转变为真实伤害",
       "flags": {
         "priority": 3,
-        "accuracy": "always",
-        "attachDamage": {
-          "kindIfImmune": "true"
-        }
+        "accuracy": "always"
       },
       "effects": [
         {
-          "op": "clear_stages",
-          "target": "self",
-          "sign": "up",
-          "flatPerRemoved": 50
+          "op": "formula",
+          "of": "kindIfImmune",
+          "value": "true"
         },
         {
           "op": "clear_stages",
           "target": "opponent",
-          "sign": "up",
+          "flatPerRemoved": 50
+        },
+        {
+          "op": "clear_stages",
+          "target": "self",
           "flatPerRemoved": 50
         }
       ],
       "unparsed": [
         {
           "clause": "附加自身当前已损失技能PP值总和x30的固定伤害",
-          "reason": "no-rule"
+          "reason": "self-pp-missing aggregate damage unmodeled (deferred)"
         }
       ]
     },
@@ -7484,7 +7588,7 @@
       "unparsed": [
         {
           "clause": "个体越高",
-          "reason": "no-rule"
+          "reason": "punish scaling — coefficient undocumented"
         },
         {
           "clause": "威力越大",
@@ -7896,14 +8000,11 @@
     {
       "key": "102:百裂冲击",
       "text": "100%命中对方（精神干涉等会MISS）",
-      "flags": {},
+      "flags": {
+        "accuracy": "always"
+      },
       "effects": [],
-      "unparsed": [
-        {
-          "clause": "100%命中对方",
-          "reason": "no-rule"
-        }
-      ]
+      "unparsed": []
     },
     {
       "key": "153:追击式",

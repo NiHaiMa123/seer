@@ -112,5 +112,6 @@ export const rules = [
   { id: "e48-28", re: /^与(?:对方|对手|敌方)翻转属性$|^翻转(?:双方|自身和对手)的?属性$/, go: () => ({ unparsedReason: "type swap unmodeled (deferred)", effects: [] }) },
   { id: "e48-29", re: new RegExp(`^(?:令|使).{1,6}(?:进行|获得)${NUM}次(?:额外)?行动$`), go: () => ({ unparsedReason: "extra action unmodeled (deferred)", effects: [] }) },
   { id: "e48-30", re: /携带技能石|未携带技能石/, go: () => ({ unparsedReason: "held-item predicate unmodeled (deferred)", effects: [] }) },
-  { id: "e48-31", re: /组队(?:时)?(?:可作用|可以作用|可作用于)?(?:己方)?任意目标/, go: (m) => ({ flags: { targetScope: /己方/.test(m[0]) ? "anyAlly" : "any" } }) },
+  // 纯目标句（无能力前缀）。必须锚定整句：未锚定会截走 "攻击 +1组队时可作用己方任意目标"（e53-v25-03）。
+  { id: "e48-31", re: /^组队(?:时)?(?:可作用|可以作用|可作用于)?(?:己方)?任意目标$/, go: (m) => ({ flags: { targetScope: /己方/.test(m[0]) ? "anyAlly" : "any" } }) },
 ];

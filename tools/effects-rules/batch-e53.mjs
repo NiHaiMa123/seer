@@ -1910,12 +1910,12 @@ export const rules = [
   // ── v25：组队目标元数据（语义清楚的非 1v1 描述字段——targets/targetScope 落 move 级，1v1 引擎忽略） ──
   { id: "e53-v25-01", re: new RegExp(`^组队(?:是|可以|可|时|是可以)?(?:可以)?影响${NUM}个目标$|^(?:可|可以)?影响${NUM}个目标$|^影响${NUM}个目标$`), go: (m) => { const n = num(m.slice(1).find((x) => x !== undefined)); return { flags: { targets: n } }; } },
   { id: "e53-v25-02", re: /^组队(?:是|可以|可|时)?(?:向|对|向己方)?(?:己方)?任意(?:目标|队员|精灵)(?:使用|施放)?$|^组队时?可作用己方任意目标$/, go: () => ({ flags: { targetScope: "anyAlly" } }) },
-  { id: "e53-v25-03", re: new RegExp(`^(${STAT_RE})\\s*([+\\-]\\s*${NUM})组队时?可作用己方任意目标$`), go: (m) => ({ effects: [stageFx(STATS[m[1]], num(m[2].replace(/\\s/g, "")), "self")], flags: { targetScope: "anyAlly" } }) },
+  { id: "e53-v25-03", re: new RegExp(`^(${STAT_RE})\\s*([+\\-]\\s*${NUM})组队时?可作用己方任意目标$`), go: (m) => ({ effects: [stageFx(STATS[m[1]], num(m[2].replace(/\s/g, "")), "self")], flags: { targetScope: "anyAlly" } }) },
   // ── v25：元素维度（params.type 系别门控——statusGateOk/dmgOutPctOf 消费 move.type） ──
   { id: "e53-v25-04", re: new RegExp(`^(?:本方|自身|自己)?受到的?(${TYPE_RE})(?:系)?(?:的)?(?:攻击|技能|招式)?伤害减半$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_taken_down", target: "self", params: { pct: 50 }, moveType: m[1] }] }) },
   { id: "e53-v25-05", re: new RegExp(`^(?:本方|自身|自己)?受到的?(${TYPE_RE})(?:系)?(?:的)?(?:攻击|技能|招式)?伤害(?:减少|降低|下降|削弱)${NUM}%$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_taken_down", target: "self", params: { pct: num(m[2]) }, moveType: m[1] }] }) },
   { id: "e53-v25-06", re: new RegExp(`^(?:自身|自己)?使用(${TYPE_RE})(?:系)?(?:技能|招式|攻击)(?:时)?(?:造成的)?(?:威力|伤害)(?:翻倍|加倍|翻${NUM}倍|为${NUM}倍|×${NUM}倍?|提升${NUM}%)$|^(${TYPE_RE})(?:系)?(?:技能|招式|攻击)(?:的)?(?:威力|伤害)(?:翻倍|加倍|翻${NUM}倍|为${NUM}倍|×${NUM}倍?|提升${NUM}%)$`),
-    go: (m) => { const type = m[1] ?? m[3]; const ns = m.slice(1).map((x) => (x !== undefined ? num(x) : NaN)).filter((n) => Number.isInteger(n)); const um = m[0].match(/提升(\\d+)%/); const pct = um !== null ? num(um[1]) : ns.length > 0 ? (ns[ns.length - 1] - 1) * 100 : 100; return { effects: [{ op: "apply_status", name: "dmg_boost", target: "self", params: { pct }, moveType: type }] }; } },
+    go: (m) => { const type = m[1] ?? m[3]; const ns = m.slice(1).map((x) => (x !== undefined ? num(x) : NaN)).filter((n) => Number.isInteger(n)); const um = m[0].match(/提升(\d+)%/); const pct = um !== null ? num(um[1]) : ns.length > 0 ? (ns[ns.length - 1] - 1) * 100 : 100; return { effects: [{ op: "apply_status", name: "dmg_boost", target: "self", params: { pct }, moveType: type }] }; } },
 
   // ===== v26：属性复制/反转（type_copy/type_swap 计时标记——battleTypesOf 计算型覆写，到期自动还原） =====
   // "使自身的属性和对方的属性相同"/"自身与对方战斗时属性相同"→type_copy（battleTypesOf 取对手系别）

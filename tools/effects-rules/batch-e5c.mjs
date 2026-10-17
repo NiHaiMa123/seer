@@ -4,7 +4,12 @@ import { parseEffectText, reactWrap } from "../effects-parse.mjs";
 
 export const rules = [
   // ── E5c 批 ──
-  { id: "batch-e5c-01", re: new RegExp(`^(\\d+)(?:%)?概率使(?:对手|对方|敌方)所有攻击(?:必定)?(?:MISS|Miss|miss|未命中)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "must_miss", target: "self", chance: num(m[1]) }] }) },
+  // 数字前缀可能已被解析层的 bcm 阶段剥成 dynChance，送进来的 part 形如
+  // "使对手所有攻击miss"；也可能整句未剥（"50%使对手所有攻击miss"）。
+  // 两种都要认，数字缺省时 chance 由 dynChance 注入（见 op 注入处）。
+  // 原先要求「数字 + 概率」齐全，导致该句落到 attach-damage-69 的
+  // miss-reactive 兜底、must_miss 整条丢失（golden 3015 回归）。
+  { id: "batch-e5c-01", re: new RegExp(`^(?:(\\d+)(?:%的?)?(?:概率|几率|机率)?)?(?:令|使|让)(?:对手|对方|敌方)所有攻击(?:必定)?(?:MISS|Miss|miss|未命中)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "must_miss", target: "self", ...(m[1] !== undefined ? { chance: num(m[1]) } : {}) }] }) },
   { id: "batch-e5c-02", re: /^不受伤害$|^自身不受伤害$/, go: () => ({ effects: [{ op: "apply_status", name: "dmg_immune", target: "self" }] }) },
   { id: "batch-e5c-03", re: /^若对手先手技能则(\d+)%?(.+)$|^若对手使用先手技能则(\d+)%?(.+)$/, go: (m) => reactWrap(3, { prioMin: 1, chance: num(m[1] ?? m[3]) }, `对手${(m[2] ?? m[4]).trim()}`) },
   { id: "batch-e5c-04", re: /^将自身相应的能力提升赋予给对手相应的能力下降$|^将自身的能力提升赋予给对手的能力下降$/, go: () => ({ effects: [{ op: "transfer_stages", direction: "upToDown" }] }) },
