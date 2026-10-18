@@ -736,10 +736,12 @@ describe("replication bugs A–D + per-use cap tails", () => {
     expect(familyBag(r).hits).toEqual({ min: 4, max: 4, perUse: 1, cap: 8 });
   });
   // e41：条件分数换档 / 威力门控反应 / 概率免疫窗 / 随机连击 / 敌我双方异常
-  it("吸取1/4，自身体力低于对手时变为1/3 → fracIf 条件分数", () => {
+  it("吸取1/4，自身体力低于对手时变为1/3 → frac + heal.fracIf", () => {
     const r = parseEffectText("吸取对手最大体力的1/4，自身体力低于对手时变为1/3") as any;
-    expect(r.effects[1]).toEqual({ op: "formula", of: "fracIf", value: { when: { selfHpBelowFoe: true }, numerator: 1, denominator: 3 } });
-    expect(r.effects[3].fracIf).toEqual({ when: { selfHpBelowFoe: true }, numerator: 1, denominator: 3 });
+    // 分数走 formula op（frac/fracIf 已不在 DAMAGE_KEYS）；条件换档留在 heal 的 fracIf 上，
+    // 由引擎按 selfHpBelowFoe 读。
+    expect(r.effects[1]).toEqual({ op: "formula", of: "frac", value: { numerator: 1, denominator: 4 } });
+    expect(r.effects[2].fracIf).toEqual({ when: { selfHpBelowFoe: true }, numerator: 1, denominator: 3 });
     expect(r.unparsed).toEqual([]);
   });
   it("若下次对手使用的攻击技能威力大于120则免疫此次攻击 → react trigger3 powerMin:121", () => {
@@ -1007,7 +1009,9 @@ describe("replication bugs A–D + per-use cap tails", () => {
     expect(ko?.[0]?.op).toBe("apply_status");
     expect(ko?.[0]?.params).toMatchObject({ trigger: 5 });
     expect(ko?.[0]?.payload).toEqual([
-      { op: "damage", power: 0, kind: "percent", frac: { numerator: 1, denominator: 4 }, target: "nextFoe" },
+      // frac 已不在 DAMAGE_KEYS，分数走紧随其后的 formula op（target-route 步骤 6）。
+      { op: "damage", power: 0, kind: "percent", target: "nextFoe" },
+      { op: "formula", of: "frac", value: { numerator: 1, denominator: 4 } },
     ]);
     expect(parseEffectText("将自身的防御、特防能力提升分别视为攻击、特攻能力提升").effects).toEqual([
       { op: "apply_status", name: "stage_alias", target: "self" },

@@ -2322,6 +2322,22 @@ function parseEffectTextAtExit(text, opts = {}) {
         const last = [...effects].reverse().find((e) => e.turns !== undefined);
         if (last !== undefined) last.turns += a.extendTurns;
       }
+      // "吸取效果提升N点"：覆盖前一条吸血窗的 flat。
+      // 带条件时（"自身体力低于对手时提升至N"）引擎的 drain_on_use 只读单一 flat，
+      // 没有条件分支——按"写不出就停"留档，不硬塞成第二个 rider。
+      if (a.drainBoost !== undefined) {
+        if (effCond !== undefined) {
+          unparsed.push({ clause: `<drainBoost ${a.drainBoost}>`, reason: "conditional drain boost — drain_on_use reads a single flat" });
+        } else {
+          const host = [...effects].reverse().find((e) => e.op === "apply_status" && e.name === "drain_on_use");
+          if (host !== undefined) host.params = { ...(host.params ?? {}), flat: a.drainBoost };
+          else unparsed.push({ clause: `<drainBoost ${a.drainBoost}>`, reason: "drain boost without drain_on_use host" });
+        }
+      }
+      // "吸取效果提升至N/M"：同一处境，但目标是分数型吸血窗；引擎没有对应读取，留档。
+      if (a.drainBoostFrac !== undefined) {
+        unparsed.push({ clause: "<drainBoostFrac>", reason: "fractional drain boost — no reader on drain_on_use (flat only)" });
+      }
       // "持续N回合" 尾句：补最后一条的时长
       if (a.turnsTail !== undefined) {
         const last = [...effects].reverse().find((e) => e.turns === undefined);
@@ -2679,7 +2695,7 @@ function parseEffectTextAtExit(text, opts = {}) {
     // attachDamage 不审：damage op 由打包时按 power 合成，parser 阶段没有挂载点。
     // 键→目标 op 映射：damage-bound 键由打包合成 damage op 挂载（parser 无挂载点，豁免）；
     // 其余键按语义找宿主（stageIf→stat_stage，chanceDouble/chanceMulIf→任何带 chance 的 op 等）。
-    const damageBound = new Set(["dmgDouble", "flatDouble", "drainDouble", "drainIf", "capTail", "flatMulIf", "foeShieldEcho", "trueEcho", "fracIfTail"]);
+    const damageBound = new Set(["dmgDouble", "flatDouble", "drainDouble", "drainIf", "capTail", "flatMulIf", "foeShieldEcho", "trueEcho", "fracIfTail", "drainBoost"]);
     const KEY_OPS = {
       stageIf: ["apply_stat_stage", "clear_stages", "transfer_stages", "invert_stages", "copy_stages"],
       stageDouble: ["apply_stat_stage"],
@@ -2947,7 +2963,53 @@ function parseEffectTextAtExit(text, opts = {}) {
   }
   // 随机异常窗仍先写成 ailment_tick；家族规则已经发出 periodic。这里收残留的旧名。匹配循环不改。
   liftTickEffects(effects);
+  // damage 上的旧键 frac → 独立的 formula op（含嵌套 payload）。
+  liftDamageFrac(effects);
   return { flags, effects, unparsed, effDoubleFlag, orphanCond, turnsTail };
+}
+
+/**
+ * 把 damage op 上的旧键 frac / fracIf 抬成紧跟在它后面的 formula op，并递归进 payload/ops/elseOps。
+ *
+ * target-route 步骤 6 之后 damage 只剩 power/kind/target + 信封，分数由
+ * { op:"formula", of:"frac"|"fracIf", value } 表达；DAMAGE_KEYS 已不含 frac/fracIf，
+ * 留着会在装载期被 damageKeyHits 拒掉（peak 24 句因此 build 失败）。
+ * 顶层规则多已改发 formula，这里兜住被 reactWrap 等包进 payload 的那些。
+ * formula 紧跟宿主 damage，满足分组器对 rider 相邻性的要求。
+ */
+function liftDamageFrac(list) {
+  if (!Array.isArray(list)) return;
+  for (let i = 0; i < list.length; i++) {
+    const e = list[i];
+    if (e === null || typeof e !== "object") continue;
+    for (const nest of ["payload", "ops", "elseOps"]) if (Array.isArray(e[nest])) liftDamageFrac(e[nest]);
+    if (e.op !== "damage") continue;
+    const emits = [];
+    for (const key of ["frac", "fracIf"]) {
+      const v = e[key];
+      if (v === null || typeof v !== "object") continue;
+      const n = Number(v.numerator);
+      const d = Number(v.denominator);
+      if (!Number.isFinite(n) || !Number.isFinite(d) || d === 0) continue;
+      delete e[key];
+      // frac 用裸分数；fracIf 自带 when（条件分数）。信封（chance/if 等）留在宿主 damage 上，
+      // 不复制到 formula——复制会与规则自己发出的同义 formula 不一致。
+      emits.push({
+        op: "formula",
+        of: key,
+        value: key === "fracIf" ? { when: v.when, numerator: n, denominator: d } : { numerator: n, denominator: d },
+      });
+    }
+    if (emits.length === 0) continue;
+    // 同一列表里已经有同 of 的 formula（规则自己发过了）：只删旧键，不再追加，避免重复。
+    const existing = new Set(
+      list
+        .filter((x) => x !== null && typeof x === "object" && x.op === "formula")
+        .map((x) => x.of),
+    );
+    const add = emits.filter((x) => !existing.has(x.of));
+    if (add.length > 0) list.splice(i + 1, 0, ...add);
+  }
 }
 
 /** 主流程：全量扫描 + 覆盖率报告。 */

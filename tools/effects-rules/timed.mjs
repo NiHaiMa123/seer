@@ -283,8 +283,10 @@ export const rules = [
   { id: "timed-134", re: new RegExp(`^每回合(?:对|向)?(?:对手|对方|敌方)?(?:造成)?的?伤害的?${NUM}\\s*/\\s*${NUM}(?:恢复|回复|转化为)(?:自身)?体力$|^每次攻击(?:造成|对对手造成)?(?:的)?伤害的${NUM}%都?会?(?:恢复|回复)自身体力$|^每次攻击(?:造成)?伤害的${NUM}\\s*/\\s*${NUM}(?:恢复|回复)自身体力$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); const [n, d] = ns.length === 1 ? [ns[0], 100] : ns; return { effects: [{ op: "apply_status", name: "drain_atk", target: "self", params: { n, d } }] }; } },
   // 次数制异常免疫（"己方免疫下2次受到的异常状态"→immune_status params.count）
   { id: "timed-135", re: new RegExp(`^(?:己方|自身|本方)?免疫下${NUM}次(?:受到的)?异常状态$|^免疫下${NUM}次(?:对手|对方|敌方)?(?:的)?异常状态$`), go: (m) => ({ effects: [{ op: "apply_status", name: "immune_status", target: "self", params: { count: num(m[1] ?? m[2]) } }] }) },
-  // 定额吸血提升（"吸取效果提升至400点"→attachDamage.drainFlat）
-  { id: "timed-136", re: /^吸取(?:效果|量)?提升至(\d+)点$|^吸血(?:效果|量)?提升至(\d+)点$/, go: (m) => ({ attachDamage: { drainFlat: num(m[1] ?? m[2]) } }) },
+  // 定额吸血提升（"吸取效果提升至400点"）→ 覆盖前一条吸血窗的 flat。
+  // 引擎 drain_on_use 只读单一 params.flat，不支持条件化提升；若本句带条件
+  // （"自身体力低于对手时"），解析层会把 attachAll.drainBoost 转成 unparsedReason。
+  { id: "timed-136", re: /^吸取(?:效果|量)?提升至(\d+)点$|^吸血(?:效果|量)?提升至(\d+)点$/, go: (m) => ({ attachAll: { drainBoost: num(m[1] ?? m[2]) } }) },
   // 区间固伤尾巴（"随机附加50-100固伤"→attachDamage.flatRange）
   { id: "timed-137", re: new RegExp(`^(?:随机)?附加${NUM}\\s*-\\s*${NUM}(?:点)?(?:固伤|固定伤害)$|^随机造成${NUM}\\s*-\\s*${NUM}点?(?:固伤|固定伤害)$`), go: (m) => ({ attachDamage: { flatRange: { min: num(m[1] ?? m[3]), max: num(m[2] ?? m[4]) } } }) },
 

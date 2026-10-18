@@ -1208,10 +1208,13 @@ export const rules = [
   { id: "e53-rsa-01",
     re: new RegExp(`^为?自身附加${NUM}种异常状态$|^为自身附加${NUM}?种异常$/`),
     go: (m) => ({ effects: [{ op: "apply_status", name: "random", target: "self", random: { list: ALL_AILS, count: num(m[1] ?? 1) } }] }) },
-  // "吸取效果提升N点"→drainFlat；"吸取效果提升至N/M"→drain frac
+  // "吸取效果提升N点" / "提升至N/M"：都是给前一条吸血窗改值/改分数，不是新开命中 rider
+  // （属性招无 damage 宿主，rider 会被分组器当孤儿拒载）。
   { id: "e53-drb-01",
     re: new RegExp(`^吸取效果提升${NUM}点$|^吸取效果提升至${NUM}\\s*/\\s*${NUM}$`),
-    go: (m) => m[2] !== undefined ? ({ attachDamage: { drain: frac(m[2], m[3]) } }) : ({ attachDamage: { drainFlat: num(m[1]) } }) },
+    go: (m) => m[2] !== undefined
+      ? ({ attachAll: { drainBoostFrac: frac(m[2], m[3]) } })
+      : ({ attachAll: { drainBoost: num(m[1]) } }) },
   // "若本次攻击未打出致命一击则X"→not prevCrit 门包裹
   { id: "e53-ocr-01",
     re: /^若本次攻击未打出致命一击则?(.+)$/,

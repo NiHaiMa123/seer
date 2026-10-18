@@ -12027,10 +12027,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 3
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 3
           }
         },
         {
@@ -99563,10 +99565,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -132557,10 +132561,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 20,
-            "denominator": 100
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 20,
+            "d": 100
           }
         }
       ],
@@ -187252,10 +187258,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         },
         {
@@ -195029,10 +195037,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -197251,10 +197261,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 2
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 2
           }
         },
         {
@@ -202737,10 +202749,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 2
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 2
           }
         },
         {
@@ -236521,10 +236535,12 @@
       "priority": -6,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         },
         {
@@ -239531,10 +239547,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 50,
-            "denominator": 100
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 50,
+            "d": 100
           }
         },
         {
@@ -256138,10 +256156,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -261459,10 +261479,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 3
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 3
           }
         },
         {
@@ -267843,16 +267865,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -275702,10 +275720,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -277652,10 +277672,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -292546,10 +292568,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 3
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 3
           }
         },
         {
@@ -294516,10 +294540,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         },
         {
@@ -300158,10 +300184,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -305776,16 +305804,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -314327,10 +314351,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 3
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 3
           }
         },
         {
@@ -366213,10 +366239,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -373154,10 +373182,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -378850,10 +378880,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -388566,10 +388598,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -395178,10 +395212,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -436295,10 +436331,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -442236,10 +442274,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -444942,10 +444982,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 3
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 3
           }
         },
         {
@@ -450157,10 +450199,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -487984,10 +488028,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -511391,10 +511437,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         },
         {
@@ -534801,10 +534849,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 20,
-            "denominator": 100
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 20,
+            "d": 100
           }
         }
       ],
@@ -548322,10 +548372,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -548626,10 +548678,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -561680,16 +561734,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -561959,10 +562009,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -637139,10 +637191,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -651306,10 +651360,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -663325,10 +663381,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 3
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 3
           }
         },
         {
@@ -715152,10 +715210,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -767126,10 +767186,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -767367,10 +767429,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -776901,10 +776965,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -782169,10 +782235,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 2
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 2
           }
         }
       ],
@@ -839604,10 +839672,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainMul": {
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -869314,10 +869384,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -957283,10 +957355,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -957366,7 +957434,7 @@
           "name": "drain_on_use",
           "target": "self",
           "params": {
-            "flat": 250
+            "flat": 350
           },
           "turns": 4
         },
@@ -959493,10 +959561,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 400
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -959531,7 +959595,7 @@
           "name": "drain_on_use",
           "target": "self",
           "params": {
-            "flat": 300
+            "flat": 400
           },
           "turns": 4
         }
@@ -964528,10 +964592,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -964576,7 +964636,7 @@
           "name": "drain_on_use",
           "target": "self",
           "params": {
-            "flat": 250
+            "flat": 350
           },
           "turns": 4
         },
@@ -970789,10 +970849,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -970862,7 +970918,7 @@
           "name": "drain_on_use",
           "target": "self",
           "params": {
-            "flat": 250
+            "flat": 350
           },
           "turns": 4
         },
@@ -973488,16 +973544,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -978831,10 +978883,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -978914,7 +978962,7 @@
           "name": "drain_on_use",
           "target": "self",
           "params": {
-            "flat": 250
+            "flat": 350
           },
           "turns": 4
         },
@@ -989444,16 +989492,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -990136,16 +990180,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -990622,10 +990662,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
         {
           "op": "apply_stat_stage",
           "stat": "atk",
@@ -995354,16 +995390,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1003001,10 +1003033,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 2
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 2
           }
         },
         {
@@ -1004309,16 +1004343,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1009435,16 +1009465,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1016270,16 +1016296,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1023833,10 +1023855,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -1030528,10 +1030546,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
@@ -1031095,16 +1031109,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1032964,16 +1032974,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1045845,16 +1045851,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1049000,10 +1049002,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 450
-        },
         {
           "op": "apply_stat_stage",
           "stat": "atk",
@@ -1053639,16 +1053637,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1064070,10 +1064064,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         },
         {
@@ -1081459,10 +1081455,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -1086316,10 +1086308,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 400
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -1090016,10 +1090004,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
         {
           "op": "apply_stat_stage",
           "stat": "atk",
@@ -1100283,10 +1100267,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -1102456,10 +1102436,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         }
       ],
@@ -1105135,10 +1105117,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 450
-        },
         {
           "op": "apply_stat_stage",
           "stat": "atk",
@@ -1108194,16 +1108172,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1108553,16 +1108527,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1133042,10 +1133012,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 350
-        },
-        {
           "op": "apply_status",
           "name": "immune_status",
           "target": "self",
@@ -1156252,10 +1156218,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 400
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -1159996,16 +1159958,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1160499,16 +1160457,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1162168,10 +1162122,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 400
-        },
         {
           "op": "apply_stat_stage",
           "stat": "atk",
@@ -1171039,10 +1170989,6 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainFlat": 450
-        },
-        {
           "op": "apply_stat_stage",
           "stat": "atk",
           "delta": 1,
@@ -1172044,10 +1171990,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 20
-        },
         {
           "op": "apply_status",
           "name": "immune_status",
@@ -1177657,16 +1177599,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1179869,16 +1179807,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1180247,16 +1180181,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1182811,10 +1182741,12 @@
       "priority": 3,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drain": {
-            "numerator": 1,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 1,
+            "d": 1
           }
         },
         {
@@ -1190796,16 +1190728,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1194137,16 +1194065,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1231744,16 +1231668,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {
@@ -1235859,10 +1235779,6 @@
       "pp": 5,
       "priority": 0,
       "effects": [
-        {
-          "op": "applyDrainRider",
-          "drainFlat": 50
-        },
         {
           "op": "apply_stat_stage",
           "stat": "atk",
@@ -1248813,16 +1248729,12 @@
       "priority": 0,
       "effects": [
         {
-          "op": "applyDrainRider",
-          "drainIf": {
-            "when": {
-              "selfHpBelow": {
-                "numerator": 1,
-                "denominator": 2
-              }
-            },
-            "numerator": 2,
-            "denominator": 1
+          "op": "apply_status",
+          "name": "drain_atk",
+          "target": "self",
+          "params": {
+            "n": 2,
+            "d": 1
           }
         },
         {

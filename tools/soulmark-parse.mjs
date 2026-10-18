@@ -2691,8 +2691,10 @@ export function parseSoulmarkText(text, petName) {
       // injectTurns：注入持续回合（"前N回合X"——窗口时长取内置时长与 N 的较大值，防欠应用）
       // count 窗 op 豁免（"若P则下次攻击X"——params.count 即生命周期，turns 会提前灭窗）
       if (extra.injectTurns !== undefined) for (const o of effects) { if (o.op === "apply_status" && o.params?.count === undefined) o.turns = Math.max(o.turns ?? 0, extra.injectTurns); }
-      // opIf：注入 op 级守卫（"未受到攻击恢复N点"——已有 if 的以 and 复合）
-      if (extra.opIf !== undefined) for (const o of effects) { o.if = o.if !== undefined ? { and: [extra.opIf, o.if] } : extra.opIf; }
+      // opIf：注入 op 级守卫（"未受到攻击恢复N点"——已有 if 的以 and 复合）。
+      // formula 只是分数载体，条件由宿主 damage/heal 各自携带；给它再挂一次会让同一条件
+      // 在 IR 里出现两遍，且与 skill 侧的形态不一致（parser-golden 也有同款）。
+      if (extra.opIf !== undefined) for (const o of effects) { if (o.op === "formula") continue; o.if = o.if !== undefined ? { and: [extra.opIf, o.if] } : extra.opIf; }
       // retarget：换入延迟目标（"下只出战精灵X"——ops 改挂 nextInFx 通道）
       if (extra.retarget !== undefined) for (const o of effects) { o.target = extra.retarget; }
       // opParams：growPer 只进会读 params 的状态 op。打到 damage 上没人读，装载会拒。

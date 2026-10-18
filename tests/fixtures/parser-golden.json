@@ -3392,6 +3392,9 @@
           "value": {
             "numerator": 1,
             "denominator": 3
+          },
+          "if": {
+            "selfStageUp": true
           }
         },
         {
@@ -3740,7 +3743,13 @@
           "value": {
             "numerator": 1,
             "denominator": 3
-          }
+          },
+          "if": {
+            "not": {
+              "prevApplied": true
+            }
+          },
+          "chance": 80
         },
         {
           "op": "heal",

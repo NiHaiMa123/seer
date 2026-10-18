@@ -29,12 +29,12 @@ export const rules = [
   },
   { id: "heal-06",
     re: new RegExp(`^(?:使用技能|攻击)?吸取(对手|对方|敌方)最大体力(?:的)?${NUM}\\s*/\\s*${NUM}(?:恢复自身)?$|^(?:使用技能|攻击)?吸取(对手|对方|敌方)最大体力的(\\d+)%(?:恢复自身)?$|^吸取对手最大体力${NUM}\\s*/\\s*${NUM}$|^攻击?吸取对手最大体力${NUM}\\s*/\\s*${NUM}$`),
-    // frac 精确分数：percent.power 是百分数，1/3 不能写成 power:1（会被算成 1%）
+    // 分数走 formula op（damage 上已不放 frac）；percent.power 是百分数，1/3 不能写成 power:1
     go: (m) => {
       const ns = m.slice(1).filter((x) => x !== undefined).map(num).filter((x) => x !== null && !Number.isNaN(x));
       // 分支2=%数；分支1/3=分数
       if (/%/.test(m[0])) return { effects: [{ op: "damage", power: ns[0], kind: "percent" }, { op: "heal", numerator: ns[0], denominator: 100, target: "self" }] };
-      return { effects: [{ op: "damage", power: 1, kind: "percent", frac: frac(ns[0], ns[1]) }, { op: "heal", numerator: ns[0], denominator: ns[1], target: "self" }] };
+      return { effects: [{ op: "damage", power: 1, kind: "percent" }, { op: "formula", of: "frac", value: frac(ns[0], ns[1]) }, { op: "heal", numerator: ns[0], denominator: ns[1], target: "self" }] };
     },
   },
   // "恢复自身HP1/4"/"回复1/3Hp"（HP 记法后置分数）。放在 heal-07 前面，那条尾词只收「体力」。
@@ -42,7 +42,7 @@ export const rules = [
   { id: "heal-07", re: new RegExp(`^(?:直接)?(?:恢复|回复)(?:自身|自己)${NUM}\\s*/\\s*${NUM}体力$`), go: (m) => ({ effects: [{ op: "heal", numerator: num(m[1]), denominator: num(m[2]), target: "self" }] }) },
   // 当前体力百分比/分数固伤（"附加对手当前体力值20%的固定伤害"）
   { id: "heal-08", re: /^附加(?:对手|对方|敌方)当前体力(?:值)?的?(\d+)%(?:的)?(?:固定|百分比)?伤害$/, go: (m) => ({ effects: [{ op: "damage", power: num(m[1]), kind: "percent", percentBase: "current" }] }) },
-  { id: "heal-09", re: new RegExp(`^附加(?:对手|对方|敌方)当前体力(?:值)?的${NUM}\\s*/\\s*${NUM}(?:的)?(?:固定|百分比)?伤害$`), go: (m) => ({ effects: [{ op: "damage", power: 1, kind: "percent", percentBase: "current", frac: frac(m[1], m[2]) }] }) },
+  { id: "heal-09", re: new RegExp(`^附加(?:对手|对方|敌方)当前体力(?:值)?的${NUM}\\s*/\\s*${NUM}(?:的)?(?:固定|百分比)?伤害$`), go: (m) => ({ effects: [{ op: "damage", power: 1, kind: "percent", percentBase: "current" }, { op: "formula", of: "frac", value: frac(m[1], m[2]) }] }) },
   // 伤害数值的N%回复自身（"给对手造成伤害时，伤害数值的30%恢复自身体力"）→ drain
   // "攻击伤害的20%恢复体力"（heal-10 的「造成」前缀可省但主语词表不含「攻击」）。放在 heal-10 前面。
   { id: "p1-heal-07", re: new RegExp(`^(?:攻击)?伤害(?:值)?的?${NUM}%(?:会)?(?:恢复|回复)(?:自身|自己)?体力$`), go: (m) => ({ attachDamage: { drain: { numerator: num(m[1]), denominator: 100 } } }) },
