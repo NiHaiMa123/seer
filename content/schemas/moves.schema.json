@@ -4343,6 +4343,30 @@
                   "type": "integer",
                   "minimum": 0,
                   "maximum": 9
+                },
+                "perAilment": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "pct"
+                  ],
+                  "properties": {
+                    "who": {
+                      "type": "string",
+                      "enum": [
+                        "self",
+                        "foe"
+                      ]
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "pct": {
+                      "type": "integer"
+                    }
+                  },
+                  "description": "按异常种数迭代的倍率（'对手每处于1种异常状态则伤害提升60%'）"
                 }
               },
               "allOf": [
@@ -5100,7 +5124,31 @@
                       "label": true,
                       "stack": true,
                       "accFlat": true,
-                      "mulSelfStageLvl": true
+                      "mulSelfStageLvl": true,
+                      "perAilment": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "pct"
+                        ],
+                        "properties": {
+                          "who": {
+                            "type": "string",
+                            "enum": [
+                              "self",
+                              "foe"
+                            ]
+                          },
+                          "per": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "pct": {
+                            "type": "integer"
+                          }
+                        },
+                        "description": "按异常种数迭代的倍率（'对手每处于1种异常状态则伤害提升60%'）"
+                      }
                     }
                   }
                 },
@@ -5341,7 +5389,31 @@
                         "properties": {
                           "statDiff": true,
                           "statDiffDenom": true,
-                          "statSumPct": true
+                          "statSumPct": true,
+                          "perAilment": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "pct"
+                            ],
+                            "properties": {
+                              "who": {
+                                "type": "string",
+                                "enum": [
+                                  "self",
+                                  "foe"
+                                ]
+                              },
+                              "per": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "pct": {
+                                "type": "integer"
+                              }
+                            },
+                            "description": "按异常种数迭代的倍率（'对手每处于1种异常状态则伤害提升60%'）"
+                          }
                         }
                       },
                       {

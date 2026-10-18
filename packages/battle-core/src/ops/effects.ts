@@ -599,6 +599,29 @@ export function shieldFlatOf(u: UnitState): number {
   return v;
 }
 
+/** 异常状态**种数**（按 effectDefOf().ailment 判定；同一 kind 只算一种）。 */
+export function ailmentCountOf(u: UnitState | undefined): number {
+  if (u === undefined) return 0;
+  const kinds = new Set<string>();
+  for (const e of u.effects) if (effectDefOf(e.kind)?.ailment === true) kinds.add(e.kind);
+  return kinds.size;
+}
+
+/**
+ * 「每处于N种异常则 +M」的迭代读数：floor(种数 / per) * pct。
+ * 与布尔门 foeStatused/selfStatused 的区别：后者只管"有没有"，这里按**种数**迭代。
+ */
+export function perAilmentOf(
+  spec: { who?: "self" | "foe"; per?: number; pct: number } | undefined,
+  u: UnitState,
+  foe: UnitState | undefined,
+): number {
+  if (spec === undefined) return 0;
+  const target = spec.who === "self" ? u : foe;
+  const steps = Math.floor(ailmentCountOf(target) / Math.max(1, spec.per ?? 1));
+  return steps * spec.pct;
+}
+
 /** 双方某维数值差的幅值键（"根据双方X值之差n触发…"——n 的读数来源）。 */
 export type StatDiffStat = "atk" | "def" | "spa" | "sdf" | "spd" | "hp";
 
@@ -639,6 +662,12 @@ export function dmgReduceFlatOf(u: UnitState, foe?: UnitState, kind?: string): n
     if (!isMod(e, "dmgReduceFlat")) continue;
     if (!statusGateOk(e, u, foe, kind)) continue;
     // statDiff 可落在条目顶层（apply_status 的 params 限 number）或 params 内
+    // perAilment：按异常种数迭代。放 op 顶层（params 是 Record<string, number>）。
+    const paV = (e as { perAilment?: { who?: "self" | "foe"; per?: number; pct: number } }).perAilment;
+    if (paV !== undefined) {
+      v += perAilmentOf(paV, u, foe);
+      continue;
+    }
     const sd = (e as { statDiff?: unknown }).statDiff ?? e.params?.statDiff;
     const sdDenom = (e as { statDiffDenom?: number }).statDiffDenom ?? e.params?.statDiffDenom;
     if (typeof sd === "string") v += statDiffOf(u, foe, sd as StatDiffStat, sdDenom);
@@ -731,6 +760,13 @@ export function dmgOutPctOf(u: UnitState, foe?: UnitState, rng?: { drawBelow: (n
   let pct = 0;
   for (const e of u.effects) {
     if (!isMod(e, "dmgOutPct")) continue;
+    // perAilment：按异常种数迭代（"对手每处于1种异常状态则造成伤害提升60%"）。
+    // 放 op 顶层（params 是 Record<string, number>）。
+    const paP = (e as { perAilment?: { who?: "self" | "foe"; per?: number; pct: number } }).perAilment;
+    if (paP !== undefined) {
+      pct += perAilmentOf(paP, u, foe);
+      continue;
+    }
     // moveType 系别门控（"电系技能威力翻倍"——本招 type 不符则窗关）
     if (e.moveType !== undefined && e.moveType !== moveType) continue;
     // kindMask 门控（"固定伤害和百分比伤害提高25%"——类别不匹配该窗口不计）

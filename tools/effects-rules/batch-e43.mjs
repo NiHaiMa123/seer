@@ -94,4 +94,10 @@ export const rules = [
   { id: "e43-13",
     re: /^(?:(对手|对方|敌方)使用体力药剂变成降低相应的体力|使用体力药剂变成降低相应的体力|(?:(?:对手|对方|敌方)使用体力药剂时)?效果变成减少相应的体力)$/,
     go: (m) => ({ effects: [{ op: "apply_status", name: "item_heal_reverse", target: m[1] !== undefined ? "opponent" : "self" }] }) },
+  // 「对手每处于N种异常状态则<效果>」——把 perAilment 挂到同句的效果上。
+  // 语料 41 处；引擎按异常种数迭代（perAilmentOf）。
+  // 只处理"伤害提升N%"与"受伤减少N%"两种能确定的写法，其余形态继续留档。
+  { id: "e43-per-ailment",
+    re: new RegExp("^(对手|对方|敌方|自身|自己)?每(?:处于)?\\s*" + NUM + "\\s*种异常状态(?:时|则)?(?:当回合)?(?:自身)?(?:造成的)?(?:攻击)?伤害(?:提升|提高|增加)" + NUM + "%$"),
+    go: (m) => { const who = /对手|对方|敌方/.test(m[1] ?? "") ? "foe" : "self"; return { effects: [{ op: "apply_status", name: "dmg_boost", target: "self", turns: 1, params: { pct: 0 }, perAilment: { who, per: num(m[2]), pct: num(m[3]) } }] }; } },
 ];
