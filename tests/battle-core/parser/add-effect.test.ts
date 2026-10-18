@@ -295,10 +295,10 @@ describe("add one effect", () => {
     expect(next.unparsed).toEqual([]);
     expect(next.effects).toEqual((parseEffectText("使对手随机进入1种异常状态") as { effects: unknown[] }).effects);
     const old = parseEffectText("使对手随机进入1种异常状态") as { effects: Array<{ op: string; name?: string; random?: { count: number }; target?: string }> };
-    expect(old.effects[0].op).toBe("apply_status");
-    expect(old.effects[0].name).toBe("random");
-    expect(old.effects[0].random?.count).toBe(1);
-    expect(old.effects[0].target).toBe("opponent");
+    expect(old.effects[0]!.op).toBe("apply_status");
+    expect(old.effects[0]!.name).toBe("random");
+    expect(old.effects[0]!.random?.count).toBe(1);
+    expect(old.effects[0]!.target).toBe("opponent");
   });
 
   it("对手无法处于能力强化状态 → 对手禁强化", () => {

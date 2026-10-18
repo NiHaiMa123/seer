@@ -123,7 +123,7 @@ describe("w09 改克制", () => {
   });
 
   it("旧结果不变：e47-08 的三条硬句仍留档（本轮没做，也没被抢走）", () => {
-    const ir = (s: string) => parseEffectText(s, { hasDamage: true }) as { flags: unknown; effects: unknown[]; unparsed: unknown[] };
+    const ir = (s: string) => parseEffectText(s, { hasDamage: true }) as { flags: unknown; effects: unknown[]; unparsed: unknown[]; orphanCond?: unknown };
     // 以指定系别结算
     expect(ir("以神灵系进行伤害结算").unparsed).toEqual([{ clause: "以神灵系进行伤害结算", reason: "type override / element settle unmodeled (deferred)" }]);
     expect(ir("此技能以自然、光、冰、超能、神灵系中的最优系别计算克制倍数").unparsed).toEqual([

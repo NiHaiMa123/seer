@@ -54,7 +54,7 @@ describe("add one effect (d3)", () => {
   });
 
   it("d3-stage-typo-01：「另」是「令」的脱字（宿主句 天道降魔阵）", () => {
-    const evens = (t: string) => (p(t).effects as { stat?: string; delta?: number; target?: string }[]).filter((e) => e.op !== undefined);
+    const evens = (t: string) => (p(t).effects as { op?: string; stat?: string; delta?: number; target?: string }[]).filter((e) => e.op !== undefined);
     expect(evens("另对手全属性－1，3回合内每回合受到100点固定伤害").slice(0, 5)).toEqual([
       { op: "apply_stat_stage", stat: "atk", delta: -1, target: "opponent" },
       { op: "apply_stat_stage", stat: "def", delta: -1, target: "opponent" },

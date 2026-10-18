@@ -45,12 +45,12 @@ describe("add one effect (r5a · 反弹原本超出部分N%)", () => {
     const mine = ids.indexOf("r5a-excess-reflect-tail");
     expect(mine).toBeGreaterThanOrEqual(0);
     expect(mine).toBeLessThan(ids.indexOf("heal-232")); // 更具体的那条必须排在宽规则之前
-    const rule = healRules[mine] as { re: RegExp; go: (m: RegExpMatchArray) => unknown };
+    const rule = healRules[mine]! as unknown as { re: RegExp; go: (m: RegExpMatchArray) => unknown };
     const m = "反弹给对手原本超出部分60%的百分比伤害".match(rule.re)!;
     expect(m).not.toBeNull();
     expect(rule.go(m)).toEqual({ excessReflectPct: 60 });
     // 宽规则 heal-232 仍原样接住别的形状
-    const catcher = healRules.find((r: { id: string }) => r.id === "heal-232") as { go: () => unknown };
+    const catcher = healRules.find((r: { id: string }) => r.id === "heal-232")! as unknown as { go: () => unknown };
     expect(catcher.go()).toEqual({ unparsedReason: "excess/reflect tail — deferred" });
   });
 

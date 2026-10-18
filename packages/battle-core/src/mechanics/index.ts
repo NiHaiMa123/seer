@@ -13,8 +13,9 @@ import { sealsMechanic } from "./seals/index.ts";
 import { fifthMechanic } from "./fifth/index.ts";
 import { soulmarkMechanic } from "./soulmark/index.ts";
 import { itemsMechanic } from "./items/index.ts";
+import { targetMechanic } from "./target/index.ts";
 
-export const MECHANICS: readonly Mechanic[] = [sixstatMechanic, sealsMechanic, fifthMechanic, soulmarkMechanic, itemsMechanic];
+export const MECHANICS: readonly Mechanic[] = [sixstatMechanic, sealsMechanic, fifthMechanic, soulmarkMechanic, itemsMechanic, targetMechanic];
 
 /** 面板推导：首个接管的机制胜出；无接管 → undefined（调用方回落原始 base）。 */
 export const deriveBaseFor = (pack: PackMechView, unit: MechanicUnit): StatSpread | undefined => {
@@ -50,5 +51,7 @@ export type { CompiledSeal, SealPackData, SealRules } from "./seals/index.ts";
 export { fifthMechanic } from "./fifth/index.ts";
 export { soulmarkMechanic, soulmarkOf } from "./soulmark/index.ts";
 export { itemsMechanic, itemsOf, parseItemAction } from "./items/index.ts";
+export { targetMechanic } from "./target/index.ts";
+export type { TargetScopeFields } from "./target/index.ts";
 export type { ItemDef, ItemsPackData } from "./items/index.ts";
 export type { CompiledSoulMark, SoulmarkPackData, SoulOp, SoulState } from "./soulmark/index.ts";

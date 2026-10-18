@@ -5064,6 +5064,7 @@
                   "then": {
                     "properties": {
                       "sign": true,
+                      "stat": true,
                       "mul": true,
                       "target": true,
                       "onEnterTarget": true

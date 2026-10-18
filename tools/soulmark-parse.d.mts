@@ -29,5 +29,5 @@ export interface SoulParseResult {
   /** 没进入子句分母的 unparsed（伴生整段、循环后的空体）。 */
   fragmentsOutside: number;
 }
-export declare function parseSoulmarkText(text: string | null | undefined): SoulParseResult;
+export declare function parseSoulmarkText(text: string | null | undefined, petName?: string): SoulParseResult;
 export declare function run(catalogPath?: string, outDir?: string): unknown;

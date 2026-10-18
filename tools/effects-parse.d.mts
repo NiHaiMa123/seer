@@ -6,7 +6,13 @@ export interface ParsedEffect {
 export interface ParseResult {
   flags: Record<string, unknown>;
   effects: ParsedEffect[];
-  unparsed: { text: string; reason?: string }[];
+  unparsed: { clause: string; reason: string }[];
+  /** 条件本系加成等悬挂谓词（无宿主 op 时上交）。 */
+  effDoubleFlag?: unknown;
+  /** 零效果时无处可挂的谓词（"后出手时"独占一组）。 */
+  orphanCond?: Record<string, unknown>;
+  /** 尾部裸时长残段（"麻痹，2回合"）。 */
+  turnsTail?: number;
 }
 export declare function parseEffectText(text: string | null | undefined, opts?: { hasDamage?: boolean }): ParseResult;
 /** 命中 rider 的 op 名。分组前用来认出紧跟 damage 的那几条。 */

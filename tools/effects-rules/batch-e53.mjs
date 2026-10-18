@@ -1630,10 +1630,12 @@ export const rules = [
   { id: "e53-pwu-01",
     re: new RegExp(`^(?:连续使用每次|连续攻击每次|每次使用|每次)(?:威力|技能威力|攻击)(?:增加|提升|提高|加|[+＋])${NUM}[，,]?最高(?:增加|提升|提高|为|至|到)?(?:威力)?${NUM}$`),
     go: (m) => ({ attachDamage: { powerPerUse: num(m[1]), useCap: num(m[2]) } }) },
-  // "全属性提升(了)?" → all+1（裸"全属性提升"=各维+1）
+  // "全属性提升(了)?" → 各维 +1。必须展开成五维：引擎的 stat:"all" 只用于
+  // 「全正级翻倍」（multiplySelf），发裸 stat:"all" 会被 stat-stage.ts:82 抛 OP_SCHEMA，
+  // 装载期 content:validate 也报 'stat "all" requires multiplySelf'（peak 3 条）。
   { id: "e53-stg-11",
     re: /^全属性(?:提升|提高|增加|上升|强化)$/,
-    go: () => ({ effects: [{ op: "apply_stat_stage", stat: "all", delta: 1, target: "self" }] }) },
+    go: () => ({ effects: ALL_STATS.map((st) => ({ op: "apply_stat_stage", stat: st, delta: 1, target: "self" })) }) },
   // "(对手)?(STAT)±N.(STAT)±N" → 双维同向 stage（点号并列——勿切分丢主语；"对手攻击-1.特攻-1"）
   { id: "e53-stg-08",
     re: new RegExp(`^(对手|对方|敌方|自身|自己)?(${STAT_RE})([+-]${NUM})\\.(${STAT_RE})([+-]${NUM})$`),

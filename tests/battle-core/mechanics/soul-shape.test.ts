@@ -26,7 +26,7 @@ const FLAGS = [
 const HOOK_KEYS = ["bossGate", "chance", "elseOps", "guard", "hook", "ops"];
 
 function quotedNames(block: string): string[] {
-  return [...block.matchAll(/"([a-z0-9_]+)"/g)].map((hit) => hit[1]).sort();
+  return [...block.matchAll(/"([a-z0-9_]+)"/g)].map((hit) => hit[1]!).sort();
 }
 
 function interfaceBlock(name: string): string {

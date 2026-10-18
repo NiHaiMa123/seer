@@ -1305,7 +1305,14 @@ function parseEffectTextAtExit(text, opts = {}) {
     // 拆逗号；"、" 仅在左段不以 stat 名结尾时切分（"防御、特防等级-1" 是共享值列表，不切）
     const statTail = new RegExp(`(?:${STAT_RE}|${AIL_RE}|双攻|双防|攻速|双刀|攻防|全属性|所有属性|所有能力)$`);
     // 只续对手侧：自身侧切开后后段本来就落到自身，结果不变
-    const foeDeltaTail = new RegExp(`(?:对手|对方|敌方)的?(?:每回合)?(?:(?:${STAT_RE}|双攻|双防)(?:等级)?[+-]\\d+、)*(?:${STAT_RE}|双攻|双防)(?:等级)?[+-]\\d+$`);
+    // 第二种形态：多项 stat 共享末尾一个 delta（"攻击、特攻-1"）。前置会把「双攻」展开成
+    // 「攻击、特攻」，若只认第一种（每项各自带 delta）则该句被切开，后段落到 stages-07 的
+    // self 默认，命中维方向反了（golden 2729）。各自带 delta 的形态（"防御-1、命中-1"）
+    // 仍走切分 + foeCtx 翻转，不受影响（golden 2927）。
+    const foeDeltaTail = new RegExp(
+      `(?:对手|对方|敌方)的?(?:每回合)?(?:${STAT_RE}|双攻|双防)(?:[、，,](?:${STAT_RE}|双攻|双防))*(?:等级)?[+-]\\d+$`
+      + `|(?:对手|对方|敌方)的?(?:每回合)?(?:(?:${STAT_RE}|双攻|双防)(?:等级)?[+-]\\d+、)*(?:${STAT_RE}|双攻|双防)(?:等级)?[+-]\\d+$`,
+    );
     const deltaHead = new RegExp(`^(?:${STAT_RE}|双攻|双防)(?:等级)?[+-]\\d+$`);
     const tickPrefix = new RegExp(`^(.*?(?:对手|对方|敌方)的?(?:每回合)?)(?:${STAT_RE}|双攻|双防)(?:等级)?[+-]\\d+$`);
     const splitEnum = (seg) => {

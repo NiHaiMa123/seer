@@ -112,7 +112,7 @@ describe("add one effect (r5d · 护盾/护罩消失触发)", () => {
     expect(ids.indexOf("r5d-shield-react")).toBeGreaterThanOrEqual(0);
     expect(ids.indexOf("r5d-shield-react")).toBeLessThan(ids.indexOf("e28-df-02"));
 
-    const df02 = e28Rules.find((r: { id: string }) => r.id === "e28-df-02") as {
+    const df02 = e28Rules.find((r: { id: string }) => r.id === "e28-df-02")! as unknown as {
       re: RegExp; go: (m: RegExpExecArray) => unknown;
     };
     expect(df02.re.source).toBe(

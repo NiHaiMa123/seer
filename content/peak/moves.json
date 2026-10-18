@@ -77728,8 +77728,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "光神秘",
@@ -98017,8 +98026,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "邪灵龙"
@@ -279840,8 +279858,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         },
         {
           "op": "apply_status",
@@ -305565,8 +305592,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "邪灵龙"
@@ -366604,8 +366640,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "光神秘",
@@ -370311,8 +370356,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -561441,8 +561496,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "邪灵龙"
@@ -580757,7 +580821,31 @@
       "effects": [
         {
           "op": "apply_stat_stage",
-          "stat": "all",
+          "stat": "atk",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spa",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
           "delta": 1,
           "target": "self"
         },
@@ -582980,7 +583068,31 @@
       "effects": [
         {
           "op": "apply_stat_stage",
-          "stat": "all",
+          "stat": "atk",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spa",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
           "delta": 1,
           "target": "self"
         },
@@ -583298,7 +583410,31 @@
       "effects": [
         {
           "op": "apply_stat_stage",
-          "stat": "all",
+          "stat": "atk",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spa",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
           "delta": 1,
           "target": "self"
         },
@@ -612629,8 +612765,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "混沌超能"
@@ -629016,8 +629161,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "地面超能"
@@ -641386,8 +641540,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -642665,8 +642829,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -650202,8 +650376,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "自然战斗"
@@ -712726,8 +712909,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 4,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         },
         {
           "op": "apply_status",
@@ -752530,8 +752722,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "自然战斗"
@@ -752650,8 +752851,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 4,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         },
         {
           "op": "apply_status",
@@ -787356,8 +787566,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         },
         {
           "op": "apply_status",
@@ -824257,8 +824476,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "光战斗",
@@ -841899,8 +842127,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "机械邪灵"
@@ -849537,8 +849774,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -898241,8 +898488,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "圣灵超能"
@@ -904441,8 +904697,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -912009,8 +912275,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -929124,8 +929400,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -957416,8 +957702,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 4,
-          "params": { "win": 19 },
-          "payload": [{ "op": "transfer_stages", "direction": "push", "plain": true, "noHooks": true }]
+          "params": {
+            "win": 19
+          },
+          "payload": [
+            {
+              "op": "transfer_stages",
+              "direction": "push",
+              "plain": true,
+              "noHooks": true
+            }
+          ]
         }
       ],
       "type": "暗影"
@@ -963835,8 +964130,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -978666,8 +978971,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -980655,8 +980970,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 4,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "混沌冰"
@@ -1008144,8 +1008468,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1011966,8 +1012300,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1054898,8 +1055242,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1066529,8 +1066883,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         },
         {
           "op": "apply_status",
@@ -1067889,8 +1068252,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1071808,8 +1072181,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "暗影混沌",
@@ -1144695,8 +1145077,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "混沌超能"
@@ -1169443,8 +1169834,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1194019,8 +1194420,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1210931,8 +1211342,18 @@
           "op": "apply_status",
           "name": "periodic",
           "target": "self",
-          "params": { "win": 15 },
-          "payload": [{ "op": "cleanse", "target": "self", "scope": "ailment", "plain": true, "noHooks": true }],
+          "params": {
+            "win": 15
+          },
+          "payload": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment",
+              "plain": true,
+              "noHooks": true
+            }
+          ],
           "if": {
             "selfStatused": true
           }
@@ -1222769,8 +1223190,17 @@
           "name": "periodic",
           "target": "self",
           "turns": 3,
-          "params": { "win": 14 },
-          "payload": [{ "op": "clear_stages", "target": "opponent", "sign": "up", "plain": true }]
+          "params": {
+            "win": 14
+          },
+          "payload": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "plain": true
+            }
+          ]
         }
       ],
       "type": "混沌超能"

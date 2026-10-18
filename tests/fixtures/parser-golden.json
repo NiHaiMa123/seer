@@ -2037,7 +2037,7 @@
           "op": "apply_stat_stage",
           "stat": "acc",
           "delta": -1,
-          "target": "self"
+          "target": "opponent"
         },
         {
           "op": "apply_status",

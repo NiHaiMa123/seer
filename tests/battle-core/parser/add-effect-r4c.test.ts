@@ -127,7 +127,7 @@ describe("add one effect (r4c)", () => {
     const iNew = ids.indexOf("r4c-immune-reflect-next-01");
     expect(iNew).toBeGreaterThanOrEqual(0);
     expect(i177).toBeGreaterThan(iNew); // 窄规则在前，留档规则在后
-    const r177 = (e6Rules as { id: string; re: RegExp; go: () => { unparsedReason?: string } }[])[i177];
+    const r177 = (e6Rules as { id: string; re: RegExp; go: () => { unparsedReason?: string } }[])[i177]!;
     expect(r177.re.source).toBe(String.raw`^免疫(?!下?\d+次|下[一二两三四五六七八九十]+次|下?次|对手下?|对方下?|敌方下?)[\p{Script=Han}A-Za-z0-9-]{2,}造成的(?:攻击)?伤害$`);
     expect(r177.go().unparsedReason).toBe(R177);
   });
