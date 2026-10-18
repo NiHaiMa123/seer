@@ -54,7 +54,9 @@ const battleConfig = (battleId: string, generationId: string) => ({
   deadlineMs: 30_000,
 });
 
-describe("isolated executable generations", () => {
+// 这个套件每个用例都起子进程跑隔离执行器，本机单跑就要 15s+；全量并发时 CPU 争抢
+// 会超过 vitest 默认 5s。放宽套件级超时，不改被测语义。
+describe("isolated executable generations", { timeout: 180_000 }, () => {
   it("runs a different executableHash in child processes for live play, restore and replay", async () => {
     const path = tempPath();
     const store = new BattleStore(path);

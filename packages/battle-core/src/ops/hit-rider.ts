@@ -59,13 +59,29 @@ const ofAllowed = new Map<string, ReadonlySet<string>>(
 
 const drainByHost = new WeakMap<object, Record<string, unknown>>();
 
+/**
+ * 家族键在宿主 damage 上的落点键名。
+ *
+ * 为什么不能只放 WeakMap：引擎每回合 `structuredClone(state)`（engine.ts:567/1218），
+ * 深拷贝后 payload 里的对象是新引用，WeakMap 映射全部失效 —— 于是
+ * `damage{kind:"fixed",power:0} + flat{of:"flatSelfLastHeal"}` 这类 combo
+ * 在真正结算时读不到 rider，固伤恒为 0。
+ *
+ * 折中：分组时把 bag 同时写进宿主对象的一个普通字段（可被 structuredClone 带走），
+ * 读的时候先看对象、回落到 WeakMap。字段名带 `$` 前缀，且只在**分组之后**写入
+ * —— loader 的 DAMAGE_KEYS 校验（damageKeyHits）跑在分组之前，因此不会看到它。
+ */
+export const RIDER_BAG_KEY = "$riders";
+
 export function drainSliceOf(fx: object): Record<string, unknown> {
+  const own = (fx as Record<string, unknown>)[RIDER_BAG_KEY];
+  if (own !== null && typeof own === "object") return own as Record<string, unknown>;
   return drainByHost.get(fx) ?? {};
 }
 
 /** 分组后的全部家族键，键名仍是原来的名字。命中程序从这里读，不从 damage 上读。 */
 export function hitFieldsOf(fx: object): Record<string, unknown> {
-  return drainByHost.get(fx) ?? {};
+  return drainSliceOf(fx);
 }
 
 /** 效果对象被摊开复制后，骑乘片段跟着新对象走。 */
@@ -144,6 +160,8 @@ export function groupHitRiders(list: unknown): string | undefined {
     const err = absorb(prev, rec);
     if (err !== undefined) return err;
     drainByHost.set(host, prev);
+    // 同时写回宿主对象：引擎的 structuredClone 会让 WeakMap 失效（见 RIDER_BAG_KEY 注释）
+    (host as Record<string, unknown>)[RIDER_BAG_KEY] = prev;
     drop.push(i);
   }
   for (let i = drop.length - 1; i >= 0; i--) list.splice(drop[i]!, 1);

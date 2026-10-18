@@ -3,14 +3,21 @@
  *
  * 一次命中可以带多个 rider（固伤 + 吸血 + 倍率…）。groupHitRiders 的循环只看
  * `rec.op === "damage"` 来认宿主，其它 rider op 都落到 `host = undefined`，
- * 于是「damage → flat → applyDrainRider」的第二个 rider 被判成孤儿：
- *   move mv-2521-s10 applyDrainRider 没有紧跟在 damage 后面
- * 整个 peak 包因此拒载（369 条招式的 rider 前一个是 flat/scale/strike/power）。
+ * 于是「damage → flat → applyDrainRider」的第二个 rider 被判成孤儿。
  *
- * 正确语义：宿主是最近的那条 damage，中间夹着别的 rider 不影响归属。
+ * 分组结果写在宿主 damage 的 `$riders` 上（同时仍记进 WeakMap）：
+ * 引擎每回合 structuredClone(state)，只靠 WeakMap 会在深拷贝后失联
+ * （见 hit-rider.ts 的 RIDER_BAG_KEY 注释）。
  */
 import { describe, it, expect } from "vitest";
-import { groupHitRiders } from "../../../packages/battle-core/src/ops/hit-rider.ts";
+import { groupHitRiders, RIDER_BAG_KEY } from "../../../packages/battle-core/src/ops/hit-rider.ts";
+
+/** 去掉 $riders 载体后的纯 op 列表，用来断言「rider 已被摘走」。 */
+const bare = (list: unknown[]) =>
+  (list as Record<string, unknown>[]).map((e) => {
+    const { [RIDER_BAG_KEY]: _bag, ...rest } = e;
+    return rest;
+  });
 
 describe("连续 rider 分组", () => {
   it("damage → flat → applyDrainRider：两个 rider 都归同一条 damage", () => {
@@ -20,8 +27,11 @@ describe("连续 rider 分组", () => {
       { op: "applyDrainRider", drain: { numerator: 1, denominator: 1 } },
     ];
     expect(groupHitRiders(list)).toBeUndefined();
-    // rider 被收走，只剩宿主 damage
-    expect(list).toEqual([{ op: "damage", power: 150 }]);
+    expect(bare(list)).toEqual([{ op: "damage", power: 150 }]);
+    expect((list[0] as Record<string, unknown>)[RIDER_BAG_KEY]).toEqual({
+      flatSelfPct: 25,
+      drain: { numerator: 1, denominator: 1 },
+    });
   });
 
   it("damage → scale → applyDrainRider", () => {
@@ -31,7 +41,7 @@ describe("连续 rider 分组", () => {
       { op: "applyDrainRider", drain: { numerator: 1, denominator: 1 } },
     ];
     expect(groupHitRiders(list)).toBeUndefined();
-    expect(list).toEqual([{ op: "damage", power: 150 }]);
+    expect(bare(list)).toEqual([{ op: "damage", power: 150 }]);
   });
 
   it("三个 rider 连排", () => {
@@ -42,7 +52,7 @@ describe("连续 rider 分组", () => {
       { op: "applyDrainRider", drainMul: { numerator: 2, denominator: 1 } },
     ];
     expect(groupHitRiders(list)).toBeUndefined();
-    expect(list).toEqual([{ op: "damage", power: 160 }]);
+    expect(bare(list)).toEqual([{ op: "damage", power: 160 }]);
   });
 
   it("真正的孤儿 rider（前面没有 damage）仍报错", () => {

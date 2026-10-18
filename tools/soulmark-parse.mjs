@@ -1149,8 +1149,23 @@ export function parseSoulmarkText(text, petName) {
       // dmgOutPct 宿主（"伤害提升N%，每次使用增加M%最高K%"→params.growStep/growCap）
       const sh = [...e.ops].reverse().find((o) => o.op === "apply_status" && o.params !== undefined);
       if (sh !== undefined) {
-        // crit_up 只读 n/d。params.growStep 没人读；改挂条目 growStep 会经 accGrow 改 n。
-        if (sh.name === "crit_up") return false;
+        // crit_up 的 n/d 就是触发概率（"3回合致命几率加1/8"），不是幅度。
+        // 成长应走条目级 chance/chanceGrow（引擎按 chanceGrow 递增判定），
+        // 而不是 params.growStep（那会经 accGrow 改 n，把概率当幅度放大）。
+        if (sh.name === "crit_up") {
+          const n = Number(sh.params.n);
+          const d = Number(sh.params.d);
+          if (Number.isFinite(n) && Number.isFinite(d) && d !== 0) {
+            e.chance = Math.round((n * 100) / d);
+            e.chanceGrow = growTail;
+            // n/d 已提升为条目概率，op 上不再重复留一份
+            delete sh.params.n;
+            delete sh.params.d;
+            if (Object.keys(sh.params).length === 0) delete sh.params;
+            return true;
+          }
+          return false;
+        }
         sh.params.growStep = growTail.add;
         if (growTail.cap !== undefined) sh.params.growCap = growTail.cap;
         return true;

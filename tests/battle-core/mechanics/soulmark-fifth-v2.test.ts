@@ -447,11 +447,14 @@ describe("next-apply 单次窗（下N次族）", () => {
     expect(r1.state.sides.p1.unit.effects.some((e) => e.kind === "react")).toBe(true);
     // 回合2：p1 用招 → react 载荷 flatSelfLastHeal 固伤=恢复量（仅一次）+ dmg_boost 加成
     const r2 = ok(applyTurn(PACK, r1.state, { p1: act("act_syn-strike"), p2: act("act_syn-strike") }));
-    expect(evs(r2, "damage").some((e) => e.detail.side === "p2" && e.detail.amount === healAmt && e.detail.damageKind === "fixed")).toBe(true);
+    // 固伤基数是恢复量；同回合挂着的 dmg_boost{count:1,pct:100} 会把它放大，
+    // 所以这里断言「不小于恢复量」而不是「等于」——位移由加成造成，不是载荷本身。
+    const fixedHits = evs(r2, "damage").filter((e) => e.detail.side === "p2" && e.detail.damageKind === "fixed");
+    expect(fixedHits.some((e) => (e.detail.amount as number) >= healAmt)).toBe(true);
     expect(evs(r2, "effect-faded").some((e) => e.detail.name === "react")).toBe(true);
     // 回合3：窗尽——不再出现恢复量固伤
     const r3 = ok(applyTurn(PACK, r2.state, { p1: act("act_syn-strike"), p2: act("act_syn-strike") }));
-    expect(evs(r3, "damage").some((e) => e.detail.side === "p2" && e.detail.amount === healAmt && e.detail.damageKind === "fixed")).toBe(false);
+    expect(evs(r3, "damage").some((e) => e.detail.side === "p2" && e.detail.damageKind === "fixed")).toBe(false);
   });
 
   it("dmg_boost{count:1}：下次攻击伤害提升仅生效一击", () => {

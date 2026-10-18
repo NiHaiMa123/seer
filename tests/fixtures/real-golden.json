@@ -7,9 +7,9 @@
       "type": "电",
       "skills": [
         "抓",
+        "充电",
         "风驰电掣",
-        "雷电击",
-        "闪光击"
+        "雷电击"
       ],
       "unparsed": []
     },
@@ -51,13 +51,13 @@
     }
   ],
   "summary": {
-    "turns": 20,
+    "turns": 26,
     "terminal": {
       "result": "p1",
       "reason": "ko"
     },
     "hp": {
-      "p1": 405,
+      "p1": 228,
       "p2": 0
     }
   },
@@ -75,32 +75,15 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-1",
-        "ppAfter": 34
+        "ppAfter": 19
       }
     },
     {
-      "type": "rng-draw",
+      "type": "effect-applied",
       "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 254
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 59,
-        "hpAfter": {
-          "current": 330,
-          "max": 389
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical"
+        "side": "p1",
+        "name": "dmg_boost",
+        "turns": 1
       }
     },
     {
@@ -126,7 +109,7 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 253
+        "value": 254
       }
     },
     {
@@ -157,7 +140,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-2",
-        "ppAfter": 39
+        "ppAfter": 34
       }
     },
     {
@@ -167,22 +150,22 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 227
+        "value": 253
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 40,
+        "amount": 59,
         "hpAfter": {
-          "current": 290,
+          "current": 330,
           "max": 389
         },
         "eff16": 16,
-        "stab": true,
-        "moveType": "电",
-        "category": "special"
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
       }
     },
     {
@@ -211,6 +194,13 @@
       }
     },
     {
+      "type": "effect-faded",
+      "detail": {
+        "side": "p1",
+        "name": "dmg_boost"
+      }
+    },
+    {
       "type": "action-declared",
       "detail": {
         "side": "p1",
@@ -223,7 +213,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-3",
-        "ppAfter": 34
+        "ppAfter": 39
       }
     },
     {
@@ -233,22 +223,22 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 250
+        "value": 249
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 70,
+        "amount": 43,
         "hpAfter": {
-          "current": 220,
+          "current": 287,
           "max": 389
         },
         "eff16": 16,
         "stab": true,
         "moveType": "电",
-        "category": "physical"
+        "category": "special"
       }
     },
     {
@@ -274,16 +264,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 246
+        "value": 250
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p1",
-        "amount": 36,
+        "amount": 37,
         "hpAfter": {
-          "current": 333,
+          "current": 332,
           "max": 443
         },
         "eff16": 16,
@@ -315,16 +305,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 233
+        "value": 246
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 30,
+        "amount": 31,
         "hpAfter": {
-          "current": 190,
+          "current": 256,
           "max": 389
         },
         "eff16": 16,
@@ -371,32 +361,15 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-1",
-        "ppAfter": 33
+        "ppAfter": 18
       }
     },
     {
-      "type": "rng-draw",
+      "type": "effect-applied",
       "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 224
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 36,
-        "hpAfter": {
-          "current": 154,
-          "max": 389
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical"
+        "side": "p1",
+        "name": "dmg_boost",
+        "turns": 1
       }
     },
     {
@@ -422,16 +395,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 242
+        "value": 246
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p1",
-        "amount": 73,
+        "amount": 74,
         "hpAfter": {
-          "current": 260,
+          "current": 258,
           "max": 443
         },
         "eff16": 16,
@@ -453,7 +426,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-2",
-        "ppAfter": 38
+        "ppAfter": 33
       }
     },
     {
@@ -463,22 +436,22 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 227
+        "value": 224
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 40,
+        "amount": 36,
         "hpAfter": {
-          "current": 114,
+          "current": 220,
           "max": 389
         },
         "eff16": 16,
-        "stab": true,
-        "moveType": "电",
-        "category": "special"
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
       }
     },
     {
@@ -507,6 +480,13 @@
       }
     },
     {
+      "type": "effect-faded",
+      "detail": {
+        "side": "p1",
+        "name": "dmg_boost"
+      }
+    },
+    {
       "type": "action-declared",
       "detail": {
         "side": "p1",
@@ -519,7 +499,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-3",
-        "ppAfter": 33
+        "ppAfter": 38
       }
     },
     {
@@ -529,22 +509,22 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 222
+        "value": 227
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 47,
+        "amount": 40,
         "hpAfter": {
-          "current": 67,
+          "current": 180,
           "max": 389
         },
         "eff16": 16,
         "stab": true,
         "moveType": "电",
-        "category": "physical"
+        "category": "special"
       }
     },
     {
@@ -570,16 +550,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 235
+        "value": 218
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p1",
-        "amount": 51,
+        "amount": 47,
         "hpAfter": {
-          "current": 209,
+          "current": 211,
           "max": 443
         },
         "eff16": 16,
@@ -611,16 +591,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 242
+        "value": 222
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 23,
+        "amount": 21,
         "hpAfter": {
-          "current": 44,
+          "current": 159,
           "max": 389
         },
         "eff16": 16,
@@ -667,32 +647,15 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-1",
-        "ppAfter": 32
+        "ppAfter": 17
       }
     },
     {
-      "type": "rng-draw",
+      "type": "effect-applied",
       "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 232
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 28,
-        "hpAfter": {
-          "current": 16,
-          "max": 389
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical"
+        "side": "p1",
+        "name": "dmg_boost",
+        "turns": 1
       }
     },
     {
@@ -718,16 +681,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 250
+        "value": 242
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p1",
-        "amount": 74,
+        "amount": 73,
         "hpAfter": {
-          "current": 135,
+          "current": 138,
           "max": 443
         },
         "eff16": 16,
@@ -749,6 +712,79 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3142-2",
+        "ppAfter": 32
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 232
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 28,
+        "hpAfter": {
+          "current": 131,
+          "max": 389
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-1845-3",
+        "moveId": "mv-1845-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-1845-3",
+        "ppAfter": 17
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "def",
+        "deltaApplied": 1,
+        "stageAfter": 3
+      }
+    },
+    {
+      "type": "effect-faded",
+      "detail": {
+        "side": "p1",
+        "name": "dmg_boost"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3142-3",
+        "moveId": "mv-3142-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3142-3",
         "ppAfter": 37
       }
     },
@@ -768,7 +804,7 @@
         "side": "p2",
         "amount": 40,
         "hpAfter": {
-          "current": 0,
+          "current": 91,
           "max": 389
         },
         "eff16": 16,
@@ -778,34 +814,19 @@
       }
     },
     {
-      "type": "ko",
-      "detail": {
-        "side": "p2"
-      }
-    },
-    {
-      "type": "switch",
-      "detail": {
-        "side": "p2",
-        "outUnitId": "unit_p2",
-        "inUnitId": "unit_p2-b0",
-        "via": "replacement"
-      }
-    },
-    {
       "type": "action-declared",
       "detail": {
-        "side": "p1",
-        "actionId": "act_mv-3142-3",
-        "moveId": "mv-3142-3"
+        "side": "p2",
+        "actionId": "act_mv-1845-0",
+        "moveId": "mv-1845-0"
       }
     },
     {
       "type": "pp-spent",
       "detail": {
-        "side": "p1",
-        "moveId": "mv-3142-3",
-        "ppAfter": 32
+        "side": "p2",
+        "moveId": "mv-1845-0",
+        "ppAfter": 37
       }
     },
     {
@@ -821,51 +842,10 @@
     {
       "type": "damage",
       "detail": {
-        "side": "p2",
-        "amount": 44,
-        "hpAfter": {
-          "current": 367,
-          "max": 411
-        },
-        "eff16": 8,
-        "stab": true,
-        "moveType": "电",
-        "category": "physical"
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p2",
-        "actionId": "act_mv-3050-0",
-        "moveId": "mv-3050-0"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p2",
-        "moveId": "mv-3050-0",
-        "ppAfter": 34
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 218
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
         "side": "p1",
-        "amount": 18,
+        "amount": 66,
         "hpAfter": {
-          "current": 117,
+          "current": 72,
           "max": 443
         },
         "eff16": 16,
@@ -897,16 +877,587 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 219
+        "value": 218
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 38,
+        "amount": 17,
         "hpAfter": {
-          "current": 329,
+          "current": 74,
+          "max": 389
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-1845-1",
+        "moveId": "mv-1845-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-1845-1",
+        "ppAfter": 37
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "atk",
+        "deltaApplied": 1,
+        "stageAfter": 3
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3142-1",
+        "moveId": "mv-3142-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3142-1",
+        "ppAfter": 16
+      }
+    },
+    {
+      "type": "effect-applied",
+      "detail": {
+        "side": "p1",
+        "name": "dmg_boost",
+        "turns": 1
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-1845-2",
+        "moveId": "mv-1845-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-1845-2",
+        "ppAfter": 21
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 219
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 71,
+        "hpAfter": {
+          "current": 1,
+          "max": 443
+        },
+        "eff16": 16,
+        "stab": true,
+        "moveType": "战斗",
+        "category": "special"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3142-2",
+        "moveId": "mv-3142-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3142-2",
+        "ppAfter": 31
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 241
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 23,
+        "hpAfter": {
+          "current": 51,
+          "max": 389
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-1845-3",
+        "moveId": "mv-1845-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-1845-3",
+        "ppAfter": 16
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "def",
+        "deltaApplied": 1,
+        "stageAfter": 4
+      }
+    },
+    {
+      "type": "effect-faded",
+      "detail": {
+        "side": "p1",
+        "name": "dmg_boost"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3142-3",
+        "moveId": "mv-3142-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3142-3",
+        "ppAfter": 36
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 249
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 43,
+        "hpAfter": {
+          "current": 8,
+          "max": 389
+        },
+        "eff16": 16,
+        "stab": true,
+        "moveType": "电",
+        "category": "special"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-1845-0",
+        "moveId": "mv-1845-0"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-1845-0",
+        "ppAfter": 36
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 223
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 80,
+        "hpAfter": {
+          "current": 0,
+          "max": 443
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "ko",
+      "detail": {
+        "side": "p1"
+      }
+    },
+    {
+      "type": "switch",
+      "detail": {
+        "side": "p1",
+        "outUnitId": "unit_p1",
+        "inUnitId": "unit_p1-b0",
+        "via": "replacement"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-0",
+        "moveId": "mv-3327-0"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-0",
+        "ppAfter": 34
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 222
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 14,
+        "hpAfter": {
+          "current": 0,
+          "max": 389
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "ko",
+      "detail": {
+        "side": "p2"
+      }
+    },
+    {
+      "type": "switch",
+      "detail": {
+        "side": "p2",
+        "outUnitId": "unit_p2",
+        "inUnitId": "unit_p2-b0",
+        "via": "replacement"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-1",
+        "moveId": "mv-3327-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-1",
+        "ppAfter": 39
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "atk",
+        "deltaApplied": 1,
+        "stageAfter": 1
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3050-2",
+        "moveId": "mv-3050-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3050-2",
+        "ppAfter": 34
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 251
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 47,
+        "hpAfter": {
+          "current": 402,
+          "max": 449
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "special"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-2",
+        "moveId": "mv-3327-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-2",
+        "ppAfter": 39
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 220
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 72,
+        "hpAfter": {
+          "current": 339,
+          "max": 411
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3050-3",
+        "moveId": "mv-3050-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3050-3",
+        "ppAfter": 9
+      }
+    },
+    {
+      "type": "effect-applied",
+      "detail": {
+        "side": "p2",
+        "name": "crit_always",
+        "turns": 2
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-3",
+        "moveId": "mv-3327-3"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-3",
+        "ppAfter": 29
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 246
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 35,
+        "hpAfter": {
+          "current": 304,
+          "max": 411
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "冰",
+        "category": "special"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3050-0",
+        "moveId": "mv-3050-0"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3050-0",
+        "ppAfter": 34
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 221
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 39,
+        "hpAfter": {
+          "current": 363,
+          "max": 449
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical",
+        "crit": true
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-0",
+        "moveId": "mv-3327-0"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-0",
+        "ppAfter": 33
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 244
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 64,
+        "hpAfter": {
+          "current": 240,
           "max": 411
         },
         "eff16": 16,
@@ -941,302 +1492,6 @@
       }
     },
     {
-      "type": "action-declared",
-      "detail": {
-        "side": "p1",
-        "actionId": "act_mv-3142-1",
-        "moveId": "mv-3142-1"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p1",
-        "moveId": "mv-3142-1",
-        "ppAfter": 31
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 241
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 52,
-        "hpAfter": {
-          "current": 277,
-          "max": 411
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical"
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p2",
-        "actionId": "act_mv-3050-2",
-        "moveId": "mv-3050-2"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p2",
-        "moveId": "mv-3050-2",
-        "ppAfter": 34
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 232
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p1",
-        "amount": 41,
-        "hpAfter": {
-          "current": 76,
-          "max": 443
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "special"
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p1",
-        "actionId": "act_mv-3142-2",
-        "moveId": "mv-3142-2"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p1",
-        "moveId": "mv-3142-2",
-        "ppAfter": 36
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 249
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 19,
-        "hpAfter": {
-          "current": 258,
-          "max": 411
-        },
-        "eff16": 8,
-        "stab": true,
-        "moveType": "电",
-        "category": "special"
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p2",
-        "actionId": "act_mv-3050-3",
-        "moveId": "mv-3050-3"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p2",
-        "moveId": "mv-3050-3",
-        "ppAfter": 9
-      }
-    },
-    {
-      "type": "effect-applied",
-      "detail": {
-        "side": "p2",
-        "name": "crit_always",
-        "turns": 2
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p1",
-        "actionId": "act_mv-3142-3",
-        "moveId": "mv-3142-3"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p1",
-        "moveId": "mv-3142-3",
-        "ppAfter": 31
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 223
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 42,
-        "hpAfter": {
-          "current": 216,
-          "max": 411
-        },
-        "eff16": 8,
-        "stab": true,
-        "moveType": "电",
-        "category": "physical"
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p2",
-        "actionId": "act_mv-3050-0",
-        "moveId": "mv-3050-0"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p2",
-        "moveId": "mv-3050-0",
-        "ppAfter": 33
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 222
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p1",
-        "amount": 38,
-        "hpAfter": {
-          "current": 38,
-          "max": 443
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical",
-        "crit": true
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p1",
-        "actionId": "act_mv-3142-0",
-        "moveId": "mv-3142-0"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p1",
-        "moveId": "mv-3142-0",
-        "ppAfter": 31
-      }
-    },
-    {
-      "type": "rng-draw",
-      "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 251
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 44,
-        "hpAfter": {
-          "current": 172,
-          "max": 411
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical"
-      }
-    },
-    {
-      "type": "action-declared",
-      "detail": {
-        "side": "p2",
-        "actionId": "act_mv-3050-1",
-        "moveId": "mv-3050-1"
-      }
-    },
-    {
-      "type": "pp-spent",
-      "detail": {
-        "side": "p2",
-        "moveId": "mv-3050-1",
-        "ppAfter": 28
-      }
-    },
-    {
-      "type": "stat-stage",
-      "detail": {
-        "side": "p2",
-        "stat": "acc",
-        "deltaApplied": 1,
-        "stageAfter": 2
-      }
-    },
-    {
       "type": "effect-faded",
       "detail": {
         "side": "p2",
@@ -1247,41 +1502,25 @@
       "type": "action-declared",
       "detail": {
         "side": "p1",
-        "actionId": "act_mv-3142-1",
-        "moveId": "mv-3142-1"
+        "actionId": "act_mv-3327-1",
+        "moveId": "mv-3327-1"
       }
     },
     {
       "type": "pp-spent",
       "detail": {
         "side": "p1",
-        "moveId": "mv-3142-1",
-        "ppAfter": 30
+        "moveId": "mv-3327-1",
+        "ppAfter": 38
       }
     },
     {
-      "type": "rng-draw",
+      "type": "stat-stage",
       "detail": {
-        "purpose": "damage_roll"
-      },
-      "rngDraw": {
-        "purpose": "damage_roll",
-        "value": 220
-      }
-    },
-    {
-      "type": "damage",
-      "detail": {
-        "side": "p2",
-        "amount": 48,
-        "hpAfter": {
-          "current": 124,
-          "max": 411
-        },
-        "eff16": 16,
-        "stab": false,
-        "moveType": "普通",
-        "category": "physical"
+        "side": "p1",
+        "stat": "atk",
+        "deltaApplied": 1,
+        "stageAfter": 2
       }
     },
     {
@@ -1307,37 +1546,22 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 246
+        "value": 243
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p1",
-        "amount": 44,
+        "amount": 45,
         "hpAfter": {
-          "current": 0,
-          "max": 443
+          "current": 318,
+          "max": 449
         },
         "eff16": 16,
         "stab": false,
         "moveType": "普通",
         "category": "special"
-      }
-    },
-    {
-      "type": "ko",
-      "detail": {
-        "side": "p1"
-      }
-    },
-    {
-      "type": "switch",
-      "detail": {
-        "side": "p1",
-        "outUnitId": "unit_p1",
-        "inUnitId": "unit_p1-b0",
-        "via": "replacement"
       }
     },
     {
@@ -1353,7 +1577,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3327-2",
-        "ppAfter": 39
+        "ppAfter": 38
       }
     },
     {
@@ -1363,16 +1587,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 239
+        "value": 236
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 52,
+        "amount": 102,
         "hpAfter": {
-          "current": 72,
+          "current": 138,
           "max": 411
         },
         "eff16": 16,
@@ -1418,7 +1642,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3327-3",
-        "ppAfter": 29
+        "ppAfter": 28
       }
     },
     {
@@ -1428,16 +1652,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 221
+        "value": 233
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 32,
+        "amount": 33,
         "hpAfter": {
-          "current": 40,
+          "current": 105,
           "max": 411
         },
         "eff16": 16,
@@ -1459,7 +1683,7 @@
       "detail": {
         "side": "p2",
         "moveId": "mv-3050-0",
-        "ppAfter": 32
+        "ppAfter": 33
       }
     },
     {
@@ -1469,16 +1693,16 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 244
+        "value": 252
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p1",
-        "amount": 44,
+        "amount": 45,
         "hpAfter": {
-          "current": 405,
+          "current": 273,
           "max": 449
         },
         "eff16": 16,
@@ -1501,7 +1725,7 @@
       "detail": {
         "side": "p1",
         "moveId": "mv-3327-0",
-        "ppAfter": 34
+        "ppAfter": 32
       }
     },
     {
@@ -1511,14 +1735,153 @@
       },
       "rngDraw": {
         "purpose": "damage_roll",
-        "value": 243
+        "value": 225
       }
     },
     {
       "type": "damage",
       "detail": {
         "side": "p2",
-        "amount": 42,
+        "amount": 78,
+        "hpAfter": {
+          "current": 27,
+          "max": 411
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "physical"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3050-1",
+        "moveId": "mv-3050-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3050-1",
+        "ppAfter": 28
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p2",
+        "stat": "acc",
+        "deltaApplied": 1,
+        "stageAfter": 2
+      }
+    },
+    {
+      "type": "effect-faded",
+      "detail": {
+        "side": "p2",
+        "name": "crit_always"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-1",
+        "moveId": "mv-3327-1"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-1",
+        "ppAfter": 37
+      }
+    },
+    {
+      "type": "stat-stage",
+      "detail": {
+        "side": "p1",
+        "stat": "atk",
+        "deltaApplied": 1,
+        "stageAfter": 3
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p2",
+        "actionId": "act_mv-3050-2",
+        "moveId": "mv-3050-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p2",
+        "moveId": "mv-3050-2",
+        "ppAfter": 32
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 242
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p1",
+        "amount": 45,
+        "hpAfter": {
+          "current": 228,
+          "max": 449
+        },
+        "eff16": 16,
+        "stab": false,
+        "moveType": "普通",
+        "category": "special"
+      }
+    },
+    {
+      "type": "action-declared",
+      "detail": {
+        "side": "p1",
+        "actionId": "act_mv-3327-2",
+        "moveId": "mv-3327-2"
+      }
+    },
+    {
+      "type": "pp-spent",
+      "detail": {
+        "side": "p1",
+        "moveId": "mv-3327-2",
+        "ppAfter": 37
+      }
+    },
+    {
+      "type": "rng-draw",
+      "detail": {
+        "purpose": "damage_roll"
+      },
+      "rngDraw": {
+        "purpose": "damage_roll",
+        "value": 225
+      }
+    },
+    {
+      "type": "damage",
+      "detail": {
+        "side": "p2",
+        "amount": 121,
         "hpAfter": {
           "current": 0,
           "max": 411

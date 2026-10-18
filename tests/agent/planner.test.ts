@@ -103,7 +103,9 @@ describe("planner 接入 agent", () => {
     }
     expect(h.state.battle.terminal).not.toBeNull();
   });
-  it("BattleAgent policy=planner 完赛", () => {
+  // planner 每步都做一次 depth=1 搜索，整局最坏数百步；全量并发时 CPU 被其他测试
+  // 抢走会超过 vitest 默认 5s。显式放宽超时，不改被测语义。
+  it("BattleAgent policy=planner 完赛", { timeout: 120_000 }, () => {
     const h = mkHost({ p2: ["syn-epsilon"] });
     const a = new BattleAgent({ view: createReadOnlyView(h, "A") as AgentView, pack: PACK, submit: (c) => h.submit("A", c) as ReturnType<SubmitFn>, policy: "planner", planner: { depth: 1 } });
     const b = new BattleAgent({ view: createReadOnlyView(h, "B") as AgentView, pack: PACK, submit: (c) => h.submit("B", c) as ReturnType<SubmitFn>, policy: "planner", planner: { depth: 1 } });

@@ -72,7 +72,15 @@ export const damageOp: OpHandler = (ctx, fx) => {
   // powerDropPerHit：连击逐击威力衰减（"每次命中对手后此技能威力下降N点"——第 i 击 power-drop×i，经 calc pow 参数注入）
   const calc = (crit: boolean, pow = power): number => {
     // applyFormula fixed：selfHp 取当前体力，否则取威力。致命翻倍和 flatRange 占位留在这一行
-    if (kind === "fixed") { const p = applyFormula(ctx, prog.by.formula, "fixed", atkUnit.currentHp, prog.power); return crit ? p * 2 : applyFlat(ctx, prog.by.flat, "hidesPower") ? 0 : p; }
+    // flat.tail 段（flatSelfLastHeal / flatSelfLastDmgPct 这类）在 fixed 上同样要累加：
+    // "下次使用技能造成等同于恢复量的固定伤害"就是 damage{kind:fixed,power:0}+flat.tail，
+    // 只查 hidesPower 会让它恒为 0。
+    if (kind === "fixed") {
+      const p = applyFormula(ctx, prog.by.formula, "fixed", atkUnit.currentHp, prog.power);
+      if (crit) return p * 2;
+      if (applyFlat(ctx, prog.by.flat, "hidesPower")) return 0;
+      return p + applyFlat(ctx, prog.by.flat, "tail", hit, prog.target === "self", 1, prog.power, 0);
+    }
     // applyFormula percent：百分比这一击的数字
     if (kind === "percent") return applyFormula(ctx, prog.by.formula, "percent", hit, pow);
     // 缩放公式分派：机制钩子接管（如 six-stat 赛尔号公式）；全未接管 → legacy v1 公式。
