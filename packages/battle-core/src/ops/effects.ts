@@ -603,6 +603,21 @@ export function shieldFlatOf(u: UnitState): number {
 export type StatDiffStat = "atk" | "def" | "spa" | "sdf" | "spd" | "hp";
 
 /**
+ * 两维之和的百分比：floor((a + b) * pct / 100)。
+ *
+ * 语料 187 处、21 种组合（防御+特防 91、特攻+速度 13、体力+速度 10…），
+ * 引擎原来只有 defSumPct 写死「防御+特防」。这里做成通用读数，
+ * defSumPct 保留兼容（等价于 { a:"def", b:"sdf", pct:defSumPct }）。
+ */
+export function statSumPctOf(
+  u: UnitState,
+  spec: { a: StatDiffStat; b: StatDiffStat; pct: number } | undefined,
+): number {
+  if (spec === undefined) return 0;
+  return Math.floor(((u.base[spec.a] ?? 0) + (u.base[spec.b] ?? 0)) * spec.pct / 100);
+}
+
+/**
  * |自身该维 - 对手该维|，按可选分母取整。
  *
  * 4 只魂印（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索）都用 "n = 双方某维之差"

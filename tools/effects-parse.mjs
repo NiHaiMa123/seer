@@ -1376,6 +1376,21 @@ function parseEffectTextAtExit(text, opts = {}) {
       }
       parts = merged;
     }
+    // 「X、Y之和N%」续接：两维名之间的顿号被当成子句分隔切开了。
+    // 前段形如「…恢复自身<维度>」或「…附加自身<维度>」，后段形如「<维度>(值)之和N%…」。
+    {
+      const statSumHead = /^(?:恢复|回复|附加)(?:相当于)?(?:自身|自己|对手|对方)?(?:攻击|特攻|防御|特防|速度|体力|最大体力|生命)(?:值)?$/;
+      const statSumTail = /^(?:攻击|特攻|防御|特防|速度|体力|最大体力|生命)(?:值)?(?:之)?(?:和|总和)\d+%/;
+      const merged = [];
+      for (const p of parts) {
+        const last = merged[merged.length - 1];
+        const bare = p.replace(/^\x01/, "");
+        if (last !== undefined && statSumHead.test(last.replace(/^\x01/, "")) && statSumTail.test(bare)) {
+          merged[merged.length - 1] = `${last}、${bare}`;
+        } else merged.push(p);
+      }
+      parts = merged;
+    }
     // 先制为0 门控续接：「双方每有1方精灵先制为0，对手下1回合所有技能先制-1」
     // 被逗号切成条件句 + 效果句。条件本身不产效果，拼回去让
     // attach-damage-115z 一次吃完（否则条件句会单独留档）。

@@ -457,8 +457,18 @@
         "hpBelowTurnStartFrac": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["numerator", "denominator"],
-          "properties": { "numerator": { "type": "integer" }, "denominator": { "type": "integer" } },
+          "required": [
+            "numerator",
+            "denominator"
+          ],
+          "properties": {
+            "numerator": {
+              "type": "integer"
+            },
+            "denominator": {
+              "type": "integer"
+            }
+          },
           "description": "当前体力 < 回合开始快照×n/d（'体力低于当回合开始时的50%则X'）"
         },
         "hpAboveTurnStart": {
@@ -519,11 +529,23 @@
         "selfStageSumAboveFoe": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["stats"],
+          "required": [
+            "stats"
+          ],
           "properties": {
             "stats": {
               "type": "array",
-              "items": { "enum": ["atk", "def", "spa", "sdf", "spd", "acc", "crt"] },
+              "items": {
+                "enum": [
+                  "atk",
+                  "def",
+                  "spa",
+                  "sdf",
+                  "spd",
+                  "acc",
+                  "crt"
+                ]
+              },
               "minItems": 1
             }
           },
@@ -532,11 +554,23 @@
         "selfStageSumBelowFoe": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["stats"],
+          "required": [
+            "stats"
+          ],
           "properties": {
             "stats": {
               "type": "array",
-              "items": { "enum": ["atk", "def", "spa", "sdf", "spd", "acc", "crt"] },
+              "items": {
+                "enum": [
+                  "atk",
+                  "def",
+                  "spa",
+                  "sdf",
+                  "spd",
+                  "acc",
+                  "crt"
+                ]
+              },
               "minItems": 1
             }
           },
@@ -545,8 +579,17 @@
         "ppFullAny": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["on"],
-          "properties": { "on": { "enum": ["self", "foe"] } },
+          "required": [
+            "on"
+          ],
+          "properties": {
+            "on": {
+              "enum": [
+                "self",
+                "foe"
+              ]
+            }
+          },
           "description": "存在 PP 为满的技能槽（'若自身存在技能PP值为满则'）"
         },
         "nullifiedCatMask": {
@@ -706,11 +749,21 @@
         "statDiffAbove": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["stat", "atLeast"],
+          "required": [
+            "stat",
+            "atLeast"
+          ],
           "properties": {
             "stat": {
               "type": "string",
-              "enum": ["atk", "def", "spa", "sdf", "spd", "hp"]
+              "enum": [
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd",
+                "hp"
+              ]
             },
             "atLeast": {
               "type": "integer"
@@ -1161,7 +1214,10 @@
           },
           "targetScope": {
             "type": "string",
-            "enum": ["anyAlly", "any"]
+            "enum": [
+              "anyAlly",
+              "any"
+            ]
           },
           "ppFreeIf": {
             "$ref": "#/definitions/condition"
@@ -1391,8 +1447,7 @@
                 },
                 "flatPerRemoved": {
                   "type": "integer",
-                  "minimum": 1,
-                  "description": "按刚被清除的能力等级段数附加固伤（'若自身强化被消除，每消除1项附加N点'——react trigger7 语境）"
+                  "minimum": 1
                 },
                 "mulPerMark": {
                   "$ref": "#/definitions/markScale"
@@ -1403,12 +1458,23 @@
                 "pctPerAilTurn": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["pct", "per"],
+                  "required": [
+                    "pct",
+                    "per"
+                  ],
                   "properties": {
-                    "ail": { "type": "string" },
-                    "pct": { "type": "number" },
-                    "per": { "type": "number" },
-                    "cap": { "type": "number" }
+                    "ail": {
+                      "type": "string"
+                    },
+                    "pct": {
+                      "type": "number"
+                    },
+                    "per": {
+                      "type": "number"
+                    },
+                    "cap": {
+                      "type": "number"
+                    }
                   },
                   "description": "按目标指定异常剩余回合数×pct 烘焙 params.pct（'每有1回合流血伤害提升15%最高90%'）"
                 },
@@ -1891,17 +1957,25 @@
                 "foeEchoIf": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["when"],
+                  "required": [
+                    "when"
+                  ],
                   "properties": {
-                    "when": { "$ref": "#/definitions/condition" }
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    }
                   }
                 },
                 "selfEchoIf": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["when"],
+                  "required": [
+                    "when"
+                  ],
                   "properties": {
-                    "when": { "$ref": "#/definitions/condition" }
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    }
                   }
                 },
                 "missing": {
@@ -1959,11 +2033,23 @@
                 "perBelowAbs": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["threshold", "per", "add"],
+                  "required": [
+                    "threshold",
+                    "per",
+                    "add"
+                  ],
                   "properties": {
-                    "threshold": { "type": "integer" },
-                    "per": { "type": "integer", "minimum": 1 },
-                    "add": { "type": "integer", "minimum": 1 }
+                    "threshold": {
+                      "type": "integer"
+                    },
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
                   },
                   "description": "低于绝对阈值逐点回复（'自身体力低于500点则每低1点恢复1点'——floor((threshold-hp)/per)*add）"
                 },
@@ -2496,10 +2582,6 @@
                       "minimum": 1
                     }
                   }
-                },
-                "flatPerRemoved": {
-                  "type": "integer",
-                  "minimum": 1
                 },
                 "onClear": {
                   "type": "object",
@@ -3058,10 +3140,19 @@
                 "powerPerAliveDiff": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["per", "add"],
+                  "required": [
+                    "per",
+                    "add"
+                  ],
                   "properties": {
-                    "per": { "type": "integer", "minimum": 1 },
-                    "add": { "type": "integer", "minimum": 1 }
+                    "per": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "add": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
                   }
                 },
                 "powerPerMissing": {
@@ -3287,9 +3378,13 @@
                 "drainEchoIf": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["when"],
+                  "required": [
+                    "when"
+                  ],
                   "properties": {
-                    "when": { "$ref": "#/definitions/condition" }
+                    "when": {
+                      "$ref": "#/definitions/condition"
+                    }
                   }
                 },
                 "drainIf": {
@@ -3577,20 +3672,6 @@
                   "const": true,
                   "description": "偷盾（'消除并获得对手的护盾、护罩'）——被移除的盾罩按种类与剩余 flat 转移给行动方"
                 },
-                "onClear": {
-                  "type": "object",
-                  "additionalProperties": false,
-                  "properties": {
-                    "flat": {
-                      "type": "integer",
-                      "minimum": 1
-                    },
-                    "ppZeroFoe": {
-                      "type": "integer",
-                      "minimum": 1
-                    }
-                  }
-                },
                 "random": {
                   "type": "object",
                   "additionalProperties": false,
@@ -3693,6 +3774,44 @@
                   "type": "integer",
                   "minimum": 2,
                   "description": "statDiff 的分母（\"n/200回合\"这类取整）"
+                },
+                "statSumPct": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "a",
+                    "b",
+                    "pct"
+                  ],
+                  "properties": {
+                    "a": {
+                      "type": "string",
+                      "enum": [
+                        "atk",
+                        "def",
+                        "spa",
+                        "sdf",
+                        "spd",
+                        "hp"
+                      ]
+                    },
+                    "b": {
+                      "type": "string",
+                      "enum": [
+                        "atk",
+                        "def",
+                        "spa",
+                        "sdf",
+                        "spd",
+                        "hp"
+                      ]
+                    },
+                    "pct": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "description": "两维之和的百分比（\"恢复自身攻击、特攻值之和40%的体力\"）"
                 },
                 "capFracN": {
                   "type": "integer",
@@ -3962,8 +4081,24 @@
                   "type": "object",
                   "additionalProperties": false,
                   "anyOf": [
-                    { "required": ["pct"], "properties": { "pct": true } },
-                    { "required": ["numerator", "denominator"], "properties": { "numerator": true, "denominator": true } }
+                    {
+                      "required": [
+                        "pct"
+                      ],
+                      "properties": {
+                        "pct": true
+                      }
+                    },
+                    {
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": true,
+                        "denominator": true
+                      }
+                    }
                   ],
                   "properties": {
                     "stat": {
@@ -3996,8 +4131,24 @@
                   "type": "object",
                   "additionalProperties": false,
                   "anyOf": [
-                    { "required": ["pct"], "properties": { "pct": true } },
-                    { "required": ["numerator", "denominator"], "properties": { "numerator": true, "denominator": true } }
+                    {
+                      "required": [
+                        "pct"
+                      ],
+                      "properties": {
+                        "pct": true
+                      }
+                    },
+                    {
+                      "required": [
+                        "numerator",
+                        "denominator"
+                      ],
+                      "properties": {
+                        "numerator": true,
+                        "denominator": true
+                      }
+                    }
                   ],
                   "properties": {
                     "stat": {
@@ -4159,14 +4310,40 @@
                     }
                   }
                 },
-                "step": { "type": "integer", "minimum": -10000, "maximum": 10000 },
-                "magCap": { "type": "integer", "minimum": -10000, "maximum": 10000 },
-                "point": { "const": true },
-                "resetOnCap": { "const": true },
-                "atCapMul": { "type": "number", "minimum": 0, "maximum": 100 },
-                "atCapNext": { "const": true },
-                "min": { "type": "integer", "minimum": 0, "maximum": 9 },
-                "max": { "type": "integer", "minimum": 0, "maximum": 9 }
+                "step": {
+                  "type": "integer",
+                  "minimum": -10000,
+                  "maximum": 10000
+                },
+                "magCap": {
+                  "type": "integer",
+                  "minimum": -10000,
+                  "maximum": 10000
+                },
+                "point": {
+                  "const": true
+                },
+                "resetOnCap": {
+                  "const": true
+                },
+                "atCapMul": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "atCapNext": {
+                  "const": true
+                },
+                "min": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9
+                },
+                "max": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9
+                }
               },
               "allOf": [
                 {
@@ -4235,8 +4412,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyFlatIfFoeImmune" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyFlatIfFoeImmune"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4246,8 +4429,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applySelfCostEcho" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applySelfCostEcho"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4257,8 +4446,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyRecoilFrac" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyRecoilFrac"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4268,8 +4463,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyFlatEcho" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyFlatEcho"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4279,8 +4480,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyFoeNextMaxHpAcc" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyFoeNextMaxHpAcc"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4290,8 +4497,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyShieldEcho" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyShieldEcho"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4301,8 +4514,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyFoeShieldEcho" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyFoeShieldEcho"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4312,8 +4531,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyTrueEcho" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyTrueEcho"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4324,8 +4549,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyHealOnHit" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyHealOnHit"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4335,8 +4566,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyFlatOnHit" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyFlatOnHit"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4346,8 +4583,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyAilmentOnHit" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyAilmentOnHit"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4357,8 +4600,14 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "applyStageOnHit" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "applyStageOnHit"
+                      }
+                    }
                   },
                   "then": {
                     "properties": {
@@ -4368,91 +4617,297 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "power" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "power"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["powerAdd", "powerDropPerHit", "powerMul", "powerMulPerUse", "powerMulPerUseCap", "powerPerAliveDiff", "powerPerFoeStage", "powerPerMissing", "powerPerSelfStage", "powerPerStageScale", "powerPerUse", "powerPerUseCap", "powerRange", "resetStacks", "scaleIf", "useCap"] },
+                      "of": {
+                        "enum": [
+                          "powerAdd",
+                          "powerDropPerHit",
+                          "powerMul",
+                          "powerMulPerUse",
+                          "powerMulPerUseCap",
+                          "powerPerAliveDiff",
+                          "powerPerFoeStage",
+                          "powerPerMissing",
+                          "powerPerSelfStage",
+                          "powerPerStageScale",
+                          "powerPerUse",
+                          "powerPerUseCap",
+                          "powerRange",
+                          "resetStacks",
+                          "scaleIf",
+                          "useCap"
+                        ]
+                      },
                       "value": true
                     }
                   }
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "formula" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "formula"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["forceStab", "forceStabIf", "frac", "fracIf", "fracRange", "kindIfImmune", "noResist", "percentBase", "percentSelfStatPct", "selfHp", "selfTradeFrac", "useBestOffense", "useFoeBestOffense"] },
+                      "of": {
+                        "enum": [
+                          "forceStab",
+                          "forceStabIf",
+                          "frac",
+                          "fracIf",
+                          "fracRange",
+                          "kindIfImmune",
+                          "noResist",
+                          "percentBase",
+                          "percentSelfStatPct",
+                          "selfHp",
+                          "selfTradeFrac",
+                          "useBestOffense",
+                          "useFoeBestOffense"
+                        ]
+                      },
                       "value": true
                     }
                   }
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "crit" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "crit"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["crit", "critChance", "critChanceFrac", "critChanceIf", "critIf", "critInitPct", "critPerUseCap", "critPerUsePct"] },
+                      "of": {
+                        "enum": [
+                          "crit",
+                          "critChance",
+                          "critChanceFrac",
+                          "critChanceIf",
+                          "critIf",
+                          "critInitPct",
+                          "critPerUseCap",
+                          "critPerUsePct"
+                        ]
+                      },
                       "value": true
                     }
                   }
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "scale" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "scale"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["dmgPctPerFoeAil", "dmgPctPerFoeDownStage", "dmgPctPerSelfAilTurn", "dmgPerUsePct", "dmgPerUsePctCap", "mul", "mulChance", "mulChancePerMark", "mulChancePerUse", "mulChanceUseCap", "mulIf", "mulPerMark", "mulRange", "pctPerSelfStage"] },
+                      "of": {
+                        "enum": [
+                          "dmgPctPerFoeAil",
+                          "dmgPctPerFoeDownStage",
+                          "dmgPctPerSelfAilTurn",
+                          "dmgPerUsePct",
+                          "dmgPerUsePctCap",
+                          "mul",
+                          "mulChance",
+                          "mulChancePerMark",
+                          "mulChancePerUse",
+                          "mulChanceUseCap",
+                          "mulIf",
+                          "mulPerMark",
+                          "mulRange",
+                          "pctPerSelfStage"
+                        ]
+                      },
                       "value": true
                     }
                   }
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "flat" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "flat"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["flatBonus", "flatBothStageUpCountMul", "flatChance", "flatDefStageMul", "flatFoeCurPct", "flatFoeCurPctPerUse", "flatFoeDefPct", "flatFoeDefSumPct", "flatFoeFrac", "flatFoeFracIf", "flatFoeLastDmg", "flatFoePpMissing", "flatFoeShieldPct", "flatFoeStageUpCountMul", "flatFoeStatPct", "flatHpDiffPct", "flatIf", "flatMaxHpDiffPct", "flatMul", "flatMulIf", "flatPerAilment", "flatPerDead", "flatPerFoeDead", "flatPerFoeMissing", "flatPerHpPct", "flatPerMark", "flatPerMatchedStage", "flatPerMissing", "flatPerPpZero", "flatPerRemoved", "flatPerStage", "flatPerTurn", "flatPerUse", "flatPerUseCap", "flatPowerMul", "flatPrevTakenPct", "flatPrevTurnTakenPct", "flatRange", "flatRangeIf", "flatRepIf", "flatSelfAtkPct", "flatSelfCurPct", "flatSelfDefSumPct", "flatSelfFrac", "flatSelfFracIf", "flatSelfLastDmgPct", "flatSelfLastHeal", "flatSelfLastTaken", "flatSelfOverflowPct", "flatSelfPct", "flatSelfShieldPct", "flatSelfSpdFrac", "flatSelfStatPct", "flatStackCap", "flatStageUpCountMul", "lastDmgFrac", "shieldAbsorbPct"] },
+                      "of": {
+                        "enum": [
+                          "flatBonus",
+                          "flatBothStageUpCountMul",
+                          "flatChance",
+                          "flatDefStageMul",
+                          "flatFoeCurPct",
+                          "flatFoeCurPctPerUse",
+                          "flatFoeDefPct",
+                          "flatFoeDefSumPct",
+                          "flatFoeFrac",
+                          "flatFoeFracIf",
+                          "flatFoeLastDmg",
+                          "flatFoePpMissing",
+                          "flatFoeShieldPct",
+                          "flatFoeStageUpCountMul",
+                          "flatFoeStatPct",
+                          "flatHpDiffPct",
+                          "flatIf",
+                          "flatMaxHpDiffPct",
+                          "flatMul",
+                          "flatMulIf",
+                          "flatPerAilment",
+                          "flatPerDead",
+                          "flatPerFoeDead",
+                          "flatPerFoeMissing",
+                          "flatPerHpPct",
+                          "flatPerMark",
+                          "flatPerMatchedStage",
+                          "flatPerMissing",
+                          "flatPerPpZero",
+                          "flatPerRemoved",
+                          "flatPerStage",
+                          "flatPerTurn",
+                          "flatPerUse",
+                          "flatPerUseCap",
+                          "flatPowerMul",
+                          "flatPrevTakenPct",
+                          "flatPrevTurnTakenPct",
+                          "flatRange",
+                          "flatRangeIf",
+                          "flatRepIf",
+                          "flatSelfAtkPct",
+                          "flatSelfCurPct",
+                          "flatSelfDefSumPct",
+                          "flatSelfFrac",
+                          "flatSelfFracIf",
+                          "flatSelfLastDmgPct",
+                          "flatSelfLastHeal",
+                          "flatSelfLastTaken",
+                          "flatSelfOverflowPct",
+                          "flatSelfPct",
+                          "flatSelfShieldPct",
+                          "flatSelfSpdFrac",
+                          "flatSelfStatPct",
+                          "flatStackCap",
+                          "flatStageUpCountMul",
+                          "lastDmgFrac",
+                          "shieldAbsorbPct"
+                        ]
+                      },
                       "value": true
                     }
                   }
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "cap" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "cap"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["cap", "flatIfBelow", "leaveHp", "matchSelfHp", "minDamage"] },
+                      "of": {
+                        "enum": [
+                          "cap",
+                          "flatIfBelow",
+                          "leaveHp",
+                          "matchSelfHp",
+                          "minDamage"
+                        ]
+                      },
                       "value": true
                     }
                   }
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "strike" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "strike"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of", "value"],
+                    "required": [
+                      "of",
+                      "value"
+                    ],
                     "properties": {
-                      "of": { "enum": ["consumeShield", "hits", "hitsNoDecay", "hitsPerPpGap", "hitsPerPrio", "hitsPerStage", "koIfHitsMax", "pierce", "pierceShield"] },
+                      "of": {
+                        "enum": [
+                          "consumeShield",
+                          "hits",
+                          "hitsNoDecay",
+                          "hitsPerPpGap",
+                          "hitsPerPrio",
+                          "hitsPerStage",
+                          "koIfHitsMax",
+                          "pierce",
+                          "pierceShield"
+                        ]
+                      },
                       "value": true
                     }
                   }
@@ -4885,7 +5340,16 @@
                         ],
                         "properties": {
                           "statDiff": true,
-                          "statDiffDenom": true
+                          "statDiffDenom": true,
+                          "statSumPct": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "statSumPct"
+                        ],
+                        "properties": {
+                          "statSumPct": true
                         }
                       },
                       {
@@ -5338,13 +5802,23 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "grow" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "grow"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["of"],
+                    "required": [
+                      "of"
+                    ],
                     "properties": {
-                      "of": { "const": "magnitude" },
+                      "of": {
+                        "const": "magnitude"
+                      },
                       "step": true,
                       "magCap": true,
                       "point": true,
@@ -5357,11 +5831,20 @@
                 },
                 {
                   "if": {
-                    "required": ["op"],
-                    "properties": { "op": { "const": "priority" } }
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "priority"
+                      }
+                    }
                   },
                   "then": {
-                    "required": ["min", "max"],
+                    "required": [
+                      "min",
+                      "max"
+                    ],
                     "properties": {
                       "min": true,
                       "max": true

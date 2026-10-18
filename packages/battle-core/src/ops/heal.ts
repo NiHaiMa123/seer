@@ -1,7 +1,7 @@
 /** ops/heal.ts —— heal：按最大体力分数回复（numerator/denominator）或固定值（flat）。 */
 import { EngineFault, OTHER } from "../types.ts";
 import type { SideId } from "../types.ts";
-import { noHealOn, healCutPctOf, healBoostPctOf, hpCapOf, effectDefOf, flatImmuneOn, statDiffOf } from "./effects.ts";
+import { noHealOn, healCutPctOf, healBoostPctOf, hpCapOf, effectDefOf, flatImmuneOn, statDiffOf, statSumPctOf } from "./effects.ts";
 import { condEval } from "./cond.ts";
 import { checkpoint } from "./shared.ts";
 import { fireReactive } from "./index.ts";
@@ -155,6 +155,8 @@ const healCore: OpHandler = (ctx, fx) => {
     // statDiff：恢复量 = |自身该维 - 对手该维|（"根据双方防御值之差n…②恢复n点体力"）
     : fx.statDiff !== undefined
     ? statDiffOf(unit, ctx.foe, fx.statDiff, fx.statDiffDenom)
+    : fx.statSumPct !== undefined
+    ? statSumPctOf(t, fx.statSumPct)
     : fx.perBelowAbs !== undefined
     ? Math.floor(Math.max(0, fx.perBelowAbs.threshold - t.currentHp) / Math.max(1, fx.perBelowAbs.per)) * fx.perBelowAbs.add
     : fx.foeLastHealPct !== undefined
