@@ -596,13 +596,35 @@ export function shieldFlatOf(u: UnitState): number {
   return v;
 }
 
-/** 承伤固定减免合计（dmgReduceFlat flag；params.flat 加算；params 门控同 dmgTakenDown）。 */
+/** 双方某维数值差的幅值键（"根据双方X值之差n触发…"——n 的读数来源）。 */
+export type StatDiffStat = "atk" | "def" | "spa" | "sdf" | "spd" | "hp";
+
+/**
+ * |自身该维 - 对手该维|，按可选分母取整。
+ *
+ * 4 只魂印（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索）都用 "n = 双方某维之差"
+ * 作为多个效果的共同幅值。引擎不引入局部变量作用域，改为让每个 op 各自带
+ * statDiff 读数：同回合内两侧面板相同，语义等价，且每个 op 独立可测。
+ */
+export function statDiffOf(u: UnitState, foe: UnitState | undefined, stat: StatDiffStat, denom?: number): number {
+  if (foe === undefined) return 0;
+  const a = u.base[stat] ?? 0;
+  const b = foe.base[stat] ?? 0;
+  const d = Math.abs(a - b);
+  return denom !== undefined && denom > 1 ? Math.floor(d / denom) : d;
+}
+
+/** 承伤固定减免合计（dmgReduceFlat flag；params.flat 加算；params.statDiff 读双方该维数值差）。 */
 export function dmgReduceFlatOf(u: UnitState, foe?: UnitState, kind?: string): number {
   let v = 0;
   for (const e of u.effects) {
     if (!isMod(e, "dmgReduceFlat")) continue;
     if (!statusGateOk(e, u, foe, kind)) continue;
-    v += e.params?.flat ?? 0;
+    // statDiff 可落在条目顶层（apply_status 的 params 限 number）或 params 内
+    const sd = (e as { statDiff?: unknown }).statDiff ?? e.params?.statDiff;
+    const sdDenom = (e as { statDiffDenom?: number }).statDiffDenom ?? e.params?.statDiffDenom;
+    if (typeof sd === "string") v += statDiffOf(u, foe, sd as StatDiffStat, sdDenom);
+    else v += e.params?.flat ?? 0;
   }
   return v;
 }
@@ -737,6 +759,12 @@ export function dmgOutPctOf(u: UnitState, foe?: UnitState, rng?: { drawBelow: (n
     if (e.params?.perHpDiffEvery !== undefined && e.params?.perHpDiffPct !== undefined) {
       const diff = foe !== undefined ? Math.abs(u.currentHp - foe.currentHp) : 0;
       pct += Math.min(Math.floor(diff / Math.max(1, e.params.perHpDiffEvery)) * e.params.perHpDiffPct, e.params.perStageCap ?? Number.MAX_SAFE_INTEGER);
+      continue;
+    }
+    // statDiff 可落在条目顶层（apply_status 的 params 限 number）或 params 内
+    const sdv = (e as { statDiff?: unknown }).statDiff ?? e.params?.statDiff;
+    if (typeof sdv === "string") {
+      pct += statDiffOf(u, foe, sdv as StatDiffStat, (e as { statDiffDenom?: number }).statDiffDenom ?? e.params?.statDiffDenom);
       continue;
     }
     // 护盾点数步进 ×pct（"双方每有5点护盾伤害提升1%"——perShieldWho: 1=self 2=foe 3=both 缺省 both；perStageCap 封顶）

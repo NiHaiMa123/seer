@@ -39,6 +39,8 @@ export const WIN = {
 
 /** flat / flatMin-Max / flatPerStageFlat / n:d(+cur) → hp_delta 量字段。 */
 const dmgAmt = (p: P): Partial<CompiledEffect & { op: "hp_delta" }> => {
+  // statDiff 优先：幅值=|自身该维-对手该维|（"根据双方速度值之差n…附加n点固定伤害"）
+  if (typeof p.statDiff === "string") return { statDiff: p.statDiff, ...(p.statDiffDenom !== undefined ? { statDiffDenom: p.statDiffDenom } : {}) } as Partial<CompiledEffect & { op: "hp_delta" }>;
   if (p.flat !== undefined) return { flat: p.flat };
   if (p.flatMin !== undefined && p.flatMax !== undefined) return { flatRange: { min: p.flatMin, max: p.flatMax } };
   if (p.flatPerStageFlat !== undefined) {
@@ -99,7 +101,13 @@ export function periodicFormOf(fx: Fx): { params: P; payload: CompiledEffect[] }
   // periodic flag = "该名在 apply_status 挂载时脱糖为 periodic"——STATUS_DEFS 声明位，
   // 无 flag 的名原样落地（name:"periodic" 直写形态走 default 分支按原样挂载）。
   if (effectDefOf(fx.name)?.periodic !== "params") return undefined;
-  const p = fx.params ?? {};
+  // statDiff 可能落在 op 顶层（apply_status 的 params 限 number）——并入 p 供 dmgAmt 读取
+  const fxTop = fx as unknown as { statDiff?: string; statDiffDenom?: number };
+  const p = {
+    ...(fx.params ?? {}),
+    ...(fxTop.statDiff !== undefined ? { statDiff: fxTop.statDiff } : {}),
+    ...(fxTop.statDiffDenom !== undefined ? { statDiffDenom: fxTop.statDiffDenom } : {}),
+  } as P;
   const base = (win: number, payload: CompiledEffect[], extra: P = {}): { params: P; payload: CompiledEffect[] } =>
     ({ params: { win, ...extra }, payload });
   switch (fx.name) {

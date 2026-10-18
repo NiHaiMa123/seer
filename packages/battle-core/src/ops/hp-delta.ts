@@ -1,7 +1,7 @@
 /** ops/hp-delta.ts —— hp_delta：直接增减 HP（tick/dot/吸取类），不走招式伤害管线（无护盾/克制/骑手/onDamaged）。 */
 import { EngineFault, OTHER } from "../types.ts";
 import { checkpoint } from "./shared.ts";
-import { flatImmuneOn, hpCapOf } from "./effects.ts";
+import { flatImmuneOn, hpCapOf, statDiffOf } from "./effects.ts";
 import type { OpHandler } from "./types.ts";
 
 /**
@@ -18,7 +18,9 @@ export const hpDeltaOp: OpHandler = (ctx, fx) => {
   const tSide = fx.target === "self" ? side : ctx.targetSide;
   const label = ctx.statusLabel ?? "hp_delta";
   const cause = fx.cause ?? `status:${label}`;
-  let amt = fx.flat !== undefined ? fx.flat
+  // statDiff：幅值 = |自身该维 - 对手该维|（"根据双方速度值之差n…附加n点固定伤害"）
+  let amt = fx.statDiff !== undefined ? statDiffOf(unit, ctx.foe, fx.statDiff, fx.statDiffDenom)
+    : fx.flat !== undefined ? fx.flat
     : fx.flatRange !== undefined ? fx.flatRange.min + rng.drawBelow(Math.max(1, fx.flatRange.max - fx.flatRange.min + 1), `tick_range:${label}`)
     : fx.selfStageFlat !== undefined
       ? Math.floor(Object.values(unit.stages).filter((v) => (fx.selfStageFlat!.sign ?? "up") === "up" ? v > 0 : v < 0).length / Math.max(1, fx.selfStageFlat.per)) * fx.selfStageFlat.flat

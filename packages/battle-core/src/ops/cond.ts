@@ -3,7 +3,7 @@
  * HP 比较用 currentHp·den ? numerator·maxHp，无浮点。
  */
 import type { Condition } from "../loader.ts";
-import { effectDefOf, shieldFlatOf, flatImmuneOn, battleTypesOf } from "./effects.ts";
+import { effectDefOf, shieldFlatOf, flatImmuneOn, battleTypesOf, statDiffOf } from "./effects.ts";
 import { markCount, fieldMarkKinds } from "./mark.ts";
 import { OTHER } from "../types.ts";
 import { stageKeysFor } from "../mechanics/index.ts";
@@ -283,6 +283,12 @@ export function condEval(c: OpCtx, cond: Condition): boolean {
   if ("prioZero" in cond) {
     const v = c.unit.turnPrio ?? c.move?.priority ?? 0;
     return v === 0;
+  }
+  // statDiffAbove：|自身该维 - 对手该维| ≥ 阈值（"若n≥200则X"——n 是双方某维之差）
+  if ("statDiffAbove" in cond) {
+    const spec = cond.statDiffAbove as { stat: string; atLeast: number };
+    const foe = c.foe ?? c.target;
+    return statDiffOf(c.unit, foe, spec.stat as Parameters<typeof statDiffOf>[2]) >= spec.atLeast;
   }
   // foePrioZero/selfPrioZero：分侧版本（读对手/自身的实际先制）
   if ("foePrioZero" in cond) return (c.foe?.turnPrio ?? c.foeMove?.priority ?? 0) === 0;

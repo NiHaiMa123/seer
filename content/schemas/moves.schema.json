@@ -673,6 +673,33 @@
           "const": true,
           "description": "本次登场为主动切换（'若本次登场为主动切换登场'）"
         },
+        "prioZero": {
+          "const": true,
+          "description": "本回合实际先制为0（'双方每有1方精灵先制为0'——读 turnPrio，含 prio_up/条件/钩子加成）"
+        },
+        "foePrioZero": {
+          "const": true,
+          "description": "对手本回合实际先制为0"
+        },
+        "selfPrioZero": {
+          "const": true,
+          "description": "自身本回合实际先制为0"
+        },
+        "statDiffAbove": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stat", "atLeast"],
+          "properties": {
+            "stat": {
+              "type": "string",
+              "enum": ["atk", "def", "spa", "sdf", "spd", "hp"]
+            },
+            "atLeast": {
+              "type": "integer"
+            }
+          },
+          "description": "双方某维数值差 ≥ 阈值（'若n≥200则X'——n=|自身该维-对手该维|）"
+        },
         "turnHpLossAbove": {
           "type": "integer",
           "minimum": 0,
@@ -3632,6 +3659,23 @@
                   "type": "integer",
                   "minimum": 1
                 },
+                "statDiff": {
+                  "type": "string",
+                  "enum": [
+                    "atk",
+                    "def",
+                    "spa",
+                    "sdf",
+                    "spd",
+                    "hp"
+                  ],
+                  "description": "幅值来源=|自身该维-对手该维|（\"根据双方防御值之差n…恢复n点体力\"）"
+                },
+                "statDiffDenom": {
+                  "type": "integer",
+                  "minimum": 2,
+                  "description": "statDiff 的分母（\"n/200回合\"这类取整）"
+                },
                 "capFracN": {
                   "type": "integer",
                   "minimum": 1
@@ -4565,6 +4609,8 @@
                     ],
                     "properties": {
                       "name": true,
+                      "statDiff": true,
+                      "statDiffDenom": true,
                       "turns": true,
                       "turnsRange": true,
                       "target": true,
@@ -4813,6 +4859,15 @@
                         ],
                         "properties": {
                           "defSumPct": true
+                        }
+                      },
+                      {
+                        "required": [
+                          "statDiff"
+                        ],
+                        "properties": {
+                          "statDiff": true,
+                          "statDiffDenom": true
                         }
                       },
                       {

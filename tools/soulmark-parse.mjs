@@ -78,6 +78,80 @@ const ENTITY_RE = /&(middot|rdquo|ldquo|quot|amp|nbsp|hellip);/g;
 const ENTITY_MAP = { middot: "·", rdquo: "”", ldquo: "“", quot: '"', amp: "&", nbsp: " ", hellip: "…" };
 const cleanEntities = (s) => s.replace(ENTITY_RE, (_, e) => ENTITY_MAP[e] ?? " ").replace(/&g[te];|&l[te];|&le;/g, (m) => (m === "&lt;" ? "小于" : m === "&gt;" ? "大于" : m === "&le;" ? "小于等于" : "大于等于"));
 
+/** 「双方X值之差」→ UnitState.base 的维度键。 */
+const STAT_DIFF_DIM = { "防御值": "def", "特防值": "sdf", "体力上限值": "hp", "体力上限": "hp", "速度值": "spd", "攻击值": "atk", "特攻值": "spa" };
+
+/**
+ * 「回合开始时自身根据双方X值之差n触发以下效果：①…②…③若n≥200则…」→ 直接产出条目。
+ *
+ * 4 只魂印（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索）共用这一个骨架，n 是同一读数。
+ * 引擎不为魂印开局部变量作用域，所以这里把每个分档**直接翻译成自带 statDiff 幅值的 op**：
+ *   n              → |自身该维 - 对手该维|
+ *   ①/②/③ 的效果措辞各不相同，逐个映射到已有 op 的对应字段。
+ * 映射不上的分档返回 null（调用方保留原文，交给常规留档，不静默丢失）。
+ *
+ * 返回 { entries, consumed } 或 null（不是这个骨架）。
+ */
+function statDiffEntries(src, bossGate) {
+  const head = src.match(/^(?:掌[：:])?\s*回合开始时自身根据双方([^\s，,]{1,6}?)之差\s*[nN]\s*触发(?:如下|以下)?效果[:：]/);
+  if (head === null) return null;
+  const stat = STAT_DIFF_DIM[head[1]];
+  if (stat === undefined) return null;
+  const body = src.slice(head[0].length);
+  // 分档切分：①②③ 或 1. 2. 3.（语料里常见「①.」和「1、」两种混排）
+  const parts = body
+    .split(/[①②③④⑤]|(?:^|\s)[1-5][.．、]\s*|[；;]/)
+    .map((x) => x.replace(/[（(][^（）()]*(?:boss|BOSS|Boss)[^（）()]*[）)]/g, "").replace(/^[\s.．、]+|[\s.]+$/g, "").trim())
+    .filter(Boolean);
+  if (parts.length === 0) return null;
+
+  const ops = [];
+  /** 每个分档 → 零个或多个 op；null = 该档映射不了。 */
+  const translate = (clause) => {
+    const gate = bossGate ? { bossGate: true } : {};
+    // "若n≥T则X" → X 带 nAbove 条件
+    const cond = clause.match(/^若\s*[nN]\s*[≥>]=?\s*(\d+)\s*则(.+)$/);
+    if (cond !== null) {
+      const thr = Number(cond[1]);
+      const inner = translate(cond[2].trim());
+      if (inner === null) return null;
+      return inner.map((o) => ({ ...o, if: { statDiffAbove: { stat, atLeast: thr } }, ...gate }));
+    }
+    // ② 恢复 n 点体力
+    if (/^恢复\s*[nN]\s*点体力$/.test(clause)) return [{ op: "heal", target: "self", statDiff: stat, ...gate }];
+    // ① 受到的攻击伤害减少 n 点 → dmg_reduce（statDiff 放顶层：params 的 additionalProperties 限 integer）
+    const red = clause.match(/^当回合受到的(?:攻击)?伤害减少\s*[nN]\s*点$/);
+    if (red !== null) return [{ op: "apply_status", name: "dmg_reduce", target: "self", turns: 1, statDiff: stat, ...gate }];
+    // ① 附加 n 点固定伤害 → foe_dot
+    const dot = clause.match(/^当回合使用技能时附加\s*[nN]\s*点固定伤害$/);
+    if (dot !== null) return [{ op: "apply_status", name: "foe_dot", target: "self", turns: 1, statDiff: stat, ...gate }];
+    // ① 造成的攻击伤害提升 n% → dmg_boost(pct)
+    const boost = clause.match(/^当回合造成的(?:攻击)?伤害提升\s*[nN]\s*%$/);
+    if (boost !== null) return [{ op: "apply_status", name: "dmg_boost", target: "self", turns: 1, statDiff: stat, params: { pct: 0 }, ...gate }];
+    // ③ 免疫受到的异常状态
+    if (/^当回合免疫受到的异常状态$/.test(clause)) return [{ op: "apply_status", name: "immune_status", target: "self", turns: 1, ...gate }];
+    // ③ 攻击必定打出致命一击
+    if (/^当回合攻击必定(?:打出)?致命一击$/.test(clause)) return [{ op: "apply_status", name: "crit_always", target: "self", turns: 1, ...gate }];
+    // ③ 所有技能先制+1
+    const prio = clause.match(/^当回合所有技能先制([+-])\s*(\d+)$/);
+    if (prio !== null) return [{ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: (prio[1] === "-" ? -1 : 1) * Number(prio[2]) }, ...gate }];
+    // ③ 受到的非真实伤害减少 30%
+    const nr = clause.match(/^当回合受到的非真实伤害减少\s*(\d+)\s*%$/);
+    if (nr !== null) return [{ op: "apply_status", name: "flat_taken_pct", target: "self", turns: 1, params: { pct: Number(nr[1]) }, ...gate }];
+    // ① 当回合被击败时对手无法主动切换精灵（时长由 n/200 决定，另存 denom）
+    const lock = clause.match(/^当回合被击败时对手无法主动切换精灵\s*[nN]\s*\/\s*(\d+)\s*回合$/);
+    if (lock !== null) return [{ op: "apply_status", name: "no_switch", target: "opponent", turns: 1, statDiff: stat, statDiffDenom: Number(lock[1]), ...gate }];
+    return null;
+  };
+
+  for (const p of parts) {
+    const t = translate(p);
+    if (t === null) return null; // 有一档翻译不了就整体放弃，保留原文走常规路径
+    ops.push(...t);
+  }
+  return { entries: [{ hook: "onTurnStart", ...(bossGate ? { bossGate: true } : {}), ops }], consumed: src.length };
+}
+
 // 文本级 boss 门控（"以上效果boss无效"覆盖整条魂印；位置任意）。
 const TEXT_BOSS_RE = /以上(?:效果|特效)(?:对)?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效)[！!]?|所有(?:效果|特效|技能效果|特性效果)(?:对)?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效)/;
 // 子句级 boss 门控（"（boss无效）"/"（下场后重置，BOSS无效）"/"（除…外的所有效果boss无效）"前/后置）。
@@ -1035,6 +1109,21 @@ export function parseSoulmarkText(text, petName) {
   src = src.replace(TAIL_NOISE_RE, "");
   if (TEXT_BOSS_RE.test(src)) { bossGate = true; src = src.replace(TEXT_BOSS_RE, ""); }
   src = stripNamePrefix(src).replace(BOSS_OK_RE, "");
+
+  // ── 「根据双方X值之差n触发以下效果：①…②…③若n≥200则…」直接产条目 ──
+  // 语料只有 4 只（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索），骨架固定、n 是同一读数。
+  // 引擎不为魂印开局部变量作用域，所以整体翻译成自带 statDiff 幅值的 op 序列。
+  // 有一档翻译不了就整体放弃（保留原文走常规路径，仍会被留档接住）。
+  {
+    const sd = statDiffEntries(src, bossGate);
+    if (sd !== null) {
+      for (const e of sd.entries) entries.push(e);
+      src = src.slice(sd.consumed).trim();
+      if (src === "") {
+        return { entries, unparsed, bossGate, clauseTotal: 1, clausesParsed: 1, fragmentsOnParsed: 0, fragmentsOnResidual: 0, fragmentsOutside: 0 };
+      }
+    }
+  }
 
   let lastHook; // 触发器继承：无前缀子句沿用同一文本内前句的 hook
   const danglingEmpty = []; // {text,atEntries}——跨。段裸触发：hook 经 lastHook 结转后续子句；文本末仍无条目产出才记 empty-body
