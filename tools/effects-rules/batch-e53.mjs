@@ -254,6 +254,11 @@ export const rules = [
   { id: "e53-dmg-02",
     re: new RegExp(`^造成的伤害不少于${NUM}(?:点)?$|^造成伤害不少于${NUM}$`),
     go: (m) => ({ attachDamage: { minDamage: num(m[1] ?? m[2]) } }) },
+  // "若为攻击技能则造成的伤害不少于N"（决囚钢骨/十里枯监、炎龙铠甲/降魔印）。
+  // 这句只挂在攻击技上，而宿主招式本身就有 damage op → 条件恒真，直接落 minDamage 地板。
+  { id: "e53-dmg-02b",
+    re: new RegExp(`^若为攻击技能则造成的伤害不少于${NUM}(?:点)?$`),
+    go: (m) => ({ attachDamage: { minDamage: num(m[1]) } }) },
   // "连续使用每次威力增加+N"（+号/威力前后置变体；"，最(高|多)M" cap 尾被 commaRaw 粘回同 part——内联吸收 → useCap）
   { id: "e53-dmg-03",
     re: new RegExp(`^连续使用(?:每次)?(?:(?:威力)?(?:增加|提升|提高|加)|增加威力)\\+?${NUM}(?:点)?(?:威力)?(?:[，,](?:最[高多])(?:提升|增加|提高|至|到|威力)?${NUM}(?:点)?(?:威力)?)?$`),
