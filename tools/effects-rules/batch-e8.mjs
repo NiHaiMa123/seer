@@ -41,8 +41,10 @@ export const rules = [
   },
   // ——下只精灵系列在 ./next-ally.mjs（须在 attach-damage-61 next-unit 兜底之前）——
   // "本场战斗自身免疫受到的(固定|百分比|固定伤害和百分比)伤害" → flat_immune
+  // 含「秒杀」：秒杀在本项目用 damage{kind:"percent",power:100} 表达，
+  // 因此免疫秒杀 = 免疫百分比伤害（同一 flat_immune 通道，不需要新 op）。
   { id: "e8-im-08",
-    re: /^(?:本场战斗)?(?:自身|自己)?免疫(?:受到|所受)?的?(?:固定伤害和百分比伤害|百分比伤害和固定伤害|固定伤害|百分比伤害|固定|固伤)$/,
+    re: /^(?:本场战斗)?(?:自身|自己)?免疫(?:受到|所受)?的?(?:固定伤害和百分比伤害|百分比伤害和固定伤害|固定伤害|百分比伤害|秒杀|固定|固伤)$/,
     go: () => ({ effects: [{ op: "apply_status", name: "flat_immune", target: "self" }] }),
   },
   // "N%免疫当回合受到的攻击伤害"/"N%的几率抵挡当回合受到的攻击伤害" → dmg_immune chance（当回合由 effTurns 注入 turns:1）

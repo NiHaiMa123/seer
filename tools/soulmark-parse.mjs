@@ -240,8 +240,10 @@ const UNSUPPORTED_TRIGGERS = [
   { re: /恢复所拥有护盾|此护盾消失|护盾被消(?:除|去)/, reason: "shield lifecycle fragment (UNVERIFIED)" },
   // 回复事件触发（"对手每恢复1次体力"/"自身恢复体力时"——无 heal-react 钩子）
   { re: /每恢复\d+次体力|恢复体力时/, reason: "heal-react — heal-event trigger unmodeled (deferred)" },
-  // 秒杀域（"免疫秒杀"/"对手执行秒杀效果时"——insta-KO 机制未建模）
-  { re: /免疫.{0,4}秒杀|执行秒杀|秒杀效果|被秒杀/, reason: "insta-KO domain — one-shot mechanic unmodeled (deferred)" },
+  // 秒杀域（"对手执行秒杀效果时"/"被秒杀"——insta-KO 机制未建模）。
+  // 「免疫(受到的)秒杀」不在此列：秒杀本身用 damage{kind:"percent",power:100} 表达，
+  // 免疫秒杀 = 免疫百分比伤害（flat_immune 通道，规则在 batch-e8 的 e8-im-08）。
+  { re: /(?<!免疫.{0,4})执行秒杀|秒杀效果|被秒杀/, reason: "insta-KO domain — one-shot mechanic unmodeled (deferred)" },
   // 先制上限（"自身先制等级不高于0"——prio ceiling 域未建模）
   { re: /先制等级不高于|先制不高于/, reason: "prio-cap — priority ceiling unmodeled (deferred)" },
   // 属性相性域（"自身微弱对手"/"克制倍数改为除以"——typechart 读写未建模）
