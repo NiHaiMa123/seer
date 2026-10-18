@@ -149,8 +149,10 @@ export const rules = [
   { id: "timed-67", re: new RegExp(`^每次命中(?:对手|对方|敌方)?会?降低(?:对手|对方|敌方)下只出战精灵最大体力的(${NUM})%$|^命中后降低对手下只精灵最大体力(${NUM})%$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { effects: [{ op: "apply_status", name: "max_hp_down", target: "nextFoe", params: { n: ns[0], d: 100 } }] }; } },
   // 致命N击窗口（"致命2击"→crit_always count）
   { id: "timed-68", re: new RegExp(`^致命(${NUM})击$|^下${NUM}击必定致命[一1]?击$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { effects: [{ op: "apply_status", name: "crit_always", target: "self", params: { count: ns[0] } }] }; } },
-  // PP 值条件（"若对手所选择的技能PP值为N则…"——对手 PP 检视谓词未建模）
-  { id: "timed-69", re: new RegExp(`^若(?:对手|对方|敌方)所?选?择?的?技能PP值为${NUM}`), go: () => ({ unparsedReason: "UNVERIFIED: 对手PP值检视谓词" }) },
+  // PP 值条件（"若对手所选择的技能PP值为N则…"）。
+  // 谓词已建模：foeMovePpZero / foeMovePpAtLeast 读"本回合选择的那个技能"的剩余 PP。
+  // 带「则…无法行动」的完整句由 batch-e41 的 e41-pp-01 处理，这里只兜底其余形态。
+  { id: "timed-69", re: new RegExp(`^若(?:对手|对方|敌方)所?选?择?的?技能PP值为${NUM}(?!则(?:当回合)?(?:其|对手|对方|敌方)?无法行动)`), go: () => ({ unparsedReason: "PP 检视：仅建模了「为0则无法行动」与「>=N」，其余形态未覆盖" }) },
   // 裸碎片（"技能"、"会回复自己的HP"——切分残渣，无独立语义）
   { id: "timed-70", re: /^技能$|^技能无效时$|^会回复自己的HP$|^会回复自身体力$/, go: (m) => /回复/.test(m[0]) ? ({ unparsedReason: "orphan drain tail — fraction in prior clause" }) : ({ ignored: true }) },
   // 每回合固伤窗口（"每回合附加100点固伤"→dot flat）

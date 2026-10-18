@@ -50,6 +50,11 @@ export const rules = [
     re: /^(?:(?:自身|自己)(?:将)?)?不(?:会|再)?受(?:到)?(?:任何|所有)?(?:异常|异常状态|控制类异常)(?:的?影响)?$/,
     go: () => ({ effects: [{ op: "apply_status", name: "immune_status", target: "self" }] }) },
   // ── 无法行动（"对手无法行动"→control stun） ──
+  // 「若(对手|自身)所?选择的技能PP值为0则当回合…无法行动」——PP 检视门控。
+  // 谓词 foeMovePpZero / selfMovePpZero 读"本回合选择的那个技能"的剩余 PP。
+  { id: "e41-pp-01",
+    re: new RegExp("^若(对手|对方|敌方|自身|自己)所?选择的技能\\s*PP值?为0则(?:当回合)?(?:其|对手|对方|敌方|自身|自己)?无法行动$"),
+    go: (m) => { const foe = /对手|对方|敌方/.test(m[1]); return { effects: [{ op: "control", name: "stun", target: foe ? "opponent" : "self", turns: 1, if: foe ? { foeMovePpZero: true } : { selfMovePpZero: true } }] }; } },
   { id: "e41-10",
     re: new RegExp(`^(?:(?:使|令|让)(?:对手|对方|敌方)(?:精灵)?|(?:对手|对方|敌方))无法行动(?:(${NUM})回合)?$`),
     go: (m) => ({ effects: [{ op: "control", name: "stun", target: "opponent", ...(m[1] !== undefined ? { turns: num(m[1]) } : {}) }] }) },

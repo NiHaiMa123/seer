@@ -157,6 +157,9 @@ export type Condition =
   | { prioZero: true } | { foePrioZero: true } | { selfPrioZero: true }
   /** 双方某维数值差 ≥ 阈值（"若n≥200则X"——n=|自身该维-对手该维|） */
   | { statDiffAbove: { stat: "atk" | "def" | "spa" | "sdf" | "spd" | "hp"; atLeast: number } }
+  /** 本回合选择的那个技能的 PP 状态（"若对手所选择的技能PP值为0"——读 unit.moves 槽位） */
+  | { foeMovePpZero: true } | { selfMovePpZero: true }
+  | { movePpAtLeast: number } | { foeMovePpAtLeast: number }
   | { moveCatSameAsPrev: true } | { moveCatDiffPrev: true }
   /** 本招与上动同/异招（"使用技能与上次不相同"——prevMoveId 快照；无上动时 same=false/diff=true） */
   | { moveSameAsPrev: true } | { moveDiffPrev: true }

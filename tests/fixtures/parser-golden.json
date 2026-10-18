@@ -620,14 +620,19 @@
           "target": "opponent",
           "scope": "all",
           "chance": 100
+        },
+        {
+          "op": "control",
+          "name": "stun",
+          "target": "opponent",
+          "turns": 1,
+          "if": {
+            "foeMovePpZero": true
+          },
+          "chance": 100
         }
       ],
-      "unparsed": [
-        {
-          "clause": "若对手所选择的技能PP值为0则当回合对手无法行动",
-          "reason": "UNVERIFIED: 对手PP值检视谓词"
-        }
-      ]
+      "unparsed": []
     },
     {
       "key": "1421:涡轮磁暴",

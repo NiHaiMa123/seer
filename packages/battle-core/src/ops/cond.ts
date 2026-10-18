@@ -10,6 +10,20 @@ import { stageKeysFor } from "../mechanics/index.ts";
 import { effectivenessOf } from "./shared.ts";
 import type { OpCtx } from "./types.ts";
 
+/**
+ * 某个单位「本回合选择的那个技能」的剩余 PP。
+ *
+ * 调用方给出该侧的 MoveDef（c.move / c.foeMove），按 id 到 unit.moves 里找对应槽位。
+ * 找不到（未选择/招式不在列表）返回 undefined，由调用方按 false 处理。
+ */
+function ppOfChosen(
+  u: { moves?: { moveId: string; pp: number }[] } | undefined,
+  mv: { id?: string } | undefined,
+): number | undefined {
+  if (u?.moves === undefined || mv?.id === undefined) return undefined;
+  return u.moves.find((m) => m.moveId === mv.id)?.pp;
+}
+
 export function condEval(c: OpCtx, cond: Condition): boolean {
   if ("and" in cond) return cond.and.every((x) => condEval(c, x));
   if ("or" in cond) return cond.or.some((x) => condEval(c, x));
@@ -293,6 +307,13 @@ export function condEval(c: OpCtx, cond: Condition): boolean {
   // foePrioZero/selfPrioZero：分侧版本（读对手/自身的实际先制）
   if ("foePrioZero" in cond) return (c.foe?.turnPrio ?? c.foeMove?.priority ?? 0) === 0;
   if ("selfPrioZero" in cond) return (c.unit.turnPrio ?? c.move?.priority ?? 0) === 0;
+  // PP 检视：本回合**选择的那个**技能的 PP 状态。
+  // 现有 foePpLt 统计"有几个技能 PP<N"、selfPpSumAboveFoe 比总和，
+  // 都读不到"选择的那一个"。语料 213 处涉及 PP 检视。
+  if ("foeMovePpZero" in cond) return ppOfChosen(c.foe, c.foeMove) === 0;
+  if ("selfMovePpZero" in cond) return ppOfChosen(c.unit, c.move) === 0;
+  if ("movePpAtLeast" in cond) return (ppOfChosen(c.unit, c.move) ?? 0) >= cond.movePpAtLeast;
+  if ("foeMovePpAtLeast" in cond) return (ppOfChosen(c.foe, c.foeMove) ?? 0) >= cond.foeMovePpAtLeast;
   // damageDigitEq/takenDigitEq：伤害个位数谓词（"造成伤害值尾数为N"）
   if ("damageDigitEq" in cond) return c.lastDamage !== undefined && c.lastDamage % 10 === cond.damageDigitEq;
   if ("takenDigitEq" in cond) return c.unit.lastTaken !== undefined && c.unit.lastTaken % 10 === cond.takenDigitEq;

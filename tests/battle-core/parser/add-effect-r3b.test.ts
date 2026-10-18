@@ -111,13 +111,15 @@ describe("add one effect (r3b：背包计数放大强化翻倍概率)", () => {
     const host = "必中；全属性+1，自身背包内每存活1只精灵则25%的概率强化效果翻倍；100%降低对手所有技能1点PP值，然后若对手所选择的技能PP值为0则当回合对手无法行动；下2回合令自身所有技能先制+2";
     const p = parseEffectText(host, { hasDamage: false }) as Parsed;
     expect(p.flags).toEqual({ accuracy: "always" });
+    // PP 子句现在也能落地（cond 加了 foeMovePpZero），所以多出一条 control
     expect(p.effects.map((e) => e.op)).toEqual([
       "apply_stat_stage", "apply_stat_stage", "apply_stat_stage", "apply_stat_stage", "apply_stat_stage",
-      "pp_delta", "apply_status",
+      "pp_delta", "control", "apply_status",
     ]);
     for (const e of ups(p)) expect(e.deltaMulChance).toEqual({ chance: 25, numerator: 2, denominator: 1, perBench: { of: "alive", per: 1 } });
     // 背包子句不再留档，别的留档原样
-    expect(p.unparsed).toEqual([{ clause: "若对手所选择的技能PP值为0则当回合对手无法行动", reason: "UNVERIFIED: 对手PP值检视谓词" }]);
+    // 该 PP 子句已由 e41-pp-01 + cond 的 foeMovePpZero 实现，不再留档
+    expect(p.unparsed).toEqual([]);
   });
 
   it("规则本身：整句 → attachAll.stageChanceMul + bench（N 分母与 of 都从捕获组来）", () => {

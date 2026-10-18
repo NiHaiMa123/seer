@@ -685,6 +685,24 @@
           "const": true,
           "description": "自身本回合实际先制为0"
         },
+        "foeMovePpZero": {
+          "const": true,
+          "description": "对手本回合选择的技能 PP 为 0（'若对手所选择的技能PP值为0'）"
+        },
+        "selfMovePpZero": {
+          "const": true,
+          "description": "自身本回合选择的技能 PP 为 0"
+        },
+        "movePpAtLeast": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "自身本回合选择的技能 PP >= N"
+        },
+        "foeMovePpAtLeast": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "对手本回合选择的技能 PP >= N"
+        },
         "statDiffAbove": {
           "type": "object",
           "additionalProperties": false,
