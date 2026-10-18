@@ -296,7 +296,9 @@ export const rules = [
   // "致命一击伤害提升N%"——暴击伤害放大（crit_dmg 无字段，crit_up=概率）
   { id: "deferred-167", re: /^(?:令|使|让)?(?:自身|自己|对手|对方|敌方)?造成的?致命[一1]?击(?:的)?伤害(?:额外)?(?:提升|提高|增加)/, go: () => ({ unparsedReason: "crit-damage amplifier unmodeled (deferred)" }) },
   { id: "deferred-142", re: /^(?:较|极|更|容)?易(?:打出|造成|触发)致命/, go: () => ({ unparsedReason: "crit likelihood — undocumented pct" }) },
-  { id: "deferred-143", re: /最高HP|HP上限|体力上限(?:的)?(?:\d+点|减少|降低)/, go: () => ({ unparsedReason: "max-HP manipulation — E4" }) },
+  // 「增加/提升/减少/降低 ... 体力上限」已由 batch-e20 的 e20-hpmax-* 落地到
+  // stat_boost{stats:["hp"]}；这里只兜底其余 HP 上限形态（如"最高HP"、单说"N点"）。
+  { id: "deferred-143", re: /最高HP|HP上限|^(?:(?!增加|提升|提高|减少|降低).)*体力上限(?:的)?\d+点$/, go: () => ({ unparsedReason: "max-HP manipulation — E4" }) },
   // 回合末能力升降（"每回合攻击+1"——stat 编码 1-6 与 STAGE_TICK_CODES 同序）
   { id: "deferred-144",
     re: new RegExp(`^每回合(${STAT_RE})([+-])${NUM}$|^每回合(?:自身|自己)?(${STAT_RE})等级([+-])${NUM}$`),

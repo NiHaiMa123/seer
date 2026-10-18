@@ -276,8 +276,10 @@ const UNSUPPORTED_TRIGGERS = [
   { re: /先制等级与上回合|先制等级.{0,4}上回合/, reason: "prio-snapshot — cross-turn prio compare unmodeled (deferred)" },
   // 效果削弱渐进（"之后每次登场时触发效果削弱到N/M"——渐进改写未建模）
   { re: /效果削弱到|削弱到.{0,6}最大体力/, reason: "progressive-weaken — staged magnitude override unmodeled (deferred)" },
-  // 体力上限动态变化（"提升N%的体力上限"/"减少N%的体力上限"/"增加N点体力上限"——max-hp 动态窗）
-  { re: /(?:提升|提高|增加|减少|降低).{0,8}体力上限/, reason: "max-HP manipulation — E4" },
+  // 体力上限动态变化：已由 batch-e20 的 e20-hpmax-flat / e20-hpmax-pct 落地到
+  // stat_boost{stats:["hp"]}。这里只兜底带额外限定、那两条认不了的形态
+  // （如"每回合开始时提升1%的体力上限"这种逐回合重复触发的表述——周期语义另议）。
+  { re: /每回合.{0,10}(?:提升|提高|增加|减少|降低).{0,8}体力上限/, reason: "max-HP manipulation — E4" },
   // 跨条目前向引用（"获得上述所有效果"/"继承累计的概率"/"通过上述方式附加过N种"——跨条目效果打包/计数引用未建模）
   { re: /上述所有效果|上述效果|上述方式|以上效果|全部触发|已经通过|累计的(?:概率|几率|效果|层数)|继承.{0,6}(?:概率|几率|层数)/, reason: "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)" },
   // 己方精灵死亡事件（"己方每有一只精灵死亡则X"——ally-KO 观察域 victim:ally 未建模，仅 self/foe）
@@ -333,8 +335,10 @@ const UNSUPPORTED_TRIGGERS = [
   { re: /双方同时死亡|同归于尽|同时倒下/, reason: "mutual-KO resolution unmodeled (deferred)" },
   // 下场保留/不保留（"此效果下场不保留"——切换持久化域未建模）
   { re: /下场(?:时)?(?:不)?保留|换下后(?:仍)?保留|切换后保留/, reason: "switch-persistence — cross-switch retention unmodeled (deferred)" },
-  // 体力上限变动（"增加N点体力上限"/"每减少过N点体力上限恢复…"——max-HP 存取与累计域未建模；"体力上限1/3"分数基线与"上限大于N"谓词不吞）
-  { re: /(?:增加|提升|提高|扣除|减少|降低|衰减|削减|重置)\d+点(?:的)?(?:体力|生命|最大体力)上限|(?:体力|生命|最大体力)上限(?:每)?(?:减少|降低|扣除|增加|提升|提高|衰减|变为|重置|恢复)/, reason: "max-HP mutation — hpMax domain unmodeled (deferred)" },
+  // 体力上限变动：常规「增加/提升/减少/降低 N点或N% 体力上限」已由 batch-e20 的
+  // e20-hpmax-flat / e20-hpmax-pct 落到 stat_boost{stats:["hp"]}，这里只兜底
+  // **带额外周期/累计/基线语义**的形态（"每回合…"、"每减少过N点…恢复"、"上限1/3"、"上限大于N"）。
+  { re: /每回合.{0,12}(?:增加|提升|提高|扣除|减少|降低|衰减|削减|重置).{0,6}(?:体力|生命|最大体力)上限|每(?:减少|增加|提升|降低)过?\d+点(?:的)?(?:体力|生命|最大体力)上限|(?:体力|生命|最大体力)上限(?:变为|重置|衰减)/, reason: "max-HP mutation — hpMax domain unmodeled (deferred)" },
   // 护盾生命周期（"护盾消失后N回合重新被激活"——盾破碎/重激活状态机未建模）
   { re: /护盾消失后.{0,8}重新|护罩消失后.{0,8}重新|重新被激活|护盾重新激活/, reason: "shield lifecycle — break/rearm state machine unmodeled (deferred)" },
   // boss 域谓词（"boss对战中上限翻倍"——PvE 上限翻倍无对应通道；纯"boss无效/有效"尾注由 bossGate 层承载，勿吞）
