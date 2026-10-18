@@ -305,13 +305,20 @@ export function battleApiPlugin(): PluginSpec {
       });
 
       // 启动恢复：库内已持久化的对局逐条装回（token/席位/世界归属随登记一并还原）。
-      // 无登记的存量行无法重建令牌绑定——记警告并跳过；单局失败不拖垮启动。
+      // 无登记的存量行无法重建令牌绑定——跳过；单局失败不拖垮启动。
+      //
+      // 日志策略：历史库里常留着几十局已作废的对局（引用的 executable artifact 随
+      // 代码演进被清掉，restore 必然失败）。逐条 warn 会把启动日志刷屏，也掩盖真正的
+      // 问题，所以这里只累计两类计数、末尾汇总一行；单局的失败详情留在 debug 级。
       const stored = new Set(battles.storedIds());
       const regs = new Map(battles.registrations().map((x) => [x.battleId, x.data as BattleRegistration]));
+      let restored = 0;
+      let skippedNoReg = 0;
+      const restoreFailures: { battleId: string; message: string }[] = [];
       for (const battleId of stored) {
         const reg = regs.get(battleId);
         if (reg === undefined) {
-          console.warn(`battle-api: ${battleId} 无登记记录，跳过恢复`);
+          skippedNoReg += 1;
           continue;
         }
         try {
@@ -323,13 +330,27 @@ export function battleApiPlugin(): PluginSpec {
             deadlineMs: reg.deadlineMs,
           }, battleId);
         } catch (error) {
-          console.warn(`battle-api: ${battleId} 恢复失败：${(error as Error).message}`);
+          restoreFailures.push({ battleId, message: (error as Error).message });
           continue;
         }
+        restored += 1;
         tokens.set(reg.tokens.p1, { battleId, playerId: reg.players.p1 });
         if (reg.tokens.p2 !== undefined) tokens.set(reg.tokens.p2, { battleId, playerId: reg.players.p2 });
         if (reg.pveSeat !== undefined) pveSeats.set(battleId, reg.pveSeat);
         if (reg.worldMeta !== undefined) worldMeta.set(battleId, reg.worldMeta);
+      }
+      // 汇总一行：让日志既保留"发生了多少失效对局"，又不逐条刷屏。
+      // 全部成功时只报恢复数；有失效时再给一行分类计数 + 两条样例。
+      if (restoreFailures.length > 0 || skippedNoReg > 0) {
+        const artifactGone = restoreFailures.filter((f) => /artifact .* unavailable/.test(f.message)).length;
+        const other = restoreFailures.length - artifactGone;
+        console.info(
+          `battle-api: 启动恢复 ${restored} 局；跳过 ${skippedNoReg} 局（无登记）` +
+            `，${restoreFailures.length} 局恢复失败（其中 ${artifactGone} 局因 executable artifact 已失效、${other} 局其他原因）`,
+        );
+        for (const f of restoreFailures.slice(0, 2)) console.info(`  · 例：${f.battleId} — ${f.message.slice(0, 120)}`);
+      } else if (restored > 0) {
+        console.info(`battle-api: 启动恢复 ${restored} 局`);
       }
       // 恢复后 bot 席位可能有待办决策（比如恢复时 inbox 未收齐或该 bot 行动）——逐个驱动
       for (const battleId of pveSeats.keys()) drivePve(battleId);
