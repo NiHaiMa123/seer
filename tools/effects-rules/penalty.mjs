@@ -18,7 +18,10 @@ export const rules = [
   { id: "penalty-10", re: /^反弹所有受到的控制类异常状态$/, go: () => ({ effects: [{ op: "apply_status", name: "reflect_ctl", target: "self" }] }) },
   { id: "penalty-11", re: /^组队可向己方任意目标使用$/, go: () => ({ flags: { targetScope: "anyAlly" } }) },
   { id: "penalty-12", re: new RegExp(`^下次翻倍几率额外提升(\\d+)%$`), go: () => ({ unparsedReason: "mul-chance stacking step — per-use mulChance accumulation (UNVERIFIED)" }) },
-  { id: "penalty-13", re: /^恢复效果和固伤翻倍$/, go: () => ({ attachAll: { healDouble: true, flatDouble: true } }) },
+  // 「恢复效果和固伤翻倍」：恢复走 heal_boost（有 reader）；固伤翻倍仍走 attachAll（需宿主 damage）
+  { id: "penalty-13", re: /^恢复效果和固伤翻倍$/, go: () => ({ effects: [{ op: "apply_status", name: "heal_boost", target: "self", params: { pct: 100 } }], attachAll: { flatDouble: true } }) },
+  // 「恢复效果翻倍」：有宿主时由 attachAll.healDouble 烘焙进宿主分数（hot 的 mulLN/mulLD 等）；
+  // 裸句（无宿主）时 healDouble 无处可挂，由 e41-20b-healdouble 兜底成 heal_boost。
   { id: "penalty-14", re: /^恢复效果翻倍$/, go: () => ({ attachAll: { healDouble: true } }) },
   { id: "penalty-15", re: /^(?:减免|承伤减免|伤害减免|减伤)效果?翻倍$/, go: () => ({ attachAll: { takenDownDouble: true } }) },
   { id: "penalty-16", re: /^(?:自身|自己)?恢复能力翻倍$|^(?:自身|自己)?恢复能力(?:效果)?翻倍$/, go: () => ({ attachAll: { healDouble: true } }) },

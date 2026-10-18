@@ -63,6 +63,8 @@ export const rules = [
   // "下N次(攻击|攻击技能)(必定|必然)?打出偶数(攻击)?伤害" → even_dmg{count}（e40-10 同形）
   { id: "r4a-next-even-01", re: new RegExp(`^(?:下(?:${NUM}|一)次)((?:攻击|攻击技能)(?:必定|必然)?打出偶数(?:攻击)?伤害)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "even_dmg", target: "self", params: { count: num(m[1] ?? "1") } }] }) },
   // "下次X"其余形态——单次窗口未覆盖者仍显式留档（须在全部下次具体规则之后）
-  // 「技能无效」由 batch-e35 的 e35-null15 处理（trigger 19），这里排除掉别抢
+  // 「技能无效」由 batch-e35 的 e35-null15 处理（trigger 19），这里排除掉别抢。
+  // 注：「下N次击败对手后…」由 timed.mjs 的 timed-defeat-next 处理，它排在 marks-21 之前，
+  //     不需要在这里排除（排除会放走未覆盖的形态，例如"下1次击败对手时吸取对手全部体力"）。
   { id: "marks-21", re: new RegExp(`^下(?:次|${NUM}次)(?!受|对手|对方|敌方|技能无效)`), go: () => ({ unparsedReason: "next-apply window — single-use mounting not modeled (deferred)" }) },
 ];

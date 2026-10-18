@@ -152,6 +152,17 @@ export const rules = [
   // PP 值条件（"若对手所选择的技能PP值为N则…"）。
   // 谓词已建模：foeMovePpZero / foeMovePpAtLeast 读"本回合选择的那个技能"的剩余 PP。
   // 带「则…无法行动」的完整句由 batch-e41 的 e41-pp-01 处理，这里只兜底其余形态。
+  // 「下N次击败对手后，恢复自身全部体力值与PP值」——击败即触发。
+  // 「下1次」只是"下一次发生时"的修饰，语义与裸形相同（都靠 foeFainted 门控），
+  // 不需要单独的计数窗。放在 timed-69 之前，避免被它的「下N次…」宽正则抢走。
+  { id: "timed-defeat-next",
+    re: /^(?:下(?:\d+|[一二两三四五六七八九十])次)?(?:自身|自己)?(?:击败|击杀|秒杀)(?:对手|对方|敌方)?(?:后|时|则)?[，,]?(?:恢复|回复)(?:自身|自己)?(?:全部|所有)(?:的)?(?:体力值?|HP|生命)(?:与|和|及|、)(?:全部|所有)?(?:PP值?|技能PP)$|^(?:下(?:\d+|[一二两三四五六七八九十])次)?(?:自身|自己)?(?:击败|击杀|秒杀)(?:对手|对方|敌方)?(?:后|时|则)?[，,]?(?:恢复|回复)(?:自身|自己)?(?:全部|所有)(?:的)?(?:体力值?|HP|生命)$/,
+    go: (m) => (/PP/.test(m[0])
+      ? { effects: [
+          { op: "heal", numerator: 1, denominator: 1, target: "self", if: { foeFainted: true } },
+          { op: "pp_delta", full: true, target: "self", scope: "all", if: { foeFainted: true } },
+        ] }
+      : { effects: [{ op: "heal", numerator: 1, denominator: 1, target: "self", if: { foeFainted: true } }] }) },
   { id: "timed-69", re: new RegExp(`^若(?:对手|对方|敌方)所?选?择?的?技能PP值为${NUM}(?!则(?:当回合)?(?:其|对手|对方|敌方)?无法行动)`), go: () => ({ unparsedReason: "PP 检视：仅建模了「为0则无法行动」与「>=N」，其余形态未覆盖" }) },
   // 裸碎片（"技能"、"会回复自己的HP"——切分残渣，无独立语义）
   { id: "timed-70", re: /^技能$|^技能无效时$|^会回复自己的HP$|^会回复自身体力$/, go: (m) => /回复/.test(m[0]) ? ({ unparsedReason: "orphan drain tail — fraction in prior clause" }) : ({ ignored: true }) },
