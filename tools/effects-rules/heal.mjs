@@ -27,6 +27,14 @@ export const rules = [
     re: new RegExp(`^吸取(对手|对方|敌方)${NUM}点(?:固定)?体力(?:恢复自身)?$`),
     go: (m) => ({ effects: [{ op: "damage", power: num(m[2]), kind: "fixed" }, { op: "heal", flat: num(m[2]), target: "self" }] }),
   },
+  // 「吸取/吸收对手N%的体力」（省略「最大」二字）——语义同 heal-06，
+  // 只是原文不写"最大"。放在 heal-06 前面，让省略式先被吃掉。
+  { id: "heal-06b",
+    re: new RegExp(`^(?:使用技能|攻击)?(?:吸取|吸收)(?:对手|对方|敌方)(\\d+)%的体力(?:值)?$`),
+    go: (m) => ({ effects: [
+      { op: "damage", power: num(m[1]), kind: "percent" },
+      { op: "heal", numerator: num(m[1]), denominator: 100, target: "self" },
+    ] }) },
   { id: "heal-06",
     re: new RegExp(`^(?:使用技能|攻击)?吸取(对手|对方|敌方)最大体力(?:的)?${NUM}\\s*/\\s*${NUM}(?:恢复自身)?$|^(?:使用技能|攻击)?吸取(对手|对方|敌方)最大体力的(\\d+)%(?:恢复自身)?$|^吸取对手最大体力${NUM}\\s*/\\s*${NUM}$|^攻击?吸取对手最大体力${NUM}\\s*/\\s*${NUM}$`),
     // 分数走 formula op（damage 上已不放 frac）；percent.power 是百分数，1/3 不能写成 power:1
