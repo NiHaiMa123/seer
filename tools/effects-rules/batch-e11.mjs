@@ -34,6 +34,13 @@ export const rules = [
     re: /^(?:敌我双方|双方)(烧伤|冻伤|中毒|麻痹|害怕|睡眠|失明|失神|束缚|混乱|寄生|诅咒|疲惫|流血|沉默|冰封|易燃|焚烬|石化|瘫痪|感染|狂暴|衰弱|臣服|冷冻)(?:状态)?$/,
     go: (m) => ({ effects: ["self", "opponent"].map((t) => ({ op: "apply_status", name: AILMENTS[m[1]], target: t })) }),
   },
+  // "为双方附加N回合AIL"——第三种写法（克律莎/远古雷律）。
+  // 注意词序：数字在前、异常名在后（"为双方附加2回合混乱"），与 p2-al-03 相反。
+  // 前缀「并」由 part 循环剥掉，所以这里只认裸形。
+  { id: "p2-al-03b",
+    re: new RegExp(`^为(?:敌我)?双方附加${NUM}回合(${AIL_RE})(?:状态)?$`),
+    go: (m) => ({ effects: ["self", "opponent"].map((t) => ({ op: "apply_status", name: AILMENTS[m[2]], target: t, turns: num(m[1]) })) }),
+  },
   { id: "e11-al-02",
     re: new RegExp(`^(?:令|使)双方(${AIL_RE})(?:状态)?$`),
     go: (m) => ({ effects: ["self", "opponent"].map((t) => ({ op: "apply_status", name: AILMENTS[m[1]], target: t })) }),
