@@ -1112,6 +1112,11 @@ export function parseSoulmarkText(text, petName) {
   if (TEXT_BOSS_RE.test(src)) { bossGate = true; src = src.replace(TEXT_BOSS_RE, ""); }
   src = stripNamePrefix(src).replace(BOSS_OK_RE, "");
 
+  // 「自身位于/存活于出战背包时，<效果>」——前置守卫。剥离后让效果本体走常规规则。
+  // 注意：只剥前缀；"本人已出场则失效"这一半尚未建模
+  // （见 tests/battle-core/parser/bench-position.test.ts 的说明）。
+  src = src.replace(/^(?:[^，,；;]{0,8})?(?:位于|存活于)出战背包(?:时|中)[，,、]?\s*/, "");
+
   // ── 「根据双方X值之差n触发以下效果：①…②…③若n≥200则…」直接产条目 ──
   // 语料只有 4 只（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索），骨架固定、n 是同一读数。
   // 引擎不为魂印开局部变量作用域，所以整体翻译成自带 statDiff 幅值的 op 序列。

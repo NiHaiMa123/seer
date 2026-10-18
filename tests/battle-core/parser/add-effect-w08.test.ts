@@ -69,15 +69,18 @@ describe("add one effect (w08：出战背包)", () => {
     expect(plain.effects).toEqual([{ op: "apply_stat_stage", stat: "all", multiplySelf: true, delta: 1, target: "self" }]);
   });
 
-  it("魂印侧的出战背包句仍停在位置谓词（这一类不动 soulmark-parse.mjs）", () => {
+  it("魂印侧的出战背包句：前缀剥离后效果本体落地（原先是位置谓词留档）", () => {
+    // 变更记录：这条原先断言"仍停在 bench-position 谓词"，后来 soulmark-parse
+    // 加了前缀剥离 + heal-198 认「己方」主语，该句已能解析。
+    // 仍未建模的是"本人已出场时该效果失效"这一半（见 bench-position.test.ts）。
     const r = parseSoulmarkText("自身位于出战背包时，己方免疫受到的失明状态 （boss无效）", "灯珑鱼") as {
-      entries: unknown[];
+      entries: { ops?: { name?: string }[] }[];
       unparsed: { clause: string; reason: string }[];
       bossGate: boolean;
     };
-    expect(r.entries).toEqual([]);
-    expect(r.unparsed).toEqual([{ clause: "自身位于出战背包时，己方免疫受到的失明状态", reason: "bench-position predicate (UNVERIFIED)" }]);
     expect(r.bossGate).toBe(true);
+    expect(r.unparsed.map((u) => u.clause)).not.toContain("自身位于出战背包时，己方免疫受到的失明状态");
+    expect(r.entries.some((e) => (e.ops ?? []).some((o) => o.name === "immune_status"))).toBe(true);
   });
 
   it("顺序契约：本家族排在 e26-df-02 之后，且 e26-df-02 的 re 逐字未动", () => {

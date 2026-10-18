@@ -379,7 +379,8 @@ export const rules = [
   // "自身免疫受到的异常状态"（受到-异常——免疫施加侧）
   { id: "heal-197", re: /^自身免疫受到(?:的)?(?:所有)?异常状态$|^免疫(?:自身)?受到的?异常状态$|^免疫所?有?异常状态$|^自身免疫所?有?异常状态$/, go: () => ({ effects: [{ op: "apply_status", name: "immune_status", target: "self" }] }) },
   // 定向异常免疫（"免疫受到的麻痹状态"→ailment 字段限定；apply 时 kind 合成 name:ailment）
-  { id: "heal-198", re: new RegExp(`^(?:自身|自己)?免疫(?:受到|所受)?的?(${AIL_RE})(?:状态)?$`), go: (m) => ({ effects: [{ op: "apply_status", name: "immune_status", target: "self", ailment: AILMENTS[m[1]] }] }) },
+  // 主语含「己方/我方/本方」：单人魂印语境下等价于自身（"己方免疫受到的失明状态"）
+  { id: "heal-198", re: new RegExp(`^(?:自身|自己|己方|我方|本方)(?:精灵)?免疫(?:受到|所受)?的?(${AIL_RE})(?:状态)?$|^免疫(?:受到|所受)?的?(${AIL_RE})(?:状态)?$`), go: (m) => ({ effects: [{ op: "apply_status", name: "immune_status", target: "self", ailment: AILMENTS[m[1] ?? m[2]] }] }) },
   // "自身攻击技能附加N点固定伤害" → flatBonus
   // "攻击附带100点固定伤害"（heal-199 的动词只收「附加」，「附带」是空档）。放在 heal-199 前面。
   { id: "p1-heal-03", re: /^(?:自身|自己)?(?:所有|全部)?攻击(?:技能)?附带([0-9]+)点(?:固定伤害|固伤|固定)?$/, go: (m) => ({ attachDamage: { flatBonus: num(m[1]) } }) },
