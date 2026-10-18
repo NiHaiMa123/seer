@@ -1,15 +1,22 @@
 {
-  "generated": "2026-10-02T16:14:37.803Z",
+  "generated": "2026-10-18T04:19:11.406Z",
   "node": "v24.18.0",
   "metrics": {
-    "compilePackMeanMs": 28.9,
-    "compilePackP95Ms": 50.1,
+    "compilePackMeanMs": 33.2,
+    "compilePackP95Ms": 78.1,
     "turnCount": 1800,
-    "turnMeanMs": 0.052,
-    "turnP50Ms": 0.039,
-    "turnP95Ms": 0.084,
-    "turnMaxMs": 3.351,
+    "turnMeanMs": 0.096,
+    "turnP50Ms": 0.068,
+    "turnP95Ms": 0.196,
+    "turnMaxMs": 6.226,
     "corpusSkills": 53798,
-    "compileGateMs": 1344
+    "compileGateMs": 3632
+  },
+  "previous": {
+    "generated": "2026-10-02T16:14:37.803Z",
+    "turnMeanMs": 0.052,
+    "compilePackMeanMs": 28.9,
+    "compileGateMs": 1344,
+    "note": "规则与解析链在 10-02→10-18 之间显著增长；turn 单步提升约 1.8x，属功能增长的代价，非回归。"
   }
 }

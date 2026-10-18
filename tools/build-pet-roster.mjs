@@ -16,6 +16,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseEffectText } from "./effects-parse.mjs";
+import { isHitRider } from "./effects-parse.mjs";
 import { damageKeyHits, unknownAttachDamageKeys } from "../packages/battle-core/src/ops/damage-keys.ts";
 import { mergeAttachDamage } from "./attach-damage.ts";
 import { parseSoulmarkText } from "./soulmark-parse.mjs";
@@ -66,8 +67,14 @@ function assemble(id, ownType, skill, fifth) {
   const effs = structuredClone(effects);
   const ad = flags.attachDamage;
   let dmg = effs.find((e) => e.op === "damage" && (e.kind === undefined || e.kind === "standard" || e.kind === "true"));
-  if ((skill.power ?? 0) > 0 && dmg === undefined) {
-    dmg = { op: "damage", power: skill.power };
+  // 合成宿主的两种情形：
+  //   ① 有威力的招 → power 用原威力；
+  //   ② 属性招却带了命中 rider（applyDrainRider / flat{of:…} 等）→ rider 必须有
+  //      damage 宿主，否则装载期被 groupHitRiders 判孤儿、整包拒载。
+  //      这类句子语义是「命中后附加」，宿主就是那一击本身，power:0 表示不额外造伤。
+  const hasRider = effs.some((e) => isHitRider(e.op));
+  if (dmg === undefined && ((skill.power ?? 0) > 0 || hasRider)) {
+    dmg = { op: "damage", power: skill.power ?? 0 };
     effs.unshift(dmg);
   }
   if (ad !== undefined) {
@@ -183,14 +190,15 @@ for (const c of pets) {
   }
 
   if (PEAK_ROSTER.has(id)) {
-    // 巅峰 12 只单位/装备技原样，仅补发 s 库；魂印仍解析并把引用写回保留单位
+    // 巅峰 12 只是手工装配条目：单位与装备技（mv-<petNo>-0..3/-f）原样保留，
+    // 只补发全技能 s 库。手工条目不声明魂印（peak-roster.test 锁的就是这一点：
+    // 12 只的 evs/ivs/level/soulMark 都必须是 undefined），因此这里不再写回
+    // host.soulMark；魂印本体仍照常编译进 soulmarks.json，供其他单位引用。
     const smText = c.soulMark?.text;
     if (smText != null && smText.trim() !== "") {
       const sm = parseSoulmarkText(smText);
       if (sm.entries.length > 0) {
         soulmarks[`sm-${idSuffix}`] = { id: `sm-${idSuffix}`, name: `${c.name}魂印`, desc: smText.slice(0, 2000), effects: sm.entries };
-        const host = peakUnits.find((u) => u.id === id);
-        if (host !== undefined) host.soulMark = `sm-${idSuffix}`;
         report.smAttached++;
         if (sm.unparsed.length > 0) report.smResidual++;
       }

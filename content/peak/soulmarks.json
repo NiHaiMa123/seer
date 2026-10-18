@@ -20,6 +20,23 @@
           "chance": {
             "once": true
           }
+        },
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_up",
+              "target": "self",
+              "params": {
+                "n": 10,
+                "d": 100
+              }
+            }
+          ],
+          "chance": {
+            "once": true
+          }
         }
       ]
     },
@@ -1124,8 +1141,7 @@
               "name": "dmg_flat",
               "target": "self",
               "params": {
-                "flat": 100,
-                "foeStatused": 1
+                "flat": 100
               }
             }
           ]
@@ -1901,7 +1917,14 @@
             {
               "op": "apply_status",
               "name": "pp_free",
-              "target": "self"
+              "target": "self",
+              "if": {
+                "markCountAtLeast": {
+                  "mark": "能力强化",
+                  "n": 1,
+                  "on": "self"
+                }
+              }
             }
           ]
         }
@@ -2512,7 +2535,8 @@
                   "target": "self",
                   "plain": true
                 }
-              ]
+              ],
+              "turns": 1
             }
           ]
         },
@@ -5129,19 +5153,6 @@
       "desc": "欲：每次受到攻击的40%转化为自身HP；若对手处于能力提升状态则自身免疫异常状态",
       "effects": [
         {
-          "hook": "onBattleStart",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_to_heal",
-              "target": "self",
-              "params": {
-                "pct": 40
-              }
-            }
-          ]
-        },
-        {
           "hook": "onTurnEnd",
           "guard": {
             "foeStageUp": true
@@ -5534,6 +5545,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "selfHpBelowFoe": true
               }
             },
             {
@@ -7348,6 +7362,45 @@
         }
       ]
     },
+    "sm-3051": {
+      "id": "sm-3051",
+      "name": "闭月貂蝉魂印",
+      "desc": "貂：减少30%来自雄性精灵的攻击伤害；对雄性精灵造成的伤害提升30%",
+      "effects": [
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "foeGender": "male"
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 30
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onDamageDealt",
+          "guard": {
+            "foeGender": "male"
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 30
+              }
+            }
+          ]
+        }
+      ]
+    },
     "sm-3052": {
       "id": "sm-3052",
       "name": "威魄战车魂印",
@@ -7715,8 +7768,7 @@
               "name": "endure",
               "target": "self",
               "params": {
-                "hp": 1,
-                "count": 1
+                "hp": 1
               }
             }
           ],
@@ -8456,7 +8508,7 @@
               "op": "apply_status",
               "name": "shock",
               "target": "opponent",
-              "turns": 3
+              "turns": 2
             }
           ],
           "guard": {
@@ -9165,8 +9217,7 @@
               "name": "dmg_mul",
               "target": "self",
               "params": {
-                "mul": 2,
-                "count": 1
+                "mul": 2
               }
             }
           ]
@@ -9819,7 +9870,7 @@
               "op": "apply_status",
               "name": "paralysis",
               "target": "opponent",
-              "turns": 3
+              "turns": 2
             }
           ]
         },
@@ -10885,6 +10936,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "order": "last"
               }
             },
             {
@@ -12469,7 +12523,15 @@
                   "plain": true
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfStatused": true
+          },
+          "ops": [
             {
               "op": "apply_status",
               "name": "dmg_weaken",
@@ -13561,9 +13623,7 @@
               "op": "apply_status",
               "name": "must_miss",
               "target": "self",
-              "params": {
-                "count": 1
-              },
+              "turns": 1,
               "if": {
                 "not": {
                   "prevApplied": true
@@ -14356,8 +14416,7 @@
               "name": "dmg_boost",
               "target": "self",
               "params": {
-                "pct": 50,
-                "selfStageUp": 1
+                "pct": 50
               }
             }
           ]
@@ -17245,6 +17304,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -17273,6 +17337,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "order": "first"
               }
             },
             {
@@ -17830,6 +17897,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -18159,6 +18231,27 @@
       "name": "莉尔魂印",
       "desc": "问：赛尔号莉尔魂印是什么？赛尔号莉尔专属特性是什么？ 答：赛尔号莉尔的魂印是奥： 回合开始时，若对手不处于能力提升或下降状态时，则当回合自身造成的伤害提高100%，同时吸取对手最大体力的1/3；回合结束时若自身不处于能力提升状态则消除对手能力提升、下降状态，消除成功则解除自身能力下降状态（BOSS无效） 精灵资料：赛尔号莉尔进化图种族值技能表 >>>",
       "effects": [
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "selfStageUp": true
+            }
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up"
+            },
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "down"
+            }
+          ]
+        },
         {
           "hook": "onTurnEnd",
           "guard": {
@@ -18700,30 +18793,6 @@
       "desc": "谈：首次登场100%令对手随机进入1种控制类异常（每场战斗只能触发1次）；自身攻击造成伤害高于300则100%令对手随机进入1种异常，自身攻击造成伤害低于300则下回合必定致命（BOSS无效）",
       "effects": [
         {
-          "hook": "onEntry",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "random",
-              "target": "opponent",
-              "random": {
-                "list": [
-                  "paralysis",
-                  "fear",
-                  "sleep",
-                  "submit",
-                  "petrify"
-                ],
-                "count": 1
-              },
-              "chance": 100
-            }
-          ],
-          "chance": {
-            "once": true
-          }
-        },
-        {
           "hook": "onDamageDealt",
           "guard": {
             "prevDamageAboveAbs": 300
@@ -19164,6 +19233,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ],
@@ -19671,7 +19745,7 @@
               "op": "apply_status",
               "name": "paralysis",
               "target": "opponent",
-              "turns": 3
+              "turns": 2
             },
             {
               "op": "apply_status",
@@ -20565,6 +20639,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -20846,6 +20925,11 @@
               }
             },
             {
+              "op": "flat",
+              "of": "flatSelfShieldPct",
+              "value": 100
+            },
+            {
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
@@ -21010,7 +21094,17 @@
               "name": "dodge",
               "target": "self",
               "params": {
-                "pct": 50
+                "pct": 50,
+                "notSelfHpBelowFoe": 1
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "params": {
+                "pct": 100,
+                "selfHpBelowFoe": 1
               }
             }
           ]
@@ -21024,16 +21118,9 @@
               "target": "self",
               "turns": 1,
               "if": {
-                "and": [
-                  {
-                    "selfHpBelowFoe": true
-                  },
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  }
-                ]
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -21714,6 +21801,19 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "and": [
+                  {
+                    "order": "last"
+                  },
+                  {
+                    "selfHpAbove": {
+                      "numerator": 1,
+                      "denominator": 2
+                    }
+                  }
+                ]
               }
             },
             {
@@ -22006,6 +22106,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -22503,18 +22608,18 @@
               }
             }
           ],
+          "chance": {
+            "grow": {
+              "add": 10,
+              "cap": 100
+            }
+          },
           "guard": {
             "actor": "self",
             "cat": [
               2,
               3
             ]
-          },
-          "chance": {
-            "grow": {
-              "add": 10,
-              "cap": 100
-            }
           }
         }
       ]
@@ -22962,6 +23067,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -24037,12 +24147,22 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "reflect_dmg",
+              "name": "react",
               "target": "self",
               "params": {
-                "n": 1,
-                "d": 4
+                "trigger": 1
               },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "reflect_dmg",
+                  "target": "self",
+                  "params": {
+                    "n": 1,
+                    "d": 4
+                  }
+                }
+              ],
               "turns": 1
             }
           ]
@@ -24092,6 +24212,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelowFoe": true
               }
             }
           ]
@@ -24291,6 +24414,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -24419,6 +24547,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelowFoe": true
               }
             },
             {
@@ -24639,6 +24770,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelowFoe": true
               }
             }
           ]
@@ -25899,6 +26033,20 @@
           ]
         },
         {
+          "hook": "onDamaged",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "reflect_dmg",
+              "target": "self",
+              "params": {
+                "n": 1,
+                "d": 1
+              }
+            }
+          ]
+        },
+        {
           "hook": "onKO",
           "bossGate": true,
           "ops": [
@@ -26021,6 +26169,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelowFoe": true
               }
             }
           ]
@@ -26219,6 +26370,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -28252,9 +28408,20 @@
               "name": "dodge",
               "target": "self",
               "params": {
-                "pct": 40
+                "pct": 40,
+                "notSelfHpBelowFoe": 1
               },
               "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "pct": 60,
+                "selfHpBelowFoe": 1
+              }
             }
           ]
         },
@@ -30062,6 +30229,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -30302,18 +30474,18 @@
               "target": "opponent"
             }
           ],
+          "chance": {
+            "grow": {
+              "add": 10,
+              "cap": 80
+            }
+          },
           "guard": {
             "actor": "self",
             "cat": [
               2,
               3
             ]
-          },
-          "chance": {
-            "grow": {
-              "add": 10,
-              "cap": 80
-            }
           }
         },
         {
@@ -30963,6 +31135,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -31681,7 +31858,17 @@
               "name": "dodge",
               "target": "self",
               "params": {
-                "pct": 40
+                "pct": 40,
+                "notSelfHpBelowFoe": 1
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "params": {
+                "pct": 70,
+                "selfHpBelowFoe": 1
               }
             },
             {
@@ -31847,7 +32034,17 @@
               "name": "dodge",
               "target": "self",
               "params": {
-                "pct": 50
+                "pct": 50,
+                "notSelfHpBelowFoe": 1
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "params": {
+                "pct": 80,
+                "selfHpBelowFoe": 1
               }
             },
             {
@@ -31999,20 +32196,20 @@
               }
             },
             {
-              "op": "power",
-              "of": "powerMulPerUseCap",
-              "value": {
-                "numerator": 200,
-                "denominator": 100
-              }
-            },
-            {
               "op": "flat",
               "of": "flatSelfFrac",
               "value": {
                 "numerator": 20,
                 "denominator": 100,
                 "base": "max"
+              }
+            },
+            {
+              "op": "power",
+              "of": "powerMulPerUseCap",
+              "value": {
+                "numerator": 200,
+                "denominator": 100
               }
             }
           ],
@@ -32334,6 +32531,15 @@
               "stat": "spd",
               "delta": -1,
               "target": "opponent"
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 40,
+                "count": 1
+              }
             }
           ]
         }
@@ -33059,6 +33265,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -33681,6 +33892,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "order": "first"
               }
             },
             {
@@ -33725,6 +33939,12 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelow": {
+                  "numerator": 1,
+                  "denominator": 2
+                }
               }
             },
             {
@@ -35490,6 +35710,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -35524,10 +35749,6 @@
               "op": "apply_status",
               "name": "dmg_taken_down",
               "target": "self",
-              "params": {
-                "pctMin": 40,
-                "pctMax": 60
-              },
               "turns": 1
             }
           ]
@@ -35572,22 +35793,6 @@
         {
           "hook": "onEntry",
           "ops": [
-            {
-              "op": "apply_status",
-              "name": "random",
-              "target": "opponent",
-              "random": {
-                "list": [
-                  "paralysis",
-                  "fear",
-                  "sleep",
-                  "submit",
-                  "petrify"
-                ],
-                "count": 1
-              },
-              "chance": 100
-            },
             {
               "op": "apply_status",
               "name": "random",
@@ -35798,9 +36003,9 @@
               "target": "opponent",
               "params": {
                 "n": 1,
-                "d": 3,
-                "count": 1
-              }
+                "d": 3
+              },
+              "turns": 1
             }
           ]
         }
@@ -36175,6 +36380,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -37004,6 +37214,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -38012,6 +38227,17 @@
       "desc": "丽:30%的几率免疫自身受到攻击伤害；回合结束时恢复自身100点体力，每回合叠加100点，最高300点（boss有效）",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_immune",
+              "target": "self",
+              "chance": 30
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "ops": [
             {
@@ -38617,6 +38843,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "foeHas": "burn"
               }
             }
           ],
@@ -39527,6 +39756,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "order": "first"
               }
             },
             {
@@ -39571,6 +39803,12 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelow": {
+                  "numerator": 1,
+                  "denominator": 2
+                }
               }
             },
             {
@@ -40134,6 +40372,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ],
@@ -40251,6 +40494,65 @@
               "numerator": 1,
               "denominator": 3,
               "target": "self"
+            }
+          ]
+        }
+      ]
+    },
+    "sm-3758": {
+      "id": "sm-3758",
+      "name": "卟祈酱魂印",
+      "desc": "卟：雄性精灵攻击我方时75%令对方烧伤，未触发则对手随机3项能力值-1；雌性精灵攻击我方时75%令对方失明，未触发则自身随机3项能力值-1",
+      "effects": [
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "foeGender": "male"
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "burn",
+              "target": "opponent",
+              "chance": 75
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "random",
+              "randomCount": 3,
+              "delta": -1,
+              "target": "opponent",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "foeGender": "female"
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "blind",
+              "target": "opponent",
+              "chance": 75
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "random",
+              "randomCount": 3,
+              "delta": -1,
+              "target": "self",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
             }
           ]
         }
@@ -40632,6 +40934,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -40714,6 +41021,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 4
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -42521,10 +42833,6 @@
               "op": "apply_status",
               "name": "dmg_taken_down",
               "target": "self",
-              "params": {
-                "pctMin": 25,
-                "pctMax": 50
-              },
               "turns": 1
             }
           ]
@@ -43304,7 +43612,9 @@
               "target": "self",
               "params": {
                 "n": 100,
-                "d": 100
+                "d": 100,
+                "echoN": 1,
+                "echoD": 1
               }
             }
           ]
@@ -43541,6 +43851,28 @@
               "name": "ember",
               "target": "opponent",
               "chance": 25
+            }
+          ]
+        },
+        {
+          "hook": "onDamageDealt",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 1
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "burn",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
             }
           ]
         }
@@ -43914,6 +44246,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -44842,7 +45179,8 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
-              }
+              },
+              "chance": 75
             },
             {
               "op": "heal",
@@ -46734,10 +47072,6 @@
               "op": "apply_status",
               "name": "dmg_taken_down",
               "target": "self",
-              "params": {
-                "pctMin": 40,
-                "pctMax": 60
-              },
               "turns": 1
             }
           ]
@@ -48551,15 +48885,16 @@
               "op": "apply_status",
               "name": "crit_up",
               "target": "self",
-              "turns": 1,
-              "params": {
-                "n": 30,
-                "d": 100,
-                "growStep": 10,
-                "growCap": 100
-              }
+              "turns": 1
             }
           ],
+          "chance": {
+            "base": 30,
+            "grow": {
+              "add": 10,
+              "cap": 100
+            }
+          },
           "guard": {
             "actor": "self",
             "cat": [
@@ -49254,6 +49589,13 @@
               "target": "self",
               "params": {
                 "pct": 50
+              },
+              "if": {
+                "markCountAtLeast": {
+                  "mark": "速度提升",
+                  "n": 1,
+                  "on": "self"
+                }
               }
             }
           ]
@@ -49421,6 +49763,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -49779,6 +50126,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevDamageAboveAbs": 0
+                }
               }
             },
             {
@@ -50439,6 +50791,24 @@
         {
           "hook": "onTurnEnd",
           "guard": {
+            "hpAboveTurnStart": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
             "hpBelowTurnStart": true
           },
           "bossGate": true,
@@ -50899,6 +51269,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -50911,6 +51286,29 @@
                   "prevApplied": true
                 }
               }
+            }
+          ]
+        },
+        {
+          "hook": "onBattleStart",
+          "guard": {
+            "selfHpAbove": {
+              "numerator": 1,
+              "denominator": 2
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "target": "self",
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "reflect_status",
+              "target": "self",
+              "turns": 1
             }
           ]
         },
@@ -51193,6 +51591,12 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelow": {
+                  "numerator": 1,
+                  "denominator": 2
+                }
               }
             },
             {
@@ -52908,6 +53312,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -52966,6 +53375,36 @@
               }
             }
           ]
+        }
+      ]
+    },
+    "sm-3978": {
+      "id": "sm-3978",
+      "name": "克利奥魂印",
+      "desc": "螽：本场战斗中，自身首次受到的攻击时伤害减少60%且40%令对手中毒，之后每次受到的攻击伤害伤害减少效果降低20%，中毒几率提升20%1当中毒几率达到100%后，自身每次受到攻击伤害的50%恢复为自身体力( boss无效)",
+      "effects": [
+        {
+          "hook": "onDamaged",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 60
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "poison",
+              "target": "opponent",
+              "chance": 40
+            }
+          ],
+          "chance": {
+            "once": true
+          }
         }
       ]
     },
@@ -53090,6 +53529,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ],
@@ -53471,6 +53915,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ],
@@ -53980,10 +54429,7 @@
               "op": "consume_mark",
               "mark": "蓄力",
               "target": "self",
-              "count": 1,
-              "params": {
-                "growPer": 1
-              }
+              "count": 1
             },
             {
               "op": "damage",
@@ -54987,7 +55433,17 @@
               "op": "apply_status",
               "name": "paralysis",
               "target": "opponent",
-              "chance": 50
+              "chance": 50,
+              "chanceSetIf": {
+                "when": {
+                  "ppAt": {
+                    "slot": "any",
+                    "value": 0,
+                    "on": "self"
+                  }
+                },
+                "value": 100
+              }
             }
           ],
           "guard": {
@@ -55005,7 +55461,16 @@
               "op": "pp_delta",
               "zeroRandom": 1,
               "target": "opponent",
-              "chance": 50
+              "chance": 50,
+              "chanceSetIf": {
+                "when": {
+                  "selfHpAbove": {
+                    "numerator": 1,
+                    "denominator": 2
+                  }
+                },
+                "value": 100
+              }
             }
           ],
           "guard": {
@@ -55736,7 +56201,7 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "dmg_immune",
+              "name": "immune_status",
               "target": "self",
               "turns": 1
             },
@@ -55957,6 +56422,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -56113,7 +56583,16 @@
               "op": "apply_status",
               "name": "pp_free",
               "target": "self",
-              "chance": 50
+              "chance": 50,
+              "chanceSetIf": {
+                "when": {
+                  "selfHpBelow": {
+                    "numerator": 1,
+                    "denominator": 3
+                  }
+                },
+                "value": 70
+              }
             }
           ]
         },
@@ -56162,10 +56641,7 @@
             {
               "op": "apply_status",
               "name": "shield",
-              "target": "self",
-              "params": {
-                "missingPct": 100
-              }
+              "target": "self"
             }
           ]
         }
@@ -56739,6 +57215,16 @@
           "ops": [
             {
               "op": "apply_status",
+              "name": "dmg_weaken",
+              "target": "opponent",
+              "params": {
+                "n": 1,
+                "d": 2
+              },
+              "chance": 50
+            },
+            {
+              "op": "apply_status",
               "name": "prio_up",
               "target": "opponent",
               "turns": 1,
@@ -57252,6 +57738,9 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "selfHpBelowFoe": true
               }
             },
             {
@@ -57804,6 +58293,18 @@
               }
             }
           ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "invert_stages",
+              "sign": "up",
+              "target": "opponent",
+              "stat": "spd"
+            }
+          ]
         }
       ]
     },
@@ -57915,6 +58416,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -60058,6 +60564,31 @@
       "desc": "丽:自身所有攻击50%的几率打出致命一击,未打出致命一击则回合结束时令敌我双方随机2项属性+1；回合开始时,若对手处于能力提升状态则当回合自身受到攻击伤害时100%令对手麻痹,未触发则消除对手回合类效果(boss无效)",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 12,
+                "chance": 50
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "crit_up",
+                  "target": "self",
+                  "params": {
+                    "n": 50,
+                    "d": 100
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
           "hook": "onDamaged",
           "guard": {
             "foeStageUp": true
@@ -60257,6 +60788,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -60435,6 +60971,30 @@
       "name": "魅妖辛克斯魂印",
       "desc": "问：赛尔号魅妖辛克斯魂印是什么？赛尔号魅妖辛克斯专属特性是什么？ 答： 赛尔号魅妖辛克斯的魂印是：魅 1、辛克斯善于蛊惑心智：若对手为雄性精灵则每回合开始时50%令对手失神，若对手为雌性精灵则每回合开始时50%令对手失明，未触发则当回合技能命中后随机吸取对手200-350点体力； 2、回合结束时，若对手体力值高于回合开始时则下回合自身攻击必定打出致命一击 3、（boss无效） 精灵资料：赛尔号魅妖辛克斯进化图种族值技能表>>>",
       "effects": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "daze",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "blind",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
         {
           "hook": "onTurnEnd",
           "ops": [
@@ -62232,11 +62792,7 @@
             {
               "op": "apply_status",
               "name": "heal_block",
-              "target": "opponent",
-              "params": {
-                "echoN": 1,
-                "echoD": 3
-              }
+              "target": "opponent"
             }
           ]
         },
@@ -64104,6 +64660,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -65275,54 +65836,92 @@
       "desc": "疾:自身受到物理攻击时50%令对手害怕,未触发则令对手攻击-1、速度-1,自身受到特殊攻击时50%令对手麻痹,未触发则令对手特攻-1、速度-1(boss无效)",
       "effects": [
         {
-          "hook": "onTurnEnd",
-          "guard": {
-            "and": [
-              {
-                "not": {
-                  "prevApplied": true
-                }
-              },
-              {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            ]
-          },
+          "hook": "onBattleStart",
           "bossGate": true,
           "ops": [
             {
-              "op": "apply_stat_stage",
-              "stat": "spa",
-              "delta": -1,
-              "target": "opponent"
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "and": [
-              {
-                "not": {
-                  "prevApplied": true
-                }
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 1,
+                "cat": 2
               },
-              {
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "fear",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": -1,
+              "target": "opponent",
+              "if": {
                 "not": {
                   "prevApplied": true
                 }
               }
-            ]
-          },
-          "bossGate": true,
-          "ops": [
+            },
             {
               "op": "apply_stat_stage",
               "stat": "spd",
               "delta": -1,
-              "target": "opponent"
+              "target": "opponent",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onBattleStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 1,
+                "cat": 3
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "paralysis",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": -1,
+              "target": "opponent",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": -1,
+              "target": "opponent",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
             }
           ]
         }
@@ -65333,6 +65932,24 @@
       "name": "蝠影魂印",
       "desc": "蝠:自身每回合都有一定几率闪避对手攻击技能,几率等同于自身当前体力百分比;当回合对手技能命中则在回合结束时吸取对手200点体力,若对手连续命中则额外吸取100点体力,当回合对手技能MISS则令对手防御-2(boss无效)",
       "effects": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "pct": 100
+              },
+              "chance": 50
+            }
+          ],
+          "chance": {
+            "dyn": "selfHpPct"
+          }
+        },
         {
           "hook": "onTurnEnd",
           "guard": {
@@ -66362,7 +66979,16 @@
               "zeroRandom": 1,
               "zeroRandomMax": 2,
               "target": "opponent",
-              "chance": 50
+              "chance": 50,
+              "chanceSetIf": {
+                "when": {
+                  "selfHpAbove": {
+                    "numerator": 1,
+                    "denominator": 2
+                  }
+                },
+                "value": 80
+              }
             }
           ]
         },
@@ -66374,19 +67000,9 @@
               "power": 1,
               "kind": "percent",
               "if": {
-                "and": [
-                  {
-                    "selfHpAbove": {
-                      "numerator": 1,
-                      "denominator": 2
-                    }
-                  },
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  }
-                ]
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -66395,6 +67011,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -66403,19 +67024,9 @@
               "denominator": 3,
               "target": "self",
               "if": {
-                "and": [
-                  {
-                    "selfHpAbove": {
-                      "numerator": 1,
-                      "denominator": 2
-                    }
-                  },
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  }
-                ]
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -66438,6 +67049,28 @@
               "turns": 1
             }
           ]
+        }
+      ]
+    },
+    "sm-4270": {
+      "id": "sm-4270",
+      "name": "提西弗涅魂印",
+      "desc": "涅:对手连续使用相同类型的技能则减少对手所有技能1点PP,自身连续使用相同类型的技能则吸取对手最大体力的1/3并恢复所有技能1点PP值;自身每次使用技能有30%的几率令对手害怕,回合开始自身每有1个技能PP值≥5则几率提升10%(boss无效)",
+      "effects": [
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "fear",
+              "target": "opponent",
+              "chance": 30
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
         }
       ]
     },
@@ -66737,6 +67370,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -67453,6 +68091,13 @@
             "selfHpFull": true
           },
           "ops": [
+            {
+              "op": "apply_status",
+              "name": "fear",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            },
             {
               "op": "cleanse",
               "target": "opponent",
@@ -68215,6 +68860,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -70496,6 +71146,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -71203,6 +71858,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -72989,6 +73649,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -73949,6 +74614,22 @@
         {
           "hook": "onTurnStart",
           "guard": {
+            "selfHpFull": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "fear",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
             "not": {
               "selfHpFull": true
             }
@@ -74676,7 +75357,7 @@
               "op": "apply_status",
               "name": "fear",
               "target": "opponent",
-              "turns": 3,
+              "turns": 2,
               "chance": 50
             }
           ]
@@ -74823,6 +75504,11 @@
             {
               "op": "damage",
               "kind": "percent"
+            },
+            {
+              "op": "power",
+              "of": "resetStacks",
+              "value": true
             },
             {
               "op": "flat",
@@ -75196,6 +75882,31 @@
           "ops": [
             {
               "op": "damage",
+              "power": 300,
+              "kind": "fixed",
+              "if": {
+                "turnParity": "odd"
+              }
+            },
+            {
+              "op": "heal",
+              "flat": 300,
+              "target": "self",
+              "if": {
+                "turnParity": "odd"
+              }
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
               "power": 1,
               "kind": "percent",
               "if": {
@@ -75532,6 +76243,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -76847,6 +77563,33 @@
           ]
         },
         {
+          "hook": "onTurnStart",
+          "guard": {
+            "markCountAtLeast": {
+              "mark": "回能Ⅰ",
+              "n": 1,
+              "on": "self"
+            }
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "ailment": "paralysis",
+              "target": "self",
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "ailment": "fear",
+              "target": "self",
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "bossGate": true,
           "ops": [
@@ -76868,6 +77611,33 @@
               "params": {
                 "pct": 100
               },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "markCountAtLeast": {
+              "mark": "失能Ⅰ",
+              "n": 1,
+              "on": "foe"
+            }
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "ailment": "freeze",
+              "target": "self",
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "ailment": "ember",
+              "target": "self",
               "turns": 1
             }
           ]
@@ -77613,34 +78383,6 @@
               }
             },
             {
-              "op": "apply_status",
-              "name": "random",
-              "target": "opponent",
-              "random": {
-                "list": [
-                  "paralysis",
-                  "fear",
-                  "sleep",
-                  "submit",
-                  "petrify"
-                ],
-                "count": 2
-              },
-              "if": {
-                "and": [
-                  {
-                    "immunedKind": 2
-                  },
-                  {
-                    "immunedKind": 4
-                  },
-                  {
-                    "immunedKind": 8
-                  }
-                ]
-              }
-            },
-            {
               "op": "apply_stat_stage",
               "stat": "atk",
               "delta": -2,
@@ -77855,6 +78597,17 @@
       "name": "迹魂印",
       "desc": "迹：每次登场首回合自身使用技能无视对手能力提升状态且对手的先制等级最高为3；回合结束后若自身死亡，则反转对手能力提升状态（boss无效）",
       "effects": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "pierce_stages",
+              "target": "self",
+              "turns": 1
+            }
+          ]
+        },
         {
           "hook": "onKO",
           "bossGate": true,
@@ -78494,6 +79247,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "foeFainted": true
+                }
               }
             },
             {
@@ -78742,6 +79500,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             },
             {
@@ -80882,6 +81645,23 @@
       "desc": "问：赛尔号南十字&middot;克鲁斯是什么？南十字&middot;克鲁斯特性是什么？ 答：赛尔号南十字&middot;克鲁斯是： 南:回合开始时，若自身处于能力提升状态则自身攻击忽略对手25%的防御值，若自身不处于能力提升状态则自身使用技能时吸取对手200点体力；回合结束后若自身体力高于最大体力的1/2则下回合攻击必定打出致命一击 （所有效果boss有效） 精灵资料：赛尔号南十字&middot;克鲁斯进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfStageUp": true
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "ignore_def",
+              "target": "self",
+              "params": {
+                "pct": 25
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onMoveUsed",
           "guard": {
             "actor": "self",
@@ -81393,7 +82173,7 @@
               "op": "apply_status",
               "name": "burn",
               "target": "opponent",
-              "turns": 3
+              "turns": 1
             }
           ]
         },
@@ -81860,6 +82640,11 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
+              },
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
               }
             }
           ]
@@ -83688,6 +84473,41 @@
       "desc": "自身每次登场首次攻击技能必定打出致命一击，之后每次攻击60%打出致命一击；自身使用技能后，若本次技能打出了致命一击则吸取对手300点体力，若未打出致命一击则60%令对手害怕（boss无效）",
       "effects": [
         {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 12,
+                "chance": 60
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "crit_up",
+                  "target": "self",
+                  "params": {
+                    "n": 50,
+                    "d": 100
+                  }
+                }
+              ],
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "crit_always",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "bossGate": true,
           "ops": [
@@ -84553,6 +85373,22 @@
                 "flat": 200
               },
               "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 4
+              },
+              "payload": [
+                {
+                  "op": "invert_stages",
+                  "sign": "up",
+                  "target": "opponent"
+                }
+              ],
+              "turns": 1
             }
           ]
         }
@@ -84833,7 +85669,7 @@
               "op": "apply_status",
               "name": "frostbite",
               "target": "opponent",
-              "turns": 3
+              "turns": 2
             }
           ]
         },
@@ -87744,6 +88580,16 @@
               "stat": "spd",
               "delta": 1,
               "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "transfer_stages",
+              "direction": "upToDown"
             },
             {
               "op": "apply_status",
@@ -87758,7 +88604,14 @@
                 }
               }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
         },
         {
           "hook": "onTurnEnd",
@@ -88218,6 +89071,18 @@
               "op": "apply_stat_stage",
               "stat": "spd",
               "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": 2,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": 2,
               "target": "self"
             }
           ]
@@ -88693,9 +89558,7 @@
               "op": "apply_status",
               "name": "must_miss",
               "target": "self",
-              "params": {
-                "count": 1
-              },
+              "turns": 1,
               "if": {
                 "not": {
                   "foeStageUp": true
@@ -89997,6 +90860,18 @@
           "bossGate": true,
           "ops": [
             {
+              "op": "invert_stages",
+              "sign": "up",
+              "target": "opponent",
+              "if": {
+                "markCountAtLeast": {
+                  "mark": "武诛",
+                  "n": 1,
+                  "on": "foe"
+                }
+              }
+            },
+            {
               "op": "apply_status",
               "name": "dmg_boost",
               "target": "self",
@@ -90174,6 +91049,15 @@
               "numerator": 1,
               "denominator": 1,
               "target": "self"
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50,
+                "count": 1
+              }
             }
           ]
         },
@@ -90368,6 +91252,17 @@
               "target": "opponent"
             },
             {
+              "op": "scale",
+              "of": "mulIf",
+              "value": {
+                "when": {
+                  "selfHpFull": true
+                },
+                "numerator": 2,
+                "denominator": 1
+              }
+            },
+            {
               "op": "flat",
               "of": "flatFoeStatPct",
               "value": {
@@ -90378,13 +91273,6 @@
             {
               "op": "applyDrainRider",
               "drain": {
-                "numerator": 1,
-                "denominator": 1
-              },
-              "drainIf": {
-                "when": {
-                  "selfHpFull": true
-                },
                 "numerator": 1,
                 "denominator": 1
               }
@@ -90795,7 +91683,7 @@
               "op": "apply_status",
               "name": "burn",
               "target": "opponent",
-              "turns": 3
+              "turns": 2
             }
           ]
         }
@@ -94542,6 +95430,20 @@
               "op": "apply_stat_stage",
               "stat": "sdf",
               "delta": 1,
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfStageUp": true
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 17,
+              "denominator": 100,
               "target": "self"
             }
           ]
