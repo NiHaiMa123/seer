@@ -814,6 +814,10 @@ export const stateSchema: Record<string, unknown> = {
           "type": "string",
           "description": "本回合开始时从 lastMoveId 拷下的上一动招式。同一技能连用读这个，不读声明后已覆写的 lastMoveId。回合中不刷新。"
         },
+        "turnPrio": {
+          "type": "integer",
+          "description": "本回合的实际先制等级（engine 的 prio() 结果：基础 priority + prio_up 窗 + 条件先制 + 机制钩子 + 连用加成）。排序时写回，供 prioZero 等谓词读「本回合实际先制」而不是面板 priority。"
+        },
         "catStreak": {
           "type": "integer",
           "minimum": 0,
@@ -1277,6 +1281,10 @@ export interface InternalUnit {
    * 本回合开始时从 lastMoveId 拷下的上一动招式。同一技能连用读这个，不读声明后已覆写的 lastMoveId。回合中不刷新。
    */
   prevMoveId?: string;
+  /**
+   * 本回合的实际先制等级（engine 的 prio() 结果：基础 priority + prio_up 窗 + 条件先制 + 机制钩子 + 连用加成）。排序时写回，供 prioZero 等谓词读「本回合实际先制」而不是面板 priority。
+   */
+  turnPrio?: number;
   /**
    * 同类招式连续声明计数（'连续N次使用攻击技能时X' 的 N 判定）：与 lastMoveCat 同点写入——同类 +1，换类回 1。
    */

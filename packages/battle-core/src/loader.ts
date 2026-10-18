@@ -153,6 +153,8 @@ export type Condition =
   /** 双方当前体力差 ≥ N / 连续 n 回合先或后出手 / 对手连续命中 n 次 / 本次登场为主动切换 */
   | { hpDiffAboveAbs: number } | { orderStreakAtLeast: { order: "first" | "last"; n: number } }
   | { foeHitStreakAtLeast: number } | { selfHitStreakAtLeast: number } | { entryWasSwitch: true }
+  /** 本回合实际先制为 0（"双方每有1方精灵先制为0"——读 turnPrio，含 prio_up/条件/钩子加成） */
+  | { prioZero: true } | { foePrioZero: true } | { selfPrioZero: true }
   | { moveCatSameAsPrev: true } | { moveCatDiffPrev: true }
   /** 本招与上动同/异招（"使用技能与上次不相同"——prevMoveId 快照；无上动时 same=false/diff=true） */
   | { moveSameAsPrev: true } | { moveDiffPrev: true }

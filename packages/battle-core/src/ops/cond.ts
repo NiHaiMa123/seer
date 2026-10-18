@@ -277,6 +277,16 @@ export function condEval(c: OpCtx, cond: Condition): boolean {
   }
   // entryWasSwitch：本次登场为主动切换（"若本次登场为主动切换登场"——entryKind 记账）
   if ("entryWasSwitch" in cond) return c.unit.entryWasSwitch === true;
+  // prioZero：本回合**实际**先制为 0（"双方每有1方精灵先制为0"）。
+  // 注意读 turnPrio（engine.prio() 落盘）而不是 move.priority —— 后者是面板值，
+  // 看不到 prio_up 窗/条件先制/机制钩子带来的加成。无记录时按面板值兜底。
+  if ("prioZero" in cond) {
+    const v = c.unit.turnPrio ?? c.move?.priority ?? 0;
+    return v === 0;
+  }
+  // foePrioZero/selfPrioZero：分侧版本（读对手/自身的实际先制）
+  if ("foePrioZero" in cond) return (c.foe?.turnPrio ?? c.foeMove?.priority ?? 0) === 0;
+  if ("selfPrioZero" in cond) return (c.unit.turnPrio ?? c.move?.priority ?? 0) === 0;
   // damageDigitEq/takenDigitEq：伤害个位数谓词（"造成伤害值尾数为N"）
   if ("damageDigitEq" in cond) return c.lastDamage !== undefined && c.lastDamage % 10 === cond.damageDigitEq;
   if ("takenDigitEq" in cond) return c.unit.lastTaken !== undefined && c.unit.lastTaken % 10 === cond.takenDigitEq;

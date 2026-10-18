@@ -212,6 +212,9 @@ export const rules = [
   { id: "attach-damage-115", re: new RegExp(`^(?:使|令|改变)?(自身|对方|对手|自己|敌方)?双攻(?:等级)?([+-])${NUM}$`), go: (m) => { const d = (m[2] === "-" ? -1 : 1) * num(m[3]); const t = m[1] ? tgt(m[1]) : "self"; return { effects: [stageFx("atk", d, t), stageFx("spa", d, t)] }; } },
   // "令对手的技能先制-1"。没有回合窗，先制一直在。放在 attach-damage-116 前面，那条要写「回合」。
   { id: "attach-damage-116a", re: new RegExp(`^(?:使|令)(?:对手|对方|敌方)的技能先制-${NUM}$`), go: (m) => ({ effects: [{ op: "apply_status", name: "prio_up", target: "opponent", params: { add: -num(m[1]) } }] }) },
+  // "双方每有1方精灵先制为0，对手下N回合先制-M"——带 prioZero 门控的削减窗（星光·雷纳多）。
+  // 必须排在 attach-damage-116 前面：那条要求句首直接是「(令)对手…下N回合先制-」，认不了这个前置条件。
+  { id: "attach-damage-115z", re: new RegExp(`^(?:双方每有?|若有?|若双方每有?)(${NUM})方(?:精灵)?先制为0[，,](?:对手|对方|敌方)下(${NUM})回合(?:所有技能)?先制-${NUM}$`), go: (m) => ({ effects: [{ op: "apply_status", name: "prio_up", target: "opponent", turns: num(m[2]), params: { add: -num(m[3]) }, if: { prioZero: true } }] }) },
   { id: "attach-damage-116", re: new RegExp(`^(?:使|令)?(?:对手|对方|敌方)下?(${NUM})?回合先制-${NUM}$`), go: (m) => ({ effects: [{ op: "apply_status", name: "prio_up", target: "opponent", turns: m[1] !== undefined ? num(m[1]) : 1, params: { add: -num(m[3]) } }] }) },
   { id: "attach-damage-117", re: /^消强$|^消除强化$|^消除(?:对手|对方)(?:的)?强化$/, go: () => ({ effects: [{ op: "clear_stages", target: "opponent", sign: "up" }] }) },
   { id: "attach-damage-118", re: /^最高概率(\d+)%$/, go: (m) => ({ attachAll: { capTail: { value: num(m[1]), unit: "%", src: m[0] } } }) },

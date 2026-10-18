@@ -681,7 +681,13 @@ function applyTurnInner(
   };
   // prio 结果 memoize：orderRoll 钩子消耗 rng（"随机先制+0~2"），同一侧同一回合只许求值一次
   const prioMemo: Partial<Record<SideId, number>> = {};
-  const prio1 = (s: SideId): number => (prioMemo[s] ??= prio(s));
+  const prio1 = (s: SideId): number => {
+    const v = (prioMemo[s] ??= prio(s));
+    // 实际先制写回 unit：cond 谓词 prioZero 要读"本回合实际先制"而不是面板 priority。
+    // prio() 已经把 prio_up 窗/条件先制/机制钩子/连用加成全部算进去，这里落盘即可。
+    next.sides[s].unit.turnPrio = v;
+    return v;
+  };
   let order: [SideId, SideId];
   if (isSwitch("p1") !== isSwitch("p2")) order = isSwitch("p1") ? ["p1", "p2"] : ["p2", "p1"];
   else if (prio1("p1") !== prio1("p2")) order = prio1("p1") > prio1("p2") ? ["p1", "p2"] : ["p2", "p1"];

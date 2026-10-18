@@ -1376,6 +1376,22 @@ function parseEffectTextAtExit(text, opts = {}) {
       }
       parts = merged;
     }
+    // 先制为0 门控续接：「双方每有1方精灵先制为0，对手下1回合所有技能先制-1」
+    // 被逗号切成条件句 + 效果句。条件本身不产效果，拼回去让
+    // attach-damage-115z 一次吃完（否则条件句会单独留档）。
+    {
+      const prioZeroHead = /^(?:双方每有?|若有?|若双方每有?)\d+方(?:精灵)?先制为0$/;
+      const prioCutTail = /^(?:对手|对方|敌方)下(?:\d+|[一二两三四五六七八九十])回合(?:所有技能)?先制-\d+$/;
+      const merged = [];
+      for (const p of parts) {
+        const last = merged[merged.length - 1];
+        const bare = p.replace(/^\x01/, "");
+        if (last !== undefined && prioZeroHead.test(last.replace(/^\x01/, "")) && prioCutTail.test(bare)) {
+          merged[merged.length - 1] = `${last}，${bare}`;
+        } else merged.push(p);
+      }
+      parts = merged;
+    }
     // 惩罚族尾句续接：「对方能力等级越高，技能威力越大」被逗号切成两半。
     // 前段承载缩放（batch-e5-25b 出 powerPerStageScale），后段只是修辞重复；
     // 拼回整句让 batch-e5-25a 一次吃完，避免尾段被当成独立未解析子句。
