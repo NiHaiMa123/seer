@@ -13,7 +13,9 @@ export const rules = [
   { id: "e49-03", re: new RegExp(`^(?:损失|失去|消耗)(?:自身|自己)?(?:最大体力|体力上限)的?一半$`), go: () => ({ effects: [{ op: "damage", power: 0, kind: "percent", frac: { numerator: 1, denominator: 2 }, target: "self" }] }) },
   { id: "e49-04", re: new RegExp(`^(?:消耗|损失|失去)(?:自身|自己)?体力(?:值)?至${NUM}点$|^(?:使|令)?自身(?:体力)?(?:剩下|剩余|降至?)${NUM}点体力$`), go: (m) => ({ effects: [{ op: "damage", kind: "fixed", power: 1, target: "self", leaveHp: num(m[1] ?? m[2]) }] }) },
   // ── "获得一个双方最大体力差值的护盾" → shield flatMaxHpDiff（"一个" 数量词变体） ──
-  { id: "e49-05", re: /^(?:使|令)?(?:自身|自己)?获得(?:一个|等同于)?(?:双方)?(?:最大)?(?:体力|HP)差值的护盾$|^(?:使|令)?(?:自身|自己)获得(?:一个|等同于)双方最大体力(?:差值|之差)的护盾$/, go: () => ({ effects: [{ op: "apply_status", name: "shield", target: "self", params: { flatMaxHpDiff: 1 } }] }) },
+  // 裸形（无动词）：句中被顿号切开后只剩「双方最大体力之差的护盾/护罩」——
+  // 前句已给出"获得"，这里直接落地同一 params 键。
+  { id: "e49-05", re: /^(?:使|令)?(?:自身|自己)?获得(?:一个|等同于)?(?:双方)?(?:最大)?(?:体力|HP)差值的护盾$|^(?:使|令)?(?:自身|自己)获得(?:一个|等同于)双方最大体力(?:差值|之差)的护盾$|^(?:双方)?(?:最大)?(?:体力|HP)(?:差值|之差)的?护[盾罩]$/, go: () => ({ effects: [{ op: "apply_status", name: "shield", target: "self", params: { flatMaxHpDiff: 1 } }] }) },
   // ── 叠用变体（"连续使用每次威力提升N%，最高提升至M"/"每次加N%，最高M" —— % 按 flat 功率增量，与 e40-63 约定一致） ──
   { id: "e49-06", re: new RegExp(`^连续使用(?:每次)?威力(?:提升|提高|增加)${NUM}%?(?:，|,)?最高(?:提升|提高|增加)至?${NUM}%?$|^连续使用每次加${NUM}%(?:，|,)?最高(?:提升|提高|增加|至)?${NUM}%?$`), go: (m) => ({ attachDamage: { powerPerUse: num(m[1] ?? m[3]), useCap: num(m[2] ?? m[4]) } }) },
   // ── "连续使用叠加最高N" → flatStackCap（固伤自体叠乘封顶——幅值来自宿主 flat） ──

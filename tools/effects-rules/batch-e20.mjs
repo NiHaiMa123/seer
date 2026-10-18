@@ -53,9 +53,16 @@ export const rules = [
   // ── 体力上限变更 → stat_boost{stats:["hp"]}（引擎早已支持：base.hp 加 delta 并同步 currentHp）──
   // 固定值："增加200点体力上限" / "自身增加100点体力上限" / "减少对手120点体力上限"
   { id: "e20-hpmax-flat",
-    re: new RegExp("^(?:(\\u81ea\\u8eab|\\u81ea\\u5df1)\\u589e\\u52a0|\\u589e\\u52a0)(" + NUM + ")\\u70b9(?:\\u4f53\\u529b\\u4e0a\\u9650|\\u6700\\u5927\\u4f53\\u529b)$|^\\u51cf\\u5c11(\\u5bf9\\u624b|\\u5bf9\\u65b9|\\u654c\\u65b9)(" + NUM + ")\\u70b9(?:\\u4f53\\u529b\\u4e0a\\u9650|\\u6700\\u5927\\u4f53\\u529b)$"),
-    go: (m) => { const opp = m[4] !== undefined; const n = num(m[2] ?? m[5]); return opp ? { effects: [{ op: "apply_status", name: "max_hp_down", target: "opponent", params: { n, d: 1 } }] } : { effects: [{ op: "stat_boost", stats: ["hp"], add: n, target: "self" }] }; } },
-  // 百分比："自身体力上限提升20%" / "令对手的体力上限减少35%"
+    re: new RegExp("^(?:(?:自身|自己)?(增加|获得)|(消耗)(?:自身|自己)?|(减少|削减|扣除)(对手|对方|敌方)?)(\\d+|[一二两三四五六七八九十]+)点(?:体力上限|最大体力)$"),
+    go: (m) => {
+      const up = m[1] !== undefined;
+      const toFoe = m[4] !== undefined;
+      const n = num(m[5]);
+      // 增加/获得 → 正向上限；消耗/减少/削减 → 削减
+      return up
+        ? { effects: [{ op: "stat_boost", stats: ["hp"], add: n, target: "self" }] }
+        : { effects: [{ op: "apply_status", name: "max_hp_down", target: toFoe ? "opponent" : "self", params: { n, d: 1 } }] };
+    } },
   { id: "e20-hpmax-pct",
     re: new RegExp("^(?:(\\u81ea\\u8eab|\\u81ea\\u5df1)(?:\\u4f53\\u529b\\u4e0a\\u9650|\\u6700\\u5927\\u4f53\\u529b)(\\u63d0\\u5347|\\u589e\\u52a0)|\\u4ee4(\\u5bf9\\u624b|\\u5bf9\\u65b9|\\u654c\\u65b9)\\u7684?(?:\\u4f53\\u529b\\u4e0a\\u9650|\\u6700\\u5927\\u4f53\\u529b)(\\u51cf\\u5c11|\\u964d\\u4f4e))(" + NUM + ")%$"),
     go: (m) => { const opp = m[3] !== undefined; const n = num(m[6]); return opp ? { effects: [{ op: "apply_status", name: "max_hp_down", target: "opponent", params: { n, d: 100 } }] } : { effects: [{ op: "stat_boost", stats: ["hp"], pct: n, target: "self" }] }; } },
