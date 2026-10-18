@@ -3,6 +3,10 @@ import { NUM, num, AIL_RE, AILMENTS, frac } from "./lex.mjs";
 import { reactWrap } from "../effects-parse.mjs";
 
 export const rules = [
+  // "下N次技能无效时令对手X" → react{trigger:19,count:N}（招式被 move_null 拦下时派发）。
+  // trigger 19 是本项目新增的"招式被失效"编码，派发点在 engine.ts 的 move-nullified 分支。
+  { id: "e35-null15", re: new RegExp("^下" + NUM + "次(?:自身)?技能无效时令(?:对手|对方|敌方)([一-龥]+)$"),
+    go: (m) => { const ail = AILMENTS[m[2]] ?? m[2]; return { effects: [{ op: "apply_status", name: "react", target: "self", params: { trigger: 19, count: num(m[1]) }, payload: [{ op: "apply_status", name: ail, target: "opponent" }] }] }; } },
   // ── 能力等级缩放威力 ────────────────────────────────────────────────
   // "对手每处于1种能力下降状态威力提升20%" → powerPerStageScale pct/count
   { id: "e35-01", re: new RegExp(`^(?:对手|对方|敌方)每处于${NUM}种能力(?:等级)?(?:下降|弱化)(?:状态)?威力(?:提升|增加|提高)${NUM}%$|^每处于${NUM}种能力(?:等级)?(?:下降|弱化)(?:状态)?威力(?:提升|增加|提高)${NUM}%$`),

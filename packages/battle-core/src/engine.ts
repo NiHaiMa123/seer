@@ -437,6 +437,10 @@ function execMoveAction(
       const cpN = applyEffect(pack, next, events, side, unit, move, fx, rng, myOrder);
       if (cpN !== "continue") return cpN;
     }
+    // 反应式触发 15：持有者的招式被失效（"下N次技能无效时令对手X"）。
+    // 派发点是失效成立之后——payload 里可以引用 foeMove（"若为攻击技能则…"由 cat 守卫过滤）。
+    const cpN15 = fireReactive({ pack, next, events, side, unit, move, rng, order: myOrder }, unit, 19, { cat: catCode, power: move.effects.find((f) => f.op === "damage")?.power ?? 0 });
+    if (cpN15 !== "continue") return cpN15;
     return "continue";
   }
 

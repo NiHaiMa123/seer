@@ -4,10 +4,10 @@
  * 语料 2 处（决囚钢骨/十里枯监、炎龙铠甲/降魔印）：
  *   下1次技能无效时令对手瘫痪，若为攻击技能则造成的伤害不少于200
  *
- * 半句拆开：
+ * 两个半句分别处理：
  *   "若为攻击技能则造成的伤害不少于N" → cap{of:minDamage}（宿主是本招，条件恒真）
- *   "下N次技能无效时令对手X" → 需要引擎新增「技能无效」trigger，尚未实现，
- *     仍走留档（见下方说明性测试，锁定它**现在的**行为而不是假装已完成）。
+ *   "下N次技能无效时令对手X" → 引擎 trigger 19（招式被 move_null 拦下时派发），
+ *     规则在 batch-e35 的 e35-null15。**已实现**（原先留档，见 git 历史）。
  */
 import { describe, it, expect } from "vitest";
 import { parseEffectText } from "../../../tools/effects-parse.mjs";
@@ -44,11 +44,12 @@ describe("若为攻击技能则造成的伤害不少于 N", () => {
   });
 });
 
-describe("下N次技能无效时（尚未实现，锁现状）", () => {
-  it("引擎没有「技能无效」trigger，该子句仍留档", () => {
+describe("下N次技能无效时（trigger 19）", () => {
+  it("该子句不再留档，产出 reaction 窗", () => {
     const r = parseEffectText("下1次技能无效时令对手瘫痪");
-    // trigger 编码表里没有"技能无效"（1受击/2对手MISS/3对手行动/4破盾/5倒下/6自身MISS/14治疗），
-    // 所以这一句必须继续留档，不能被悄悄解析成别的东西。
-    expect(r.unparsed.length).toBeGreaterThan(0);
+    expect(r.unparsed).toEqual([]);
+    const s = JSON.stringify(r.effects);
+    expect(s).toMatch(/"trigger":19/);
+    expect(s).toMatch(/shock/);
   });
 });
