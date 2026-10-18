@@ -87,8 +87,11 @@ export const rules = [
   { id: "e43-12",
     re: /^降低(?:对方|对手|敌方)的?能力$/,
     go: () => ({ unparsedReason: "unquantified stage drop — count absent (UNVERIFIED)" }) },
-  // ── "使用体力药剂变成降低相应的体力"（道具交互域——引擎不建模道具） ──
+  // ── 「使用体力药剂变成降低相应的体力」──
+  // hp 类道具的回复翻转为等量固定伤害。引擎侧在 items 的 planAction 里读
+  // item_heal_reverse，把 heal 换成 hp_delta（不是 heal_block 的"不回复"，而是"变成伤害"）。
+  // 三种主语形态：自身使用 / 对手使用 / "效果变成减少相应的体力"（承前句主语）。
   { id: "e43-13",
-    re: /^使用体力药剂变成降低相应的体力$/,
-    go: () => ({ unparsedReason: "item interaction domain — not modeled (deferred)" }) },
+    re: /^(?:(对手|对方|敌方)使用体力药剂变成降低相应的体力|使用体力药剂变成降低相应的体力|(?:(?:对手|对方|敌方)使用体力药剂时)?效果变成减少相应的体力)$/,
+    go: (m) => ({ effects: [{ op: "apply_status", name: "item_heal_reverse", target: m[1] !== undefined ? "opponent" : "self" }] }) },
 ];

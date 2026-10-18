@@ -13,7 +13,7 @@
 import Ajv from "ajv";
 import itemsSchemaJson from "../../../../../content/schemas/items.schema.json" with { type: "json" };
 import { sha256hex } from "../../sha256.ts";
-import { effectDefOf } from "../../ops/effects.ts";
+import { effectDefOf, isMod } from "../../ops/effects.ts";
 import type { Mechanic, MechanicCompileCtx, MechanicContribution, PackMechView } from "../types.ts";
 
 export interface ItemDef {
@@ -148,7 +148,17 @@ export const itemsMechanic: Mechanic = {
         .map((e) => e.kind);
       if (kinds.length > 0) effects.push({ op: "cleanse", target: "self", effect: kinds });
     }
-    if (def.heal !== undefined) effects.push({ op: "heal", target: "self", flat: def.heal });
+    // hp 类道具：正常回复；若身上挂 item_heal_reverse 则翻转为等量固定伤害（"使用体力药剂变成降低相应的体力"）
+    if (def.heal !== undefined) {
+      // 脱糖后 at="itemHealReverse"（axes 表）；兼容未脱糖的裸 kind 形态
+      const reversed = unit.effects.some((e) => isMod(e, "itemHealReverse") || e.kind === "item_heal_reverse");
+      if (reversed) {
+        const amt = Math.min(unit.currentHp, def.heal);
+        effects.push({ op: "hp_delta", target: "self", flat: amt, cause: "item-reverse" });
+      } else {
+        effects.push({ op: "heal", target: "self", flat: def.heal });
+      }
+    }
     if (def.pp !== undefined && parsed.moveId !== undefined) {
       const slot = unit.moves.findIndex((m) => m.moveId === parsed.moveId) + 1;
       effects.push({ op: "pp_delta", target: "self", slot, amount: def.pp });

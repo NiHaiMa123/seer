@@ -112,6 +112,9 @@ export const EFFECT_DEFS: Record<string, EffectDef> = {
   dmg_taken_down: { zh: "承伤减免%", modifier: "params" }, // params.pct 全类型承伤 -pct%
   dodge: { zh: "概率闪避", modifier: "params" }, // params{pct,cat?,count?}：cat=招式类别门（缺省任意）
   heal_block:     { zh: "禁疗", immune: "params" },
+  // 「使用体力药剂变成降低相应的体力」——hp 类道具的回复翻转为等量固定伤害。
+  // 与 heal_block 不同：禁疗是"不回复"，这条是"变成伤害"。
+  item_heal_reverse: { zh: "药剂反噬", modifier: "params" },
   pierce_stages: { zh: "穿透强化", modifier: "params" },
   dmg_reduce: { zh: "承伤减免", modifier: "params" }, // params.flat
   hit_fx_null: { zh: "命中效果失效", modifier: "params" }, // params.cat 门控（4=攻击技/1=属性技；缺省=全部）

@@ -56,6 +56,9 @@ const MOD_AT: Record<string, { at: string; inject?: P }> = {
   dmg_taken_up: { at: "dmgTakenPct" },
   dmg_taken_down: { at: "dmgTakenDown" },
   dmg_reduce: { at: "dmgReduceFlat" },
+  // 「使用体力药剂变成降低相应的体力」——hp 药剂回复翻转为等量固伤。
+  // 读取点在 mechanics/items 的 planAction（不是 ops 层），槽位名用于登记。
+  item_heal_reverse: { at: "itemHealReverse" },
   phys_half: { at: "dmgTakenCatFrac" },
   spec_half: { at: "dmgTakenCatFrac" },
   atk_taken_frac: { at: "dmgTakenCatFrac" },
