@@ -36,8 +36,10 @@ export const rules = [
   { id: "batch-e5f-18", re: /^(?:对方|对手|敌方)死亡$/, go: () => ({ orphanCond: { foeFainted: true } }) },
   { id: "batch-e5f-19", re: /^受到任何伤害(?:时|则)?$/, go: () => ({ dynTriggerPart: { trigger: 1 } }) },
   { id: "batch-e5f-20", re: /^(?:能力|技能)(?:提升|强化)效果$|^(?:攻击无效)?(?:效果)?延续至下回合$/, go: (m) => /延续/.test(m[0]) ? ({ attachAll: { extendTurns: 1 } }) : ({ ignored: true }) },
-  // "攻击无效" 裸片段（"…攻击无效效果延续至下回合" 切分残留——主体 move_null 由前句携带）
-  { id: "batch-e5f-21", re: /^攻击无效$|^攻击无效效果$/, go: () => ({ unparsedReason: "nullify tail fragment — host clause carries move_null" }) },
+  // "攻击无效" 裸片段（"…攻击无效效果延续至下回合" 切分残留——主体 move_null 由前句携带，
+  // 延长由 batch-e5f-20 的 attachAll.extendTurns 落到 extendIf 上）。
+  // 它没有独立语义：忽略即可，留档会让"已实现"的句子看起来像没实现。
+  { id: "batch-e5f-21", re: /^攻击无效$|^攻击无效效果$/, go: () => ({ ignored: true }) },
   // 天敌免疫（"若对手为自身天敌则免疫"——foeCountersUs 条件免疫窗）
   { id: "batch-e5f-22", re: /^若(?:对手|对方|敌方)为自身天敌则免疫$|^若自身为(?:对手|对方|敌方)天敌则免疫$/, go: () => ({ effects: [{ op: "apply_status", name: "dmg_immune", target: "self", if: { foeCountersUs: true } }] }) },
   // "附加恢复体力值等量的百分比伤害"（healEcho 百分比变体）
