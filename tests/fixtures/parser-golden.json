@@ -4501,21 +4501,21 @@
       "key": "3597:灵空击",
       "text": "惩罚，对方能力等级越高，技能威力越大",
       "flags": {},
-      "effects": [],
-      "unparsed": [
+      "effects": [
         {
-          "clause": "惩罚",
-          "reason": "punish — standalone keyword, mechanic undocumented (UNVERIFIED)"
-        },
-        {
-          "clause": "对方能力等级越高",
-          "reason": "stage/hp-scaled power — coefficient undocumented (UNVERIFIED)"
-        },
-        {
-          "clause": "技能威力越大",
-          "reason": "stage/hp-scaled power — coefficient undocumented (UNVERIFIED)"
+          "op": "power",
+          "of": "powerPerStageScale",
+          "value": {
+            "who": "foe",
+            "sign": "up",
+            "per": 1,
+            "add": 20,
+            "mode": "levels",
+            "kind": "flat"
+          }
         }
-      ]
+      ],
+      "unparsed": []
     },
     {
       "key": "3606:绿衣飞舞",

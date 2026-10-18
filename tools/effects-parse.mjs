@@ -1376,6 +1376,24 @@ function parseEffectTextAtExit(text, opts = {}) {
       }
       parts = merged;
     }
+    // 惩罚族尾句续接：「对方能力等级越高，技能威力越大」被逗号切成两半。
+    // 前段承载缩放（batch-e5-25b 出 powerPerStageScale），后段只是修辞重复；
+    // 拼回整句让 batch-e5-25a 一次吃完，避免尾段被当成独立未解析子句。
+    // 只在前段确实是「(惩罚)对方能力等级越高」时拼，不碰「个体越高，威力越大」
+    // 这类别的缩放（那条缺系数，必须继续留档）。
+    {
+      const punishHead = /^(?:惩罚[，,]?)?(?:对方|对手|对面|敌方)(?:的)?能力(?:等级|等)(?:越高|等越高)$/;
+      const punishTail = /^(?:此)?(?:招|技能)?威力(?:越大|越高)$/;
+      const merged = [];
+      for (const p of parts) {
+        const last = merged[merged.length - 1];
+        const bare = p.replace(/^\x01/, "");
+        if (last !== undefined && punishHead.test(last.replace(/^\x01/, "")) && punishTail.test(bare)) {
+          merged[merged.length - 1] = `${last}，${bare}`;
+        } else merged.push(p);
+      }
+      parts = merged;
+    }
     // "受到" 续段：触发/状态短语被逗号切碎后，"受到X点伤害"应挂回前一触发句（"对手使用技能后每处于N种异常状态，受到300点固定伤害"）
     {
       const merged = [];

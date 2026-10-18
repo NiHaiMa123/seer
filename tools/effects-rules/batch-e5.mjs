@@ -50,6 +50,23 @@ export const rules = [
   // 对手能力下降等级总和×N 固伤（"附加对手能力下降等级总和X100的固定伤害"）
   { id: "batch-e5-25", re: new RegExp(`^附加(?:对手|对方|敌方)能力下降等级总和[Xx×](\\d+)的(?:固定|固定伤害|固伤)$|^附加(?:对手|对方|敌方)能力下降(?:状态)?等级总和乘(?:以)?(\\d+)的?固定伤害$`), go: (m) => ({ attachDamage: { flatPerStage: { who: "foe", sign: "down", per: 1, flat: num(m[1] ?? m[2]), mode: "levels" } } }) },
   // 留档：语义不充分/变量未定义/系数未文档化
+  // ── 惩罚族：对方能力等级越高 → 威力 + 20×对方强化总级数 ──
+  // 原文不给系数，但赛尔号实测三源一致：实际威力 = 面板威力 + 20 × 对方能力强化总级数
+  //   https://news.7k7k.com/content/20110504/85587.html         （135 + 总级数*20）
+  //   https://www.bilibili.com/read/cv13459300/                  （面板+20*对手攻防等级）
+  //   https://wiki.biligame.com/seer/赛尔号PVE概论               （面板+20*对方攻击和防御等级）
+  // 落点用已有的 powerPerStageScale，不新增字段。必须排在 batch-e5-26 之前。
+  // 整句形态（未被逗号切开）
+  { id: "batch-e5-25a", re: /^(?:惩罚[，,]?)?(?:对方|对手|对面|敌方)(?:的)?能力(?:等级|等)(?:越高|等越高)[，,]?.*(?:此)?(?:招|技能)?威力(?:越大|越高)$/, go: () => ({ attachDamage: { powerPerStageScale: { who: "foe", sign: "up", per: 1, add: 20, mode: "levels", kind: "flat" } } }) },
+  // 被逗号切开的半句："对方能力等级越高，此技能威力越大" → 两个独立 part。
+  // 头半句承载缩放语义，尾半句只是修辞重复；尾半句忽略即可（不新增条目）。
+  { id: "batch-e5-25b", re: /^(?:惩罚[，,]?)?(?:对方|对手|对面|敌方)(?:的)?能力(?:等级|等)(?:越高|等越高)$/, go: () => ({ attachDamage: { powerPerStageScale: { who: "foe", sign: "up", per: 1, add: 20, mode: "levels", kind: "flat" } } }) },
+  // 「威力越大」/「惩罚」这类残段在**同句已出现能力等级缩放**时只是修辞重复；
+  // 但规则看不到前文，所以不能无条件 ignored（否则会吞掉 849 冰之潜能这种
+  // "个体越高，威力越大"——个体值缩放，无系数，必须继续留档）。
+  // 折中：把被逗号切开的整句在解析层拼回去（见 effects-parse 的 punish 合句），
+  // 这里只留"惩罚"这个修饰词的无害忽略。
+  { id: "batch-e5-25d", re: /^惩罚$/, go: () => ({ ignored: true }) },
   { id: "batch-e5-26", re: /^(?:对方|对手|敌方)能力等级越高$|^此技能威力越大$|^技能威力越大$|^自身体力越少则威力越大$|^体力越少威力越大$/, go: () => ({ unparsedReason: "stage/hp-scaled power — coefficient undocumented (UNVERIFIED)" }) },
   { id: "batch-e5-27", re: /^连续使用可以增加威力$|^连续使用威力(?:增加|提升)$/, go: () => ({ unparsedReason: "per-use power — coefficient undocumented (UNVERIFIED)" }) },
   { id: "batch-e5-28", re: /^使自身下次受到的伤害减少[nN]点$/, go: () => ({ unparsedReason: "flat_taken variable 'n' — referent undefined (UNVERIFIED)" }) },
