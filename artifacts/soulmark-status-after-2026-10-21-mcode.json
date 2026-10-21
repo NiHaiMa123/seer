@@ -9,9 +9,9 @@
   },
   "statusCounts": {
     "explicitNoTrait": 73,
-    "noEntryWithResidual": 128,
+    "noEntryWithResidual": 127,
     "noEntryNoResidual": 0,
-    "partial": 955,
+    "partial": 956,
     "entryNoResidual": 728,
     "parserError": 0
   },
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 901,
+      "fragments": 903,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,11 +43,11 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 456
+      "distinctRecords": 458
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
-      "fragments": 477,
+      "fragments": 470,
       "examples": [
         {
           "creatureId": "pet-4732",
@@ -68,11 +68,11 @@
           "clause": "若本次的触发效果与上次一致则本场战斗删除此效果，将此触发结果并入自身先出手时触发的效果中"
         }
       ],
-      "distinctRecords": 189
+      "distinctRecords": 187
     },
     {
       "reason": "no-trigger-prefix",
-      "fragments": 207,
+      "fragments": 206,
       "examples": [
         {
           "creatureId": "pet-4717",
@@ -93,7 +93,7 @@
           "clause": "设自身1~4号位技能的PP值为一个2阶矩阵"
         }
       ],
-      "distinctRecords": 169
+      "distinctRecords": 168
     },
     {
       "reason": "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -172,7 +172,7 @@
     },
     {
       "reason": "cond-orphan",
-      "fragments": 67,
+      "fragments": 68,
       "examples": [
         {
           "creatureId": "pet-4716",
@@ -193,7 +193,7 @@
           "clause": "自身打出致命一击后"
         }
       ],
-      "distinctRecords": 64
+      "distinctRecords": 65
     },
     {
       "reason": "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)",
@@ -247,7 +247,7 @@
     },
     {
       "reason": "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
-      "fragments": 52,
+      "fragments": 54,
       "examples": [
         {
           "creatureId": "pet-4880",
@@ -268,7 +268,7 @@
           "clause": "未触发烧伤则下回合先制+1且所有技能70%概率使对手害怕"
         }
       ],
-      "distinctRecords": 32
+      "distinctRecords": 33
     },
     {
       "reason": "attr-domain — typechart mutation unmodeled (deferred)",
@@ -4672,13 +4672,13 @@
   },
   "pack": {
     "unitCount": 2239,
-    "soulmarkDirectoryCount": 1600,
+    "soulmarkDirectoryCount": 1601,
     "sourceRecordsOutsidePackWithEntries": 74,
     "directoryCounts": {
       "missing": 33,
-      "different": 532,
-      "same": 1068,
-      "notGenerated": 169,
+      "different": 531,
+      "same": 1070,
+      "notGenerated": 168,
       "outsidePack": 82,
       "ambiguous": 0
     },
@@ -11022,25 +11022,6 @@
         "storedEffects": 1
       },
       {
-        "creatureId": "pet-3933",
-        "catalogKey": "pet-3933",
-        "associationId": "pet-3933",
-        "idSource": "creature.id",
-        "petNo": "3933",
-        "name": "离歌",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-trigger-prefix"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3933",
-        "storedEffects": 1
-      },
-      {
         "creatureId": "pet-3935",
         "catalogKey": "pet-3935",
         "associationId": "pet-3935",
@@ -16346,9 +16327,10 @@
         "name": "黑石女妖",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 1,
+        "residualFragments": 2,
         "residualReasons": [
-          "no-trigger-prefix"
+          "no-trigger-prefix",
+          "cond-orphan"
         ],
         "inPackScope": true,
         "packDirectory": "same-effects",
@@ -28817,6 +28799,24 @@
         "expectedSoulmarkId": "sm-3932"
       },
       {
+        "creatureId": "pet-3933",
+        "catalogKey": "pet-3933",
+        "associationId": "pet-3933",
+        "idSource": "creature.id",
+        "petNo": "3933",
+        "name": "离歌",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3933"
+      },
+      {
         "creatureId": "pet-3939",
         "catalogKey": "pet-3939",
         "associationId": "pet-3939",
@@ -29036,6 +29036,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3961"
+      },
+      {
+        "creatureId": "pet-3965",
+        "catalogKey": "pet-3965",
+        "associationId": "pet-3965",
+        "idSource": "creature.id",
+        "petNo": "3965",
+        "name": "闭月之姿·貂蝉",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3965"
       },
       {
         "creatureId": "pet-3967",
@@ -29984,10 +30002,10 @@
         "petNo": "4132",
         "name": "魅妖辛克斯",
         "status": "partial",
-        "entries": 1,
-        "residualFragments": 4,
+        "entries": 3,
+        "residualFragments": 2,
         "residualReasons": [
-          "guard unmodeled — effect withheld (deferred)"
+          "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
         ],
         "inPackScope": true,
         "packDirectory": "same-effects",
@@ -35288,8 +35306,8 @@
       }
     ],
     "defaultMount": {
-      "eligibleInPack": 1609,
-      "mounted": 1565,
+      "eligibleInPack": 1610,
+      "mounted": 1566,
       "unmounted": 33,
       "eligibleManualPeakUnmounted": 11,
       "differentReference": 0,
@@ -37812,9 +37830,10 @@
       "name": "黑石女妖",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 1,
+      "residualFragments": 2,
       "residualReasons": [
-        "no-trigger-prefix"
+        "no-trigger-prefix",
+        "cond-orphan"
       ],
       "inPackScope": true,
       "packDirectory": "same-effects",
@@ -57863,13 +57882,13 @@
       "petNo": "3933",
       "name": "离歌",
       "status": "partial",
-      "entries": 1,
+      "entries": 3,
       "residualFragments": 1,
       "residualReasons": [
-        "no-trigger-prefix"
+        "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3933"
     },
@@ -58373,15 +58392,15 @@
       "idSource": "creature.id",
       "petNo": "3965",
       "name": "闭月之姿·貂蝉",
-      "status": "no-entry-with-residual",
-      "entries": 0,
-      "residualFragments": 3,
+      "status": "partial",
+      "entries": 2,
+      "residualFragments": 1,
       "residualReasons": [
-        "guard unmodeled — effect withheld (deferred)"
+        "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "not-generated",
-      "defaultMount": "no-current-entry",
+      "packDirectory": "same-effects",
+      "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3965"
     },
     {
@@ -60517,10 +60536,10 @@
       "petNo": "4132",
       "name": "魅妖辛克斯",
       "status": "partial",
-      "entries": 1,
-      "residualFragments": 4,
+      "entries": 3,
+      "residualFragments": 2,
       "residualReasons": [
-        "guard unmodeled — effect withheld (deferred)"
+        "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
       ],
       "inPackScope": true,
       "packDirectory": "same-effects",

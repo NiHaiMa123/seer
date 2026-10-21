@@ -108,10 +108,20 @@ describe("remain2 性别限定族：foeGender 谓词是现成格子，只补词�
     });
   });
 
-  it("邻句不变：裸形「对手为雄性…」仍被性别门挡住（本次不动 e46-12，旧 IR 逐字不变）", () => {
+  it("邻句不变：裸形「对手为雄性…」时-form 落位（性别门 + 承伤减免）", () => {
+    // 「对手为雄性精灵时X」：条件（foeGender）现在认得，时-form 也能落位——
+    // onTurnEnd + 性别守卫 + 1 回合承伤减免。引擎侧 foeGender 谓词是现成格子。
+    // 注意：整条魂印里若同句还有「并在…」并列负载，时-form 的条件仍会摘成 cond-orphan
+    // （pet-4807 黑石女妖）——那是「且/并」并列分句作用域那一族的问题，不是性别门的问题。
     const r = parseSoulmarkText("对手为雄性精灵时自身受到的攻击伤害减少30%");
-    expect(r.entries).toHaveLength(0);
-    expect(r.unparsed[0]).toEqual({ clause: "对手为雄性精灵时自身受到的攻击伤害减少30%", reason: "gender domain unmodeled (deferred)" });
+    expect(r.entries).toEqual([
+      {
+        hook: "onTurnEnd",
+        guard: { foeGender: "male" },
+        ops: [{ op: "apply_status", name: "dmg_taken_down", target: "self", params: { pct: 30 }, turns: 1 }],
+      },
+    ]);
+    expect(r.unparsed).toHaveLength(0);
   });
 });
 

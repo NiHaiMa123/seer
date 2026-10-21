@@ -660,9 +660,15 @@ if (m(/^(?:对手|对方|敌方)不处于能力下降(?:状态)?$/) ?? m(/^(?:�
   if ((mm = m(/^每(?:经过|相隔|过)(\d+)回合$/))) return { everyNTurns: num(mm[1]) };
   if ((mm = m(/^战斗每开始(\d+)个?回合$/))) return { everyNTurns: num(mm[1]) };
   // ── 性别门 ──
-  if (m(/^(?:对手|对方|敌方)(?:为|是)雄性$/)) return { foeGender: "male" };
-  if (m(/^(?:对手|对方|敌方)(?:为|是)雌性$/)) return { foeGender: "female" };
-  if (m(/^(?:对手|对方|敌方)(?:为|是)无性别$/)) return { foeGender: "none" };
+  // 「精灵」可省可留：语料两种都有（"对手为雄性" / "对手为雄性精灵"——pet-4807 黑石女妖、
+  // pet-3965 闭月之姿、pet-4132 女王使命/狂影之掠，以及 4 个技能）。
+  // 收下带「精灵」的形态后，「若…则」形与技能形的性别门从整条 defer 变成真正生效
+  // （foeGender 谓词本来就是现成格子：ops/cond.ts 读 pack 的 CompiledUnit.gender）。
+  // 注意：时-form（"对手为雄性精灵时X"）的条件仍接不上体（会摘成 cond-orphan），
+  // 该形不产条目，残文比原来更精确——见 add-soulmark-p3.test 的邻句护栏。
+  if (m(/^(?:对手|对方|敌方)(?:为|是)雄性(?:精灵)?$/)) return { foeGender: "male" };
+  if (m(/^(?:对手|对方|敌方)(?:为|是)雌性(?:精灵)?$/)) return { foeGender: "female" };
+  if (m(/^(?:对手|对方|敌方)(?:为|是)无性别(?:精灵)?$/)) return { foeGender: "none" };
   // ── 背包存活 ──
   if (m(/^背包内(?:的)?精灵全部阵亡$/) ?? m(/^(?:己方|我方)?背包内无存活精灵$/)) return { benchAllDead: true };
   if ((mm = m(/^背包内(?:的)?精灵存活数(?:为|等于)(\d+)$/))) return { benchAliveEq: num(mm[1]) };

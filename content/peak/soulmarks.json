@@ -50634,12 +50634,51 @@
       "desc": "离：对手为雌性精灵则攻击命中后50%令对手失明，对手为雄性精灵则攻击命中后50%令对手睡眠，未触发异常状态则回合结束时100%令对手随机1个技能PP值归零（boss无效）",
       "effects": [
         {
-          "hook": "onTurnEnd",
+          "hook": "onMoveUsed",
           "guard": {
-            "not": {
-              "prevApplied": true
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ],
+            "if": {
+              "foeGender": "female"
             }
           },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "blind",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ],
+            "if": {
+              "foeGender": "male"
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "sleep",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
           "bossGate": true,
           "ops": [
             {
@@ -60569,6 +60608,36 @@
       "name": "魅妖辛克斯魂印",
       "desc": "问：赛尔号魅妖辛克斯魂印是什么？赛尔号魅妖辛克斯专属特性是什么？ 答： 赛尔号魅妖辛克斯的魂印是：魅 1、辛克斯善于蛊惑心智：若对手为雄性精灵则每回合开始时50%令对手失神，若对手为雌性精灵则每回合开始时50%令对手失明，未触发则当回合技能命中后随机吸取对手200-350点体力； 2、回合结束时，若对手体力值高于回合开始时则下回合自身攻击必定打出致命一击 3、（boss无效） 精灵资料：赛尔号魅妖辛克斯进化图种族值技能表>>>",
       "effects": [
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "foeGender": "male"
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "daze",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "foeGender": "female"
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "blind",
+              "target": "opponent",
+              "chance": 50,
+              "turns": 1
+            }
+          ]
+        },
         {
           "hook": "onMoveUsed",
           "guard": {
@@ -91812,6 +91881,70 @@
           "guard": {
             "weCounterFoe": true
           }
+        }
+      ]
+    },
+    "sm-3965": {
+      "id": "sm-3965",
+      "name": "闭月之姿·貂蝉魂印",
+      "desc": "问：赛尔号闭月之姿&middot;貂蝉魂印是什么？赛尔号闭月之姿&middot;貂蝉专属特性是什么？ 答： 赛尔号闭月之姿&middot;貂蝉的魂印是：魅 1、首次登场时，若对手为雄性精灵则100%消除对手回合类效果和能力提升状态； 2、对手为雄性精灵时，当回合自身造成的攻击伤害提升50%且造成的伤害低于300时附加伤害值100%的固定伤害，当回合自身受到的攻击伤害降低50%且受到的伤害高于400时100%令对手害怕 3、（boss无效） 精灵资料：赛尔号闭月之姿&middot;貂蝉进化图种族值技能表>>>",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1,
+              "if": {
+                "foeGender": "male"
+              }
+            },
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 0,
+              "target": "opponent",
+              "if": {
+                "foeGender": "male"
+              }
+            },
+            {
+              "op": "flat",
+              "of": "flatSelfLastDmgPct",
+              "value": 100
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "fear",
+              "target": "opponent",
+              "if": {
+                "takenAboveAbs": 400
+              },
+              "chance": 100,
+              "turns": 1
+            }
+          ]
         }
       ]
     }
