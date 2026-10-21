@@ -2310,7 +2310,6 @@
               "order": "first"
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -3644,7 +3643,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -4046,7 +4044,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -4299,7 +4296,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -4335,7 +4331,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -5799,7 +5794,6 @@
         },
         {
           "hook": "onSwitchOut",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -6804,7 +6798,6 @@
           "guard": {
             "prevDamageBelowAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -6917,7 +6910,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -7940,7 +7932,6 @@
       "effects": [
         {
           "hook": "onEntry",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -9829,7 +9820,6 @@
           "guard": {
             "selfHpAboveFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -10099,7 +10089,6 @@
           "guard": {
             "prevDamageAboveAbs": 200
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -14543,7 +14532,6 @@
               "stage": 1
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -15268,15 +15256,13 @@
       "desc": "问：赛尔号圣光灵神魂印效果是什么？赛尔号圣光灵王完全体魂印是什么？ 答：赛尔号圣光灵神魂印效果如下： 1、每次使用攻击技能附加对手上次造成伤害数值一半的固定伤害（BOSS无效）； 2、自身死亡后100%重生一次，重生时消除对手能力提升状态和回合类效果，消除任意一项成功则自身免疫下1次受到的异常状态； 3、重生后自身2回合所有技能威力提升100%； 精灵资料：赛尔号圣光灵神进化图种族值技能表 >>>",
       "effects": [
         {
-          "op": "revive",
-          "bossGate": true
+          "op": "revive"
         },
         {
           "hook": "onTurnEnd",
           "guard": {
             "prevApplied": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -15919,7 +15905,6 @@
       "effects": [
         {
           "hook": "onDamageDealt",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -16460,7 +16445,6 @@
       "effects": [
         {
           "hook": "onDamageDealt",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -16909,7 +16893,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -17732,7 +17715,6 @@
         },
         {
           "hook": "onTurnStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -25033,10 +25015,7 @@
                 "d": 2
               }
             }
-          ],
-          "chance": {
-            "once": true
-          }
+          ]
         }
       ]
     },
@@ -27348,7 +27327,6 @@
           "guard": {
             "selfHpFull": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -27368,7 +27346,6 @@
               "selfHpFull": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -28357,7 +28334,6 @@
         },
         {
           "hook": "onKO",
-          "bossGate": true,
           "ops": [
             {
               "op": "clear_stages",
@@ -29604,7 +29580,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -32289,7 +32264,6 @@
         },
         {
           "hook": "onKO",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -38553,7 +38527,6 @@
         },
         {
           "hook": "onTurnStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -39749,7 +39722,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -42129,7 +42101,6 @@
               }
             ]
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -44472,7 +44443,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -44499,7 +44469,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -45272,7 +45241,6 @@
       "effects": [
         {
           "hook": "onDamaged",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -47850,7 +47818,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -48336,7 +48303,6 @@
       "effects": [
         {
           "hook": "onDamaged",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -48351,7 +48317,6 @@
           "chance": {
             "base": 25
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -49509,7 +49474,6 @@
       "effects": [
         {
           "hook": "onBattleStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -50999,7 +50963,6 @@
               "selfHpFull": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -51080,7 +51043,6 @@
         },
         {
           "hook": "onDamageDealt",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -51405,7 +51367,6 @@
           "guard": {
             "hpEqTurnStart": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -51423,7 +51384,6 @@
           "guard": {
             "hpAboveTurnStart": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -54137,7 +54097,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -54161,7 +54120,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -55550,7 +55508,6 @@
           "guard": {
             "selfHas": "freeze"
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -56146,7 +56103,6 @@
         },
         {
           "hook": "onDamaged",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_mark",
@@ -56273,7 +56229,6 @@
           "guard": {
             "prevDamageAboveAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "pp_delta",
@@ -58119,7 +58074,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -59660,7 +59614,6 @@
           "guard": {
             "hpAboveTurnStart": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -59679,7 +59632,6 @@
           "guard": {
             "hpBelowTurnStart": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -59836,7 +59788,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -60775,7 +60726,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -60943,7 +60893,6 @@
               "stage": 1
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -62251,7 +62200,6 @@
       "effects": [
         {
           "hook": "onEntry",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -62268,7 +62216,6 @@
           "guard": {
             "prevDamageAboveAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -62283,7 +62230,6 @@
           "guard": {
             "prevDamageBelowAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -63013,7 +62959,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -64971,7 +64916,6 @@
           "guard": {
             "takenBelowAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -65067,7 +65011,6 @@
               }
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -65967,7 +65910,6 @@
         },
         {
           "hook": "onTurnStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -65986,7 +65928,6 @@
               "selfHas": "shield"
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -66790,7 +66731,6 @@
       "effects": [
         {
           "hook": "onSwitchOut",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -68186,7 +68126,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -69620,7 +69559,6 @@
           "guard": {
             "prevDamageBelowAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -70223,7 +70161,6 @@
               "hpAboveTurnStart": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -70241,7 +70178,6 @@
           "guard": {
             "hpEqTurnStart": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -72623,7 +72559,6 @@
               }
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -72761,7 +72696,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -72811,7 +72745,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -75110,7 +75043,6 @@
               "hpAboveTurnStart": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -75929,7 +75861,6 @@
               "hpEqTurnStart": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -76152,7 +76083,6 @@
       "effects": [
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -76450,7 +76380,6 @@
       "effects": [
         {
           "hook": "onTurnStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -76633,7 +76562,6 @@
       "effects": [
         {
           "hook": "onTurnStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -77290,7 +77218,6 @@
           "guard": {
             "prevDamageAboveAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -77551,7 +77478,6 @@
               }
             ]
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -80084,7 +80010,6 @@
           "guard": {
             "selfHpBelowFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -82400,7 +82325,6 @@
           "guard": {
             "selfHpBelowFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_mark",
@@ -82590,7 +82514,6 @@
         },
         {
           "hook": "onKO",
-          "bossGate": true,
           "ops": [
             {
               "op": "cleanse",
@@ -83136,7 +83059,6 @@
               "selfHpFull": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -84776,7 +84698,6 @@
       "effects": [
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -85363,7 +85284,6 @@
       "effects": [
         {
           "hook": "onEntry",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -85384,7 +85304,6 @@
               "on": "self"
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -85399,7 +85318,6 @@
         },
         {
           "hook": "onSwitchOut",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -85681,7 +85599,6 @@
           "guard": {
             "prevDamageAboveAbs": 400
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -85706,7 +85623,6 @@
           "guard": {
             "prevDamageBelowAbs": 400
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -86272,7 +86188,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -86330,7 +86245,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -86625,7 +86539,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -87259,7 +87172,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -87342,7 +87254,6 @@
       "effects": [
         {
           "hook": "onBattleStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_mark",
@@ -87353,7 +87264,6 @@
         },
         {
           "hook": "onEntry",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -87421,7 +87331,6 @@
               "weCounterFoe": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -89025,7 +88934,6 @@
       "effects": [
         {
           "hook": "onEntry",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -89051,7 +88959,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "cleanse",
@@ -90160,7 +90067,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -90186,7 +90092,6 @@
         },
         {
           "hook": "onEntry",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -90446,7 +90351,6 @@
       "effects": [
         {
           "hook": "onBattleStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -90460,7 +90364,6 @@
         },
         {
           "hook": "onBattleStart",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -90474,7 +90377,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -90805,7 +90707,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -90839,7 +90740,6 @@
               }
             ]
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -90865,7 +90765,6 @@
               }
             ]
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -91519,7 +91418,6 @@
           "guard": {
             "selfHpAboveFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -91733,7 +91631,6 @@
               "selfStatused": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -91751,7 +91648,6 @@
           "guard": {
             "selfStatused": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "clear_stages",
@@ -91765,7 +91661,6 @@
           "guard": {
             "selfStatused": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -92630,7 +92525,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -92691,7 +92585,6 @@
       "effects": [
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -93050,7 +92943,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -93070,7 +92962,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",

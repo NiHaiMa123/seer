@@ -4652,8 +4652,8 @@
     "sourceRecordsOutsidePackWithEntries": 74,
     "directoryCounts": {
       "missing": 33,
-      "different": 464,
-      "same": 1137,
+      "different": 383,
+      "same": 1218,
       "notGenerated": 168,
       "outsidePack": 82,
       "ambiguous": 0
@@ -5324,47 +5324,6 @@
         "storedEffects": 1
       },
       {
-        "creatureId": "pet-4716",
-        "catalogKey": "pet-4716",
-        "associationId": "pet-4716",
-        "idSource": "creature.id",
-        "petNo": "4716",
-        "name": "赫尔卡长老",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 13,
-        "residualReasons": [
-          "no-rule",
-          "bench-side target unmodeled (deferred)",
-          "cond-orphan",
-          "empty-body"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4716",
-        "storedEffects": 4
-      },
-      {
-        "creatureId": "pet-4725",
-        "catalogKey": "pet-4725",
-        "associationId": "pet-4725",
-        "idSource": "creature.id",
-        "petNo": "4725",
-        "name": "花灯仙子",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "nullify-success — move-nullification observation unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4725",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-4733",
         "catalogKey": "pet-4733",
         "associationId": "pet-4733",
@@ -5423,47 +5382,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-4739",
-        "catalogKey": "pet-4739",
-        "associationId": "pet-4739",
-        "idSource": "creature.id",
-        "petNo": "4739",
-        "name": "绒霜·柯蓝",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 4,
-        "residualReasons": [
-          "no-rule",
-          "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4739",
-        "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4740",
-        "catalogKey": "pet-4740",
-        "associationId": "pet-4740",
-        "idSource": "creature.id",
-        "petNo": "4740",
-        "name": "幽阑·执冥",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 6,
-        "residualReasons": [
-          "mutable mark ratio — entry coefficient state unmodeled (deferred)",
-          "drain quantum unspecified — no coefficient in source (deferred)",
-          "guard unmodeled — effect withheld (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4740",
-        "storedEffects": 1
-      },
-      {
         "creatureId": "pet-4743",
         "catalogKey": "pet-4743",
         "associationId": "pet-4743",
@@ -5485,25 +5403,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4743",
         "storedEffects": 4
-      },
-      {
-        "creatureId": "pet-4747",
-        "catalogKey": "pet-4747",
-        "associationId": "pet-4747",
-        "idSource": "creature.id",
-        "petNo": "4747",
-        "name": "圣颖",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 2,
-        "residualReasons": [
-          "guard unmodeled — effect withheld (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4747",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-4751",
@@ -5593,49 +5492,6 @@
         "storedEffects": 1
       },
       {
-        "creatureId": "pet-4758",
-        "catalogKey": "pet-4758",
-        "associationId": "pet-4758",
-        "idSource": "creature.id",
-        "petNo": "4758",
-        "name": "神决·盖亚",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4758",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4761",
-        "catalogKey": "pet-4761",
-        "associationId": "pet-4761",
-        "idSource": "creature.id",
-        "petNo": "4761",
-        "name": "琉梦",
-        "status": "partial",
-        "entries": 5,
-        "residualFragments": 8,
-        "residualReasons": [
-          "trait-count — external trait roster unmodeled (deferred)",
-          "named-mechanic — pet-specific domain unmodeled (deferred)",
-          "guard unmodeled — effect withheld (deferred)",
-          "insta-KO domain — one-shot mechanic unmodeled (deferred)",
-          "mark-declaration — named-mark state machine unmodeled (deferred)",
-          "edge-trigger — ailment-entry transition hook not modeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4761",
-        "storedEffects": 5
-      },
-      {
         "creatureId": "pet-4781",
         "catalogKey": "pet-4781",
         "associationId": "pet-4781",
@@ -5690,27 +5546,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4804",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4808",
-        "catalogKey": "pet-4808",
-        "associationId": "pet-4808",
-        "idSource": "creature.id",
-        "petNo": "4808",
-        "name": "讳迹·米修莉",
-        "status": "partial",
-        "entries": 5,
-        "residualFragments": 8,
-        "residualReasons": [
-          "no-rule",
-          "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
-          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4808",
-        "storedEffects": 5
       },
       {
         "creatureId": "pet-4814",
@@ -5819,25 +5654,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-4833",
-        "catalogKey": "pet-4833",
-        "associationId": "pet-4833",
-        "idSource": "creature.id",
-        "petNo": "4833",
-        "name": "蟑螂恶霸",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4833",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-4843",
         "catalogKey": "pet-4843",
         "associationId": "pet-4843",
@@ -5856,27 +5672,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4843",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4840",
-        "catalogKey": "pet-4840",
-        "associationId": "pet-4840",
-        "idSource": "creature.id",
-        "petNo": "4840",
-        "name": "霞冠·星礼",
-        "status": "partial",
-        "entries": 5,
-        "residualFragments": 3,
-        "residualReasons": [
-          "effectDouble cond unparsed: 双方任意一方存在技能PP值不高于1",
-          "no-rule",
-          "cleanse-immune — anti-cleanse domain unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4840",
-        "storedEffects": 5
       },
       {
         "creatureId": "pet-4839",
@@ -5916,27 +5711,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4845",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4850",
-        "catalogKey": "pet-4850",
-        "associationId": "pet-4850",
-        "idSource": "creature.id",
-        "petNo": "4850",
-        "name": "图特摩斯",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 3,
-        "residualReasons": [
-          "prevApplied prerequisite — no same-event successful host (deferred)",
-          "named-ally predicate — species identity unmodeled (deferred)",
-          "empty-body"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4850",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-4862",
@@ -6081,25 +5855,6 @@
         "storedEffects": 4
       },
       {
-        "creatureId": "pet-4877",
-        "catalogKey": "pet-4877",
-        "associationId": "pet-4877",
-        "idSource": "creature.id",
-        "petNo": "4877",
-        "name": "锢魂铁犀",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4877",
-        "storedEffects": 1
-      },
-      {
         "creatureId": "pet-4880",
         "catalogKey": "pet-4880",
         "associationId": "pet-4880",
@@ -6136,35 +5891,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4883",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4888",
-        "catalogKey": "pet-4888",
-        "associationId": "pet-4888",
-        "idSource": "creature.id",
-        "petNo": "4888",
-        "name": "慈辉永颂·瑞亚",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 17,
-        "residualReasons": [
-          "reactive on foe action choice — E4",
-          "no-op",
-          "prio-snapshot — cross-turn prio compare unmodeled (deferred)",
-          "bench-position predicate (UNVERIFIED)",
-          "edge-trigger — ailment-entry transition hook not modeled (deferred)",
-          "sub-ailment class unmodeled (deferred)",
-          "no-rule",
-          "mark-declaration — named-mark state machine unmodeled (deferred)",
-          "bench-side target unmodeled (deferred)",
-          "cond-orphan",
-          "empty-body"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4888",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-4890",
@@ -6226,50 +5952,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4911",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4921",
-        "catalogKey": "pet-4921",
-        "associationId": "pet-4921",
-        "idSource": "creature.id",
-        "petNo": "4921",
-        "name": "天堂极龙兽",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 8,
-        "residualReasons": [
-          "no-rule",
-          "checkpoint-restore — hp snapshot/restore pair not modeled (deferred)",
-          "edge-trigger — ailment-entry transition hook not modeled (deferred)",
-          "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
-          "fractional cap tail — cap dimension unmodeled"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4921",
-        "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-4919",
-        "catalogKey": "pet-4919",
-        "associationId": "pet-4919",
-        "idSource": "creature.id",
-        "petNo": "4919",
-        "name": "卡鲁维德",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 5,
-        "residualReasons": [
-          "no-rule",
-          "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
-          "empty-body"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4919",
-        "storedEffects": 1
       },
       {
         "creatureId": "pet-4927",
@@ -6380,23 +6062,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-2767",
-        "catalogKey": "pet-2767",
-        "associationId": "pet-2767",
-        "idSource": "creature.id",
-        "petNo": "2767",
-        "name": "妖皇兰蒂斯",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2767",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-2785",
         "catalogKey": "pet-2785",
         "associationId": "pet-2785",
@@ -6467,23 +6132,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-2856",
-        "catalogKey": "pet-2856",
-        "associationId": "pet-2856",
-        "idSource": "creature.id",
-        "petNo": "2856",
-        "name": "萨瑞罗斯",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2856",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-2863",
         "catalogKey": "pet-2863",
         "associationId": "pet-2863",
@@ -6498,57 +6146,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-2863",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-2880",
-        "catalogKey": "pet-2880",
-        "associationId": "pet-2880",
-        "idSource": "creature.id",
-        "petNo": "2880",
-        "name": "马尔修斯（速）",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2880",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-2899",
-        "catalogKey": "pet-2899",
-        "associationId": "pet-2899",
-        "idSource": "creature.id",
-        "petNo": "2899",
-        "name": "爆炎莱茵",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2899",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-2898",
-        "catalogKey": "pet-2898",
-        "associationId": "pet-2898",
-        "idSource": "creature.id",
-        "petNo": "2898",
-        "name": "英普力亚",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2898",
         "storedEffects": 2
       },
       {
@@ -6586,25 +6183,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-2924",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-2977",
-        "catalogKey": "pet-2977",
-        "associationId": "pet-2977",
-        "idSource": "creature.id",
-        "petNo": "2977",
-        "name": "神寂·克罗诺斯",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "grow tail without growing host"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2977",
-        "storedEffects": 2
       },
       {
         "creatureId": "pet-2979",
@@ -6696,40 +6274,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-3020",
-        "catalogKey": "pet-3020",
-        "associationId": "pet-3020",
-        "idSource": "creature.id",
-        "petNo": "3020",
-        "name": "百鬼夜王",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3020",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3025",
-        "catalogKey": "pet-3025",
-        "associationId": "pet-3025",
-        "idSource": "creature.id",
-        "petNo": "3025",
-        "name": "炽风烈鬼",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3025",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-3049",
         "catalogKey": "pet-3049",
         "associationId": "pet-3049",
@@ -6767,23 +6311,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-3078",
-        "catalogKey": "pet-3078",
-        "associationId": "pet-3078",
-        "idSource": "creature.id",
-        "petNo": "3078",
-        "name": "龙胆·赵云",
-        "status": "entry-no-residual",
-        "entries": 3,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3078",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-3120",
         "catalogKey": "pet-3120",
         "associationId": "pet-3120",
@@ -6818,45 +6345,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3136",
         "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-3142",
-        "catalogKey": "pet-3142",
-        "associationId": "pet-3142",
-        "idSource": "creature.id",
-        "petNo": "3142",
-        "name": "王·雷伊",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 5,
-        "residualReasons": [
-          "mark-expiry refund — removal-side-effect unmodeled (deferred)",
-          "timed-effect duration rewrite — unmodeled (deferred)",
-          "cleanse-immune — anti-cleanse domain unmodeled (deferred)",
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3142",
-        "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-3152",
-        "catalogKey": "pet-3152",
-        "associationId": "pet-3152",
-        "idSource": "creature.id",
-        "petNo": "3152",
-        "name": "冥王·鬼夜斩",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3152",
-        "storedEffects": 2
       },
       {
         "creatureId": "pet-3190",
@@ -7170,23 +6658,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-3296",
-        "catalogKey": "pet-3296",
-        "associationId": "pet-3296",
-        "idSource": "creature.id",
-        "petNo": "3296",
-        "name": "暗烬·朱雀",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3296",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-3297",
         "catalogKey": "pet-3297",
         "associationId": "pet-3297",
@@ -7264,26 +6735,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-3311",
-        "catalogKey": "pet-3311",
-        "associationId": "pet-3311",
-        "idSource": "creature.id",
-        "petNo": "3311",
-        "name": "圣光灵神",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-rule",
-          "revive/checkpoint — hook not modeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3311",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-3315",
         "catalogKey": "pet-3315",
         "associationId": "pet-3315",
@@ -7358,42 +6809,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-3325",
-        "catalogKey": "pet-3325",
-        "associationId": "pet-3325",
-        "idSource": "creature.id",
-        "petNo": "3325",
-        "name": "雪慕",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "move-use scope — boss gate cannot persist across the react window (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3325",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3335",
-        "catalogKey": "pet-3335",
-        "associationId": "pet-3335",
-        "idSource": "creature.id",
-        "petNo": "3335",
-        "name": "菲格利亚",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3335",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-3334",
         "catalogKey": "pet-3334",
         "associationId": "pet-3334",
@@ -7449,23 +6864,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3341",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3346",
-        "catalogKey": "pet-3346",
-        "associationId": "pet-3346",
-        "idSource": "creature.id",
-        "petNo": "3346",
-        "name": "天玄界皇",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3346",
         "storedEffects": 2
       },
       {
@@ -7548,25 +6946,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3356",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-3361",
-        "catalogKey": "pet-3361",
-        "associationId": "pet-3361",
-        "idSource": "creature.id",
-        "petNo": "3361",
-        "name": "炎龙圣帝",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3361",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-3379",
@@ -7801,23 +7180,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3423",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-5000",
-        "catalogKey": "pet-5000",
-        "associationId": "pet-5000",
-        "idSource": "creature.id",
-        "petNo": "5000",
-        "name": "圣灵谱尼",
-        "status": "entry-no-residual",
-        "entries": 9,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "manual-peak-unmounted",
-        "expectedSoulmarkId": "sm-5000",
-        "storedEffects": 9
       },
       {
         "creatureId": "pet-3443",
@@ -8059,28 +7421,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-3486",
-        "catalogKey": "pet-3486",
-        "associationId": "pet-3486",
-        "idSource": "creature.id",
-        "petNo": "3486",
-        "name": "破灵箭神",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 4,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "no-rule",
-          "grow-tail-orphan",
-          "cap-tail-orphan"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3486",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-3487",
         "catalogKey": "pet-3487",
         "associationId": "pet-3487",
@@ -8252,25 +7592,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-3522",
-        "catalogKey": "pet-3522",
-        "associationId": "pet-3522",
-        "idSource": "creature.id",
-        "petNo": "3522",
-        "name": "暴君史莱姆",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3522",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-3531",
         "catalogKey": "pet-3531",
         "associationId": "pet-3531",
@@ -8308,25 +7629,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3532",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3540",
-        "catalogKey": "pet-3540",
-        "associationId": "pet-3540",
-        "idSource": "creature.id",
-        "petNo": "3540",
-        "name": "鲁肃",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "stage-snapshot-transfer (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3540",
         "storedEffects": 2
       },
       {
@@ -8452,25 +7754,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3566",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3567",
-        "catalogKey": "pet-3567",
-        "associationId": "pet-3567",
-        "idSource": "creature.id",
-        "petNo": "3567",
-        "name": "魔钰",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3567",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-3571",
@@ -8685,26 +7968,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3608",
         "storedEffects": 4
-      },
-      {
-        "creatureId": "pet-3613",
-        "catalogKey": "pet-3613",
-        "associationId": "pet-3613",
-        "idSource": "creature.id",
-        "petNo": "3613",
-        "name": "芳馨·茉蕊儿",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 2,
-        "residualReasons": [
-          "no-rule",
-          "move-use scope — boss gate cannot persist across the react window (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3613",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-3619",
@@ -9032,23 +8295,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-3718",
-        "catalogKey": "pet-3718",
-        "associationId": "pet-3718",
-        "idSource": "creature.id",
-        "petNo": "3718",
-        "name": "混沌·千夜死神",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3718",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-3725",
         "catalogKey": "pet-3725",
         "associationId": "pet-3725",
@@ -9142,25 +8388,6 @@
         "packDirectory": "unexpected-stored-entry",
         "defaultMount": "no-current-entry",
         "expectedSoulmarkId": "sm-3736",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3738",
-        "catalogKey": "pet-3738",
-        "associationId": "pet-3738",
-        "idSource": "creature.id",
-        "petNo": "3738",
-        "name": "卡珀莉可",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "hit-window — move-landed second-phase trigger unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3738",
         "storedEffects": 2
       },
       {
@@ -9334,25 +8561,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3768",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3769",
-        "catalogKey": "pet-3769",
-        "associationId": "pet-3769",
-        "idSource": "creature.id",
-        "petNo": "3769",
-        "name": "斯坦利斯",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "prevApplied prerequisite — no same-event fallback host (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3769",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-3772",
@@ -9580,27 +8788,6 @@
         "storedEffects": 5
       },
       {
-        "creatureId": "pet-3809",
-        "catalogKey": "pet-3809",
-        "associationId": "pet-3809",
-        "idSource": "creature.id",
-        "petNo": "3809",
-        "name": "龙神哈莫",
-        "status": "partial",
-        "entries": 6,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "attr-domain — typechart mutation unmodeled (deferred)",
-          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3809",
-        "storedEffects": 6
-      },
-      {
         "creatureId": "pet-3810",
         "catalogKey": "pet-3810",
         "associationId": "pet-3810",
@@ -9657,26 +8844,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3817",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3818",
-        "catalogKey": "pet-3818",
-        "associationId": "pet-3818",
-        "idSource": "creature.id",
-        "petNo": "3818",
-        "name": "汤圆妹妹",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-rule",
-          "move-use scope — boss gate cannot persist across the react window (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3818",
         "storedEffects": 2
       },
       {
@@ -9958,23 +9125,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-3859",
-        "catalogKey": "pet-3859",
-        "associationId": "pet-3859",
-        "idSource": "creature.id",
-        "petNo": "3859",
-        "name": "谷雨",
-        "status": "entry-no-residual",
-        "entries": 3,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3859",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-3866",
         "catalogKey": "pet-3866",
         "associationId": "pet-3866",
@@ -9993,25 +9143,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3866",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-3869",
-        "catalogKey": "pet-3869",
-        "associationId": "pet-3869",
-        "idSource": "creature.id",
-        "petNo": "3869",
-        "name": "牌灵·发",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "guard unmodeled — effect withheld (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3869",
-        "storedEffects": 2
       },
       {
         "creatureId": "pet-3874",
@@ -10133,25 +9264,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-3890",
-        "catalogKey": "pet-3890",
-        "associationId": "pet-3890",
-        "idSource": "creature.id",
-        "petNo": "3890",
-        "name": "未来·小火猴",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-trigger-prefix"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3890",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-3893",
         "catalogKey": "pet-3893",
         "associationId": "pet-3893",
@@ -10268,40 +9380,6 @@
         "storedEffects": 6
       },
       {
-        "creatureId": "pet-3926",
-        "catalogKey": "pet-3926",
-        "associationId": "pet-3926",
-        "idSource": "creature.id",
-        "petNo": "3926",
-        "name": "极寒魔兽",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3926",
-        "storedEffects": 4
-      },
-      {
-        "creatureId": "pet-3927",
-        "catalogKey": "pet-3927",
-        "associationId": "pet-3927",
-        "idSource": "creature.id",
-        "petNo": "3927",
-        "name": "极炎魔兽",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3927",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-3931",
         "catalogKey": "pet-3931",
         "associationId": "pet-3931",
@@ -10317,23 +9395,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3931",
         "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-3935",
-        "catalogKey": "pet-3935",
-        "associationId": "pet-3935",
-        "idSource": "creature.id",
-        "petNo": "3935",
-        "name": "极鳞魔兽",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3935",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-3937",
@@ -10684,28 +9745,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-3986",
-        "catalogKey": "pet-3986",
-        "associationId": "pet-3986",
-        "idSource": "creature.id",
-        "petNo": "3986",
-        "name": "启灵元神",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 10,
-        "residualReasons": [
-          "bench/banish — unmodeled (deferred)",
-          "PvE/Boss-mode predicate — unmodeled (deferred)",
-          "mark-declaration — named-mark state machine unmodeled (deferred)",
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "manual-peak-unmounted",
-        "expectedSoulmarkId": "sm-3986",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-3989",
         "catalogKey": "pet-3989",
         "associationId": "pet-3989",
@@ -10824,23 +9863,6 @@
         "storedEffects": 5
       },
       {
-        "creatureId": "pet-4014",
-        "catalogKey": "pet-4014",
-        "associationId": "pet-4014",
-        "idSource": "creature.id",
-        "petNo": "4014",
-        "name": "云华",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4014",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-4018",
         "catalogKey": "pet-4018",
         "associationId": "pet-4018",
@@ -10878,26 +9900,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-4024",
-        "catalogKey": "pet-4024",
-        "associationId": "pet-4024",
-        "idSource": "creature.id",
-        "petNo": "4024",
-        "name": "地葬界神",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 4,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4024",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-4025",
         "catalogKey": "pet-4025",
         "associationId": "pet-4025",
@@ -10916,23 +9918,6 @@
         "defaultMount": "no-current-entry",
         "expectedSoulmarkId": "sm-4025",
         "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-4027",
-        "catalogKey": "pet-4027",
-        "associationId": "pet-4027",
-        "idSource": "creature.id",
-        "petNo": "4027",
-        "name": "神鹿仙子",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4027",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-4029",
@@ -11223,25 +10208,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-4067",
-        "catalogKey": "pet-4067",
-        "associationId": "pet-4067",
-        "idSource": "creature.id",
-        "petNo": "4067",
-        "name": "赛克迈特",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 2,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4067",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-4069",
         "catalogKey": "pet-4069",
         "associationId": "pet-4069",
@@ -11439,40 +10405,6 @@
         "storedEffects": 4
       },
       {
-        "creatureId": "pet-4097",
-        "catalogKey": "pet-4097",
-        "associationId": "pet-4097",
-        "idSource": "creature.id",
-        "petNo": "4097",
-        "name": "哀梦幻蝶",
-        "status": "entry-no-residual",
-        "entries": 3,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4097",
-        "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4102",
-        "catalogKey": "pet-4102",
-        "associationId": "pet-4102",
-        "idSource": "creature.id",
-        "petNo": "4102",
-        "name": "海奎特",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4102",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-4105",
         "catalogKey": "pet-4105",
         "associationId": "pet-4105",
@@ -11567,42 +10499,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4115",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4119",
-        "catalogKey": "pet-4119",
-        "associationId": "pet-4119",
-        "idSource": "creature.id",
-        "petNo": "4119",
-        "name": "查梅洛",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "attr-domain — typechart mutation unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4119",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4122",
-        "catalogKey": "pet-4122",
-        "associationId": "pet-4122",
-        "idSource": "creature.id",
-        "petNo": "4122",
-        "name": "卡勒丽铂",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4122",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-4124",
@@ -11763,27 +10659,6 @@
         "storedEffects": 5
       },
       {
-        "creatureId": "pet-4152",
-        "catalogKey": "pet-4152",
-        "associationId": "pet-4152",
-        "idSource": "creature.id",
-        "petNo": "4152",
-        "name": "涵双",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 4,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "no-rule",
-          "named-prefixed payload unparsed: 造成的攻击伤害成少50%"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4152",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-4153",
         "catalogKey": "pet-4153",
         "associationId": "pet-4153",
@@ -11864,25 +10739,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4163",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4167",
-        "catalogKey": "pet-4167",
-        "associationId": "pet-4167",
-        "idSource": "creature.id",
-        "petNo": "4167",
-        "name": "查梅洛尼达",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "attr-domain — typechart mutation unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4167",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-4175",
@@ -12064,40 +10920,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-4206",
-        "catalogKey": "pet-4206",
-        "associationId": "pet-4206",
-        "idSource": "creature.id",
-        "petNo": "4206",
-        "name": "玛格尼亚",
-        "status": "entry-no-residual",
-        "entries": 3,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4206",
-        "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4208",
-        "catalogKey": "pet-4208",
-        "associationId": "pet-4208",
-        "idSource": "creature.id",
-        "petNo": "4208",
-        "name": "锢灵·舞",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4208",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-4211",
         "catalogKey": "pet-4211",
         "associationId": "pet-4211",
@@ -12211,23 +11033,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-4224",
-        "catalogKey": "pet-4224",
-        "associationId": "pet-4224",
-        "idSource": "creature.id",
-        "petNo": "4224",
-        "name": "墨秋",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4224",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-4225",
         "catalogKey": "pet-4225",
         "associationId": "pet-4225",
@@ -12302,25 +11107,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4253",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4254",
-        "catalogKey": "pet-4254",
-        "associationId": "pet-4254",
-        "idSource": "creature.id",
-        "petNo": "4254",
-        "name": "斯达伏尔",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 2,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4254",
-        "storedEffects": 1
       },
       {
         "creatureId": "pet-4258",
@@ -12478,26 +11264,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-4287",
-        "catalogKey": "pet-4287",
-        "associationId": "pet-4287",
-        "idSource": "creature.id",
-        "petNo": "4287",
-        "name": "混灵·莱茵哈特",
-        "status": "partial",
-        "entries": 6,
-        "residualFragments": 6,
-        "residualReasons": [
-          "no-rule",
-          "mark-cap / stack-threshold clause — unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4287",
-        "storedEffects": 6
-      },
-      {
         "creatureId": "pet-4286",
         "catalogKey": "pet-4286",
         "associationId": "pet-4286",
@@ -12632,25 +11398,6 @@
         "storedEffects": 4
       },
       {
-        "creatureId": "pet-4319",
-        "catalogKey": "pet-4319",
-        "associationId": "pet-4319",
-        "idSource": "creature.id",
-        "petNo": "4319",
-        "name": "露露",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4319",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-4322",
         "catalogKey": "pet-4322",
         "associationId": "pet-4322",
@@ -12712,25 +11459,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4328",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4329",
-        "catalogKey": "pet-4329",
-        "associationId": "pet-4329",
-        "idSource": "creature.id",
-        "petNo": "4329",
-        "name": "倪克斯",
-        "status": "partial",
-        "entries": 6,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4329",
-        "storedEffects": 6
       },
       {
         "creatureId": "pet-4331",
@@ -12944,28 +11672,6 @@
         "storedEffects": 1
       },
       {
-        "creatureId": "pet-4372",
-        "catalogKey": "pet-4372",
-        "associationId": "pet-4372",
-        "idSource": "creature.id",
-        "petNo": "4372",
-        "name": "幻魅灵狐·苏璃",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 8,
-        "residualReasons": [
-          "no-rule",
-          "prevApplied prerequisite — no same-event fallback host (deferred)",
-          "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
-          "item/potion domain unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4372",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-4374",
         "catalogKey": "pet-4374",
         "associationId": "pet-4374",
@@ -12982,26 +11688,6 @@
         "packDirectory": "unexpected-stored-entry",
         "defaultMount": "no-current-entry",
         "expectedSoulmarkId": "sm-4374",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4376",
-        "catalogKey": "pet-4376",
-        "associationId": "pet-4376",
-        "idSource": "creature.id",
-        "petNo": "4376",
-        "name": "圣谕之风·岚",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4376",
         "storedEffects": 2
       },
       {
@@ -13186,26 +11872,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-4432",
-        "catalogKey": "pet-4432",
-        "associationId": "pet-4432",
-        "idSource": "creature.id",
-        "petNo": "4432",
-        "name": "恶咒巫师·科萨斯",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4432",
-        "storedEffects": 3
-      },
-      {
         "creatureId": "pet-4459",
         "catalogKey": "pet-4459",
         "associationId": "pet-4459",
@@ -13225,25 +11891,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4459",
         "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-4461",
-        "catalogKey": "pet-4461",
-        "associationId": "pet-4461",
-        "idSource": "creature.id",
-        "petNo": "4461",
-        "name": "追光·兰可",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "guard unmodeled — effect withheld (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4461",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-4462",
@@ -13286,28 +11933,6 @@
         "storedEffects": 3
       },
       {
-        "creatureId": "pet-4468",
-        "catalogKey": "pet-4468",
-        "associationId": "pet-4468",
-        "idSource": "creature.id",
-        "petNo": "4468",
-        "name": "始皇帝·嬴政",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 15,
-        "residualReasons": [
-          "no-trigger-prefix",
-          "inventory-count — external item ref (deferred)",
-          "no-rule",
-          "mark-declaration — named-mark state machine unmodeled (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4468",
-        "storedEffects": 1
-      },
-      {
         "creatureId": "pet-4469",
         "catalogKey": "pet-4469",
         "associationId": "pet-4469",
@@ -13344,40 +11969,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4472",
         "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-4475",
-        "catalogKey": "pet-4475",
-        "associationId": "pet-4475",
-        "idSource": "creature.id",
-        "petNo": "4475",
-        "name": "阿谜",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4475",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4478",
-        "catalogKey": "pet-4478",
-        "associationId": "pet-4478",
-        "idSource": "creature.id",
-        "petNo": "4478",
-        "name": "小规",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4478",
-        "storedEffects": 2
       },
       {
         "creatureId": "pet-4482",
@@ -13438,25 +12029,6 @@
         "storedEffects": 5
       },
       {
-        "creatureId": "pet-4492",
-        "catalogKey": "pet-4492",
-        "associationId": "pet-4492",
-        "idSource": "creature.id",
-        "petNo": "4492",
-        "name": "斯达莱斯",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4492",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-4493",
         "catalogKey": "pet-4493",
         "associationId": "pet-4493",
@@ -13473,25 +12045,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4493",
-        "storedEffects": 4
-      },
-      {
-        "creatureId": "pet-4495",
-        "catalogKey": "pet-4495",
-        "associationId": "pet-4495",
-        "idSource": "creature.id",
-        "petNo": "4495",
-        "name": "彼尔德",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4495",
         "storedEffects": 4
       },
       {
@@ -13696,26 +12249,6 @@
         "storedEffects": 2
       },
       {
-        "creatureId": "pet-4568",
-        "catalogKey": "pet-4568",
-        "associationId": "pet-4568",
-        "idSource": "creature.id",
-        "petNo": "4568",
-        "name": "幽魅之影·杰格",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-rule",
-          "guard unmodeled — effect withheld (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4568",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-4589",
         "catalogKey": "pet-4589",
         "associationId": "pet-4589",
@@ -13797,52 +12330,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4623",
         "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4627",
-        "catalogKey": "pet-4627",
-        "associationId": "pet-4627",
-        "idSource": "creature.id",
-        "petNo": "4627",
-        "name": "赫斯提亚",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 7,
-        "residualReasons": [
-          "ailment-duration mutation — post-hoc remainingTurns change unmodeled (deferred)",
-          "no-rule",
-          "mark-declaration — named-mark state machine unmodeled (deferred)",
-          "mark-cap / stack-threshold clause — unmodeled (deferred)",
-          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4627",
-        "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-4625",
-        "catalogKey": "pet-4625",
-        "associationId": "pet-4625",
-        "idSource": "creature.id",
-        "petNo": "4625",
-        "name": "伏尔格安",
-        "status": "partial",
-        "entries": 1,
-        "residualFragments": 9,
-        "residualReasons": [
-          "no-rule",
-          "cond-orphan",
-          "guard unmodeled — effect withheld (deferred)",
-          "named-domain definition — field/state-machine effects unmodeled (deferred)",
-          "empty-body"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4625",
-        "storedEffects": 1
       },
       {
         "creatureId": "pet-4625-b",
@@ -13945,26 +12432,6 @@
         "defaultMount": "no-current-entry",
         "expectedSoulmarkId": "sm-4635",
         "storedEffects": 1
-      },
-      {
-        "creatureId": "pet-4642",
-        "catalogKey": "pet-4642",
-        "associationId": "pet-4642",
-        "idSource": "creature.id",
-        "petNo": "4642",
-        "name": "逆世之瞳·哀目黑子",
-        "status": "partial",
-        "entries": 5,
-        "residualFragments": 2,
-        "residualReasons": [
-          "no-rule",
-          "move-use scope — boss gate cannot persist across the react window (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4642",
-        "storedEffects": 5
       },
       {
         "creatureId": "pet-4644",
@@ -14190,26 +12657,6 @@
         "storedEffects": 1
       },
       {
-        "creatureId": "pet-4689",
-        "catalogKey": "pet-4689",
-        "associationId": "pet-4689",
-        "idSource": "creature.id",
-        "petNo": "4689",
-        "name": "艾瑞吉",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 3,
-        "residualReasons": [
-          "no-rule",
-          "fractional cap tail — cap dimension unmodeled"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4689",
-        "storedEffects": 2
-      },
-      {
         "creatureId": "pet-4688",
         "catalogKey": "pet-4688",
         "associationId": "pet-4688",
@@ -14376,6 +12823,27 @@
         "expectedSoulmarkId": "sm-4717"
       },
       {
+        "creatureId": "pet-4716",
+        "catalogKey": "pet-4716",
+        "associationId": "pet-4716",
+        "idSource": "creature.id",
+        "petNo": "4716",
+        "name": "赫尔卡长老",
+        "status": "partial",
+        "entries": 4,
+        "residualFragments": 13,
+        "residualReasons": [
+          "no-rule",
+          "bench-side target unmodeled (deferred)",
+          "cond-orphan",
+          "empty-body"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4716"
+      },
+      {
         "creatureId": "pet-4721",
         "catalogKey": "pet-4721",
         "associationId": "pet-4721",
@@ -14392,6 +12860,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4721"
+      },
+      {
+        "creatureId": "pet-4725",
+        "catalogKey": "pet-4725",
+        "associationId": "pet-4725",
+        "idSource": "creature.id",
+        "petNo": "4725",
+        "name": "花灯仙子",
+        "status": "partial",
+        "entries": 4,
+        "residualFragments": 1,
+        "residualReasons": [
+          "nullify-success — move-nullification observation unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4725"
       },
       {
         "creatureId": "pet-4727",
@@ -14469,6 +12955,25 @@
         "expectedSoulmarkId": "sm-4735"
       },
       {
+        "creatureId": "pet-4739",
+        "catalogKey": "pet-4739",
+        "associationId": "pet-4739",
+        "idSource": "creature.id",
+        "petNo": "4739",
+        "name": "绒霜·柯蓝",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 4,
+        "residualReasons": [
+          "no-rule",
+          "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4739"
+      },
+      {
         "creatureId": "pet-4738",
         "catalogKey": "pet-4738",
         "associationId": "pet-4738",
@@ -14525,6 +13030,44 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4741"
+      },
+      {
+        "creatureId": "pet-4740",
+        "catalogKey": "pet-4740",
+        "associationId": "pet-4740",
+        "idSource": "creature.id",
+        "petNo": "4740",
+        "name": "幽阑·执冥",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 6,
+        "residualReasons": [
+          "mutable mark ratio — entry coefficient state unmodeled (deferred)",
+          "drain quantum unspecified — no coefficient in source (deferred)",
+          "guard unmodeled — effect withheld (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4740"
+      },
+      {
+        "creatureId": "pet-4747",
+        "catalogKey": "pet-4747",
+        "associationId": "pet-4747",
+        "idSource": "creature.id",
+        "petNo": "4747",
+        "name": "圣颖",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 2,
+        "residualReasons": [
+          "guard unmodeled — effect withheld (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4747"
       },
       {
         "creatureId": "pet-4746",
@@ -14633,6 +13176,24 @@
         "expectedSoulmarkId": "sm-4760"
       },
       {
+        "creatureId": "pet-4758",
+        "catalogKey": "pet-4758",
+        "associationId": "pet-4758",
+        "idSource": "creature.id",
+        "petNo": "4758",
+        "name": "神决·盖亚",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4758"
+      },
+      {
         "creatureId": "pet-4757",
         "catalogKey": "pet-4757",
         "associationId": "pet-4757",
@@ -14708,6 +13269,29 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4762"
+      },
+      {
+        "creatureId": "pet-4761",
+        "catalogKey": "pet-4761",
+        "associationId": "pet-4761",
+        "idSource": "creature.id",
+        "petNo": "4761",
+        "name": "琉梦",
+        "status": "partial",
+        "entries": 5,
+        "residualFragments": 8,
+        "residualReasons": [
+          "trait-count — external trait roster unmodeled (deferred)",
+          "named-mechanic — pet-specific domain unmodeled (deferred)",
+          "guard unmodeled — effect withheld (deferred)",
+          "insta-KO domain — one-shot mechanic unmodeled (deferred)",
+          "mark-declaration — named-mark state machine unmodeled (deferred)",
+          "edge-trigger — ailment-entry transition hook not modeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4761"
       },
       {
         "creatureId": "pet-4766",
@@ -15016,6 +13600,26 @@
         "expectedSoulmarkId": "sm-4809"
       },
       {
+        "creatureId": "pet-4808",
+        "catalogKey": "pet-4808",
+        "associationId": "pet-4808",
+        "idSource": "creature.id",
+        "petNo": "4808",
+        "name": "讳迹·米修莉",
+        "status": "partial",
+        "entries": 5,
+        "residualFragments": 8,
+        "residualReasons": [
+          "no-rule",
+          "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
+          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4808"
+      },
+      {
         "creatureId": "pet-4807",
         "catalogKey": "pet-4807",
         "associationId": "pet-4807",
@@ -15249,6 +13853,24 @@
         "expectedSoulmarkId": "sm-4830"
       },
       {
+        "creatureId": "pet-4833",
+        "catalogKey": "pet-4833",
+        "associationId": "pet-4833",
+        "idSource": "creature.id",
+        "petNo": "4833",
+        "name": "蟑螂恶霸",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4833"
+      },
+      {
         "creatureId": "pet-4837",
         "catalogKey": "pet-4837",
         "associationId": "pet-4837",
@@ -15316,6 +13938,26 @@
         "expectedSoulmarkId": "sm-4838"
       },
       {
+        "creatureId": "pet-4840",
+        "catalogKey": "pet-4840",
+        "associationId": "pet-4840",
+        "idSource": "creature.id",
+        "petNo": "4840",
+        "name": "霞冠·星礼",
+        "status": "partial",
+        "entries": 5,
+        "residualFragments": 3,
+        "residualReasons": [
+          "effectDouble cond unparsed: 双方任意一方存在技能PP值不高于1",
+          "no-rule",
+          "cleanse-immune — anti-cleanse domain unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4840"
+      },
+      {
         "creatureId": "pet-4846",
         "catalogKey": "pet-4846",
         "associationId": "pet-4846",
@@ -15349,6 +13991,26 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4848"
+      },
+      {
+        "creatureId": "pet-4850",
+        "catalogKey": "pet-4850",
+        "associationId": "pet-4850",
+        "idSource": "creature.id",
+        "petNo": "4850",
+        "name": "图特摩斯",
+        "status": "partial",
+        "entries": 4,
+        "residualFragments": 3,
+        "residualReasons": [
+          "prevApplied prerequisite — no same-event successful host (deferred)",
+          "named-ally predicate — species identity unmodeled (deferred)",
+          "empty-body"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4850"
       },
       {
         "creatureId": "pet-4857",
@@ -15442,6 +14104,24 @@
         "expectedSoulmarkId": "sm-4874"
       },
       {
+        "creatureId": "pet-4877",
+        "catalogKey": "pet-4877",
+        "associationId": "pet-4877",
+        "idSource": "creature.id",
+        "petNo": "4877",
+        "name": "锢魂铁犀",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4877"
+      },
+      {
         "creatureId": "pet-4881",
         "catalogKey": "pet-4881",
         "associationId": "pet-4881",
@@ -15477,6 +14157,34 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4882"
+      },
+      {
+        "creatureId": "pet-4888",
+        "catalogKey": "pet-4888",
+        "associationId": "pet-4888",
+        "idSource": "creature.id",
+        "petNo": "4888",
+        "name": "慈辉永颂·瑞亚",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 17,
+        "residualReasons": [
+          "reactive on foe action choice — E4",
+          "no-op",
+          "prio-snapshot — cross-turn prio compare unmodeled (deferred)",
+          "bench-position predicate (UNVERIFIED)",
+          "edge-trigger — ailment-entry transition hook not modeled (deferred)",
+          "sub-ailment class unmodeled (deferred)",
+          "no-rule",
+          "mark-declaration — named-mark state machine unmodeled (deferred)",
+          "bench-side target unmodeled (deferred)",
+          "cond-orphan",
+          "empty-body"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4888"
       },
       {
         "creatureId": "pet-4887",
@@ -15723,6 +14431,28 @@
         "expectedSoulmarkId": "sm-4917"
       },
       {
+        "creatureId": "pet-4921",
+        "catalogKey": "pet-4921",
+        "associationId": "pet-4921",
+        "idSource": "creature.id",
+        "petNo": "4921",
+        "name": "天堂极龙兽",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 8,
+        "residualReasons": [
+          "no-rule",
+          "checkpoint-restore — hp snapshot/restore pair not modeled (deferred)",
+          "edge-trigger — ailment-entry transition hook not modeled (deferred)",
+          "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
+          "fractional cap tail — cap dimension unmodeled"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4921"
+      },
+      {
         "creatureId": "pet-4920",
         "catalogKey": "pet-4920",
         "associationId": "pet-4920",
@@ -15739,6 +14469,26 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4920"
+      },
+      {
+        "creatureId": "pet-4919",
+        "catalogKey": "pet-4919",
+        "associationId": "pet-4919",
+        "idSource": "creature.id",
+        "petNo": "4919",
+        "name": "卡鲁维德",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 5,
+        "residualReasons": [
+          "no-rule",
+          "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
+          "empty-body"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4919"
       },
       {
         "creatureId": "pet-4922",
@@ -17278,6 +16028,22 @@
         "expectedSoulmarkId": "sm-2748"
       },
       {
+        "creatureId": "pet-2767",
+        "catalogKey": "pet-2767",
+        "associationId": "pet-2767",
+        "idSource": "creature.id",
+        "petNo": "2767",
+        "name": "妖皇兰蒂斯",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2767"
+      },
+      {
         "creatureId": "pet-2770",
         "catalogKey": "pet-2770",
         "associationId": "pet-2770",
@@ -17803,6 +16569,22 @@
         "expectedSoulmarkId": "sm-2857"
       },
       {
+        "creatureId": "pet-2856",
+        "catalogKey": "pet-2856",
+        "associationId": "pet-2856",
+        "idSource": "creature.id",
+        "petNo": "2856",
+        "name": "萨瑞罗斯",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2856"
+      },
+      {
         "creatureId": "pet-2862",
         "catalogKey": "pet-2862",
         "associationId": "pet-2862",
@@ -17951,6 +16733,22 @@
         "expectedSoulmarkId": "sm-2878"
       },
       {
+        "creatureId": "pet-2880",
+        "catalogKey": "pet-2880",
+        "associationId": "pet-2880",
+        "idSource": "creature.id",
+        "petNo": "2880",
+        "name": "马尔修斯（速）",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2880"
+      },
+      {
         "creatureId": "pet-2882",
         "catalogKey": "pet-2882",
         "associationId": "pet-2882",
@@ -18095,6 +16893,38 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-2900"
+      },
+      {
+        "creatureId": "pet-2899",
+        "catalogKey": "pet-2899",
+        "associationId": "pet-2899",
+        "idSource": "creature.id",
+        "petNo": "2899",
+        "name": "爆炎莱茵",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2899"
+      },
+      {
+        "creatureId": "pet-2898",
+        "catalogKey": "pet-2898",
+        "associationId": "pet-2898",
+        "idSource": "creature.id",
+        "petNo": "2898",
+        "name": "英普力亚",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2898"
       },
       {
         "creatureId": "pet-2905",
@@ -18753,6 +17583,24 @@
         "expectedSoulmarkId": "sm-2973"
       },
       {
+        "creatureId": "pet-2977",
+        "catalogKey": "pet-2977",
+        "associationId": "pet-2977",
+        "idSource": "creature.id",
+        "petNo": "2977",
+        "name": "神寂·克罗诺斯",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "grow tail without growing host"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2977"
+      },
+      {
         "creatureId": "pet-2983",
         "catalogKey": "pet-2983",
         "associationId": "pet-2983",
@@ -19034,6 +17882,38 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3014"
+      },
+      {
+        "creatureId": "pet-3020",
+        "catalogKey": "pet-3020",
+        "associationId": "pet-3020",
+        "idSource": "creature.id",
+        "petNo": "3020",
+        "name": "百鬼夜王",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3020"
+      },
+      {
+        "creatureId": "pet-3025",
+        "catalogKey": "pet-3025",
+        "associationId": "pet-3025",
+        "idSource": "creature.id",
+        "petNo": "3025",
+        "name": "炽风烈鬼",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3025"
       },
       {
         "creatureId": "pet-3026",
@@ -19593,6 +18473,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3077"
+      },
+      {
+        "creatureId": "pet-3078",
+        "catalogKey": "pet-3078",
+        "associationId": "pet-3078",
+        "idSource": "creature.id",
+        "petNo": "3078",
+        "name": "龙胆·赵云",
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3078"
       },
       {
         "creatureId": "pet-3088",
@@ -20230,6 +19126,27 @@
         "expectedSoulmarkId": "sm-3137"
       },
       {
+        "creatureId": "pet-3142",
+        "catalogKey": "pet-3142",
+        "associationId": "pet-3142",
+        "idSource": "creature.id",
+        "petNo": "3142",
+        "name": "王·雷伊",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 5,
+        "residualReasons": [
+          "mark-expiry refund — removal-side-effect unmodeled (deferred)",
+          "timed-effect duration rewrite — unmodeled (deferred)",
+          "cleanse-immune — anti-cleanse domain unmodeled (deferred)",
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3142"
+      },
+      {
         "creatureId": "pet-3147",
         "catalogKey": "pet-3147",
         "associationId": "pet-3147",
@@ -20328,6 +19245,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3153"
+      },
+      {
+        "creatureId": "pet-3152",
+        "catalogKey": "pet-3152",
+        "associationId": "pet-3152",
+        "idSource": "creature.id",
+        "petNo": "3152",
+        "name": "冥王·鬼夜斩",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3152"
       },
       {
         "creatureId": "pet-3151",
@@ -21749,6 +20682,22 @@
         "expectedSoulmarkId": "sm-3294"
       },
       {
+        "creatureId": "pet-3296",
+        "catalogKey": "pet-3296",
+        "associationId": "pet-3296",
+        "idSource": "creature.id",
+        "petNo": "3296",
+        "name": "暗烬·朱雀",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3296"
+      },
+      {
         "creatureId": "pet-3301",
         "catalogKey": "pet-3301",
         "associationId": "pet-3301",
@@ -21900,6 +20849,25 @@
         "expectedSoulmarkId": "sm-3310"
       },
       {
+        "creatureId": "pet-3311",
+        "catalogKey": "pet-3311",
+        "associationId": "pet-3311",
+        "idSource": "creature.id",
+        "petNo": "3311",
+        "name": "圣光灵神",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-rule",
+          "revive/checkpoint — hook not modeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3311"
+      },
+      {
         "creatureId": "pet-3312",
         "catalogKey": "pet-3312",
         "associationId": "pet-3312",
@@ -22022,6 +20990,24 @@
         "expectedSoulmarkId": "sm-3326"
       },
       {
+        "creatureId": "pet-3325",
+        "catalogKey": "pet-3325",
+        "associationId": "pet-3325",
+        "idSource": "creature.id",
+        "petNo": "3325",
+        "name": "雪慕",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "move-use scope — boss gate cannot persist across the react window (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3325"
+      },
+      {
         "creatureId": "pet-3324",
         "catalogKey": "pet-3324",
         "associationId": "pet-3324",
@@ -22068,6 +21054,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3329"
+      },
+      {
+        "creatureId": "pet-3335",
+        "catalogKey": "pet-3335",
+        "associationId": "pet-3335",
+        "idSource": "creature.id",
+        "petNo": "3335",
+        "name": "菲格利亚",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3335"
       },
       {
         "creatureId": "pet-3333",
@@ -22137,6 +21139,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3337"
+      },
+      {
+        "creatureId": "pet-3346",
+        "catalogKey": "pet-3346",
+        "associationId": "pet-3346",
+        "idSource": "creature.id",
+        "petNo": "3346",
+        "name": "天玄界皇",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3346"
       },
       {
         "creatureId": "pet-3345",
@@ -22309,6 +21327,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3362"
+      },
+      {
+        "creatureId": "pet-3361",
+        "catalogKey": "pet-3361",
+        "associationId": "pet-3361",
+        "idSource": "creature.id",
+        "petNo": "3361",
+        "name": "炎龙圣帝",
+        "status": "partial",
+        "entries": 4,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3361"
       },
       {
         "creatureId": "pet-3360",
@@ -23272,6 +22308,22 @@
         "expectedSoulmarkId": "sm-3436"
       },
       {
+        "creatureId": "pet-5000",
+        "catalogKey": "pet-5000",
+        "associationId": "pet-5000",
+        "idSource": "creature.id",
+        "petNo": "5000",
+        "name": "圣灵谱尼",
+        "status": "entry-no-residual",
+        "entries": 9,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "manual-peak-unmounted",
+        "expectedSoulmarkId": "sm-5000"
+      },
+      {
         "creatureId": "pet-3438",
         "catalogKey": "pet-3438",
         "associationId": "pet-3438",
@@ -23817,6 +22869,27 @@
         "expectedSoulmarkId": "sm-3485"
       },
       {
+        "creatureId": "pet-3486",
+        "catalogKey": "pet-3486",
+        "associationId": "pet-3486",
+        "idSource": "creature.id",
+        "petNo": "3486",
+        "name": "破灵箭神",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 4,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "no-rule",
+          "grow-tail-orphan",
+          "cap-tail-orphan"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3486"
+      },
+      {
         "creatureId": "pet-3488",
         "catalogKey": "pet-3488",
         "associationId": "pet-3488",
@@ -24198,6 +23271,24 @@
         "expectedSoulmarkId": "sm-3521"
       },
       {
+        "creatureId": "pet-3522",
+        "catalogKey": "pet-3522",
+        "associationId": "pet-3522",
+        "idSource": "creature.id",
+        "petNo": "3522",
+        "name": "暴君史莱姆",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3522"
+      },
+      {
         "creatureId": "pet-3524",
         "catalogKey": "pet-3524",
         "associationId": "pet-3524",
@@ -24357,6 +23448,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3537"
+      },
+      {
+        "creatureId": "pet-3540",
+        "catalogKey": "pet-3540",
+        "associationId": "pet-3540",
+        "idSource": "creature.id",
+        "petNo": "3540",
+        "name": "鲁肃",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "stage-snapshot-transfer (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3540"
       },
       {
         "creatureId": "pet-3536",
@@ -24648,6 +23757,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3562"
+      },
+      {
+        "creatureId": "pet-3567",
+        "catalogKey": "pet-3567",
+        "associationId": "pet-3567",
+        "idSource": "creature.id",
+        "petNo": "3567",
+        "name": "魔钰",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 1,
+        "residualReasons": [
+          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3567"
       },
       {
         "creatureId": "pet-3568",
@@ -25143,6 +24270,25 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3614"
+      },
+      {
+        "creatureId": "pet-3613",
+        "catalogKey": "pet-3613",
+        "associationId": "pet-3613",
+        "idSource": "creature.id",
+        "petNo": "3613",
+        "name": "芳馨·茉蕊儿",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 2,
+        "residualReasons": [
+          "no-rule",
+          "move-use scope — boss gate cannot persist across the react window (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3613"
       },
       {
         "creatureId": "pet-3621",
@@ -26213,6 +25359,22 @@
         "expectedSoulmarkId": "sm-3722"
       },
       {
+        "creatureId": "pet-3718",
+        "catalogKey": "pet-3718",
+        "associationId": "pet-3718",
+        "idSource": "creature.id",
+        "petNo": "3718",
+        "name": "混沌·千夜死神",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3718"
+      },
+      {
         "creatureId": "pet-3723",
         "catalogKey": "pet-3723",
         "associationId": "pet-3723",
@@ -26371,6 +25533,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3737"
+      },
+      {
+        "creatureId": "pet-3738",
+        "catalogKey": "pet-3738",
+        "associationId": "pet-3738",
+        "idSource": "creature.id",
+        "petNo": "3738",
+        "name": "卡珀莉可",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "hit-window — move-landed second-phase trigger unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3738"
       },
       {
         "creatureId": "pet-3739",
@@ -26721,6 +25901,24 @@
         "expectedSoulmarkId": "sm-3763"
       },
       {
+        "creatureId": "pet-3769",
+        "catalogKey": "pet-3769",
+        "associationId": "pet-3769",
+        "idSource": "creature.id",
+        "petNo": "3769",
+        "name": "斯坦利斯",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 1,
+        "residualReasons": [
+          "prevApplied prerequisite — no same-event fallback host (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3769"
+      },
+      {
         "creatureId": "pet-3773",
         "catalogKey": "pet-3773",
         "associationId": "pet-3773",
@@ -27051,6 +26249,26 @@
         "expectedSoulmarkId": "sm-3808"
       },
       {
+        "creatureId": "pet-3809",
+        "catalogKey": "pet-3809",
+        "associationId": "pet-3809",
+        "idSource": "creature.id",
+        "petNo": "3809",
+        "name": "龙神哈莫",
+        "status": "partial",
+        "entries": 6,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "attr-domain — typechart mutation unmodeled (deferred)",
+          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3809"
+      },
+      {
         "creatureId": "pet-3811",
         "catalogKey": "pet-3811",
         "associationId": "pet-3811",
@@ -27139,6 +26357,25 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3816"
+      },
+      {
+        "creatureId": "pet-3818",
+        "catalogKey": "pet-3818",
+        "associationId": "pet-3818",
+        "idSource": "creature.id",
+        "petNo": "3818",
+        "name": "汤圆妹妹",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-rule",
+          "move-use scope — boss gate cannot persist across the react window (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3818"
       },
       {
         "creatureId": "pet-3819",
@@ -27478,6 +26715,22 @@
         "expectedSoulmarkId": "sm-3858"
       },
       {
+        "creatureId": "pet-3859",
+        "catalogKey": "pet-3859",
+        "associationId": "pet-3859",
+        "idSource": "creature.id",
+        "petNo": "3859",
+        "name": "谷雨",
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3859"
+      },
+      {
         "creatureId": "pet-3860",
         "catalogKey": "pet-3860",
         "associationId": "pet-3860",
@@ -27583,6 +26836,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3868"
+      },
+      {
+        "creatureId": "pet-3869",
+        "catalogKey": "pet-3869",
+        "associationId": "pet-3869",
+        "idSource": "creature.id",
+        "petNo": "3869",
+        "name": "牌灵·发",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "guard unmodeled — effect withheld (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3869"
       },
       {
         "creatureId": "pet-3870",
@@ -27741,6 +27012,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3889"
+      },
+      {
+        "creatureId": "pet-3890",
+        "catalogKey": "pet-3890",
+        "associationId": "pet-3890",
+        "idSource": "creature.id",
+        "petNo": "3890",
+        "name": "未来·小火猴",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-trigger-prefix"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3890"
       },
       {
         "creatureId": "pet-3891",
@@ -28029,6 +27318,38 @@
         "expectedSoulmarkId": "sm-3925"
       },
       {
+        "creatureId": "pet-3926",
+        "catalogKey": "pet-3926",
+        "associationId": "pet-3926",
+        "idSource": "creature.id",
+        "petNo": "3926",
+        "name": "极寒魔兽",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3926"
+      },
+      {
+        "creatureId": "pet-3927",
+        "catalogKey": "pet-3927",
+        "associationId": "pet-3927",
+        "idSource": "creature.id",
+        "petNo": "3927",
+        "name": "极炎魔兽",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3927"
+      },
+      {
         "creatureId": "pet-3928",
         "catalogKey": "pet-3928",
         "associationId": "pet-3928",
@@ -28113,6 +27434,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3933"
+      },
+      {
+        "creatureId": "pet-3935",
+        "catalogKey": "pet-3935",
+        "associationId": "pet-3935",
+        "idSource": "creature.id",
+        "petNo": "3935",
+        "name": "极鳞魔兽",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3935"
       },
       {
         "creatureId": "pet-3939",
@@ -28477,6 +27814,27 @@
         "expectedSoulmarkId": "sm-3978"
       },
       {
+        "creatureId": "pet-3986",
+        "catalogKey": "pet-3986",
+        "associationId": "pet-3986",
+        "idSource": "creature.id",
+        "petNo": "3986",
+        "name": "启灵元神",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 10,
+        "residualReasons": [
+          "bench/banish — unmodeled (deferred)",
+          "PvE/Boss-mode predicate — unmodeled (deferred)",
+          "mark-declaration — named-mark state machine unmodeled (deferred)",
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "manual-peak-unmounted",
+        "expectedSoulmarkId": "sm-3986"
+      },
+      {
         "creatureId": "pet-3987",
         "catalogKey": "pet-3987",
         "associationId": "pet-3987",
@@ -28672,6 +28030,22 @@
         "expectedSoulmarkId": "sm-4010"
       },
       {
+        "creatureId": "pet-4014",
+        "catalogKey": "pet-4014",
+        "associationId": "pet-4014",
+        "idSource": "creature.id",
+        "petNo": "4014",
+        "name": "云华",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4014"
+      },
+      {
         "creatureId": "pet-4015",
         "catalogKey": "pet-4015",
         "associationId": "pet-4015",
@@ -28792,6 +28166,41 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4023"
+      },
+      {
+        "creatureId": "pet-4024",
+        "catalogKey": "pet-4024",
+        "associationId": "pet-4024",
+        "idSource": "creature.id",
+        "petNo": "4024",
+        "name": "地葬界神",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 4,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4024"
+      },
+      {
+        "creatureId": "pet-4027",
+        "catalogKey": "pet-4027",
+        "associationId": "pet-4027",
+        "idSource": "creature.id",
+        "petNo": "4027",
+        "name": "神鹿仙子",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4027"
       },
       {
         "creatureId": "pet-4032",
@@ -28968,6 +28377,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4066"
+      },
+      {
+        "creatureId": "pet-4067",
+        "catalogKey": "pet-4067",
+        "associationId": "pet-4067",
+        "idSource": "creature.id",
+        "petNo": "4067",
+        "name": "赛克迈特",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 2,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4067"
       },
       {
         "creatureId": "pet-4068",
@@ -29189,6 +28616,22 @@
         "expectedSoulmarkId": "sm-4096"
       },
       {
+        "creatureId": "pet-4097",
+        "catalogKey": "pet-4097",
+        "associationId": "pet-4097",
+        "idSource": "creature.id",
+        "petNo": "4097",
+        "name": "哀梦幻蝶",
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4097"
+      },
+      {
         "creatureId": "pet-4101",
         "catalogKey": "pet-4101",
         "associationId": "pet-4101",
@@ -29203,6 +28646,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4101"
+      },
+      {
+        "creatureId": "pet-4102",
+        "catalogKey": "pet-4102",
+        "associationId": "pet-4102",
+        "idSource": "creature.id",
+        "petNo": "4102",
+        "name": "海奎特",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4102"
       },
       {
         "creatureId": "pet-4110",
@@ -29309,6 +28768,24 @@
         "expectedSoulmarkId": "sm-4118"
       },
       {
+        "creatureId": "pet-4119",
+        "catalogKey": "pet-4119",
+        "associationId": "pet-4119",
+        "idSource": "creature.id",
+        "petNo": "4119",
+        "name": "查梅洛",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "attr-domain — typechart mutation unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4119"
+      },
+      {
         "creatureId": "pet-4120",
         "catalogKey": "pet-4120",
         "associationId": "pet-4120",
@@ -29323,6 +28800,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4120"
+      },
+      {
+        "creatureId": "pet-4122",
+        "catalogKey": "pet-4122",
+        "associationId": "pet-4122",
+        "idSource": "creature.id",
+        "petNo": "4122",
+        "name": "卡勒丽铂",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4122"
       },
       {
         "creatureId": "pet-4123",
@@ -29519,6 +29012,26 @@
         "expectedSoulmarkId": "sm-4151"
       },
       {
+        "creatureId": "pet-4152",
+        "catalogKey": "pet-4152",
+        "associationId": "pet-4152",
+        "idSource": "creature.id",
+        "petNo": "4152",
+        "name": "涵双",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 4,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "no-rule",
+          "named-prefixed payload unparsed: 造成的攻击伤害成少50%"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4152"
+      },
+      {
         "creatureId": "pet-4154",
         "catalogKey": "pet-4154",
         "associationId": "pet-4154",
@@ -29662,6 +29175,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4166"
+      },
+      {
+        "creatureId": "pet-4167",
+        "catalogKey": "pet-4167",
+        "associationId": "pet-4167",
+        "idSource": "creature.id",
+        "petNo": "4167",
+        "name": "查梅洛尼达",
+        "status": "partial",
+        "entries": 4,
+        "residualFragments": 1,
+        "residualReasons": [
+          "attr-domain — typechart mutation unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4167"
       },
       {
         "creatureId": "pet-4168",
@@ -30019,6 +29550,38 @@
         "expectedSoulmarkId": "sm-4201"
       },
       {
+        "creatureId": "pet-4206",
+        "catalogKey": "pet-4206",
+        "associationId": "pet-4206",
+        "idSource": "creature.id",
+        "petNo": "4206",
+        "name": "玛格尼亚",
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4206"
+      },
+      {
+        "creatureId": "pet-4208",
+        "catalogKey": "pet-4208",
+        "associationId": "pet-4208",
+        "idSource": "creature.id",
+        "petNo": "4208",
+        "name": "锢灵·舞",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4208"
+      },
+      {
         "creatureId": "pet-4209",
         "catalogKey": "pet-4209",
         "associationId": "pet-4209",
@@ -30087,6 +29650,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4219"
+      },
+      {
+        "creatureId": "pet-4224",
+        "catalogKey": "pet-4224",
+        "associationId": "pet-4224",
+        "idSource": "creature.id",
+        "petNo": "4224",
+        "name": "墨秋",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4224"
       },
       {
         "creatureId": "pet-4227",
@@ -30215,6 +29794,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4249"
+      },
+      {
+        "creatureId": "pet-4254",
+        "catalogKey": "pet-4254",
+        "associationId": "pet-4254",
+        "idSource": "creature.id",
+        "petNo": "4254",
+        "name": "斯达伏尔",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 2,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4254"
       },
       {
         "creatureId": "pet-4257",
@@ -30398,6 +29995,25 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4279"
+      },
+      {
+        "creatureId": "pet-4287",
+        "catalogKey": "pet-4287",
+        "associationId": "pet-4287",
+        "idSource": "creature.id",
+        "petNo": "4287",
+        "name": "混灵·莱茵哈特",
+        "status": "partial",
+        "entries": 6,
+        "residualFragments": 6,
+        "residualReasons": [
+          "no-rule",
+          "mark-cap / stack-threshold clause — unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4287"
       },
       {
         "creatureId": "pet-4289",
@@ -30707,6 +30323,24 @@
         "expectedSoulmarkId": "sm-4318"
       },
       {
+        "creatureId": "pet-4319",
+        "catalogKey": "pet-4319",
+        "associationId": "pet-4319",
+        "idSource": "creature.id",
+        "petNo": "4319",
+        "name": "露露",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4319"
+      },
+      {
         "creatureId": "pet-4323",
         "catalogKey": "pet-4323",
         "associationId": "pet-4323",
@@ -30778,6 +30412,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4327"
+      },
+      {
+        "creatureId": "pet-4329",
+        "catalogKey": "pet-4329",
+        "associationId": "pet-4329",
+        "idSource": "creature.id",
+        "petNo": "4329",
+        "name": "倪克斯",
+        "status": "partial",
+        "entries": 6,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4329"
       },
       {
         "creatureId": "pet-4330",
@@ -31167,6 +30819,46 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4371"
+      },
+      {
+        "creatureId": "pet-4372",
+        "catalogKey": "pet-4372",
+        "associationId": "pet-4372",
+        "idSource": "creature.id",
+        "petNo": "4372",
+        "name": "幻魅灵狐·苏璃",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 8,
+        "residualReasons": [
+          "no-rule",
+          "prevApplied prerequisite — no same-event fallback host (deferred)",
+          "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
+          "item/potion domain unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4372"
+      },
+      {
+        "creatureId": "pet-4376",
+        "catalogKey": "pet-4376",
+        "associationId": "pet-4376",
+        "idSource": "creature.id",
+        "petNo": "4376",
+        "name": "圣谕之风·岚",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4376"
       },
       {
         "creatureId": "pet-4384",
@@ -31671,6 +31363,25 @@
         "expectedSoulmarkId": "sm-4430"
       },
       {
+        "creatureId": "pet-4432",
+        "catalogKey": "pet-4432",
+        "associationId": "pet-4432",
+        "idSource": "creature.id",
+        "petNo": "4432",
+        "name": "恶咒巫师·科萨斯",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4432"
+      },
+      {
         "creatureId": "pet-4433",
         "catalogKey": "pet-4433",
         "associationId": "pet-4433",
@@ -31883,6 +31594,24 @@
         "expectedSoulmarkId": "sm-4458"
       },
       {
+        "creatureId": "pet-4461",
+        "catalogKey": "pet-4461",
+        "associationId": "pet-4461",
+        "idSource": "creature.id",
+        "petNo": "4461",
+        "name": "追光·兰可",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 1,
+        "residualReasons": [
+          "guard unmodeled — effect withheld (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4461"
+      },
+      {
         "creatureId": "pet-4463",
         "catalogKey": "pet-4463",
         "associationId": "pet-4463",
@@ -31919,6 +31648,27 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4467"
+      },
+      {
+        "creatureId": "pet-4468",
+        "catalogKey": "pet-4468",
+        "associationId": "pet-4468",
+        "idSource": "creature.id",
+        "petNo": "4468",
+        "name": "始皇帝·嬴政",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 15,
+        "residualReasons": [
+          "no-trigger-prefix",
+          "inventory-count — external item ref (deferred)",
+          "no-rule",
+          "mark-declaration — named-mark state machine unmodeled (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4468"
       },
       {
         "creatureId": "pet-4452",
@@ -31973,6 +31723,22 @@
         "expectedSoulmarkId": "sm-4474"
       },
       {
+        "creatureId": "pet-4475",
+        "catalogKey": "pet-4475",
+        "associationId": "pet-4475",
+        "idSource": "creature.id",
+        "petNo": "4475",
+        "name": "阿谜",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4475"
+      },
+      {
         "creatureId": "pet-4476",
         "catalogKey": "pet-4476",
         "associationId": "pet-4476",
@@ -32008,6 +31774,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4477"
+      },
+      {
+        "creatureId": "pet-4478",
+        "catalogKey": "pet-4478",
+        "associationId": "pet-4478",
+        "idSource": "creature.id",
+        "petNo": "4478",
+        "name": "小规",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4478"
       },
       {
         "creatureId": "pet-4479",
@@ -32143,6 +31925,24 @@
         "expectedSoulmarkId": "sm-4490"
       },
       {
+        "creatureId": "pet-4492",
+        "catalogKey": "pet-4492",
+        "associationId": "pet-4492",
+        "idSource": "creature.id",
+        "petNo": "4492",
+        "name": "斯达莱斯",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4492"
+      },
+      {
         "creatureId": "pet-4494",
         "catalogKey": "pet-4494",
         "associationId": "pet-4494",
@@ -32161,6 +31961,24 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4494"
+      },
+      {
+        "creatureId": "pet-4495",
+        "catalogKey": "pet-4495",
+        "associationId": "pet-4495",
+        "idSource": "creature.id",
+        "petNo": "4495",
+        "name": "彼尔德",
+        "status": "partial",
+        "entries": 4,
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4495"
       },
       {
         "creatureId": "pet-4501",
@@ -32745,6 +32563,25 @@
         "expectedSoulmarkId": "sm-4567"
       },
       {
+        "creatureId": "pet-4568",
+        "catalogKey": "pet-4568",
+        "associationId": "pet-4568",
+        "idSource": "creature.id",
+        "petNo": "4568",
+        "name": "幽魅之影·杰格",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-rule",
+          "guard unmodeled — effect withheld (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4568"
+      },
+      {
         "creatureId": "pet-4572",
         "catalogKey": "pet-4572",
         "associationId": "pet-4572",
@@ -33321,6 +33158,28 @@
         "expectedSoulmarkId": "sm-4621"
       },
       {
+        "creatureId": "pet-4627",
+        "catalogKey": "pet-4627",
+        "associationId": "pet-4627",
+        "idSource": "creature.id",
+        "petNo": "4627",
+        "name": "赫斯提亚",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 7,
+        "residualReasons": [
+          "ailment-duration mutation — post-hoc remainingTurns change unmodeled (deferred)",
+          "no-rule",
+          "mark-declaration — named-mark state machine unmodeled (deferred)",
+          "mark-cap / stack-threshold clause — unmodeled (deferred)",
+          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4627"
+      },
+      {
         "creatureId": "pet-4626",
         "catalogKey": "pet-4626",
         "associationId": "pet-4626",
@@ -33337,6 +33196,28 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4626"
+      },
+      {
+        "creatureId": "pet-4625",
+        "catalogKey": "pet-4625",
+        "associationId": "pet-4625",
+        "idSource": "creature.id",
+        "petNo": "4625",
+        "name": "伏尔格安",
+        "status": "partial",
+        "entries": 1,
+        "residualFragments": 9,
+        "residualReasons": [
+          "no-rule",
+          "cond-orphan",
+          "guard unmodeled — effect withheld (deferred)",
+          "named-domain definition — field/state-machine effects unmodeled (deferred)",
+          "empty-body"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4625"
       },
       {
         "creatureId": "pet-4632",
@@ -33396,6 +33277,25 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4643"
+      },
+      {
+        "creatureId": "pet-4642",
+        "catalogKey": "pet-4642",
+        "associationId": "pet-4642",
+        "idSource": "creature.id",
+        "petNo": "4642",
+        "name": "逆世之瞳·哀目黑子",
+        "status": "partial",
+        "entries": 5,
+        "residualFragments": 2,
+        "residualReasons": [
+          "no-rule",
+          "move-use scope — boss gate cannot persist across the react window (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4642"
       },
       {
         "creatureId": "pet-4647",
@@ -33757,6 +33657,25 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4678"
+      },
+      {
+        "creatureId": "pet-4689",
+        "catalogKey": "pet-4689",
+        "associationId": "pet-4689",
+        "idSource": "creature.id",
+        "petNo": "4689",
+        "name": "艾瑞吉",
+        "status": "partial",
+        "entries": 2,
+        "residualFragments": 3,
+        "residualReasons": [
+          "no-rule",
+          "fractional cap tail — cap dimension unmodeled"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4689"
       },
       {
         "creatureId": "pet-4692",
@@ -36160,7 +36079,7 @@
         "empty-body"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4716"
     },
@@ -36244,7 +36163,7 @@
         "nullify-success — move-nullification observation unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4725"
     },
@@ -36479,7 +36398,7 @@
         "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4739"
     },
@@ -36557,7 +36476,7 @@
         "guard unmodeled — effect withheld (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4740"
     },
@@ -36638,7 +36557,7 @@
         "guard unmodeled — effect withheld (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4747"
     },
@@ -36882,7 +36801,7 @@
         "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4758"
     },
@@ -36982,7 +36901,7 @@
         "edge-trigger — ailment-entry transition hook not modeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4761"
     },
@@ -37717,7 +37636,7 @@
         "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4808"
     },
@@ -38199,7 +38118,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4833"
     },
@@ -38355,7 +38274,7 @@
         "cleanse-immune — anti-cleanse domain unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4840"
     },
@@ -38538,7 +38457,7 @@
         "empty-body"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4850"
     },
@@ -38995,7 +38914,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4877"
     },
@@ -39240,7 +39159,7 @@
         "empty-body"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4888"
     },
@@ -39813,7 +39732,7 @@
         "fractional cap tail — cap dimension unmodeled"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4921"
     },
@@ -39851,7 +39770,7 @@
         "empty-body"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4919"
     },
@@ -42488,7 +42407,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2767"
     },
@@ -43181,7 +43100,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2856"
     },
@@ -43361,7 +43280,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2880"
     },
@@ -43523,7 +43442,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2899"
     },
@@ -43539,7 +43458,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2898"
     },
@@ -44297,7 +44216,7 @@
         "grow tail without growing host"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2977"
     },
@@ -44680,7 +44599,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3020"
     },
@@ -44696,7 +44615,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3025"
     },
@@ -45324,7 +45243,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3078"
     },
@@ -46032,7 +45951,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3142"
     },
@@ -46148,7 +46067,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3152"
     },
@@ -48021,7 +47940,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3296"
     },
@@ -48283,7 +48202,7 @@
         "revive/checkpoint — hook not modeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3311"
     },
@@ -48493,7 +48412,7 @@
         "move-use scope — boss gate cannot persist across the react window (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3325"
     },
@@ -48557,7 +48476,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3335"
     },
@@ -48733,7 +48652,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3346"
     },
@@ -49000,7 +48919,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3361"
     },
@@ -50218,7 +50137,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "manual-peak-unmounted",
       "expectedSoulmarkId": "sm-5000"
     },
@@ -51011,7 +50930,7 @@
         "cap-tail-orphan"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3486"
     },
@@ -51624,7 +51543,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3522"
     },
@@ -51841,7 +51760,7 @@
         "stage-snapshot-transfer (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3540"
     },
@@ -52268,7 +52187,7 @@
         "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3567"
     },
@@ -52985,7 +52904,7 @@
         "move-use scope — boss gate cannot persist across the react window (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3613"
     },
@@ -54409,7 +54328,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3718"
     },
@@ -54696,7 +54615,7 @@
         "hit-window — move-landed second-phase trigger unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3738"
     },
@@ -55225,7 +55144,7 @@
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3769"
     },
@@ -55875,7 +55794,7 @@
         "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3809"
     },
@@ -56040,7 +55959,7 @@
         "move-use scope — boss gate cannot persist across the react window (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3818"
     },
@@ -56674,7 +56593,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3859"
     },
@@ -56836,7 +56755,7 @@
         "guard unmodeled — effect withheld (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3869"
     },
@@ -57162,7 +57081,7 @@
         "no-trigger-prefix"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3890"
     },
@@ -57665,7 +57584,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3926"
     },
@@ -57681,7 +57600,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3927"
     },
@@ -57799,7 +57718,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3935"
     },
@@ -58531,7 +58450,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "manual-peak-unmounted",
       "expectedSoulmarkId": "sm-3986"
     },
@@ -58908,7 +58827,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4014"
     },
@@ -59084,7 +59003,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4024"
     },
@@ -59119,7 +59038,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4027"
     },
@@ -59605,7 +59524,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4067"
     },
@@ -60045,7 +59964,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4097"
     },
@@ -60077,7 +59996,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4102"
     },
@@ -60290,7 +60209,7 @@
         "attr-domain — typechart mutation unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4119"
     },
@@ -60322,7 +60241,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4122"
     },
@@ -60725,7 +60644,7 @@
         "named-prefixed payload unparsed: 造成的攻击伤害成少50%"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4152"
     },
@@ -60966,7 +60885,7 @@
         "attr-domain — typechart mutation unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4167"
     },
@@ -61525,7 +61444,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4206"
     },
@@ -61541,7 +61460,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4208"
     },
@@ -61790,7 +61709,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4224"
     },
@@ -62063,7 +61982,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4254"
     },
@@ -62450,7 +62369,7 @@
         "mark-cap / stack-threshold clause — unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4287"
     },
@@ -62921,7 +62840,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4319"
     },
@@ -63091,7 +63010,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4329"
     },
@@ -63758,7 +63677,7 @@
         "item/potion domain unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4372"
     },
@@ -63814,7 +63733,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4376"
     },
@@ -64569,7 +64488,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4432"
     },
@@ -64918,7 +64837,7 @@
         "guard unmodeled — effect withheld (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4461"
     },
@@ -65015,7 +64934,7 @@
         "mark-declaration — named-mark state machine unmodeled (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4468"
     },
@@ -65119,7 +65038,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4475"
     },
@@ -65172,7 +65091,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4478"
     },
@@ -65397,7 +65316,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4492"
     },
@@ -65453,7 +65372,7 @@
         "no-rule"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4495"
     },
@@ -66607,7 +66526,7 @@
         "guard unmodeled — effect withheld (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4568"
     },
@@ -67587,7 +67506,7 @@
         "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4627"
     },
@@ -67627,7 +67546,7 @@
         "empty-body"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4625"
     },
@@ -67917,7 +67836,7 @@
         "move-use scope — boss gate cannot persist across the react window (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4642"
     },
@@ -68747,7 +68666,7 @@
         "fractional cap tail — cap dimension unmodeled"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4689"
     },
