@@ -500,8 +500,10 @@ export const rules = [
     go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_out_floor", target: "self", params: { min: +m[1] } }] }),
   },
   // "忽略对手防御值的N%" → ignore_def（"防御值"变体）
+  // 「攻击」作主语是常驻语义（"攻击忽略对手防御值的20%"＝每次攻击都无视），
+  // 与「下次攻击忽略…」的次数窗（heal-226，count:1）不是一回事，故此处不挂 count。
   { id: "e8-tn-05",
-    re: /^忽略(?:对手|对方|敌方)防御值(?:的)?(\d+)%$/,
+    re: /^(?:自身|自己)?(?:所有)?(?:攻击|攻击技能)?忽略(?:对手|对方|敌方)防御值(?:的)?(\d+)%$/,
     go: (m) => ({ effects: [{ op: "apply_status", name: "ignore_def", target: "self", params: { pct: +m[1] } }] }),
   },
   // "自身所有攻击技能威力提升N%"/"攻击技能威力提升N%" → power_mul flag

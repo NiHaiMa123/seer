@@ -451,7 +451,10 @@ export const rules = [
   { id: "heal-224", re: /^若?自身能力提升状态被(?:消除|吸取|偷取)(?:或吸取)?则(?!$)(.+)$|^若?自身强化状态被消除则(.+)$/, go: (m) => reactWrap(7, {}, m[1] ?? m[2]) },
   // 无视防御（"忽略对手N%的双防值"/"下次攻击忽略对手双防值的N%"）
   { id: "heal-225", re: new RegExp(`^(?:攻击|所有攻击|下次攻击)?忽略(?:对手|对方|敌方)(\\d+)%(?:的)?(?:双防|防御|防御能力)(?:值)?$`), go: (m) => ({ effects: [{ op: "apply_status", name: "ignore_def", target: "self", params: { pct: num(m[1]), ...(m[0].startsWith("下次攻击") ? { count: 1 } : {}) } }] }) },
-  { id: "heal-226", re: new RegExp(`^下?次?攻击忽略(?:对手|对方|敌方)(?:双防|防御)(?:值)?的?(\\d+)%$`), go: (m) => ({ effects: [{ op: "apply_status", name: "ignore_def", target: "self", params: { pct: num(m[1]), count: 1 } }] }) },
+  // 「下次攻击忽略…」= 次数窗（count:1，本击生效后自消耗）；「次」必须写出来。
+  // 原来这里写的是 `下?次?攻击`——两个都可选，于是把常驻的「攻击忽略对手防御值的20%」
+  // （无次数语义）也吞成 count:1，凭空把永久被动缩成一次。
+  { id: "heal-226", re: new RegExp(`^下次攻击忽略(?:对手|对方|敌方)(?:双防|防御)(?:值)?的?(\\d+)%$`), go: (m) => ({ effects: [{ op: "apply_status", name: "ignore_def", target: "self", params: { pct: num(m[1]), count: 1 } }] }) },
   // 回合吸强（"每回合吸收对手的能力强化状态"）
   { id: "heal-227", re: /^每回合吸收(?:对手|对方|敌方)(?:的)?能力(?:强化|提升)状态$|^每回合吸取对手能力强化状态$/, go: () => ({ effects: [liftTick({ op: "apply_status", name: "steal_stages_tick", target: "self" })] }) },
   // 无视伤害限制（"自身所有攻击无视对手伤害限制效果"）
