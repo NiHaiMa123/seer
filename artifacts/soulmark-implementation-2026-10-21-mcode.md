@@ -163,4 +163,12 @@ pet-3999 / pet-4401 / pet-4453 / pet-4476。技能侧 53780 条 0 变化，残�
 而不是从上一组的 guard 反推——这是一次独立的设计与实现，需要单独一轮，
 按同一套纪律做（隔离 → 全库 diff 量影响 → 有回归就撤）。
 
+**同族的第三处症状**（pet-3939 贝瑶，本轮查实）：同一 ；子句里两个「若…」分支，
+A 的条件成了**条目级 guard**（`mechanics/soulmark/index.ts`：
+`if (!condEval(octx, view.world)) continue` —— 条目 guard 会 gate 整条），
+B 的条件落成 op 级 `if`，于是 B 的效果被 A 的条件一起收紧。
+本轮试过补 part 级「若P当回合Y」拆分，残文确实 -1，但门是错的，**已撤回**。
+三处症状同根，合并成一族处理，细节见 `soulmark-next-round-worklist.md`。
+
+
 
