@@ -12,6 +12,28 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { RULES } from "./effects-rules/order.mjs";
 import { liftTickEffects, syncDealtHost } from "./effects-rules/tick-shape.mjs";
+
+/**
+ * 纯噪声片段：裸主语代词与图鉴页尾巴。
+ *
+ * 判据是「构造上不可能承载效果」：裸代词没有谓语，页尾是抓取残留。
+ * 切成碎片后它们会以残文形态留在记录里，让记录永远算不上完成。
+ * 注意：「赛尔号X的魂印是Y，：<效果>」这种 FAQ 引导语**不算**噪声——
+ * 它后面常常跟着真内容（pet-3289 / pet-3320 就是这种）。
+ */
+const NOISE_FRAGMENT = [
+  /^(自身|自己|对手|对方|敌方|我方|己方|本方)$/,
+  /^精灵资料[:：]?$/,
+  /^>>+$/,
+  /^(图鉴|技能表|种族值|进化图|获得方法|新闻|攻略|资料)$/,
+  /^\d{1,2}[、.．]$/,
+];
+const isNoiseFragment = (s) => {
+  const t = String(s ?? "").trim();
+  return t !== "" && NOISE_FRAGMENT.some((re) => re.test(t));
+};
+export { isNoiseFragment };
+
 import {
   NUM, num, pct,
   STATS, STAT_RE, ALL_STATS, STAT_CODES,
@@ -1812,7 +1834,13 @@ function parseEffectTextAtExit(text, opts = {}) {
       if (hit === null) {
         const oc = condOf(part);
         if (oc !== undefined) { mergeDynCond(oc); continue; }
-        unparsed.push({ clause: (bcmConsumed ?? "") + part, reason: "no-rule" }); continue;
+        // 纯噪声片段不记残文：裸主语代词（"自身"——切分后剩下的主语，承载不了任何效果）
+        // 与图鉴页尾巴（"精灵资料：" / ">>>" / 编号残渣）。它们不是「未实现的规则」，
+        // 留在残文里会让整条记录永远算不上完成。
+        if (!isNoiseFragment((bcmConsumed ?? "") + part)) {
+          unparsed.push({ clause: (bcmConsumed ?? "") + part, reason: "no-rule" });
+        }
+        continue;
       }
       if (hit.unparsedReason) { unparsed.push({ clause: (bcmConsumed ?? "") + part, reason: hit.unparsedReason }); continue; }
       // 规则级半解析残留（reactWrap/prevApplied 载荷内部未解析子句）——逐条计入残留

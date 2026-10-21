@@ -11,7 +11,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { parseEffectText, condOf, reactWrap, liftDrainRiders, isHitRider, OF_RIDER_FIELDS, ON_HIT_RIDER_FIELDS, DRAIN_RIDER_KEYS } from "./effects-parse.mjs";
+import { parseEffectText, condOf, reactWrap, liftDrainRiders, isHitRider, isNoiseFragment, OF_RIDER_FIELDS, ON_HIT_RIDER_FIELDS, DRAIN_RIDER_KEYS } from "./effects-parse.mjs";
 import { AILMENTS } from "./effects-rules/lex.mjs";
 
 const PREV_APPLIED_RESULT_OPS = new Set([
@@ -2766,7 +2766,7 @@ export function parseSoulmarkText(text, petName) {
           if (hit) { if (probe3.orphanCond === undefined && pendingCond !== undefined) { pendingCond = undefined; pendingCondSrc = undefined; } pendingEmpty = undefined; segParsed = true; continue; }
         }
         if (probe3.unparsed.length > 0 && probe3.unparsed.every((u) => u.reason !== "no-rule")) for (const u of probe3.unparsed) unparsed.push(u);
-        else unparsed.push({ clause: gtext, reason: "no-trigger-prefix" });
+        else if (!isNoiseFragment(gtext)) unparsed.push({ clause: gtext, reason: "no-trigger-prefix" });
         pendingEmpty = undefined; continue;
       }
       if (!inherited) { const { dupActor: _dd, guardDropped: _gd2, ...extraKeep } = extra; lastHook = { hook, extra: extraKeep }; }
@@ -3409,7 +3409,7 @@ export function parseSoulmarkText(text, petName) {
         else unparsed.push({ clause: gtext, reason: "shield-count scaling — pct-window host absent (deferred)" });
       }
       for (const k of Object.keys(flags)) unparsed.push({ clause: k === "attachDamage" && typeof flags.attachDamage === "object" ? `attachDamage:${Object.keys(flags.attachDamage).join("+")}` : `${k}`, reason: "move-flag" });
-      if (effects.length === 0) { if (inner.length === 0 && pendingCondSrc !== gtext && !mountedPrev && pendingBenchCtx === undefined && pendingAilTurn === undefined && pendingHpDiffCtx === undefined && pendingShieldCtx === undefined) unparsed.push({ clause: gtext, reason: "no-op" }); continue; } // pendingCond/pendingBenchCtx/缩放语境本组新设时语境已结转——不算孤儿
+      if (effects.length === 0) { if (inner.length === 0 && pendingCondSrc !== gtext && !mountedPrev && pendingBenchCtx === undefined && pendingAilTurn === undefined && pendingHpDiffCtx === undefined && pendingShieldCtx === undefined && !isNoiseFragment(gtext)) unparsed.push({ clause: gtext, reason: "no-op" }); continue; } // pendingCond/pendingBenchCtx/缩放语境本组新设时语境已结转——不算孤儿
       if (hasMoveCtx(effects)) { unparsed.push({ clause: gtext, reason: "move-power-ref" }); continue; }
       // flatPerAlive：存活计数缩放（"己方每有一只精灵存活则恢复N点"——heal.flat→floor(alive/1)×flat）
       if (extra.flatPerAlive === true) for (const o of effects) { if (o.op === "heal" && o.flat !== undefined) { o.flatPerAlive = { per: 1, add: o.flat }; delete o.flat; } else if (o.op === "apply_status" && (o.name === "shield" || o.name === "ward") && typeof o.params?.flat === "number" && o.params.flatPerBench === undefined) { o.params.flatPerBench = o.params.flat; o.params.flat = 0; } }

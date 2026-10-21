@@ -11,8 +11,8 @@
     "explicitNoTrait": 73,
     "noEntryWithResidual": 127,
     "noEntryNoResidual": 0,
-    "partial": 956,
-    "entryNoResidual": 728,
+    "partial": 952,
+    "entryNoResidual": 732,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 903,
+      "fragments": 893,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,7 +43,7 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 458
+      "distinctRecords": 451
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
@@ -72,7 +72,7 @@
     },
     {
       "reason": "no-trigger-prefix",
-      "fragments": 206,
+      "fragments": 204,
       "examples": [
         {
           "creatureId": "pet-4717",
@@ -93,7 +93,7 @@
           "clause": "设自身1~4号位技能的PP值为一个2阶矩阵"
         }
       ],
-      "distinctRecords": 168
+      "distinctRecords": 166
     },
     {
       "reason": "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -896,6 +896,31 @@
       "distinctRecords": 9
     },
     {
+      "reason": "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)",
+      "fragments": 9,
+      "examples": [
+        {
+          "creatureId": "pet-4718",
+          "catalogKey": "pet-4718",
+          "petNo": "4718",
+          "clause": "使用技能时50%令对手害怕，之后本次在场该概率提升5%"
+        },
+        {
+          "creatureId": "pet-3461",
+          "catalogKey": "pet-3461",
+          "petNo": "3461",
+          "clause": "对手使用属性技能则自身免疫下1次受到的异常状态"
+        },
+        {
+          "creatureId": "pet-3791",
+          "catalogKey": "pet-3791",
+          "petNo": "3791",
+          "clause": "使用属性技能使自身下回合造成的伤害提升50%"
+        }
+      ],
+      "distinctRecords": 9
+    },
+    {
       "reason": "party-scope",
       "fragments": 9,
       "examples": [
@@ -941,31 +966,6 @@
           "catalogKey": "pet-4829",
           "petNo": "4829",
           "clause": "免疫成功则消除对手的回合类效果与能力提升状态"
-        }
-      ],
-      "distinctRecords": 8
-    },
-    {
-      "reason": "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)",
-      "fragments": 8,
-      "examples": [
-        {
-          "creatureId": "pet-4718",
-          "catalogKey": "pet-4718",
-          "petNo": "4718",
-          "clause": "使用技能时50%令对手害怕，之后本次在场该概率提升5%"
-        },
-        {
-          "creatureId": "pet-3461",
-          "catalogKey": "pet-3461",
-          "petNo": "3461",
-          "clause": "对手使用属性技能则自身免疫下1次受到的异常状态"
-        },
-        {
-          "creatureId": "pet-3791",
-          "catalogKey": "pet-3791",
-          "petNo": "3791",
-          "clause": "使用属性技能使自身下回合造成的伤害提升50%"
         }
       ],
       "distinctRecords": 8
@@ -5912,7 +5912,7 @@
         "name": "蟑螂恶霸",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "no-rule"
         ],
@@ -7606,12 +7606,10 @@
         "idSource": "creature.id",
         "petNo": "3327",
         "name": "霜焱圣君",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
@@ -13212,9 +13210,8 @@
         "name": "帕庀特",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
-          "no-rule",
           "per-PP-count predicate — unmodeled (deferred)"
         ],
         "inPackScope": true,
@@ -13368,7 +13365,7 @@
         "entries": 3,
         "residualFragments": 1,
         "residualReasons": [
-          "no-rule"
+          "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
         ],
         "inPackScope": true,
         "packDirectory": "different-effects",
@@ -13931,7 +13928,7 @@
         "name": "狂沙之主·萨特",
         "status": "partial",
         "entries": 6,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "react payload unparsed: 伤害不超过自身最大体力的1/2",
           "no-rule"
@@ -26278,9 +26275,8 @@
         "name": "鹿宸",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
-          "no-trigger-prefix",
           "fatal-trigger"
         ],
         "inPackScope": true,
@@ -27465,12 +27461,10 @@
         "idSource": "creature.id",
         "petNo": "3765",
         "name": "颜洛夕",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -29399,9 +29393,8 @@
         "name": "圣辰之铠",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
-          "no-rule",
           "next-apply window — single-use mounting not modeled (deferred)"
         ],
         "inPackScope": true,
@@ -29794,9 +29787,8 @@
         "name": "玉桂·花信",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
-          "no-rule",
           "trigger 1 set but no payload in clause"
         ],
         "inPackScope": true,
@@ -30119,12 +30111,10 @@
         "idSource": "creature.id",
         "petNo": "4157",
         "name": "鳗鳗军团",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 1,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -32767,7 +32757,7 @@
         "name": "巨鲸座",
         "status": "partial",
         "entries": 4,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-trigger-prefix",
           "no-rule"
@@ -35095,12 +35085,10 @@
         "idSource": "creature.id",
         "petNo": "3867",
         "name": "暗岩·格莱奥丹",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-trigger-prefix"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": false,
         "packDirectory": "outside-pack",
         "defaultMount": "outside-pack",
@@ -38294,7 +38282,7 @@
       "name": "蟑螂恶霸",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "no-rule"
       ],
@@ -48551,12 +48539,10 @@
       "idSource": "creature.id",
       "petNo": "3327",
       "name": "霜焱圣君",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 3,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "different-effects",
       "defaultMount": "mounted",
@@ -53546,9 +53532,8 @@
       "name": "鹿宸",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
-        "no-trigger-prefix",
         "fatal-trigger"
       ],
       "inPackScope": true,
@@ -55234,12 +55219,10 @@
       "idSource": "creature.id",
       "petNo": "3765",
       "name": "颜洛夕",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 3,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -56900,12 +56883,10 @@
       "idSource": "creature.id",
       "petNo": "3867",
       "name": "暗岩·格莱奥丹",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 3,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-trigger-prefix"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": false,
       "packDirectory": "outside-pack",
       "defaultMount": "outside-pack",
@@ -59061,9 +59042,8 @@
       "name": "圣辰之铠",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
-        "no-rule",
         "next-apply window — single-use mounting not modeled (deferred)"
       ],
       "inPackScope": true,
@@ -60112,9 +60092,8 @@
       "name": "玉桂·花信",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
-        "no-rule",
         "trigger 1 set but no payload in clause"
       ],
       "inPackScope": true,
@@ -60902,12 +60881,10 @@
       "idSource": "creature.id",
       "petNo": "4157",
       "name": "鳗鳗军团",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 1,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -62148,9 +62125,8 @@
       "name": "帕庀特",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
-        "no-rule",
         "per-PP-count predicate — unmodeled (deferred)"
       ],
       "inPackScope": true,
@@ -62423,7 +62399,7 @@
       "entries": 3,
       "residualFragments": 1,
       "residualReasons": [
-        "no-rule"
+        "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
       ],
       "inPackScope": true,
       "packDirectory": "different-effects",
@@ -63579,7 +63555,7 @@
       "name": "狂沙之主·萨特",
       "status": "partial",
       "entries": 6,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "react payload unparsed: 伤害不超过自身最大体力的1/2",
         "no-rule"
@@ -66302,7 +66278,7 @@
       "name": "巨鲸座",
       "status": "partial",
       "entries": 4,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-trigger-prefix",
         "no-rule"
