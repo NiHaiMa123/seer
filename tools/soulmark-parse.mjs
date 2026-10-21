@@ -148,6 +148,16 @@ const smCondOf = (p) => {
   return condOf(p);
 };
 
+/**
+ * 魂印语境里「必定命中」的类别限定（cat 编码与全引擎一致：1=属性/2=物理/3=特殊，
+ * 4=任意攻击招=物理+特殊）。
+ * 原文写「攻击技能 / 所有攻击」时说的是**攻击招式**必定命中，不含属性技能；
+ * 裸「必中」「所有技能必定命中」不带类别限定 → 全类别（must_hit，缺省 cat）。
+ * 技能侧不走这里：技能里的「自身攻击技能必定命中」指的是这一招自己必中（accuracy 旗标），
+ * 那是另一层语义，所以判定放在魂印解析层而不是规则表。
+ */
+const soulMustHitCat = (text) => (/(?:攻击技能|所有攻击|全部攻击)/.test(String(text ?? "")) ? 4 : undefined);
+
 // 段级冗余主语剥除的递归护栏：「未剥」探针要跨 parseSoulmarkText 调用共享（r0 探针内不得再剥）
 let r3cRedOff = false;
 const SRC = "content/creatures/creatures.json";
@@ -1807,8 +1817,7 @@ export function parseSoulmarkText(text, petName) {
     };
     outerG: for (const g of groups) {
       const linkedContinuation = g.linkedContinuation === true;
-      const groupUnparsedStart = unparsed.length;
-      let gtext = g.join("，").trim().replace(/^[，,、；;：:\s]+/, "").replace(/，(?=[+-]\d)/g, ""); // "体力，+10"切分碎片回拼——逗号后紧跟有符号数属上维度增量，非子句边界
+      const groupUnparsedStart = unparsed.length;      let gtext = g.join("，").trim().replace(/^[，,、；;：:\s]+/, "").replace(/，(?=[+-]\d)/g, ""); // "体力，+10"切分碎片回拼——逗号后紧跟有符号数属上维度增量，非子句边界
       if (gtext === "") continue;
       if (g.withholdOutcomeTail === true) {
         quarantineGroup(gtext, "prevApplied branch continuation — linked tail cannot be detached safely (deferred)");
@@ -2533,8 +2542,14 @@ export function parseSoulmarkText(text, petName) {
       if (hook === undefined) {
         const probe = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true });
         // 必中裸句（"必中"——flags.accuracy 折算 must_hit 常驻窗）
+        // 类别限定读原文：「自身攻击技能必定命中」说的是**攻击招式**必定命中，
+        // 不是所有招式——原折算一律给 must_hit（无 cat），把属性技能也带上了。
+        // cat 4 = 任意攻击招（物理+特殊），与全引擎类别编码一致。
         if (probe.effects.length === 0 && probe.flags?.accuracy === "always") {
-          probe.effects.push({ op: "apply_status", name: "must_hit", target: "self" });
+          const hitCat = soulMustHitCat(gtext);
+          probe.effects.push(hitCat === undefined
+            ? { op: "apply_status", name: "must_hit", target: "self" }
+            : { op: "apply_status", name: "sure_hit", target: "self", params: { cat: hitCat } });
         }
         // drain 裸句（"造成攻击伤害的30%恢复至体力"——袋子或单独一条 rider 折算 drain_atk 常驻窗）
         // 判据是「本组里没有伤害宿主」，不是「本组只剩它一条」：吸血 rider 挂的是伤害，
@@ -3315,7 +3330,7 @@ export function parseSoulmarkText(text, petName) {
       // 招式级先制/必中窗 → 短回合 flag op（onEntry/onMoveUsed 语境近似 UNVERIFIED）
       if (flags.priority !== undefined) { effects.push({ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: flags.priority } }); delete flags.priority; }
       if (flags.priorityIf !== undefined && typeof flags.priorityIf === "object") { effects.push({ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: flags.priorityIf.add }, ...(flags.priorityIf.when !== undefined ? { if: flags.priorityIf.when } : {}) }); delete flags.priorityIf; }
-      if (flags.accuracy === "always") { effects.push({ op: "apply_status", name: "must_hit", target: "self", turns: 1 }); delete flags.accuracy; }
+      if (flags.accuracy === "always") { const hitCat = soulMustHitCat(gtext); effects.push(hitCat === undefined ? { op: "apply_status", name: "must_hit", target: "self", turns: 1 } : { op: "apply_status", name: "sure_hit", target: "self", turns: 1, params: { cat: hitCat } }); delete flags.accuracy; }
       // dynChance（"攻击有自身当前体力百分比的概率令对手AIL"——effects 层无法回写条级 → flags 透传，条目 chanceDyn 承接）
       if (flags.dynChance !== undefined) { bodyDyn = flags.dynChance; delete flags.dynChance; }
       // benchCtx 透出（"背包内每阵亡一只精灵，造成伤害提升10%"——pct 窗转 perBenchDead/Alive 计数乘算；本组无 op 时结转 pendingBenchCtx 挂下一组）

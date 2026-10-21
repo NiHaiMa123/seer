@@ -739,8 +739,14 @@ export function critChanceFracs(u: UnitState, foe?: UnitState): readonly (readon
 export const mustHitOn = (u: UnitState, cat?: number): boolean =>
   u.effects.some((e) => {
     if (!isMod(e, "mustHit")) return false;
-    // params.cat 类别必中（"所有特殊攻击必定命中"）；省略=全类别
-    return e.params?.cat === undefined || (cat !== undefined && e.params.cat === cat);
+    // params.cat 类别必中（"所有特殊攻击必定命中"）；省略=全类别。
+    // cat 编码与全引擎一致：1=属性/2=物理/3=特殊，4=任意攻击招（物理+特殊）。
+    // 其他类别读数器（hit_fx_null / nullify / dmgTakenCatFrac / blockedCategories /
+    // prioAddOf / pp-delta 的 cat 过滤）都有 cat===4 这一支，这里原来漏了，
+    // 导致 sure_hit{cat:4}（"攻击技能必定命中"）是永不触发的死路径。
+    if (e.params?.cat === undefined) return true;
+    if (cat === undefined) return false;
+    return e.params.cat === 4 ? cat !== 1 : e.params.cat === cat;
   });
 
 /** 持有者出招伤害提高合计 %（dmgOutPct flag；params.pct 加算）。 */

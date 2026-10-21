@@ -4689,8 +4689,8 @@
     "sourceRecordsOutsidePackWithEntries": 74,
     "directoryCounts": {
       "missing": 33,
-      "different": 552,
-      "same": 1048,
+      "different": 547,
+      "same": 1053,
       "notGenerated": 169,
       "outsidePack": 82,
       "ambiguous": 0
@@ -6346,23 +6346,6 @@
         "storedEffects": 4
       },
       {
-        "creatureId": "pet-4901",
-        "catalogKey": "pet-4901",
-        "associationId": "pet-4901",
-        "idSource": "creature.id",
-        "petNo": "4901",
-        "name": "特维耶",
-        "status": "entry-no-residual",
-        "entries": 4,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4901",
-        "storedEffects": 4
-      },
-      {
         "creatureId": "pet-4903",
         "catalogKey": "pet-4903",
         "associationId": "pet-4903",
@@ -6746,23 +6729,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-2898",
-        "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-2909",
-        "catalogKey": "pet-2909",
-        "associationId": "pet-2909",
-        "idSource": "creature.id",
-        "petNo": "2909",
-        "name": "鱼斯拉",
-        "status": "entry-no-residual",
-        "entries": 2,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-2909",
         "storedEffects": 2
       },
       {
@@ -8169,23 +8135,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3396",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3398",
-        "catalogKey": "pet-3398",
-        "associationId": "pet-3398",
-        "idSource": "creature.id",
-        "petNo": "3398",
-        "name": "馨幻",
-        "status": "entry-no-residual",
-        "entries": 3,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3398",
-        "storedEffects": 1
       },
       {
         "creatureId": "pet-3399",
@@ -9708,23 +9657,6 @@
         "packDirectory": "different-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3680",
-        "storedEffects": 3
-      },
-      {
-        "creatureId": "pet-3686",
-        "catalogKey": "pet-3686",
-        "associationId": "pet-3686",
-        "idSource": "creature.id",
-        "petNo": "3686",
-        "name": "妖族元皇·兰蒂斯",
-        "status": "entry-no-residual",
-        "entries": 5,
-        "residualFragments": 0,
-        "residualReasons": [],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3686",
         "storedEffects": 3
       },
       {
@@ -11744,27 +11676,6 @@
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3991",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-3999",
-        "catalogKey": "pet-3999",
-        "associationId": "pet-3999",
-        "idSource": "creature.id",
-        "petNo": "3999",
-        "name": "飒雷孤影·喵佐",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 3,
-        "residualReasons": [
-          "react payload unparsed: 伤害高于自身体力最大的1/2则下回合100%触发孤雷风暴效果",
-          "no-rule",
-          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-3999",
-        "storedEffects": 3
       },
       {
         "creatureId": "pet-4001",
@@ -17232,6 +17143,22 @@
         "expectedSoulmarkId": "sm-4444"
       },
       {
+        "creatureId": "pet-4901",
+        "catalogKey": "pet-4901",
+        "associationId": "pet-4901",
+        "idSource": "creature.id",
+        "petNo": "4901",
+        "name": "特维耶",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4901"
+      },
+      {
         "creatureId": "pet-4905",
         "catalogKey": "pet-4905",
         "associationId": "pet-4905",
@@ -19769,6 +19696,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-2910"
+      },
+      {
+        "creatureId": "pet-2909",
+        "catalogKey": "pet-2909",
+        "associationId": "pet-2909",
+        "idSource": "creature.id",
+        "petNo": "2909",
+        "name": "鱼斯拉",
+        "status": "entry-no-residual",
+        "entries": 2,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2909"
       },
       {
         "creatureId": "pet-2908",
@@ -24084,6 +24027,22 @@
         "expectedSoulmarkId": "sm-3392"
       },
       {
+        "creatureId": "pet-3398",
+        "catalogKey": "pet-3398",
+        "associationId": "pet-3398",
+        "idSource": "creature.id",
+        "petNo": "3398",
+        "name": "馨幻",
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3398"
+      },
+      {
         "creatureId": "pet-3397",
         "catalogKey": "pet-3397",
         "associationId": "pet-3397",
@@ -26895,6 +26854,22 @@
         "expectedSoulmarkId": "sm-3681"
       },
       {
+        "creatureId": "pet-3686",
+        "catalogKey": "pet-3686",
+        "associationId": "pet-3686",
+        "idSource": "creature.id",
+        "petNo": "3686",
+        "name": "妖族元皇·兰蒂斯",
+        "status": "entry-no-residual",
+        "entries": 5,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3686"
+      },
+      {
         "creatureId": "pet-3685",
         "catalogKey": "pet-3685",
         "associationId": "pet-3685",
@@ -29406,6 +29381,26 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-3994"
+      },
+      {
+        "creatureId": "pet-3999",
+        "catalogKey": "pet-3999",
+        "associationId": "pet-3999",
+        "idSource": "creature.id",
+        "petNo": "3999",
+        "name": "飒雷孤影·喵佐",
+        "status": "partial",
+        "entries": 3,
+        "residualFragments": 3,
+        "residualReasons": [
+          "react payload unparsed: 伤害高于自身体力最大的1/2则下回合100%触发孤雷风暴效果",
+          "no-rule",
+          "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
+        ],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-3999"
       },
       {
         "creatureId": "pet-4002",
@@ -39589,7 +39584,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4901"
     },
@@ -43755,7 +43750,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2909"
     },
@@ -49699,7 +49694,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3398"
     },
@@ -54042,7 +54037,7 @@
       "residualFragments": 0,
       "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3686"
     },
@@ -58861,7 +58856,7 @@
         "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)"
       ],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-3999"
     },

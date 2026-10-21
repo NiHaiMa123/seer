@@ -4444,7 +4444,7 @@
       "desc": "溢：若我方使用攻击技能，20%的概率令对面进入冰封(boss免疫）；若我方使用属性技能，立即恢复自身1/5最大HP",
       "effects": [
         {
-          "hook": "onDamageDealt",
+          "hook": "onMoveUsed",
           "chance": {
             "base": 20
           },
@@ -4455,11 +4455,17 @@
               "name": "freeze",
               "target": "opponent"
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -19312,6 +19318,60 @@
       "name": "馨幻魂印",
       "desc": "问：赛尔号馨幻魂印是什么？赛尔号馨幻专属特性是什么？ 答：赛尔号馨幻的魂印是馨： 当回合自身造成的攻击伤害低于200则出手后恢复自身最大体力的1/3并造成等量固定伤害，同时有50%几率使对手下次攻击技能无效；当回合对手造成的攻击伤害低于300则回合结束时吸取对手最大体力的1/3（BOSS无效）。 精灵资料：赛尔号馨幻进化图种族值技能表 >>>",
       "effects": [
+        {
+          "hook": "onMoveUsed",
+          "guard": {
+            "actor": "self",
+            "if": {
+              "prevDamageBelowAbs": 200
+            }
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            },
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "flat",
+              "of": "lastDmgFrac",
+              "value": {
+                "numerator": 100,
+                "denominator": 100
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "guard": {
+            "actor": "self",
+            "if": {
+              "prevDamageBelowAbs": 200
+            }
+          },
+          "chance": {
+            "base": 50
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "move_null",
+              "target": "opponent",
+              "params": {
+                "count": 1,
+                "cat": 4
+              }
+            }
+          ]
+        },
         {
           "hook": "onTurnEnd",
           "guard": {
@@ -36040,6 +36100,33 @@
       "name": "妖族元皇·兰蒂斯魂印",
       "desc": "啻：自身特攻必定命中且造成伤害50%恢复自身体力；自身先出手时造成攻击伤害提升50%，自身体力低于对手时提升效果翻倍；对手先出手时立即减少最大体力1/3，自身体力低于对手时额外全属性+1（boss无效）",
       "effects": [
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "sure_hit",
+              "target": "self",
+              "params": {
+                "cat": 3
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "drain_atk",
+              "target": "self",
+              "params": {
+                "n": 50,
+                "d": 100
+              }
+            }
+          ]
+        },
         {
           "hook": "onMoveUsed",
           "ops": [
@@ -53717,14 +53804,7 @@
           ]
         },
         {
-          "hook": "onTurnEnd",
-          "guard": {
-            "takenBelowHpFrac": {
-              "numerator": 1,
-              "denominator": 2
-            }
-          },
-          "bossGate": true,
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -53737,11 +53817,21 @@
             },
             {
               "op": "apply_status",
-              "name": "must_hit",
+              "name": "sure_hit",
               "target": "self",
-              "turns": 1
+              "turns": 1,
+              "params": {
+                "cat": 4
+              }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
         }
       ]
     },
@@ -72500,9 +72590,12 @@
             },
             {
               "op": "apply_status",
-              "name": "must_hit",
+              "name": "sure_hit",
               "target": "self",
-              "turns": 1
+              "turns": 1,
+              "params": {
+                "cat": 4
+              }
             }
           ]
         },
@@ -74136,9 +74229,12 @@
             },
             {
               "op": "apply_status",
-              "name": "must_hit",
+              "name": "sure_hit",
               "target": "self",
-              "turns": 1
+              "turns": 1,
+              "params": {
+                "cat": 4
+              }
             }
           ]
         }
@@ -75089,9 +75185,12 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "must_hit",
+              "name": "sure_hit",
               "target": "self",
               "turns": 1,
+              "params": {
+                "cat": 4
+              },
               "if": {
                 "order": "first"
               }
@@ -90540,6 +90639,12 @@
               "params": {
                 "pct": 100
               }
+            },
+            {
+              "op": "apply_status",
+              "name": "pp_free",
+              "target": "self",
+              "turns": 1
             },
             {
               "op": "apply_status",
