@@ -11,8 +11,8 @@
     "explicitNoTrait": 73,
     "noEntryWithResidual": 128,
     "noEntryNoResidual": 0,
-    "partial": 956,
-    "entryNoResidual": 727,
+    "partial": 955,
+    "entryNoResidual": 728,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 902,
+      "fragments": 901,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,7 +43,7 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 457
+      "distinctRecords": 456
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
@@ -26463,12 +26463,10 @@
         "idSource": "creature.id",
         "petNo": "3668",
         "name": "混沌伊洛维奇",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "status": "entry-no-residual",
+        "entries": 5,
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -53732,12 +53730,10 @@
       "idSource": "creature.id",
       "petNo": "3668",
       "name": "混沌伊洛维奇",
-      "status": "partial",
-      "entries": 4,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 5,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",

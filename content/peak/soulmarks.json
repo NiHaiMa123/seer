@@ -34910,14 +34910,34 @@
       "desc": "问：赛尔号混沌伊洛维奇魂印是什么？赛尔号混沌伊洛维奇专属特性是什么？ 答：赛尔号混沌伊洛维奇的魂印是：暝 1、自身每处于1种能力提升状态则造成的攻击伤害提高20%，自身不出能力提升状态则必定打出致命一击且回合结束时全属性+1； 2、回合结束时随机吸取对手150-250点体力，若自身体力低于对手则随机吸取对手200-300点体力； 3、（boss无效） 精灵资料：赛尔号混沌伊洛维奇进化图种族值技能表 >>>",
       "effects": [
         {
-          "hook": "onTurnEnd",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
               "name": "dmg_boost",
               "target": "self",
               "params": {
-                "perStage": 20
+                "perStage": 20,
+                "kindMask": 4
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "selfStageUp": true
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_always",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "count": 1
               }
             }
           ]
