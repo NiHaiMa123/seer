@@ -7793,22 +7793,27 @@
       "desc": "娜：对手使用攻击技能则50%概率麻痹；对手使用属性技能则50%概率随机1个技能pp归零(boss免疫）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "paralysis",
-              "target": "opponent",
-              "chance": 50
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "paralysis",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -41059,35 +41064,51 @@
       "desc": "问：赛尔号霍兰德魂印是什么？赛尔号霍兰德专属特性是什么？ 答：赛尔号霍兰德的魂印是：霍 1、自身使用技能时50%的几率不消耗技能PP值，对手使用技能时50%的几率消耗2倍技能PP值； 2、回合开始时，若对手体力高于最大体力的1/2则当回合自身受到的攻击伤害减少50%，若对手体力低于最大体力的1/2则当回合自身攻击技能随机附加200-400点固定伤害； 3、（boss无效）。 精灵资料：赛尔号霍兰德进化图种族值技能表 >>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "pp_free",
+              "name": "react",
               "target": "self",
-              "chance": 50
+              "params": {
+                "trigger": 11
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "pp_free",
+                  "target": "self",
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self"
-          }
+          ]
         },
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "pp_mul",
-              "target": "opponent",
+              "name": "react",
+              "target": "self",
               "params": {
-                "mul": 2
+                "trigger": 3
               },
-              "chance": 50
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "pp_mul",
+                  "target": "opponent",
+                  "params": {
+                    "mul": 2
+                  },
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe"
-          }
+          ]
         },
         {
           "hook": "onTurnStart",
@@ -55937,56 +55958,69 @@
       "desc": "1、对手使用攻击技能则50%麻痹，任意1个技能PP值为零时几率提升至100%； 2、对手使用属性技能则50%随机1个技能PP值归零，自身体力高于最大体力的1/2时几率提升至100%； 3、回合开始时，若对手处于麻痹状态自身攻击命中后令对手随机1个技能PP值归零 4、(boss无效） 精灵资料：赛尔号莉莲娜德进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "paralysis",
-              "target": "opponent",
-              "chance": 50,
-              "chanceSetIf": {
-                "when": {
-                  "ppAt": {
-                    "slot": "any",
-                    "value": 0,
-                    "on": "self"
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "paralysis",
+                  "target": "opponent",
+                  "chance": 50,
+                  "chanceSetIf": {
+                    "when": {
+                      "ppAt": {
+                        "slot": "any",
+                        "value": 0,
+                        "on": "self"
+                      }
+                    },
+                    "value": 100
                   }
-                },
-                "value": 100
-              }
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "pp_delta",
-              "zeroRandom": 1,
-              "target": "opponent",
-              "chance": 50,
-              "chanceSetIf": {
-                "when": {
-                  "selfHpAbove": {
-                    "numerator": 1,
-                    "denominator": 2
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "pp_delta",
+                  "zeroRandom": 1,
+                  "target": "opponent",
+                  "chance": 50,
+                  "chanceSetIf": {
+                    "when": {
+                      "selfHpAbove": {
+                        "numerator": 1,
+                        "denominator": 2
+                      }
+                    },
+                    "value": 100
                   }
-                },
-                "value": 100
-              }
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe",
-            "cat": 1
-          }
+          ]
         },
         {
           "hook": "onTurnStart",
@@ -72433,21 +72467,26 @@
       "desc": "问：赛尔号德拉莫斯魂印是什么？德拉莫斯专属特性是什么？ 答： 赛尔号德拉莫斯魂印是：莫 莫：对手每次使用攻击技能时吸取对手能力提升状态，若对手不处于能力提升状态则100%令对手害怕；回合结束时若自身处于能力提升状态则恢复自身最大体力的1/3并造成等量百分比伤害，若自身满体力则效果转变为附加自身最大体力值40%的百分比伤害（boss无效） 精灵资料：赛尔号德拉莫斯进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "transfer_stages",
-              "direction": "steal",
-              "sign": "up"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "transfer_stages",
+                  "direction": "steal",
+                  "sign": "up"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -85851,30 +85890,35 @@
       "desc": "对手使用攻击技能时，为对手随机附加中毒、寄生、感染、睡眠中的一种异常状态；回合开始时，若本场战斗自身已经通过上述方式附加过四种异常状态，当回合自身造成的攻击伤害提升100%，受到的攻击伤害减少40%（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "random",
-              "random": {
-                "list": [
-                  "poison",
-                  "parasite",
-                  "infect",
-                  "sleep"
-                ],
-                "count": 1
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "cat": 4
               },
-              "target": "opponent"
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "random",
+                  "random": {
+                    "list": [
+                      "poison",
+                      "parasite",
+                      "infect",
+                      "sleep"
+                    ],
+                    "count": 1
+                  },
+                  "target": "opponent"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -89560,18 +89604,26 @@
           ]
         },
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "cleanse",
-              "target": "opponent",
-              "scope": "shield"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "cleanse",
+                  "target": "opponent",
+                  "scope": "shield"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "foe",
-            "cat": 1
-          }
+          ]
         }
       ]
     },
