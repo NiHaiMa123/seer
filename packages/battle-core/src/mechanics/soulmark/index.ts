@@ -20,6 +20,7 @@ import { magnitudeAcc, magnitudeTracks } from "../../ops/grow.ts";
 import { priorityRange } from "../../ops/priority.ts";
 import { damageKeyHits } from "../../ops/damage-keys.ts";
 import { groupHitRiders } from "../../ops/hit-rider.ts";
+import { validateEffects } from "../../ops/validate.ts";
 import { condEval } from "../../ops/cond.ts";
 import { fireTriggers, type TriggerResume } from "../../ops/trigger.ts";
 import { accTransform, type MechChance, type MechEnv } from "../../ops/mechanism.ts";
@@ -314,8 +315,8 @@ export const soulmarkMechanic: Mechanic = {
     }
     if (raw["soulmarks"] === undefined) fail("pack declares files.soulmarks but no soulmarks document was provided");
     if (!vSoulmarks(raw["soulmarks"])) fail(`soulmarks schema: ${ajv.errorsText(vSoulmarks.errors)}`);
-    const entries = Object.values((raw["soulmarks"] as { soulmarks: Record<string, CompiledSoulMark> }).soulmarks);
-    const soulmarks = new Map<string, CompiledSoulMark>(entries.map((s) => [s.id, s]));
+    const entries = Object.entries((raw["soulmarks"] as { soulmarks: Record<string, CompiledSoulMark> }).soulmarks);
+    const soulmarks = new Map<string, CompiledSoulMark>(entries);
     for (const [id, s] of soulmarks) {
       if (s.id !== id) fail(`soulmark key ${id} != soulmark.id ${s.id}`);
       // hook 条目的 ops 必须是已注册原子 op（schema 校验形状，注册表校验语义存在性）
@@ -326,10 +327,8 @@ export const soulmarkMechanic: Mechanic = {
             fail(`soulmark ${id} hook ${e.hook} ${hit.path} damage key "${hit.key}" is outside the damage key list`);
           }
         }
-        for (const fx of [...(e.ops ?? []), ...(e.elseOps ?? [])]) {
-          if (!(fx.op in OPS)) fail(`soulmark ${id} hook ${e.hook}: op "${fx.op}" not in ops registry`);
-        }
         for (const list of [e.ops, e.elseOps]) {
+          validateEffects(list, ctx.ruleset, (message) => fail(`soulmark ${id} hook ${e.hook}: ${message}`));
           const riderErr = groupHitRiders(list);
           if (riderErr !== undefined) fail(`soulmark ${id} hook ${e.hook}: ${riderErr}`);
         }

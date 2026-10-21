@@ -55,6 +55,7 @@ export class StoreError extends Error {
 
 export class BattleStore {
   readonly db: DatabaseSync;
+  private transactionId = 0;
 
   constructor(path: string) {
     this.db = new DatabaseSync(path);
@@ -66,17 +67,22 @@ export class BattleStore {
     this.db.close();
   }
 
-  private tx<T>(fn: () => T): T {
-    this.db.exec("BEGIN");
+  /** 可嵌套的同步事务；外层把一次 Host 操作的全部写入收成同一提交。 */
+  transaction<T>(fn: () => T): T {
+    const savepoint = `seer_tx_${++this.transactionId}`;
+    this.db.exec(`SAVEPOINT ${savepoint}`);
     try {
       const r = fn();
-      this.db.exec("COMMIT");
+      this.db.exec(`RELEASE SAVEPOINT ${savepoint}`);
       return r;
     } catch (e) {
-      this.db.exec("ROLLBACK");
+      this.db.exec(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+      this.db.exec(`RELEASE SAVEPOINT ${savepoint}`);
       throw e;
     }
   }
+
+  private tx<T>(fn: () => T): T { return this.transaction(fn); }
 
   /** 建局：init snapshot + 初始权威态一事务写入。 */
   createBattle(

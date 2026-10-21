@@ -1,7 +1,7 @@
 /** ops/hp-delta.ts —— hp_delta：直接增减 HP（tick/dot/吸取类），不走招式伤害管线（无护盾/克制/骑手/onDamaged）。 */
 import { EngineFault, OTHER } from "../types.ts";
 import { checkpoint } from "./shared.ts";
-import { flatImmuneOn, hpCapOf, statDiffOf } from "./effects.ts";
+import { flatImmuneOn, hpCapOf, valueAmountOf } from "./effects.ts";
 import type { OpHandler } from "./types.ts";
 
 /**
@@ -18,8 +18,7 @@ export const hpDeltaOp: OpHandler = (ctx, fx) => {
   const tSide = fx.target === "self" ? side : ctx.targetSide;
   const label = ctx.statusLabel ?? "hp_delta";
   const cause = fx.cause ?? `status:${label}`;
-  // statDiff：幅值 = |自身该维 - 对手该维|（"根据双方速度值之差n…附加n点固定伤害"）
-  let amt = fx.statDiff !== undefined ? statDiffOf(unit, ctx.foe, fx.statDiff, fx.statDiffDenom)
+  let amt = fx.amountExpr !== undefined || fx.statDiff !== undefined ? valueAmountOf(fx, unit, ctx.foe, t)!
     : fx.flat !== undefined ? fx.flat
     : fx.flatRange !== undefined ? fx.flatRange.min + rng.drawBelow(Math.max(1, fx.flatRange.max - fx.flatRange.min + 1), `tick_range:${label}`)
     : fx.selfStageFlat !== undefined
@@ -40,9 +39,8 @@ export const hpDeltaOp: OpHandler = (ctx, fx) => {
   const dealt = Math.min(t.currentHp, amt);
   t.currentHp = Math.max(0, t.currentHp - dealt);
   events.push({ type: "damage", detail: { side: tSide, amount: dealt, hpAfter: { current: t.currentHp, max: t.base.hp }, damageKind: kind, cause } });
-  const cp = checkpoint(ctx.pack, ctx.next, events, rng);
-  if (cp === "terminal") return cp;
-  // 持有者回血（drain_dot 吸取 of:dealt=扣多少回多少；hot 转变 of:amount=全额）
+  // hp_delta 是原子扣血/吸取：先按实扣量完成持有者与背包回血，再判 KO/挂起/终局。
+  // 持有者已倒下时不能由同一笔自伤回血复活；目标是对手时，持有者可先吸满后再结算目标 KO。
   if (fx.healSelf !== undefined && unit.currentHp > 0) {
     const base = fx.healSelf.of === "amount" ? amt : dealt;
     const healed = Math.floor((base * fx.healSelf.numerator) / fx.healSelf.denominator);
@@ -50,8 +48,8 @@ export const hpDeltaOp: OpHandler = (ctx, fx) => {
     unit.currentHp = Math.min(hpCapOf(unit), unit.currentHp + healed);
     if (unit.currentHp > before) events.push({ type: "heal", detail: { side, amount: unit.currentHp - before, hpAfter: { current: unit.currentHp, max: unit.base.hp }, source: cause } });
   }
-  // benchHealFlat：吸取结算后为不在场存活精灵定额回血（requireSelfFull=持有者满血才触发）
-  if (fx.benchHeal !== undefined && (fx.benchHeal.requireSelfFull !== true || unit.currentHp >= hpCapOf(unit))) {
+  // benchHealFlat 同属这笔吸取原子：持有者存活且满足满血门后，在 KO/checkpoint 前恢复背包。
+  if (fx.benchHeal !== undefined && unit.currentHp > 0 && (fx.benchHeal.requireSelfFull !== true || unit.currentHp >= hpCapOf(unit))) {
     for (const b of ctx.next.sides[side].bench ?? []) {
       if (b.currentHp <= 0 || b.banished === true) continue;
       const before = b.currentHp;
@@ -59,6 +57,5 @@ export const hpDeltaOp: OpHandler = (ctx, fx) => {
       if (b.currentHp > before) events.push({ type: "heal", detail: { side, amount: b.currentHp - before, hpAfter: { current: b.currentHp, max: b.base.hp }, source: `${cause}:bench` } });
     }
   }
-  if (cp !== "continue") return cp;
-  return "continue";
+  return checkpoint(ctx.pack, ctx.next, events, rng);
 };

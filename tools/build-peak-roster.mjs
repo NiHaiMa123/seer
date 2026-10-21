@@ -108,7 +108,7 @@ writeFileSync(join(OUT, "pack.json"), `${JSON.stringify({
   packId: "peak",
   version: "1.0.0",
   schemaVersion: 1,
-  rulesetId: "synthetic-v2",
+  rulesetId: "peak-v1",
   verification: "UNVERIFIED",
   license: { identifier: "CC0-1.0", public: true },
   files: {

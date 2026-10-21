@@ -9,8 +9,8 @@
  *   - 「与自身相邻/隔位的精灵」当**受体**：站位序没有建模。engine 的侧状态只有 unit + bench
  *     两个箱子（packages/battle-core/src/engine.ts:189），没有相邻/隔位的槽位序、没有小队队列；
  *     mechanics 下没有任何位置域。
- *   - 「自身位于场下时」：非出战位生效域，魂印层已按
- *     `bench-state — off-field scope unmodeled (deferred)` 留档（tools/soulmark-parse.mjs:123）。
+     *   - 「自身位于场下时」：非出战位作用域没有运行时受体，魂印层按
+     *     `party-scope — off-field/next-ally target unmodeled (deferred)` 留档。
  *   - 「每损失/每有 N% 的体力」的档数：这一族的步进在引擎里只有**威力**形
  *     （`{ op:"power", of:"powerPerMissing", value:{per,pow} }`），要落在出伤/吸取上得加新
  *     `params` 键加新结算读取——touch-budget 明令停下的那一档。
@@ -102,7 +102,7 @@ describe("add one effect (w07 · 站位/相邻/隔位)", () => {
     expect(offField.unparsed).toEqual([
       {
         clause: "自身位于场下时，与自身相邻的精灵每次受到攻击伤害后，自身恢复150点体力",
-        reason: "bench-state — off-field scope unmodeled (deferred)",
+        reason: "party-scope — off-field/next-ally target unmodeled (deferred)",
       },
     ]);
   });

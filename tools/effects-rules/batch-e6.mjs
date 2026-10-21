@@ -474,7 +474,7 @@ export const rules = [
   { id: "batch-e6-233", re: /^连续使用(?:可以|能)?增加威力$|^重复使用威力增加$/, go: () => ({ unparsedReason: "use-scaling power — coefficient undocumented (UNVERIFIED)" }) },
   { id: "batch-e6-234", re: /^重复使用无法叠加$|^无法叠加$/, go: () => ({ ignored: true }) }, // 语义注记（不叠乘）——无机制含义
   // "100%闪避对手的攻击"（pct 前缀 + 攻击 裸词）
-  { id: "batch-e6-235", re: new RegExp(`^${NUM}%(?:的?(?:几|概)?率)?闪避(?:对手|对方|敌方)?的?(?:攻击技能|攻击|所有攻击)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dodge", target: "self", params: { pct: num(m[1]) } }] }) },
+  { id: "batch-e6-235", re: new RegExp(`^${NUM}%(?:的?(?:几|概)?率)?闪避(?:对手|对方|敌方)?的?(?:攻击技能|攻击|所有攻击)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dodge", target: "self", params: { pct: num(m[1]), cat: 4 } }] }) },
   // "对手回合结束后其恢复..." 之外——"对手回合结束后其恢复最大体力的1/2"更宽变体
   // 强化→弱化镜像传导（"将自身能力提升状态附加给对手相应的能力下降效果"→upToDown）
   { id: "batch-e6-236", re: /^将自身能力(?:提升|强化)状态附加给(?:对手|对方|敌方)相应的能力下降(?:效果|状态)$/, go: () => ({ effects: [{ op: "transfer_stages", direction: "upToDown" }] }) },

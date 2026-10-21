@@ -44,14 +44,3 @@ export const moveSlotsFor = (pack: PackMechView, unit: MechanicUnit): readonly s
 };
 
 export type { Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MechanicUnit, PackMechView, ScaledDamageCtx, TurnEndCtx, UnitFieldProjection, UnitState } from "./types.ts";
-export { sixstatMechanic, sixstatOf, deriveStats } from "./sixstat/index.ts";
-export type { NatureMod, SixStatPackData } from "./sixstat/index.ts";
-export { sealsMechanic, sealsOf, checkSealLoadout } from "./seals/index.ts";
-export type { CompiledSeal, SealPackData, SealRules } from "./seals/index.ts";
-export { fifthMechanic } from "./fifth/index.ts";
-export { soulmarkMechanic, soulmarkOf } from "./soulmark/index.ts";
-export { itemsMechanic, itemsOf, parseItemAction } from "./items/index.ts";
-export { targetMechanic } from "./target/index.ts";
-export type { TargetScopeFields } from "./target/index.ts";
-export type { ItemDef, ItemsPackData } from "./items/index.ts";
-export type { CompiledSoulMark, SoulmarkPackData, SoulOp, SoulState } from "./soulmark/index.ts";

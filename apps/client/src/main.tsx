@@ -170,6 +170,10 @@ function App() {
       actionId: action,
       baseRevision: d.baseRevision,
       idempotencyKey: `ai-${obs.side}-${d.decisionId}`,
+    }).then((result) => {
+      if (!result.ok && decisionDone.current === d.decisionId) decisionDone.current = null;
+    }).catch(() => {
+      if (decisionDone.current === d.decisionId) decisionDone.current = null;
     });
   }, [obs, MODE]);
 
@@ -183,7 +187,7 @@ function App() {
       idempotencyKey: `h-${obs.side}-${d.decisionId}-${actionId}`, // 同一决策内改招 = 新幂等键；同键重复提交仍幂等
     }).then((r) => {
       if (!r.ok) setLog((l) => [...l, `ERR ${r.code}: ${r.message}`]);
-    });
+    }).catch((error) => setLog((l) => [...l, `提交失败：${String(error)}`]));
   };
 
   useEffect(() => {

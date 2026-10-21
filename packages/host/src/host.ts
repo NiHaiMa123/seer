@@ -235,7 +235,7 @@ export class BattleHost {
     const prior = this.state.receipts.get(cmd.idempotencyKey);
     if (prior) {
       if (prior.side !== side) return fail("UNAUTHORIZED", "key owned by other side");
-      if (prior.actionId === cmd.actionId && prior.decisionId === cmd.decisionId) {
+      if (prior.actionId === cmd.actionId && prior.decisionId === cmd.decisionId && prior.baseRevision === cmd.baseRevision) {
         return {
           ok: true,
           receipt: { decisionId: prior.decisionId, side, actionId: prior.actionId, baseRevision: prior.baseRevision, status: "duplicate-replay", resolved: b.decision === null || b.decision.decisionId !== prior.decisionId },
@@ -288,7 +288,7 @@ export class BattleHost {
         throw error;
       }
     }
-    return { ok: true, receipt: { decisionId: rec.decisionId, side, actionId: rec.actionId, baseRevision: rec.baseRevision, status: "accepted", resolved: b.decision === null } };
+    return { ok: true, receipt: { decisionId: rec.decisionId, side, actionId: rec.actionId, baseRevision: rec.baseRevision, status: "accepted", resolved: b.decision === null || b.decision.decisionId !== rec.decisionId } };
   }
 
   /**

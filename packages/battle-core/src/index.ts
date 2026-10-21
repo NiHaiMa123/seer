@@ -10,8 +10,11 @@ export {
   IR_VERSION,
 } from "./loader.ts";
 export type { CompiledEffect, CompiledMove, CompiledUnit, FrozenPack, StatKey, StageStatKey, StatSpread } from "./loader.ts";
-export { MECHANICS, checkSealLoadout, deriveBaseFor, deriveStats, sealsMechanic, sealsOf, sixstatMechanic, sixstatOf, stageKeysFor } from "./mechanics/index.ts";
-export type { CompiledSeal, Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MechanicUnit, NatureMod, PackMechView, ScaledDamageCtx, SealPackData, SealRules, SixStatPackData, UnitFieldProjection, UnitState } from "./mechanics/index.ts";
+export { MECHANICS, deriveBaseFor, stageKeysFor } from "./mechanics/index.ts";
+export type { Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MechanicUnit, PackMechView, ScaledDamageCtx, UnitFieldProjection, UnitState } from "./mechanics/index.ts";
+export { estimateDamage } from "./estimate.ts";
+export type { DamageEstimateInput, DamageEstimate } from "./estimate.ts";
+export type { NumericValue } from "./ops/value.ts";
 export { applyReplacement, applyTurn, defaultAction, defaultReplacement, effectivenessOf, initBattle, legalActions } from "./engine.ts";
 export {
   EngineFault,

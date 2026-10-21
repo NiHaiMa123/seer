@@ -18,7 +18,7 @@
  * 魂印=soul.magAcc/chanceAcc/firedOnce——存储位置差异不外泄到信封）。
  */
 import type { CompiledEffect, Condition } from "../loader.ts";
-import { OTHER } from "../types.ts";
+import { EngineFault, OTHER } from "../types.ts";
 import { carryDrainSlice } from "./hit-rider.ts";
 import type { OpCtx } from "./types.ts";
 import { isMod } from "./effects.ts";
@@ -273,7 +273,42 @@ type Params = Record<string, unknown> | undefined;
 const P = (e: { params?: Params }): Record<string, unknown> => (e.params ?? {}) as Record<string, unknown>;
 
 /** react 条目 → 信封：params 守卫键→gate、顶层 ailment→gate.ailment、chance→chance.base、growStep→acc(opChance)、count→fire。 */
+type ReactGrowthMode =
+  | { mode: "none" | "chance" }
+  | { mode: "magnitude" }
+  | { mode: "invalid"; reason: string };
+
+/**
+ * react 的旧 params.growStep 只递增 payload 的 chance；直接 payload grow 帧则递增幅度。
+ * 两者共用 params.growAcc，不能同时出现。幅度帧必须是唯一且首个直接子句，
+ * 否则 accTransform 会影响帧前的 op；达顶尾负载在 react 没有可持久化的续跑游标。
+ */
+export function reactGrowthMode(e: { params?: Params; payload?: readonly unknown[] }): ReactGrowthMode {
+  const p = e.params ?? {};
+  const grows = (e.payload ?? []).flatMap((fx, index) => {
+    if (fx === null || typeof fx !== "object" || Array.isArray(fx)) return [];
+    const record = fx as Record<string, unknown>;
+    return record.op === "grow" ? [{ fx: record, index }] : [];
+  });
+  if (grows.length === 0) return p.growStep !== undefined ? { mode: "chance" } : { mode: "none" };
+  if (p.growStep !== undefined || p.growCap !== undefined) {
+    return { mode: "invalid", reason: "react cannot combine legacy params.growStep/growCap with a payload magnitude grow frame" };
+  }
+  if (grows.length > 1) return { mode: "invalid", reason: "react payload supports only one direct grow frame" };
+  const only = grows[0]!;
+  if (only.index !== 0) return { mode: "invalid", reason: "react payload grow frame must be the first direct op" };
+  if (only.fx.of !== "magnitude") return { mode: "invalid", reason: "react payload grow frame must use of=magnitude" };
+  if (typeof only.fx.step !== "number") return { mode: "invalid", reason: "react payload magnitude grow requires step" };
+  if (Object.keys(only.fx).some((key) => key === "if" || key === "nullifyOnly" || key.startsWith("chance"))) {
+    return { mode: "invalid", reason: "react magnitude grow frame cannot have per-op gates" };
+  }
+  if (only.fx.payload !== undefined) return { mode: "invalid", reason: "react magnitude grow cannot have a deferred at-cap payload" };
+  return { mode: "magnitude" };
+}
+
 export function reactMech(e: { params?: Params; payload?: readonly Record<string, unknown>[]; chance?: number; ailment?: string }): MechEnv {
+  const growth = reactGrowthMode(e);
+  if (growth.mode === "invalid") throw new EngineFault("REACT_GROW_MODE", growth.reason);
   const p = P(e);
   const gate: MechGate = {};
   if (p.min !== undefined) gate.dmgMin = p.min as number;

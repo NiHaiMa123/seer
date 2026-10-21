@@ -67,10 +67,17 @@ describe("r4b-self-subject：句首冗余主语的「自身+旧句动词」落�
     expect(parseSoulmarkText(S).unparsed).toHaveLength(0);
   });
 
-  it("新句：'自身每次使用技能有30%令对手害怕' → 与裸形同 IR（onMoveUsed 概率附加）", () => {
+  it("新句：'自身每次使用技能有30%令对手害怕' → 与裸形同 IR（出招前 react 概率附加）", () => {
     const S = "自身每次使用技能有30%令对手害怕";
     expect(entries(S)).toEqual([
-      { hook: "onMoveUsed", ops: [{ op: "apply_status", name: "fear", target: "opponent", chance: 30 }], guard: { actor: "self" } },
+      {
+        hook: "onBattleStart",
+        ops: [{
+          op: "apply_status", name: "react", target: "self",
+          params: { trigger: 11 }, stack: true,
+          payload: [{ op: "apply_status", name: "fear", target: "opponent", chance: 30 }],
+        }],
+      },
     ]);
     expect(entries(S)).toEqual(entries("每次使用技能有30%令对手害怕"));
     expect(parseSoulmarkText(S).unparsed).toHaveLength(0);
@@ -202,19 +209,20 @@ describe("r4b-self-subject：句首冗余主语的「自身+旧句动词」落�
   });
 });
 
-describe("r4b-旧句不变：未剥本来就解得出的句子不抢（IR 逐字不动）", () => {
-  it("'自身属性技能命中后100%令对手失神' 走它原有的收法，与裸形同 IR", () => {
+describe("r4b-已有句保持同形，属性技能命中绑定成功招式事件", () => {
+  it("'自身属性技能命中后100%令对手失神' 挂属性招式命中窗，与裸形同 IR", () => {
     const S = "自身属性技能命中后100%令对手失神";
-    const IR = [{ hook: "onBattleStart", ops: [{ op: "apply_status", name: "daze", target: "opponent", chance: 100 }] }];
+    const IR = [{ hook: "onMoveUsed", guard: { actor: "self", cat: 1 }, ops: [{ op: "apply_status", name: "daze", target: "opponent", chance: 100 }] }];
     expect(entries(S)).toEqual(IR);
     expect(entries(S)).toEqual(entries("属性技能命中后100%令对手失神"));
   });
 
-  it("'自身攻击技能命中后造成的伤害提升50%' 仍是 onDamageDealt（旧句逐字不变）", () => {
-    expect(first("自身攻击技能命中后造成的伤害提升50%")).toEqual({
-      hook: "onDamageDealt",
-      ops: [{ op: "apply_status", name: "dmg_boost", target: "self", params: { pct: 50 } }],
-    });
+  it("'自身攻击技能命中后造成的伤害提升50%' 留残，命中回调已错过本次伤害", () => {
+    const r = parseSoulmarkText("自身攻击技能命中后造成的伤害提升50%");
+    expect(r.entries).toEqual([]);
+    expect(r.unparsed.map((u) => u.reason)).toEqual([
+      "post-hit modifier — current damage/heal has already resolved before this hook (deferred)",
+    ]);
   });
 
   it("'自身攻击后附加伤害值99%的百分比伤害' 与裸形同 IR（lastDmgFrac 载体）", () => {
@@ -232,11 +240,14 @@ describe("r4b-旧句不变：未剥本来就解得出的句子不抢（IR 逐字
     expect(entries(S)).toEqual(entries("攻击后附加伤害值99%的百分比伤害"));
   });
 
-  it("'自身使用技能时附加350点固定伤害' / '自身攻击必定暴击' 旧句形态不变", () => {
+  it("'自身使用技能时附加350点固定伤害' 迁移到 react；'自身攻击必定暴击' 仍走招式钩", () => {
     expect(first("自身使用技能时附加350点固定伤害")).toEqual({
-      hook: "onMoveUsed",
-      ops: [{ op: "damage", kind: "fixed", power: 350, target: "opponent" }],
-      guard: { actor: "self" },
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11 }, stack: true,
+        payload: [{ op: "damage", kind: "fixed", power: 350, target: "opponent" }],
+      }],
     });
     expect(first("自身攻击必定暴击")).toEqual({
       hook: "onMoveUsed",

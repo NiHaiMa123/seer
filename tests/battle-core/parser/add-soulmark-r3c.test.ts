@@ -81,13 +81,16 @@ describe("r3c-recover-subject：句首冗余主语的「自身恢复…」落回
       expect(parseSoulmarkText(s).unparsed.map((u) => u.reason), s).toEqual([reason]);
       expect(parseSoulmarkText(s).entries, s).toHaveLength(0);
     }
-    // 本来就解得出的「技能命中后」句：IR 逐字不变（剥除链够不着它们）
-    expect(first("自身攻击技能命中后造成的伤害提升50%")).toEqual({
-      hook: "onDamageDealt",
-      ops: [{ op: "apply_status", name: "dmg_boost", target: "self", params: { pct: 50 } }],
-    });
+    // 命中回调发生在该击伤害结算后，不能再安装一个冒充本击增伤的后续窗口。
+    const lateBoost = parseSoulmarkText("自身攻击技能命中后造成的伤害提升50%");
+    expect(lateBoost.entries).toEqual([]);
+    expect(lateBoost.unparsed).toEqual([{
+      clause: "自身攻击技能命中后造成的伤害提升50%",
+      reason: "post-hit modifier — current damage/heal has already resolved before this hook (deferred)",
+    }]);
     expect(first("自身属性技能命中后100%令对手失神")).toEqual({
-      hook: "onBattleStart",
+      hook: "onMoveUsed",
+      guard: { actor: "self", cat: 1 },
       ops: [{ op: "apply_status", name: "daze", target: "opponent", chance: 100 }],
     });
   });

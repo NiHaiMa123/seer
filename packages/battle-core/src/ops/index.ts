@@ -31,11 +31,11 @@ import { setModeFlagOp } from "./mode-flag.ts";
 import { stagesRewindOp } from "./slots/w10.ts";
 import { effMaxOp } from "./slots/w09.ts";
 import { hpDeltaOp } from "./hp-delta.ts";
-import { growOp } from "./grow.ts";
+import { growOp, magnitudeAcc, magnitudeTracks } from "./grow.ts";
 import { priorityOp } from "./priority.ts";
 import { carryDrainSlice, RIDER_OP_NAMES, ungroupedDrainOp, ungroupedRiderOp } from "./hit-rider.ts";
 import { fireTriggers, type TriggerAdapter } from "./trigger.ts";
-import { periodicMech, reactMech } from "./mechanism.ts";
+import { periodicMech, reactGrowthMode, reactMech } from "./mechanism.ts";
 import type { CpResult, OpCtx, OpHandler } from "./types.ts";
 
 /**
@@ -190,11 +190,26 @@ export function fireReactive(
     // 快照语义：count 消耗中移除条目不影响本轮迭代序
     list: () => [...holder.effects],
     match: (e) => e.kind === "react" && e.params?.trigger === trigger && e.payload !== undefined,
-    mech: reactMech,
+    mech: (e) => {
+      const growth = reactGrowthMode(e);
+      if (growth.mode === "invalid") throw new EngineFault("REACT_GROW_MODE", growth.reason);
+      const mech = reactMech(e);
+      if (growth.mode === "magnitude") {
+        const payload = e.payload as unknown as readonly CompiledEffect[];
+        const acc = magnitudeAcc(payload);
+        if (acc === undefined || !magnitudeTracks(payload)) {
+          throw new EngineFault("REACT_GROW_MODE", "react magnitude grow has no persistent step accumulator");
+        }
+        mech.acc = acc; // magnitudeAcc uses commit:"pre" so KO/suspend cannot lose or replay growth.
+      }
+      return mech;
+    },
     store: (e) => {
       const p = e.params!;
       return {
-        ...(p.growStep !== undefined ? { magAcc: { get: () => (p.growAcc ?? 0) as number, set: (v: number) => { p.growAcc = v; } } } : {}),
+        ...(p.growStep !== undefined || magnitudeTracks(e.payload as unknown as readonly CompiledEffect[])
+          ? { magAcc: { get: () => (p.growAcc ?? 0) as number, set: (v: number) => { p.growAcc = v; } } }
+          : {}),
         ...(p.count !== undefined ? {
           count: {
             get: () => p.count as number,

@@ -26,6 +26,7 @@ import { CORE_EVENT_TYPES } from "../packages/battle-core/src/types.ts";
 import { PUBLIC_FIELDS, PUBLIC_TYPES } from "../packages/host/src/events.ts";
 import { ZH_EVENT } from "../apps/client/src/meta.ts";
 import movesSchemaJson from "../content/schemas/moves.schema.json" with { type: "json" };
+import stateSchemaJson from "../packages/contracts/schemas/internal/state.schema.json" with { type: "json" };
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const loaderSrc = readFileSync(join(ROOT, "packages/battle-core/src/loader.ts"), "utf8");
@@ -35,6 +36,11 @@ const fail = (msg: string) => {
   errors++;
   console.error(`  ✗ ${msg}`);
 };
+
+// 数值表达式在内容和持久化状态里必须同形；TS 直接使用生成的状态契约类型。
+if (JSON.stringify(movesSchemaJson.definitions.numericValue) !== JSON.stringify(stateSchemaJson.definitions.numericValue)) {
+  fail("numericValue: content/state schemas differ");
+}
 
 /** 从 `export type X =` 或 `interface X` 截到下一个顶层 export。 */
 function typeBlock(src: string, name: string): string {

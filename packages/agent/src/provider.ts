@@ -97,6 +97,7 @@ export class OpenAiProvider implements ModelProvider {
   }
 
   async generate(req: ModelRequest, signal: AbortSignal): Promise<ModelResponse> {
+    if (signal.aborted) return { ok: false, error: { code: "aborted", message: "aborted", retryable: false } };
     const key = process.env[this.cfg.credentialRef]!;
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), this.cfg.timeoutMs ?? 30_000);
@@ -135,8 +136,8 @@ export class OpenAiProvider implements ModelProvider {
         },
       };
     } catch (e) {
-      const aborted = ctrl.signal.aborted || signal.aborted;
-      return { ok: false, error: { code: aborted ? "timeout" : "provider", message: String(e), retryable: !aborted } };
+      const code = signal.aborted ? "aborted" : ctrl.signal.aborted ? "timeout" : e instanceof SyntaxError ? "parse" : "provider";
+      return { ok: false, error: { code, message: String(e), retryable: code === "provider" } };
     } finally {
       clearTimeout(timer);
       signal.removeEventListener("abort", onAbort);

@@ -280,7 +280,7 @@ export const rules = [
   // 次数制固伤减免（"下N次受到的固定伤害和百分比伤害减少M%"→flat_taken_pct count）
   { id: "heal-134", re: new RegExp(`^下${NUM}次受到的固定伤害和百分比伤害减少${NUM}%$|^${NUM}次内?受到的固定伤害减少${NUM}%$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { effects: [{ op: "apply_status", name: "flat_taken_pct", target: "self", params: { count: ns[0], pct: ns[1] } }] }; } },
   // 裸概率闪避（"30%的几率闪避对手攻击"→dodge pct）
-  { id: "heal-135", re: new RegExp(`^${NUM}%(?:的?(?:概率|几率))?闪避(?:对手|对方|敌方)?攻击$|^${NUM}%闪避攻击$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dodge", target: "self", params: { pct: num(m[1] ?? m[2]) } }] }) },
+  { id: "heal-135", re: new RegExp(`^${NUM}%(?:的?(?:概率|几率))?闪避(?:对手|对方|敌方)?攻击$|^${NUM}%闪避攻击$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dodge", target: "self", params: { pct: num(m[1] ?? m[2]), cat: 4 } }] }) },
   { id: "heal-136", re: /^若?对手MISS则(.+)$|^对手MISS时(.+)$|^若对手MISS(.+)$|^(?:若)?对手(?:的)?攻击MISS(?:则|时)(.+)$|^若对手攻击MISS(.+)$/i, go: (m) => reactWrap(2, {}, m[1] ?? m[2] ?? m[3] ?? m[4] ?? m[5]) },
   { id: "heal-137", re: /^若?自身MISS则(.+)$|^自身MISS时(.+)$/i, go: (m) => reactWrap(6, {}, m[1] ?? m[2]) },
   { id: "heal-138", re: /^(?:若)?对手使用属性技能(?:时|则)?$|^对手使用属性技能$/, go: () => ({ dynTriggerPart: { trigger: 3, cat: 1 } }) },

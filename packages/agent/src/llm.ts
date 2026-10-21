@@ -32,10 +32,10 @@ export const LOCAL_BUDGET: BudgetSpec = {
 };
 
 export class DecisionClock {
-  private readonly t0 = Date.now();
+  private readonly t0 = performance.now();
   private readonly spec: BudgetSpec;
   constructor(spec: BudgetSpec) { this.spec = spec; }
-  elapsed(): number { return Date.now() - this.t0; }
+  elapsed(): number { return performance.now() - this.t0; }
   remaining(): number { return Math.max(0, this.spec.totalMs - this.elapsed()); }
   withinReserve(): boolean { return this.remaining() <= this.spec.reserveMs; }
 }
@@ -102,92 +102,59 @@ export class LlmPolicy {
    * 永远返回一个合法 actionId（fallback 保证）。
    */
   async decide(obs: Observation, pack: FrozenPack, clock: DecisionClock, signal: AbortSignal): Promise<LlmOutcome> {
+    // 预算属于本次决策，复用 policy 或并行决策不能共用计数。
+    let modelCalls = 0;
+    const used: ModelUsage = { inputTokens: 0, outputTokens: 0, source: "estimated" };
+    const errors: string[] = [];
     const legal = new Set(obs.legalActions.map((a) => a.actionId));
     const fallback = (): LlmOutcome => ({
-      proposal: decideBaseline(pack, obs),
-      path: "fallback",
-      modelCalls: this.modelCalls,
-      usage: { inputTokens: this.used.inputTokens, outputTokens: this.used.outputTokens },
-      errors: [...this.errors],
+      proposal: decideBaseline(pack, obs), path: "fallback", modelCalls,
+      usage: { inputTokens: used.inputTokens, outputTokens: used.outputTokens }, errors: [...errors],
     });
-    if (clock.withinReserve() || this.modelCalls >= this.spec.maxModelCalls) return fallback();
-
     const prompt = this.buildPrompt(obs, pack);
-    if (prompt.length / 4 > this.spec.maxInputTokens) {
-      this.errors.push("prompt exceeds input token budget");
-      return fallback();
-    }
-
-    const tryOnce = async (): Promise<LlmProposal | null> => {
-      if (this.modelCalls >= this.spec.maxModelCalls) { this.errors.push("model call cap"); return null; }
+    for (let attempt = 0; attempt < Math.min(2, this.spec.maxModelCalls); attempt++) {
+      if (signal.aborted || clock.withinReserve()) break;
+      const requestPrompt = attempt === 0 ? prompt
+        : prompt + "\nYour previous reply was invalid (actionId must be one of LEGAL). Reply ONLY the JSON.";
+      if (used.inputTokens + requestPrompt.length / 4 > this.spec.maxInputTokens) {
+        errors.push("prompt exceeds input token budget");
+        break;
+      }
       const remaining = Math.min(this.spec.modelMs, clock.remaining() - this.spec.reserveMs);
-      if (remaining <= 0) { this.errors.push("no model budget left"); return null; }
+      if (remaining <= 0) break;
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), remaining);
-      const onOuter = () => ctrl.abort();
-      signal.addEventListener("abort", onOuter, { once: true });
-      this.modelCalls += 1;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let onAbort = () => {};
+      const interrupted = new Promise<never>((_, reject) => {
+        onAbort = () => { ctrl.abort(); reject(new Error("model aborted")); };
+        signal.addEventListener("abort", onAbort, { once: true });
+        timer = setTimeout(() => { ctrl.abort(); reject(new Error(attempt === 0 ? "model budget timeout" : "repair budget timeout")); }, remaining);
+      });
+      modelCalls++;
       try {
-        const req: ModelRequest = { prompt, jsonSchema: PROPOSAL_SCHEMA, maxOutputTokens: this.spec.maxOutputTokens, temperature: 0 };
-        // 与预算超时竞速——不假设 provider 遵守 AbortSignal
-        const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("model budget timeout")), remaining));
-        const r = await Promise.race([this.provider.generate(req, ctrl.signal), timeout]);
-        if (r.usage) {
-          this.used.inputTokens += r.usage.inputTokens;
-          this.used.outputTokens += r.usage.outputTokens;
-          if (this.used.outputTokens > this.spec.maxOutputTokens) this.errors.push("output token cap exceeded");
+        const req: ModelRequest = { prompt: requestPrompt, jsonSchema: PROPOSAL_SCHEMA, maxOutputTokens: this.spec.maxOutputTokens, temperature: 0 };
+        const result = await Promise.race([this.provider.generate(req, ctrl.signal), interrupted]);
+        if (signal.aborted || clock.withinReserve()) break;
+        if (result.usage) {
+          used.inputTokens += result.usage.inputTokens;
+          used.outputTokens += result.usage.outputTokens;
         }
-        if (!r.ok) { this.errors.push(`model error: ${r.error?.code}`); return null; }
-        return extractJson(r.text ?? "");
-      } catch (e) {
-        this.errors.push(`model throw: ${String(e)}`);
-        return null;
+        if (used.inputTokens > this.spec.maxInputTokens || used.outputTokens > this.spec.maxOutputTokens) {
+          errors.push(used.outputTokens > this.spec.maxOutputTokens ? "output token cap exceeded" : "input token cap exceeded");
+          break;
+        }
+        if (!result.ok) { errors.push("model error: " + result.error?.code); continue; }
+        const proposal = extractJson(result.text ?? "");
+        if (proposal !== null && legal.has(proposal.actionId)) {
+          return { proposal, path: attempt === 0 ? "llm" : "llm-repaired", modelCalls,
+            usage: { inputTokens: used.inputTokens, outputTokens: used.outputTokens }, errors: [...errors] };
+        }
+        errors.push(proposal === null ? "invalid model JSON" : "illegal actionId " + proposal.actionId);
+      } catch (error) {
+        errors.push((attempt === 0 ? "model throw: " : "repair throw: ") + String(error));
       } finally {
         clearTimeout(timer);
-        signal.removeEventListener("abort", onOuter);
-      }
-    };
-
-    const first = await tryOnce();
-    if (first !== null && legal.has(first.actionId)) {
-      return { proposal: first, path: "llm", modelCalls: this.modelCalls, usage: { inputTokens: this.used.inputTokens, outputTokens: this.used.outputTokens }, errors: [...this.errors] };
-    }
-    if (first !== null) this.errors.push(`illegal actionId ${first.actionId}`);
-
-    // 至多 1 次修复：回指上次错误重问（仍在同一预算窗内）
-    if (!clock.withinReserve() && this.modelCalls < this.spec.maxModelCalls) {
-      const repairPrompt = `${prompt}\nYour previous reply was invalid (actionId must be one of LEGAL). Reply ONLY the JSON.`;
-      try {
-        const reqPrompt = repairPrompt;
-        const remaining = Math.min(this.spec.modelMs, clock.remaining() - this.spec.reserveMs);
-        if (remaining > 0) {
-          const ctrl = new AbortController();
-          const timer = setTimeout(() => ctrl.abort(), remaining);
-          signal.addEventListener("abort", () => ctrl.abort(), { once: true });
-          this.modelCalls += 1;
-          try {
-            const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error("repair budget timeout")), remaining));
-            const r = await Promise.race([this.provider.generate(
-              { prompt: reqPrompt, jsonSchema: PROPOSAL_SCHEMA, maxOutputTokens: this.spec.maxOutputTokens, temperature: 0 },
-              ctrl.signal,
-            ), timeout]);
-            if (r.usage) {
-              this.used.inputTokens += r.usage.inputTokens;
-              this.used.outputTokens += r.usage.outputTokens;
-            }
-            if (r.ok) {
-              const second = extractJson(r.text ?? "");
-              if (second !== null && legal.has(second.actionId)) {
-                return { proposal: second, path: "llm-repaired", modelCalls: this.modelCalls, usage: { inputTokens: this.used.inputTokens, outputTokens: this.used.outputTokens }, errors: [...this.errors] };
-              }
-            }
-            this.errors.push("repair failed");
-          } finally {
-            clearTimeout(timer);
-          }
-        }
-      } catch (e) {
-        this.errors.push(`repair throw: ${String(e)}`);
+        signal.removeEventListener("abort", onAbort);
       }
     }
     return fallback();

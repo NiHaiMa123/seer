@@ -1,16 +1,29 @@
 /** ops/apply-effect.ts —— apply_status / apply_effect：附加按回合递减的效果条目（params 携带 timed 幅值）。 */
 import { EngineFault, OTHER } from "../types.ts";
-import { effectDefOf, immuneOn, reflectOn, hpCapOf, moveIdHash, IM, RF } from "./effects.ts";
+import { effectDefOf, immuneOn, reflectOn, hpCapOf, moveIdHash, numericValueOf, valueExpressionOf, IM, RF } from "./effects.ts";
 import { condEval } from "./cond.ts";
 import { markCount } from "./mark.ts";
 import { periodicFormOf } from "./periodic.ts";
 import { axesFormOf } from "./axes.ts";
 import type { OpHandler } from "./types.ts";
 
+const NUMERIC_VALUE_AXES = new Set(["dmgOutPct", "dmgReduceFlat", "dmgFlat"]);
+
 export const applyStatusOp: OpHandler = (ctx, fx) => {
   const { next, events, side, unit, target, targetSide, rng } = ctx;
   if (fx.op !== "apply_status" && fx.op !== "apply_effect") {
     throw new EngineFault("OP_DISPATCH", `apply_status/apply_effect handler got ${fx.op}`);
+  }
+  const amountTiming = (fx as typeof fx & { amountTiming?: unknown }).amountTiming;
+  if (amountTiming !== undefined) {
+    if (amountTiming !== "apply" || fx.op !== "apply_status") {
+      throw new EngineFault("INVALID_VALUE", `amountTiming is unsupported for op ${fx.op}`);
+    }
+    const snapshotNames = [fx.name, ...(fx.random?.list ?? [])];
+    if (snapshotNames.some((name) => !NUMERIC_VALUE_AXES.has(axesFormOf({ ...fx, name })?.at ?? ""))
+      || valueExpressionOf(fx) === undefined) {
+      throw new EngineFault("INVALID_VALUE", `apply_status ${fx.name} amountTiming requires a numeric modifier value`);
+    }
   }
   // randomPick：从 list 随机抽 count 种施加（"随机进入麻痹或睡眠中的1种异常状态"）——逐抽 rng 记账；
   // countRange 区间先抽数量（"随机进入1-2种异常状态"）
@@ -33,6 +46,11 @@ export const applyStatusOp: OpHandler = (ctx, fx) => {
   // 编译产物保留原名做审计，运行时统一走 runPeriodicWin 窗口派发 / immuneOn·reflectOn 位测试。
   const per = fx.op === "apply_status" ? periodicFormOf(fx) : undefined;
   const ax = per === undefined && fx.op === "apply_status" ? axesFormOf(fx) : undefined;
+  // 旧的 statDiff/perAilment 只在此适配为持久化表达式；读数随每次结算更新。
+  const value = per === undefined && fx.op === "apply_status" ? valueExpressionOf(fx) : undefined;
+  if (fx.op === "apply_status" && fx.amountExpr !== undefined && !NUMERIC_VALUE_AXES.has(ax?.at ?? "")) {
+    throw new EngineFault("INVALID_VALUE", `status ${fx.name} has no numeric value reader`);
+  }
   // fx.ailment：定向免疫/限定型状态的子类编码——运行时 kind 合成为 "name:ailment"（mark:* 先例；op name 保持 schema 合法字符集）
   const kind = fx.op === "apply_status" ? (per !== undefined ? "periodic" : ax !== undefined ? ax.kind : fx.ailment !== undefined ? `${fx.name}:${fx.ailment}` : fx.name) : `tag:${fx.name}`;
   // 反弹异常：持有 reflect{of:status} 的目标把"异常施加"重定向回行动方（仅 ailment）
@@ -103,6 +121,14 @@ export const applyStatusOp: OpHandler = (ctx, fx) => {
       }
     }
   }
+  let storedValue = value;
+  if (amountTiming === "apply") {
+    if (value === undefined) throw new EngineFault("INVALID_VALUE", `apply_status ${fx.name} amountTiming has no value expression`);
+    // Persistent expressions are read in the effect holder's frame. Snapshot in that same frame,
+    // after target resolution, so target:"opponent" uses the recipient as self and actor as foe.
+    const holderFoe = landSide === side ? ctx.foe : unit;
+    storedValue = numericValueOf(value, landTarget, holderFoe, landTarget);
+  }
   // params.perStage：幅值按持有者当前正面能力等级数乘算（"自身每处于1种能力提升状态附加N点护盾"→flat=N×段数）
   // params.flatMaxHpDiff：幅值=双方最大体力差值（"获得点数等同于双方最大体力差值的护盾"）
   // params.dynDealt：幅值=本回合行动方已造成的累计伤害（"减少n点，n等于本回合自身造成的伤害"——落地时烘焙 lastDealt）
@@ -170,6 +196,8 @@ export const applyStatusOp: OpHandler = (ctx, fx) => {
     && (kind !== "periodic" || periodicKey(e) === periodicKey({ label: per !== undefined ? fx.name : fx.op === "apply_status" ? fx.label : undefined, params: params2 }))
     && (kind !== "immune" && kind !== "reflect" && kind !== "modifier" || axisKey(e) === axisKey({ label: ax?.label })));
   if (existing) {
+    if (storedValue !== undefined) existing.amountExpr = structuredClone(storedValue);
+    else delete existing.amountExpr;
     existing.remainingTurns = Math.max(existing.remainingTurns ?? 0, effTurns ?? 0);
     existing.appliedTurn = next.turn;
     // mark:* 印记条目叠层而非覆盖（params.count+=新count，cap 封顶）——apply_mark 之外的印记来源兼容路径
@@ -182,7 +210,7 @@ export const applyStatusOp: OpHandler = (ctx, fx) => {
     } else if (kind === "feeble" && fxParams?.layers !== undefined) {
       // 再施加累加层数（"增加一层衰弱"——同名再挂是叠层，不是覆盖）
       existing.params = { ...(params2 ?? {}), layers: (existing.params?.layers ?? 0) + fxParams.layers };
-    } else if (params2 !== undefined) existing.params = params2;
+    } else if (params2 !== undefined) existing.params = { ...params2 };
     // 同触发器不同负载合并（"受击则A"+"受击则B"→一条 react、两份 payload）；
     // periodic：authored payload（ailment_tick/pp_zero_tick）沿旧 append 语义，
     // 脱糖生成 payload（stage_tick/hot 等）按旧 params 覆盖语义整体替换（后施加为准）
@@ -194,7 +222,8 @@ export const applyStatusOp: OpHandler = (ctx, fx) => {
       kind,
       effectInstanceId: `efx_${landSide}_${kind}`,
       ...(effTurns !== undefined ? { remainingTurns: effTurns } : {}),
-      ...(params2 !== undefined ? { params: params2 } : {}),
+      ...(params2 !== undefined ? { params: { ...params2 } } : {}),
+      ...(storedValue !== undefined ? { amountExpr: structuredClone(storedValue) } : {}),
       ...(fx.op === "apply_status" && (per !== undefined || fx.payload !== undefined) ? { payload: [...(per !== undefined ? per.payload : fx.payload!)] as unknown as { [k: string]: unknown }[] } : {}),
       ...(per !== undefined ? { label: fx.name } : ax !== undefined ? { label: ax.label } : fx.op === "apply_status" && fx.label !== undefined ? { label: fx.label } : {}),
       ...(ax?.at !== undefined ? { at: ax.at } : {}),

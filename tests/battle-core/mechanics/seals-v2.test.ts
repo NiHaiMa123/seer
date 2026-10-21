@@ -9,9 +9,10 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import {
-  checkSealLoadout, compilePack, initBattle, applyTurn, legalActions, sealsOf,
-  type CompiledSeal, type CoreState, type FrozenPack,
+  compilePack, initBattle, applyTurn, legalActions,
+  type CoreState, type FrozenPack,
 } from "@seer/battle-core";
+import { checkSealLoadout, sealsOf, type CompiledSeal } from "../../../packages/battle-core/src/mechanics/seals/index.ts";
 import { BattleHost } from "@seer/host";
 
 const CONTENT = join(fileURLToPath(new URL("../..", import.meta.url)), "..", "content");

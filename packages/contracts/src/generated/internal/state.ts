@@ -374,6 +374,170 @@ export const stateSchema: Record<string, unknown> = {
     }
   },
   "definitions": {
+    "numericValue": {
+      "title": "NumericValue",
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "hp",
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd"
+              ]
+            },
+            "of": {
+              "enum": [
+                "self",
+                "foe",
+                "target"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "const": "ailments"
+            },
+            "of": {
+              "enum": [
+                "self",
+                "foe",
+                "target"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sum"
+          ],
+          "properties": {
+            "sum": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "product"
+          ],
+          "properties": {
+            "product": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "difference"
+          ],
+          "properties": {
+            "difference": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "divide"
+          ],
+          "properties": {
+            "divide": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "by"
+              ],
+              "properties": {
+                "value": {
+                  "$ref": "#/definitions/numericValue"
+                },
+                "by": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min"
+          ],
+          "properties": {
+            "min": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max"
+          ],
+          "properties": {
+            "max": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        }
+      ]
+    },
     "internalSide": {
       "type": "object",
       "additionalProperties": false,
@@ -973,6 +1137,9 @@ export const stateSchema: Record<string, unknown> = {
               "effectInstanceId"
             ],
             "properties": {
+              "amountExpr": {
+                "$ref": "#/definitions/numericValue"
+              },
               "kind": {
                 "type": "string",
                 "minLength": 1
@@ -1034,6 +1201,58 @@ export const stateSchema: Record<string, unknown> = {
     }
   }
 };
+
+export type NumericValue =
+  | number
+  | {
+      stat: "hp" | "atk" | "def" | "spa" | "sdf" | "spd";
+      of?: "self" | "foe" | "target";
+    }
+  | {
+      count: "ailments";
+      of?: "self" | "foe" | "target";
+    }
+  | {
+      /**
+       * @minItems 1
+       * @maxItems 32
+       */
+      sum: NumericValue[];
+    }
+  | {
+      /**
+       * @minItems 1
+       * @maxItems 32
+       */
+      product: NumericValue[];
+    }
+  | {
+      /**
+       * @minItems 2
+       * @maxItems 2
+       */
+      difference: NumericValue[];
+    }
+  | {
+      divide: {
+        value: NumericValue;
+        by: number;
+      };
+    }
+  | {
+      /**
+       * @minItems 1
+       * @maxItems 32
+       */
+      min: NumericValue[];
+    }
+  | {
+      /**
+       * @minItems 1
+       * @maxItems 32
+       */
+      max: NumericValue[];
+    };
 
 /**
  * INTERNAL authoritative state. Contains secrets (full movesets, PP, RNG, inbox); never serialized to wire.
@@ -1387,6 +1606,7 @@ export interface InternalUnit {
    */
   lastShieldConsumed?: number;
   effects: {
+    amountExpr?: NumericValue;
     kind: string;
     effectInstanceId: string;
     remainingTurns?: number;

@@ -1103,6 +1103,170 @@
           ]
         }
       }
+    },
+    "numericValue": {
+      "title": "NumericValue",
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stat"
+          ],
+          "properties": {
+            "stat": {
+              "enum": [
+                "hp",
+                "atk",
+                "def",
+                "spa",
+                "sdf",
+                "spd"
+              ]
+            },
+            "of": {
+              "enum": [
+                "self",
+                "foe",
+                "target"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "count"
+          ],
+          "properties": {
+            "count": {
+              "const": "ailments"
+            },
+            "of": {
+              "enum": [
+                "self",
+                "foe",
+                "target"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sum"
+          ],
+          "properties": {
+            "sum": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "product"
+          ],
+          "properties": {
+            "product": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "difference"
+          ],
+          "properties": {
+            "difference": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "divide"
+          ],
+          "properties": {
+            "divide": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "by"
+              ],
+              "properties": {
+                "value": {
+                  "$ref": "#/definitions/numericValue"
+                },
+                "by": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min"
+          ],
+          "properties": {
+            "min": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max"
+          ],
+          "properties": {
+            "max": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {
+                "$ref": "#/definitions/numericValue"
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "properties": {
@@ -4367,6 +4531,16 @@
                     }
                   },
                   "description": "按异常种数迭代的倍率（'对手每处于1种异常状态则伤害提升60%'）"
+                },
+                "amountExpr": {
+                  "$ref": "#/definitions/numericValue"
+                },
+                "amountTiming": {
+                  "type": "string",
+                  "enum": [
+                    "apply"
+                  ],
+                  "description": "施加时冻结该 modifier 数值；缺省为每次结算动态读取"
                 }
               },
               "allOf": [
@@ -5084,7 +5258,10 @@
                       "flatImmuneConvert": true,
                       "benchHeal": true,
                       "if": true,
-                      "chance": true
+                      "chance": true,
+                      "amountExpr": {
+                        "$ref": "#/definitions/numericValue"
+                      }
                     }
                   }
                 },
@@ -5125,6 +5302,7 @@
                       "stack": true,
                       "accFlat": true,
                       "mulSelfStageLvl": true,
+                      "amountTiming": true,
                       "perAilment": {
                         "type": "object",
                         "additionalProperties": false,
@@ -5148,8 +5326,85 @@
                           }
                         },
                         "description": "按异常种数迭代的倍率（'对手每处于1种异常状态则伤害提升60%'）"
+                      },
+                      "amountExpr": {
+                        "$ref": "#/definitions/numericValue"
                       }
-                    }
+                    },
+                    "allOf": [
+                      {
+                        "if": {
+                          "required": [
+                            "amountExpr"
+                          ]
+                        },
+                        "then": {
+                          "properties": {
+                            "name": {
+                              "enum": [
+                                "dmg_boost",
+                                "dmg_reduce",
+                                "dmg_flat"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "required": [
+                            "amountTiming"
+                          ],
+                          "properties": {
+                            "amountTiming": true
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "amountTiming",
+                            "name"
+                          ],
+                          "properties": {
+                            "amountTiming": {
+                              "const": "apply"
+                            },
+                            "name": {
+                              "enum": [
+                                "dmg_boost",
+                                "dmg_reduce",
+                                "dmg_flat"
+                              ]
+                            }
+                          },
+                          "allOf": [
+                            {
+                              "if": {
+                                "required": ["random"],
+                                "properties": { "random": true }
+                              },
+                              "then": {
+                                "properties": {
+                                  "random": {
+                                    "type": "object",
+                                    "properties": {
+                                      "list": {
+                                        "type": "array",
+                                        "items": { "enum": ["dmg_boost", "dmg_reduce", "dmg_flat"] }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "anyOf": [
+                            { "required": ["amountExpr"], "properties": { "amountExpr": true } },
+                            { "required": ["statDiff"], "properties": { "statDiff": true } },
+                            { "required": ["perAilment"], "properties": { "perAilment": true } }
+                          ]
+                        }
+                      }
+                    ]
                   }
                 },
                 {
@@ -5439,6 +5694,16 @@
                         "properties": {
                           "consumeShield": true
                         }
+                      },
+                      {
+                        "required": [
+                          "amountExpr"
+                        ],
+                        "properties": {
+                          "amountExpr": {
+                            "$ref": "#/definitions/numericValue"
+                          }
+                        }
                       }
                     ],
                     "properties": {
@@ -5468,7 +5733,10 @@
                       "shieldSum": true,
                       "capFracN": true,
                       "capFracD": true,
-                      "foeLastHealPct": true
+                      "foeLastHealPct": true,
+                      "amountExpr": {
+                        "$ref": "#/definitions/numericValue"
+                      }
                     }
                   }
                 },
@@ -5920,6 +6188,26 @@
                     "properties": {
                       "min": true,
                       "max": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": [
+                      "amountTiming"
+                    ],
+                    "properties": {
+                      "amountTiming": true
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "op"
+                    ],
+                    "properties": {
+                      "op": {
+                        "const": "apply_status"
+                      }
                     }
                   }
                 }

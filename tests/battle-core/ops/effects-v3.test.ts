@@ -117,6 +117,7 @@ const NEW_MOVES = [
   { id: "syn-crtstg", name: "蓄锐", pp: 20, priority: 0, type: "草", effects: [{ op: "apply_stat_stage", stat: "crt", delta: 2, target: "self" }] },
   { id: "syn-ailtick", name: "瘟疫", pp: 20, priority: 0, type: "草", effects: [{ op: "apply_status", name: "ailment_tick", target: "self", turns: 2, payload: [{ op: "apply_status", name: "burn", turns: 2, target: "opponent" }] }] },
   { id: "syn-odd51", name: "奇袭", pp: 20, priority: 0, type: "草", effects: [{ op: "damage", kind: "fixed", power: 51 }, { op: "apply_stat_stage", stat: "atk", delta: 1, target: "self", if: { prevDamageOdd: true } }] },
+  { id: "t6-fixed100", name: "校准固伤", pp: 20, priority: 0, type: "草", effects: [{ op: "damage", kind: "fixed", power: 100, target: "opponent" }] },
   { id: "syn-misspct", name: "残噬", pp: 20, priority: 0, type: "草", category: "physical", effects: [{ op: "damage", power: 10, flatPerMissing: { step: 50, add: 10, pct: true } }] },
   { id: "syn-weakprio", name: "微芒", pp: 20, priority: 0, type: "火", category: "physical", effects: [{ op: "damage", power: 10, flatBonus: 7, flatIf: { when: { effWeakVsFoe: true }, flat: 100 } }] },
   // ── E5j 批：cleanse_lock / foe_dot anyAilDegrade / prevTakenZero / swap_hp / crit_immune / chanceSetIf / pp zeroRandom / trigger7 max_hp_down ──
@@ -1277,6 +1278,28 @@ describe("T2 flag 原子行为补盲", () => {
       expect(spec).toBeLessThan(specBase);
       const s3 = start("f8".repeat(16)); grant(s3, "p2", "spec_half", { cat: 3, n: 1, d: 2 });
       expect(dmgTo(turn(s3, "syn-strike", "syn-attr", 1), "p2")[0]!).toBe(base);
+    }
+  });
+
+  it("已损体力百分比按完整损失步进，出伤/承伤方向一致", () => {
+    const cases = [
+      { hp: 1000, out: 110, received: 90 },
+      { hp: 999, out: 110, received: 90 },
+      { hp: 990, out: 115, received: 85 },
+      { hp: 500, out: 360, received: 1 },
+    ];
+    for (const { hp, out, received } of cases) {
+      const attacking = start("fb".repeat(16));
+      attacking.sides.p1.unit.base.hp = 1000;
+      attacking.sides.p1.unit.currentHp = hp;
+      grant(attacking, "p1", "dmg_boost", { pct: 10, perHpLostStep: 1, perHpLostPct: 5 });
+      expect(dmgTo(turn(attacking, "t6-fixed100", "syn-attr", hp), "p2")[0]).toBe(out);
+
+      const defending = start("fc".repeat(16));
+      defending.sides.p2.unit.base.hp = 1000;
+      defending.sides.p2.unit.currentHp = hp;
+      grant(defending, "p2", "dmg_taken_down", { pct: 10, perHpLostStep: 1, perHpLostPct: 5 });
+      expect(dmgTo(turn(defending, "t6-fixed100", "syn-attr", hp), "p2")[0]).toBe(received);
     }
   });
 

@@ -23,7 +23,8 @@ export interface PackMeta { packId: string; moves: Record<string, MoveMeta>; uni
 const cache = new Map<string, Promise<PackMeta>>();
 
 export function packIdOf(obs: any): string {
-  return obs?.rules?.rulesetId ?? "synthetic-v1";
+  const rulesetId = obs?.rules?.rulesetId ?? "synthetic-v1";
+  return rulesetId === "peak-v1" ? "peak" : rulesetId;
 }
 
 export function loadMeta(packId: string): Promise<PackMeta> {

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { canonicalJson } from "@seer/contracts";
 import { loadPackFromDir } from "@seer/battle-core";
-import { BattleHost } from "@seer/host";
+import { BattleHost, createReadOnlyView } from "@seer/host";
 import type { FrozenPack } from "@seer/battle-core";
 
 const CONTENT = join(fileURLToPath(new URL("..", import.meta.url)), "..", "content");
@@ -35,6 +35,12 @@ const cmd = (decisionId: string, actionId: string, key: string, baseRevision = 0
 const openDecisionId = (h: BattleHost) => h.state.battle.decision!.decisionId;
 
 describe("decision lifecycle", () => {
+  it("提交后只读合法集与 observe 一致，不能继续展示可提交动作", () => {
+    const h = mk(), view = createReadOnlyView(h, "alice");
+    h.submit("alice", cmd(openDecisionId(h), "act_syn-strike", "view-lock"));
+    expect(view.observe().legalActions).toEqual([]);
+    expect(view.legalActions()).toEqual([]);
+  });
   it("init opens decision for both actors with baseRevision 0", () => {
     const h = mk();
     const obs = h.observe("alice");
@@ -73,6 +79,19 @@ describe("decision lifecycle", () => {
 });
 
 describe("idempotency", () => {
+  it("同键重复提交改变 baseRevision 必须冲突", () => {
+    const h = mk(), dec = openDecisionId(h);
+    h.submit("alice", cmd(dec, "act_syn-strike", "key-revision", 0));
+    const result = h.submit("alice", cmd(dec, "act_syn-strike", "key-revision", 99));
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("IDEMPOTENCY_CONFLICT");
+  });
+  it("收齐提交并进入下一回合时，受理回执应标记原决策已结算", () => {
+    const h = mk(), dec = openDecisionId(h);
+    h.submit("alice", cmd(dec, "act_syn-strike", "receipt-a"));
+    const result = h.submit("bob", cmd(dec, "act_syn-strike", "receipt-b"));
+    expect(result.ok && result.receipt.resolved).toBe(true);
+  });
   it("same key + same payload → duplicate-replay, one application", () => {
     const h = mk();
     const dec = openDecisionId(h);

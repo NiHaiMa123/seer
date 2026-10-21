@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { loadPackFromDir } from "@seer/battle-core";
+import { loadPackFromDir, MECHANICS, type Mechanic } from "@seer/battle-core";
 import { BattleHost, createReadOnlyView } from "@seer/host";
 import { canonicalJson } from "@seer/contracts";
 import { ToolServer, BattleAgent, decideBaseline, simulateBatch, type AgentView, type SubmitFn } from "@seer/agent";
@@ -104,6 +104,28 @@ describe("lookup_rule / explain_trace / calculate_damage", () => {
     expect(d.amountMax).toBe(28);
     expect(d.amount).toBe(28);
   });
+  it("新机制通过已有钩子接管面板和估算，Agent 无须识别机制名字", () => {
+    const host = new BattleHost({
+      pack: PACK_V1, battleId: "btl_estimate", seedHex: SEED,
+      species: { p1: "syn-alpha", p2: "syn-beta" },
+      players: { p1: "A", p2: "B" }, deadlineMs: 30000,
+    });
+    const before = canonicalJson(host.state.battle);
+    const mechanics = MECHANICS as Mechanic[]; // 仅测试装配，不提供运行时注册 API。
+    mechanics.unshift({
+      id: "estimate-probe",
+      deriveBase: () => ({ hp: 200, atk: 77, def: 37, spd: 40, spa: 77, sdf: 37 }),
+      scaledDamage: ({ unit, rng }) => ({ dmg: unit.base.atk + rng.drawBelow(4, "probe") }),
+    });
+    try {
+      const result = mkTools(host, "A", PACK_V1).call({ tool: "calculate_damage", moveId: "syn-strike", assumptions: {} });
+      expect(result.ok).toBe(true);
+      expect(result.data).toMatchObject({ attackerAtk: 77, assumedDef: 37, damages: [{ amountMin: 77, amountMax: 80 }] });
+      expect(canonicalJson(host.state.battle)).toBe(before);
+    } finally {
+      mechanics.shift();
+    }
+  });
   it("explain_trace 只含公开事件摘要，无内部字段", () => {
     const h = mkHost();
     const t = mkTools(h, "A");
@@ -118,6 +140,17 @@ describe("lookup_rule / explain_trace / calculate_damage", () => {
 });
 
 describe("baseline policy + agent loop", () => {
+  it.each([false, true])("planner 的 ownCap 配置在同步/异步入口生效（async=%s）", async (asyncStep) => {
+    const h = mkHost(), original = createReadOnlyView(h, "A") as AgentView;
+    const view: AgentView = { ...original, observe: () => {
+      const obs = original.observe();
+      return { ...obs, legalActions: [...obs.legalActions].sort((a, b) => Number(b.actionId === "act_syn-hex") - Number(a.actionId === "act_syn-hex")) };
+    } };
+    const agent = new BattleAgent({ view, pack: PACK, submit: (c) => h.submit("A", c), policy: "planner", planner: { ownCap: 1, oppCap: 1, depth: 1, maxTransitions: 1 } });
+    const result = asyncStep ? await agent.stepAsync() : agent.step();
+    expect(result.submitted).toBe(true);
+    expect(agent.transcriptEntries[0]?.actionId).toBe("act_syn-hex");
+  });
   it("replacement 决策 → 最低存活 bench", () => {
     const h = mkHost({ p2: ["syn-epsilon"] });
     h.observe("B"); // warm

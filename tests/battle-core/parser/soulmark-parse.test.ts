@@ -3,8 +3,15 @@
  * 断言条目形状与 soulmarks.schema.json soulHook 对齐；未支持族必须落显式 reason 分桶。
  */
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { parseSoulmarkText } from "../../../tools/soulmark-parse.mjs";
 import { condOf } from "../../../tools/effects-parse.mjs";
+
+const creatureRows = JSON.parse(readFileSync(fileURLToPath(new URL("../../../content/creatures/creatures.json", import.meta.url)), "utf8")).creatures as Record<string, {
+  name: string;
+  soulMark?: { text?: string | null };
+}>;
 
 const first = (t: string) => parseSoulmarkText(t).entries[0];
 
@@ -36,11 +43,57 @@ describe("soulmark trigger prefixes", () => {
   it("对手换下时 → onSwitchOut switcher:foe", () => {
     expect(first("对手换下时恢复自身50点体力")).toMatchObject({ hook: "onSwitchOut", guard: { switcher: "foe" } });
   });
-  it("自身使用攻击技能时 → onMoveUsed actor:self cat:[2,3]", () => {
-    expect(first("自身使用攻击技能时30%令对手麻痹")).toMatchObject({ hook: "onMoveUsed", guard: { actor: "self", cat: [2, 3] } });
+  it("自身使用攻击技能时 → 出招前 react trigger:11 cat:4", () => {
+    const text = "自身使用攻击技能时30%令对手麻痹";
+    expect(first(text)).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 4 }, stack: true,
+        payload: [{ op: "apply_status", name: "paralysis", target: "opponent", chance: 30 }],
+      }],
+    });
+    expect(parseSoulmarkText(text).unparsed).toEqual([]);
   });
-  it("对手使用属性技能时 → onMoveUsed actor:foe cat:1", () => {
-    expect(first("对手使用属性技能则令对手害怕")).toMatchObject({ hook: "onMoveUsed", guard: { actor: "foe", cat: 1 } });
+  it("自身属性技能命中后走命中成功的 onMoveUsed 类别窗", () => {
+    expect(first("自身属性技能命中后100%令对手麻痹")).toMatchObject({ hook: "onMoveUsed", guard: { actor: "self", cat: 1 }, ops: [{ op: "apply_status", name: "paralysis", chance: 100 }] });
+  });
+  it("裸‘自身使用技能N%令’ → react trigger:11 与概率载荷", () => {
+    expect(first("自身使用技能50%令对手害怕")).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11 }, stack: true,
+        payload: [{ op: "apply_status", name: "fear", target: "opponent", chance: 50 }],
+      }],
+    });
+  });
+  it("裸技能 react 保留物理/特殊类别门控与各自载荷", () => {
+    expect(first("自身使用物理技能附加100点固定伤害")).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11, cat: 2 }, stack: true,
+        payload: [{ op: "damage", kind: "fixed", power: 100, target: "opponent" }],
+      }],
+    });
+    expect(first("自身使用特殊技能50%令对手麻痹")).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11, cat: 3 }, stack: true,
+        payload: [{ op: "apply_status", name: "paralysis", target: "opponent", chance: 50 }],
+      }],
+    });
+  });
+  it("对手使用属性技能时 → 出招前 react trigger:3 cat:1", () => {
+    const text = "对手使用属性技能则令对手害怕";
+    expect(first(text)).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 3, cat: 1 }, stack: true,
+        payload: [{ op: "apply_status", name: "fear", target: "opponent" }],
+      }],
+    });
+    expect(parseSoulmarkText(text).unparsed).toEqual([]);
   });
   it("先出手时X → onMoveUsed + order 守卫下沉到 ops", () => {
     const e = first("先出手时恢复自身100点体力");
@@ -85,9 +138,175 @@ describe("soulmark text preprocessing", () => {
     expect(r.bossGate).toBe(true);
     expect(r.entries.every((e) => e.bossGate === true)).toBe(true);
   });
+  it("局部 boss 无效只标注所在子句，不向后污染独立子句", () => {
+    const r = parseSoulmarkText("回合开始时恢复自身10点体力（boss无效）；回合开始时恢复自身20点体力");
+    expect(r.entries).toMatchObject([
+      { hook: "onTurnStart", bossGate: true, ops: [{ op: "heal", flat: 10 }] },
+      { hook: "onTurnStart", ops: [{ op: "heal", flat: 20 }] },
+    ]);
+    expect(r.entries[1]).not.toHaveProperty("bossGate");
+  });
+  it.each(["；恢复自身50点体力", "，恢复自身50点体力"])("未知守卫内的回合触发不能被局部 boss 尾注切开，裸尾句隔离（尾段 %s）", (tail) => {
+    const r = parseSoulmarkText(`若回合结束时未知条件则恢复自身100点体力（boss无效）${tail}；回合开始时自身攻击+1`);
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnStart", ops: [{ op: "apply_stat_stage", stat: "atk", delta: 1, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("若回合结束时未知条件") && fragment.reason?.includes("guard unmodeled"))).toBe(true);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("恢复自身50点体力"))).toBe(true);
+  });
+  it("无标点长段尾注只门控最近的独立时序效果", () => {
+    const r = parseSoulmarkText("战斗开始时恢复自身10点体力，回合开始时恢复自身20点体力（boss无效）");
+    expect(r.entries).toMatchObject([
+      { hook: "onBattleStart", ops: [{ op: "heal", flat: 10 }] },
+      { hook: "onTurnStart", bossGate: true, ops: [{ op: "heal", flat: 20 }] },
+    ]);
+    expect(r.entries[0]).not.toHaveProperty("bossGate");
+  });
+  it("statDiff 的单句尾注与全文尾注都落在 entry 层", () => {
+    const base = "回合开始时自身根据双方攻击值之差N触发以下效果：①恢复N点体力";
+    for (const suffix of ["（boss无效）", "以上效果boss无效"]) {
+      const r = parseSoulmarkText(base + suffix);
+      expect(r.entries).toHaveLength(1);
+      expect(r.entries[0]).toMatchObject({ hook: "onTurnStart", bossGate: true });
+      expect(r.entries[0]?.ops?.[0]).not.toHaveProperty("bossGate");
+    }
+  });
+  it("原文局部括注与明确全文尾注按同一范围契约落 gate", () => {
+    const rows = creatureRows;
+    const pet4742 = parseSoulmarkText(rows["pet-4742"]!.soulMark!.text, rows["pet-4742"]!.name);
+    expect(pet4742.entries[0]).toMatchObject({ hook: "onBattleStart", ops: [{ op: "stat_boost", add: 100 }] });
+    expect(pet4742.entries[0]).not.toHaveProperty("bossGate");
+    const pet3419 = parseSoulmarkText(rows["pet-3419"]!.soulMark!.text, rows["pet-3419"]!.name);
+    expect(pet3419.entries[0]).toMatchObject({ hook: "onBattleStart", ops: [{ op: "stat_boost", add: 200 }] });
+    expect(pet3419.entries[0]).not.toHaveProperty("bossGate");
+    expect(pet3419.entries.find((entry) => entry.hook === "beforeOrder")).toHaveProperty("bossGate", true);
+    const explicitAll = parseSoulmarkText(rows["pet-3584"]!.soulMark!.text, rows["pet-3584"]!.name);
+    expect(explicitAll.entries.length).toBeGreaterThan(0);
+    expect(explicitAll.entries.every((entry) => entry.bossGate === true)).toBe(true);
+  });
   it("FAQ 块抽取正文：'问：...答：X是： <真魂印>'", () => {
     const r = parseSoulmarkText("问：赛尔号甲虫是什么？甲虫专属特性是什么？ 答：赛尔号甲虫是：回合结束时恢复自身50点体力");
     expect(r.entries[0]).toMatchObject({ hook: "onTurnEnd" });
+  });
+  it("FAQ 直接答正文与带印名的答案都提取真实特性", () => {
+    const direct = parseSoulmarkText("问：是什么？ 答：回合开始时恢复自身50点体力");
+    const named = parseSoulmarkText("问：是什么？ 答：赛尔号地狱魔龙兽的魂印是狱：回合开始时恢复自身50点体力", "地狱魔龙兽");
+    expect(direct.entries[0]).toMatchObject({ hook: "onTurnStart", ops: [{ op: "heal", flat: 50 }] });
+    expect(named.entries[0]).toMatchObject({ hook: "onTurnStart", ops: [{ op: "heal", flat: 50 }] });
+  });
+  it("FAQ 答案仍支持‘魂印是印名，效果如下’旧变体及无特性答复", () => {
+    const old = parseSoulmarkText("问：赛尔号测试魂印是什么？ 答：赛尔号测试的魂印是骁，效果如下：回合结束时恢复自身50点体力");
+    const numbered = parseSoulmarkText("问：赛尔号测试魂印是什么？ 答：赛尔号测试的魂印是骁，效果如下：1、回合结束时恢复自身50点体力");
+    const empty = parseSoulmarkText("问：赛尔号测试魂印是什么？ 答：  该精灵没有专属特性");
+    expect(old.entries[0]).toMatchObject({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 50 }] });
+    expect(numbered.entries[0]).toMatchObject({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 50 }] });
+    expect(empty).toMatchObject({ entries: [], unparsed: [], clauseTotal: 0, clausesParsed: 0 });
+  });
+  it.each(["pet-4931", "pet-4930", "pet-3336"])("真实 FAQ 源记录 %s 不得被整条静默过滤", (id) => {
+    const row = creatureRows[id]!;
+    expect(row?.soulMark?.text).toBeTruthy();
+    const result = parseSoulmarkText(row.soulMark!.text, row.name);
+    expect(result.clauseTotal).toBeGreaterThan(0);
+    expect(result.unparsed.length + result.entries.length).toBeGreaterThan(0);
+    expect(result.unparsed.every((fragment) => !fragment.clause.startsWith("问："))).toBe(true);
+    // 这些真实魂印含有尚未建模的复杂触发，必须留下显式 residual，而不能虚报全完成。
+    expect(result.unparsed.length).toBeGreaterThan(0);
+    if (id !== "pet-4930") {
+      // 炎龙铠甲与地狱魔龙兽各有一段能由现有 guard/chance/ops 表达，其余语义仍留 residual。
+      expect(result.clausesParsed).toBeGreaterThan(0);
+      expect(result.entries.some((entry) => (entry.ops?.length ?? 0) > 0)).toBe(true);
+    } else {
+      // 帝皇铠甲这条包含跨事件聚合、具名印记和计数分支；正文要完整落入显式 residual。
+      expect(result.entries).toEqual([]);
+      expect(result.unparsed.some((fragment) => fragment.clause.includes("五行印记"))).toBe(true);
+    }
+  });
+  it("首次登场首回合使用技能不是 once 窗，整条依赖分支留 residual", () => {
+    const generic = parseSoulmarkText("首次登场首回合使用攻击技能后攻击伤害提升50%");
+    expect(generic.entries).toEqual([]);
+    expect(generic.unparsed[0]?.reason).toContain("first-entry move window");
+
+    const row = creatureRows["pet-4727"]!;
+    const result = parseSoulmarkText(row.soulMark!.text, row.name);
+    expect(result.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "max_hp_down")).toBe(false);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("首次登场首回合使用攻击技能后"))).toBe(true);
+    expect(result.entries.some((entry) => entry.hook === "onMoveUsed")).toBe(true);
+  });
+  it("每层魂印的动态幅值不转换为固定常驻效果", () => {
+    const generic = parseSoulmarkText("每有1层魂印造成的攻击伤害提升5%");
+    expect(generic.entries).toEqual([]);
+    expect(generic.unparsed[0]?.reason).toContain("per-mark scaling");
+
+    const row = creatureRows["pet-4762"]!;
+    const result = parseSoulmarkText(row.soulMark!.text, row.name);
+    const ops = result.entries.flatMap((entry) => entry.ops ?? []);
+    expect(ops.some((op) => op.name === "dmg_boost" || op.name === "dmg_taken_down")).toBe(false);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("每有1层受到的攻击伤害减少5%"))).toBe(true);
+  });
+  it("出伤依赖分支和用技后分支不能改挂到回合末", () => {
+    const lowHpDrain = creatureRows["pet-3875"]!;
+    const lowHpResult = parseSoulmarkText(lowHpDrain.soulMark!.text, lowHpDrain.name);
+    const lowHpOps = lowHpResult.entries.flatMap((entry) => entry.ops ?? []);
+    expect(lowHpOps.some((op) => op.name === "drain_atk")).toBe(true);
+    expect(lowHpOps.some((op) => op.name === "dmg_flat" || op.op === "flat")).toBe(false);
+    expect(lowHpResult.unparsed.some((fragment) => fragment.clause.includes("附加等量固伤") && fragment.reason?.includes("damage-result reference"))).toBe(true);
+    expect(lowHpResult.unparsed.some((fragment) => fragment.reason?.includes("stage-state split"))).toBe(true);
+
+    const hitResult = creatureRows["pet-3870"]!;
+    const hitResultParsed = parseSoulmarkText(hitResult.soulMark!.text, hitResult.name);
+    expect(hitResultParsed.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "petrify")).toBe(false);
+    expect(hitResultParsed.unparsed.some((fragment) => fragment.clause.includes("令对手石化"))).toBe(true);
+
+    const postUse = creatureRows["pet-4634"]!;
+    const postUseParsed = parseSoulmarkText(postUse.soulMark!.text, postUse.name);
+    expect(postUseParsed.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "fear")).toBe(false);
+    expect(postUseParsed.unparsed.some((fragment) => fragment.clause.includes("本次技能打出了致命一击"))).toBe(true);
+
+    const invalidFallback = creatureRows["pet-4132"]!;
+    const invalidParsed = parseSoulmarkText(invalidFallback.soulMark!.text, invalidFallback.name);
+    expect(invalidParsed.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.op === "drain" || op.name === "drain_atk")).toBe(false);
+    expect(invalidParsed.unparsed.some((fragment) => fragment.clause.includes("未触发则当回合技能命中后随机吸取"))).toBe(true);
+  });
+  it("回合开始时体力比较授予当回合致命概率，必须保留在击前窗口", () => {
+    const row = creatureRows["pet-3843"]!;
+    const result = parseSoulmarkText(row.soulMark!.text, row.name);
+    const critEntries = result.entries.filter((entry) => entry.ops?.some((op) => op.name === "crit_up"));
+    expect(critEntries).toMatchObject([
+      { hook: "onTurnStart", guard: { selfHpAboveFoe: true }, ops: [{ name: "crit_up", params: { n: 50, d: 100 } }] },
+      { hook: "onTurnStart", guard: { selfHpBelowFoe: true }, ops: [{ name: "crit_up", params: { n: 25, d: 100 } }] },
+    ]);
+    expect(critEntries.every((entry) => entry.hook !== "onDamageDealt")).toBe(true);
+  });
+  it("重放登场效果的 else payload 不挂到之前已建模的守卫宿主", () => {
+    const row = creatureRows["pet-4903"]!;
+    const result = parseSoulmarkText(row.soulMark!.text, row.name);
+    const ops = result.entries.flatMap((entry) => entry.ops ?? []);
+    expect(ops.some((op) => op.op === "cleanse")).toBe(false);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("未触发则重新触发自身的登场效果") && fragment.reason?.includes("entry-effect replay"))).toBe(true);
+    expect(result.unparsed.some((fragment) => fragment.reason?.includes("damage-result branch"))).toBe(true);
+  });
+  it("霍莱跨回合与出招窗口的组合显式延期，独立回合末护盾仍可解析", () => {
+    const row = creatureRows["pet-4294"]!;
+    const result = parseSoulmarkText(row.soulMark!.text, row.name);
+    expect(result.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "fear" || op.op === "cleanse")).toBe(false);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("自身使用技能50%令对手害怕"))).toBe(true);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("未触发则消除对手回合类效果"))).toBe(true);
+    expect(result.entries.some((entry) => entry.hook === "onTurnEnd" && entry.ops?.some((op) => op.name === "shield"))).toBe(true);
+  });
+  it("技能无效事件不能把后续下回合登场效果变成无条件", () => {
+    const r = parseSoulmarkText("战斗开始时恢复自身10点体力；己方精灵技能无效时，自身下回合登场时消除对手回合类效果与能力提升状态，消除成功则令对手沉默（boss无效）");
+    expect(r.entries).toMatchObject([{ hook: "onBattleStart", ops: [{ op: "heal", flat: 10 }] }]);
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.op === "clear_stages" || op.name === "silence")).toBe(false);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("己方精灵技能无效时") && fragment.reason?.includes("cross-event prerequisite"))).toBe(true);
+  });
+  it("护盾/护罩量相等的条件不能丢失后执行无条件清盾", () => {
+    const r = parseSoulmarkText("回合结束时恢复自身10点体力；回合结束时获得等同于对手的护盾、护罩，若对手的护盾、护罩相等，则额外消除对手的护盾、护罩并附加等量的固定伤害；回合开始时恢复自身20点体力");
+    expect(r.entries).toMatchObject([
+      { hook: "onTurnEnd", ops: [{ op: "heal", flat: 10 }] },
+      { hook: "onTurnStart", ops: [{ op: "heal", flat: 20 }] },
+    ]);
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.op === "cleanse" && op.scope === "shield")).toBe(false);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("若对手的护盾、护罩相等") && fragment.reason?.includes("shield-value comparison"))).toBe(true);
   });
   it("'每场战斗限一次' → limitBattle", () => {
     expect(first("每场战斗限一次，回合结束时恢复自身全部体力")).toMatchObject({ chance: { once: true } });
@@ -122,16 +341,90 @@ describe("soulmark clause composition", () => {
     expect(e?.ops?.[1]).toMatchObject({ if: { not: { prevApplied: true } } });
   });
   it("'免疫成功则Y' → 正向 prevApplied 守卫（与未触发同族反相）", () => {
-    const e = first("回合开始时，若自身体力高于1/2则当回合免疫受到的麻痹状态，免疫成功则消除对手的回合类效果");
-    expect(e?.ops?.length).toBeGreaterThanOrEqual(2);
-    const tail = e?.ops?.slice(1) ?? [];
-    for (const o of tail) expect(o).toMatchObject({ if: { prevApplied: true } });
+    const r = parseSoulmarkText("回合开始时，若自身体力高于1/2则当回合免疫受到的麻痹状态，免疫成功则消除对手的回合类效果");
+    expect(r.entries[0]?.ops).toEqual([
+      expect.objectContaining({ op: "apply_status", name: "immune_status", ailment: "paralysis" }),
+    ]);
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.op === "cleanse")).toBe(false);
+    expect(r.unparsed).toContainEqual(expect.objectContaining({
+      clause: expect.stringContaining("免疫成功则消除对手的回合类效果"),
+      reason: expect.stringContaining("prevApplied prerequisite"),
+    }));
   });
-  it("'均未触发则Y' → not.prevApplied else 守卫", () => {
+  it("跨多个 entry 的‘均未触发’不可假定共享 prevApplied", () => {
     const r = parseSoulmarkText("每次使用技能时，40%几率使对手损失1/3的最大体力，40%几率使自身损失1/3的最大体力，均未触发则自身下回合先制+2");
-    expect(r.unparsed).toHaveLength(0);
-    const elseOp = r.entries.flatMap((e) => e.ops).find((o) => o?.name === "prio_up");
-    expect(elseOp).toMatchObject({ if: { not: { prevApplied: true } } });
+    expect(r.entries).toHaveLength(2);
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "prio_up")).toBe(false);
+    expect(r.unparsed).toContainEqual(expect.objectContaining({
+      clause: expect.stringContaining("均未触发则自身下回合先制+2"),
+      reason: expect.stringContaining("aggregate prerequisite"),
+    }));
+  });
+  it("同一 op 的 chance 失败可门控 else op", () => {
+    const r = parseSoulmarkText("回合开始时50%令对手害怕，未触发则令对手失明");
+    expect(r.entries[0]?.ops).toMatchObject([
+      { op: "apply_status", name: "fear", chance: 50 },
+      { op: "apply_status", name: "blind", if: { not: { prevApplied: true } } },
+    ]);
+    expect(r.unparsed).toEqual([]);
+  });
+  it("PP 实际变更是可观测结果，可承接同事件失败分支", () => {
+    const r = parseSoulmarkText("回合开始时50%恢复自身所有技能1点PP，未触发则令对手麻痹");
+    expect(r.entries[0]?.ops).toMatchObject([
+      { op: "pp_delta", amount: 1, target: "self", scope: "all", chance: 50 },
+      { op: "apply_status", name: "paralysis", if: { not: { prevApplied: true } } },
+    ]);
+    expect(r.unparsed).toEqual([]);
+  });
+  it("安装后续 react 或 drain_atk 窗不是当次成功结果宿主", () => {
+    const react = parseSoulmarkText("自身使用攻击技能后，下次使用属性技能时附加200点真实伤害，未触发则令对手麻痹");
+    expect(react.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "react")).toBe(true);
+    expect(react.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "paralysis")).toBe(false);
+    expect(react.unparsed.some((fragment) => fragment.reason?.includes("no same-event fallback host"))).toBe(true);
+
+    const drain = parseSoulmarkText("所有攻击附带5%的吸血效果，未触发则令对手麻痹");
+    expect(drain.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "drain_atk")).toBe(true);
+    expect(drain.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "paralysis")).toBe(false);
+    expect(drain.unparsed.some((fragment) => fragment.reason?.includes("no same-event fallback host"))).toBe(true);
+  });
+  it("entry-level chance 的失败分支写入 elseOps，不能在被跳过的 ops 上测试 prevApplied", () => {
+    const r = parseSoulmarkText("每次使用技能时，40%几率使对手损失1/3的最大体力，未触发则令对手麻痹");
+    expect(r.entries[0]).toMatchObject({
+      hook: "onMoveUsed",
+      chance: { base: 40 },
+      elseOps: [{ op: "apply_status", name: "paralysis", target: "opponent" }],
+    });
+    expect(r.entries[0]?.ops?.some((op) => JSON.stringify(op.if) === JSON.stringify({ not: { prevApplied: true } }))).toBe(false);
+    expect(r.unparsed).toEqual([]);
+  });
+  it("安装闪避窗口不等于本次已闪避，不能驱动未触发后续", () => {
+    const r = parseSoulmarkText("回合开始时50%闪避对手攻击，未触发闪避则当回合受到的攻击伤害减少50%");
+    expect(r.entries).toMatchObject([
+      { hook: "onTurnStart", ops: [{ op: "apply_status", name: "dodge", params: { pct: 50, cat: 4 } }] },
+    ]);
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "dmg_taken_down")).toBe(false);
+    expect(r.unparsed).toContainEqual(expect.objectContaining({
+      clause: expect.stringContaining("未触发闪避"),
+      reason: expect.stringContaining("no same-event fallback host"),
+    }));
+  });
+  it("明确闪避对手攻击技能只拦攻击类；闪避所有技能仍不加类别门", () => {
+    const attack = parseSoulmarkText("50%的几率闪避对手的攻击技能，自身体力低于对手时概率提升至80%");
+    expect(attack.entries[0]?.hook).toBe("onBattleStart");
+    const dodgeOps = attack.entries.flatMap((entry) => entry.ops ?? []).filter((op) => op.name === "dodge");
+    expect(dodgeOps).toHaveLength(2);
+    expect(dodgeOps).toMatchObject([
+      { stack: true, params: { pct: 50, cat: 4, notSelfHpBelowFoe: 1 } },
+      { stack: true, params: { pct: 80, cat: 4, selfHpBelowFoe: 1 } },
+    ]);
+    expect(attack.unparsed).toEqual([]);
+
+    const allSkills = parseSoulmarkText("50%闪避所有技能");
+    expect(allSkills.entries[0]?.ops?.[0]).toMatchObject({
+      name: "dodge",
+      params: { pct: 50 },
+    });
+    expect(allSkills.entries[0]?.ops?.[0]?.params).not.toHaveProperty("cat");
   });
   it("'使对手损失1/3的最大体力' → damage percent frac（40% 几率承接 entry.chance）", () => {
     const r = parseSoulmarkText("每次使用技能时，40%几率使对手损失1/3的最大体力");
@@ -147,8 +440,19 @@ describe("soulmark clause composition", () => {
   });
   it("'汲取' 归一化为吸取（同义词族）", () => {
     const r = parseSoulmarkText("每次使用技能时，汲取对手最大体力的1/4");
-    expect(r.unparsed).toHaveLength(0);
-    expect(r.entries[0]?.ops?.some((o) => o.op === "heal" || o.op === "damage")).toBe(true);
+    expect(r.unparsed).toEqual([{
+      clause: "每次使用技能时，汲取对手最大体力的1/4",
+      reason: "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)",
+    }]);
+    expect(r.entries).toEqual([{
+      hook: "onMoveUsed",
+      ops: [
+        { op: "damage", power: 1, kind: "percent" },
+        { op: "formula", of: "frac", value: { numerator: 1, denominator: 4 } },
+        { op: "heal", numerator: 1, denominator: 4, target: "self" },
+      ],
+      guard: { actor: "self" },
+    }]);
   });
 });
 
@@ -466,7 +770,12 @@ describe("batch-2025-11-d cond-gate/set-override/floor", () => {
 describe("batch-2025-11-e enum-pool/upgrade/guard-carry", () => {
   it("'随机附加A、B、C、D中的一种异常状态' → random 枚举池", () => {
     const e = first("对手使用攻击技能时，为对手随机附加中毒、寄生、感染、睡眠中的一种异常状态");
-    const op = e?.ops?.[0] as { random?: { list?: string[]; count?: number } } | undefined;
+    expect(e).toMatchObject({
+      hook: "onBattleStart",
+      ops: [{ op: "apply_status", name: "react", target: "self", params: { trigger: 3, cat: 4 }, stack: true }],
+    });
+    const react = e?.ops?.[0] as { payload?: { random?: { list?: string[]; count?: number } }[] } | undefined;
+    const op = react?.payload?.[0];
     expect(op?.random?.list).toEqual(["poison", "parasite", "infect", "sleep"]);
     expect(op?.random?.count).toBe(1);
   });
@@ -512,27 +821,40 @@ describe("batch-2025-11-f chanceSet/ppAt-any/exclusive-clone", () => {
   });
   it("'P时几率变成N%' pct 窗 → 互斥克隆（基窗 not* 门 + 条件窗正门）", () => {
     const e = first("回合开始时若自身体力高于对手则40%几率闪避对手攻击，自身体力低于对手时几率变成60%");
-    const ops = (e?.ops ?? []) as { name?: string; params?: Record<string, number> }[];
+    const ops = (e?.ops ?? []) as { name?: string; stack?: boolean; params?: Record<string, number> }[];
     const base = ops.find((o) => o.params?.pct === 40);
     const alt = ops.find((o) => o.params?.pct === 60);
     expect(base?.params?.notSelfHpBelowFoe).toBe(1);
     expect(alt?.params?.selfHpBelowFoe).toBe(1);
+    expect(ops.every((o) => o.stack === undefined)).toBe(true);
   });
   it("'任意1个技能PP值为零时' → ppAt slot:any 谓词", () => {
     const e = first("对手使用攻击技能则50%麻痹，任意1个技能PP值为零时几率提升至100%");
-    const op = e?.ops?.[0] as { chanceSetIf?: { when: unknown; value: number } } | undefined;
+    const react = e?.ops?.[0] as { payload?: { chanceSetIf?: { when: unknown; value: number } }[] } | undefined;
+    const op = react?.payload?.[0];
     expect(op?.chanceSetIf).toMatchObject({ when: { ppAt: { slot: "any", value: 0 } }, value: 100 });
   });
   it("';' 子句边界——几率提升不跨子句挂载", () => {
     const r = parseSoulmarkText("对手使用攻击技能则50%麻痹；对手使用属性技能则50%随机1个技能PP值归零，自身体力高于最大体力的1/2时几率提升至100%");
-    const par = r.entries.flatMap((e) => e.ops ?? []).find((o) => o.name === "paralysis") as { chanceSetIf?: unknown } | undefined;
-    const pp = r.entries.flatMap((e) => e.ops ?? []).find((o) => o.op === "pp_delta") as { chanceSetIf?: { value: number } } | undefined;
+    const payloads = r.entries.map((e) => {
+      const react = e.ops?.[0] as { name?: string; payload?: Record<string, unknown>[] } | undefined;
+      return react?.name === "react" ? react.payload ?? [] : [];
+    }).flat();
+    const par = payloads.find((o) => o.name === "paralysis") as { chanceSetIf?: unknown } | undefined;
+    const pp = payloads.find((o) => o.op === "pp_delta") as { chanceSetIf?: { value: number } } | undefined;
     expect(par?.chanceSetIf).toBeUndefined();
     expect(pp?.chanceSetIf?.value).toBe(100);
   });
-  it("'使用工具技能时' → onMoveUsed cat:1", () => {
+  it("'使用工具技能时' → 出招前 react cat:1", () => {
     const e = first("使用工具技能时50%几率令对手害怕");
-    expect(e?.guard).toMatchObject({ cat: 1 });
+    expect(e).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 1 }, stack: true,
+        payload: [{ op: "apply_status", name: "fear", target: "opponent", chance: 50 }],
+      }],
+    });
   });
   it("'出场前N回合' → onEntry + injectTurns 窗", () => {
     const r = parseSoulmarkText("出场时若自身体力低于对手，则出场前2回合免疫并反弹异常状态");
@@ -543,6 +865,12 @@ describe("batch-2025-11-f chanceSet/ppAt-any/exclusive-clone", () => {
 });
 
 describe("batch-2025-11-g kindMask/mark-threshold/mark-declare", () => {
+  it("最大体力永久成本当前不可表达时，不输出临时扣上限与免费回血", () => {
+    const r = parseSoulmarkText("战斗阶段结束时，若自身的体力低于最大体力的1/3，则消耗自身200点体力上限并恢复全部体力");
+    expect(r.entries).toEqual([]);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("消耗自身200点体力上限并恢复全部体力"))).toBe(true);
+    expect(r.unparsed.some((fragment) => fragment.reason?.includes("permanent max-HP cost"))).toBe(true);
+  });
   it("'受到的固定伤害减少N%' → dmg_taken_down kindMask=1", () => {
     const r = parseSoulmarkText("回合结束时受到的固定伤害减少30%");
     const op = r.entries.flatMap((e) => e.ops ?? []).find((o) => o.name === "dmg_taken_down") as { params?: Record<string, number> } | undefined;
@@ -618,8 +946,13 @@ describe("batch-2025-11-g kindMask/mark-threshold/mark-declare", () => {
   it("'miss时X' → onMiss who:foe（对手落空=自身闪避）", () => {
     expect(first("miss时下回合自身免疫异常")).toMatchObject({ hook: "onMiss", guard: { who: "foe" } });
   });
-  it("'触发成功X'（无则）→ prevApplied 守卫", () => {
-    expect(first("触发成功自身恢复最大体力的1/2")).toMatchObject({ hook: "onTurnEnd", guard: { prevApplied: true } });
+  it("没有同事件成功宿主时‘触发成功’必须留 residual", () => {
+    const r = parseSoulmarkText("触发成功自身恢复最大体力的1/2");
+    expect(r.entries).toEqual([]);
+    expect(r.unparsed).toContainEqual(expect.objectContaining({
+      clause: expect.stringContaining("触发成功自身恢复最大体力的1/2"),
+      reason: expect.stringContaining("no same-event successful host"),
+    }));
   });
   it("'使用必中技能后' → onMoveUsed alwaysHit", () => {
     expect(first("自身使用必中技能后恢复100点体力")).toMatchObject({ hook: "onMoveUsed", guard: { actor: "self", alwaysHit: true } });
@@ -636,9 +969,11 @@ describe("batch-2025-11-g kindMask/mark-threshold/mark-declare", () => {
     expect(first("若当回合自身受到的伤害低于300则吸取对手最大体力的1/4")).toMatchObject({ hook: "onTurnEnd", guard: { takenBelowAbs: 300 } });
   });
   it("'阈值降低' → threshold-delta 显式延后且不误伤并列子句", () => {
-    const r = parseSoulmarkText("触发成功则阈值降低100点且本场战斗造成的攻击伤害提升10%");
+    const r = parseSoulmarkText("回合开始时消除对手能力提升状态，触发成功则阈值降低100点且本场战斗造成的攻击伤害提升10%");
+    expect(r.entries[0]?.ops?.[0]).toMatchObject({ op: "clear_stages", target: "opponent", sign: "up" });
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "dmg_boost")).toBe(false);
     expect(r.unparsed.some((u) => u.reason?.includes("threshold-delta"))).toBe(true);
-    expect(r.entries[0]?.ops?.[0]).toMatchObject({ name: "dmg_boost" });
+    expect(r.unparsed.some((u) => u.reason?.includes("prevApplied branch continuation") && u.clause.includes("本场战斗造成的攻击伤害提升10%"))).toBe(true);
   });
   it("'进入X每累计N次' → apply-counter 显式延后", () => {
     expect(parseSoulmarkText("自身进入烧伤状态每累计3次").unparsed[0]?.reason).toContain("apply-counter");
@@ -666,7 +1001,8 @@ describe("batch-2025-11-g kindMask/mark-threshold/mark-declare", () => {
   });
   it("'未触发瘫痪则X' → 异常名单 else 链（瘫痪 入 AIL_ALT）", () => {
     const r = parseSoulmarkText("能力提升状态被消除则对手瘫痪，未触发瘫痪则消除对手回合类效果");
-    expect(r.unparsed.filter((u) => /瘫痪则/.test(u.clause))).toHaveLength(0);
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.op === "cleanse")).toBe(false);
+    expect(r.unparsed.some((u) => /瘫痪则/.test(u.clause) && u.reason?.includes("no same-event fallback host"))).toBe(true);
   });
   it("'攻击打出致命一击的几率提升N%' → crit_up n/100", () => {
     const e = first("攻击打出致命一击的几率提升20%");
@@ -736,10 +1072,109 @@ describe("batch-2025-11-g kindMask/mark-threshold/mark-declare", () => {
   it("'命中则回合结束X' → hit-window 显式延后", () => {
     expect(parseSoulmarkText("命中则在回合结束后吸取对手最大体力的1/4").unparsed[0]?.reason).toContain("hit-window");
   });
-  it("'若P则X'（P 未建模）→ 守卫掉落记 UNVERIFIED + 效果体仍解析", () => {
-    const r = parseSoulmarkText("若对手能力下降被解除，则回合结束时直接给对手造成150点固定伤害");
-    expect(r.entries[0]).toMatchObject({ hook: "onTurnEnd", ops: [{ op: "damage", kind: "fixed", power: 150, target: "opponent" }] });
-    expect(r.unparsed[0]?.reason).toContain("guard unmodeled");
+  it("未建模条件连同效果体和继承/else 尾句一起隔离，明确新触发后恢复解析", () => {
+    const r = parseSoulmarkText("若未知条件则回合结束时恢复自身100点体力，令对手麻痹，未触发则恢复自身50点体力；回合开始时恢复自身20点体力");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnStart", ops: [{ op: "heal", flat: 20, target: "self" }] }),
+    ]);
+    expect(r.unparsed).toEqual([
+      expect.objectContaining({
+        reason: "guard unmodeled — effect withheld (deferred)",
+        clause: expect.stringContaining("若未知条件则回合结束时恢复自身100点体力"),
+      }),
+      expect.objectContaining({ clause: expect.stringContaining("未触发则恢复自身50点体力") }),
+    ]);
+    expect(r.unparsed[0]?.clause).toContain("令对手麻痹");
+  });
+  it("已支持触发器内嵌的未建模条件不会把效果体当作无条件效果", () => {
+    const r = parseSoulmarkText("回合开始时若未知条件则恢复自身100点体力");
+    expect(r.entries).toEqual([]);
+    expect(r.unparsed).toEqual([
+      expect.objectContaining({
+        clause: expect.stringContaining("若未知条件则恢复自身100点体力"),
+        reason: "guard unmodeled — effect withheld (deferred)",
+      }),
+    ]);
+  });
+  it("逗号式未知条件隔离整段效果与后续继承，已知条件仍正常门控", () => {
+    const unknown = parseSoulmarkText("回合开始时，若未知条件，恢复自身100点体力");
+    expect(unknown.entries).toEqual([]);
+    expect(unknown.unparsed.some((u) => u.reason?.includes("guard unmodeled") && u.clause.includes("若未知条件"))).toBe(true);
+    expect(unknown.unparsed.some((u) => u.reason?.includes("guard unmodeled") && u.clause.includes("恢复自身100点体力"))).toBe(true);
+    expect(unknown.clausesParsed).toBe(0);
+    expect(unknown.fragmentsOnResidual).toBeGreaterThan(0);
+
+    const known = parseSoulmarkText("回合开始时，若自身满体力，恢复自身100点体力");
+    expect(known.unparsed).toEqual([]);
+    expect(known.entries).toMatchObject([
+      { hook: "onTurnStart", ops: [{ op: "heal", flat: 100, target: "self", if: { selfHpFull: true } }] },
+    ]);
+  });
+  it("未知条件及其 else 不得串接前一个有效宿主，显式新触发保留前后独立效果", () => {
+    const r = parseSoulmarkText("回合结束时恢复自身10点体力，若未知条件则恢复自身100点体力，未触发则令对手麻痹；回合开始时恢复自身20点体力");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 10, target: "self" }] }),
+      expect.objectContaining({ hook: "onTurnStart", ops: [{ op: "heal", flat: 20, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((u) => u.reason?.includes("guard unmodeled") && u.clause.includes("若未知条件"))).toBe(true);
+    expect(r.unparsed.some((u) => u.clause.includes("未触发则令对手麻痹"))).toBe(true);
+  });
+  it("quarantine 中的动态几率尾句不得回挂修改旧有效条目", () => {
+    const r = parseSoulmarkText("回合结束时恢复自身10点体力，若未知条件则恢复自身100点体力；概率等同自身当前体力百分比");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 10, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((fragment) => fragment.reason?.includes("guard unmodeled") && fragment.clause.includes("若未知条件"))).toBe(true);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("概率等同自身当前体力百分比"))).toBe(true);
+  });
+  it("quarantine 中的增长尾句不得在子句预处理阶段改写旧条目", () => {
+    const r = parseSoulmarkText("回合结束时恢复自身10点体力，若未知条件则恢复自身100点体力；每在场概率提升5%，最高100%");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 10, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((fragment) => fragment.reason?.includes("guard unmodeled") && fragment.clause.includes("若未知条件"))).toBe(true);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("每在场概率提升5%"))).toBe(true);
+  });
+  it("同一子句内 quarantine 后的动态几率不得回挂前一宿主", () => {
+    const r = parseSoulmarkText("回合结束时恢复自身10点体力，若未知条件则恢复自身100点体力，概率等同自身当前体力百分比");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 10, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((fragment) => fragment.reason?.includes("guard unmodeled") && fragment.clause.includes("若未知条件"))).toBe(true);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("概率等同自身当前体力百分比"))).toBe(true);
+  });
+  it("同一子句内 quarantine 后的成长尾不得在预处理阶段改写旧条目", () => {
+    const r = parseSoulmarkText("回合结束时恢复自身10点体力，若未知条件则恢复自身100点体力，每在场概率提升5%，最高100%");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnEnd", ops: [{ op: "heal", flat: 10, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((fragment) => fragment.reason?.includes("guard unmodeled") && fragment.clause.includes("若未知条件"))).toBe(true);
+    expect(r.unparsed.some((fragment) => fragment.clause.includes("每在场概率提升5%"))).toBe(true);
+  });
+  it("未知 guard 后的裸语句不得继承旧钩子，直到显式新触发重新建立关联", () => {
+    const r = parseSoulmarkText("若未知条件则回合结束时造成150点固定伤害；恢复自身100点体力；回合开始时自身攻击+1");
+    expect(r.entries).toEqual([
+      expect.objectContaining({ hook: "onTurnStart", ops: [{ op: "apply_stat_stage", stat: "atk", delta: 1, target: "self" }] }),
+    ]);
+    expect(r.unparsed.some((u) => u.reason?.includes("guard unmodeled") && u.clause.includes("造成150点固定伤害"))).toBe(true);
+    expect(r.unparsed.some((u) => u.reason?.includes("guard unmodeled") && u.clause.includes("恢复自身100点体力"))).toBe(true);
+  });
+  it("quarantine 跨子句延续时，真实残留仍计入子句分母和 residual 片段", () => {
+    const r = parseSoulmarkText("若未知条件则恢复自身100点体力；恢复自身50点体力");
+    expect(r.entries).toEqual([]);
+    expect(r.clauseTotal).toBe(2);
+    expect(r.clausesParsed).toBe(0);
+    expect(r.fragmentsOnResidual).toBe(2);
+    expect(r.fragmentsOutside).toBe(0);
+    expect(r.unparsed).toHaveLength(2);
+  });
+  it("可解析但使用默认时序的条件不能解除未知 guard 隔离", () => {
+    const r = parseSoulmarkText("若未知条件则恢复自身100点体力，若自身满体力则令对手麻痹");
+    expect(r.entries).toEqual([]);
+    expect(r.unparsed).toEqual([
+      expect.objectContaining({ clause: expect.stringContaining("若未知条件则恢复自身100点体力"), reason: "guard unmodeled — effect withheld (deferred)" }),
+      expect.objectContaining({ clause: expect.stringContaining("若自身满体力则令对手麻痹"), reason: "guard unmodeled — effect withheld (deferred)" }),
+    ]);
   });
   it("'若回合结束时P则X' → onTurnEnd + guard", () => {
     expect(first("若回合结束时自身满体力则恢复自身最大体力的1/4")).toMatchObject({ hook: "onTurnEnd", guard: { selfHpFull: true }, ops: [{ op: "heal", numerator: 1, denominator: 4 }] });
@@ -752,16 +1187,31 @@ describe("batch-2025-11-g kindMask/mark-threshold/mark-declare", () => {
   it("'对手造成的攻击伤害低于N则X' → foe 出伤守卫", () => {
     expect(first("对手造成的攻击伤害低于300则回合结束时吸取对手最大体力的1/3")).toMatchObject({ hook: "onTurnEnd", guard: { prevDamageBelowAbs: 300 } });
   });
-  it("'每次使用X技能都有N%令对手AIL' → onMoveUsed + chance 异常（非 per-use deferred）", () => {
-    expect(first("每次使用技能都有30%令对手麻痹")).toMatchObject({ hook: "onMoveUsed", guard: { actor: "self" }, ops: [{ op: "apply_status", name: "paralysis", chance: 30 }] });
-    expect(first("每次使用属性技能恢复200HP")).toMatchObject({ hook: "onMoveUsed", guard: { cat: 1 }, ops: [{ op: "heal", flat: 200 }] });
-    expect(first("每次使用攻击技能减少对手1/3当前体力")).toMatchObject({
-      hook: "onMoveUsed", guard: { cat: [2, 3] },
-      ops: [
-        { op: "damage", kind: "percent", power: 1, target: "opponent" },
-        { op: "formula", of: "percentBase", value: "current" },
-        { op: "formula", of: "frac", value: { numerator: 1, denominator: 3 } },
-      ],
+  it("'每次使用X技能都有N%令对手AIL' → react 保留概率、类别和载荷", () => {
+    expect(first("每次使用技能都有30%令对手麻痹")).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11 }, stack: true,
+        payload: [{ op: "apply_status", name: "paralysis", target: "opponent", chance: 30 }],
+      }],
+    });
+    expect(first("每次使用属性技能恢复200HP")).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11, cat: 1 }, stack: true,
+        payload: [{ op: "heal", flat: 200, target: "self" }],
+      }],
+    });
+    expect(first("每次使用攻击技能减少对手1/3当前体力")).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11, cat: 4 }, stack: true,
+        payload: [
+          { op: "damage", kind: "percent", power: 1, target: "opponent" },
+          { op: "formula", of: "percentBase", value: "current" },
+          { op: "formula", of: "frac", value: { numerator: 1, denominator: 3 } },
+        ],
+      }],
     });
   });
   it("'使自身回合结束后攻击+N' → onTurnEnd（中置回合词重挂钩）", () => {
@@ -819,10 +1269,13 @@ describe("next-apply window（下N次族）", () => {
     expect(e?.ops?.[0]).toMatchObject({ name: "dmg_reduce", params: { flat: 250, count: 1 } });
     expect(e?.ops?.[0]?.turns).toBeUndefined(); // count 即生命周期——不吃 injectTurns
   });
-  it("'下次攻击附加自身N/M最大体力固伤' → dmg_flat{count:1,selfMaxFracNum/Den}", () => {
-    const e = first("攻击25%造成2倍伤害，未触发则下次攻击附加自身1/3最大体力固伤") as { ops?: { name?: string; params?: Record<string, number> }[] }[] | undefined;
-    const flat = (Array.isArray(e) ? e : [e])?.[0]?.ops?.find((o) => o.name === "dmg_flat");
-    expect(flat).toMatchObject({ params: { count: 1, selfMaxFracNum: 1, selfMaxFracDen: 3 } });
+  it("未触发后跨到下次攻击的效果不能缩成同事件 fallback", () => {
+    const r = parseSoulmarkText("攻击25%造成2倍伤害，未触发则下次攻击附加自身1/3最大体力固伤");
+    expect(r.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "dmg_flat")).toBe(false);
+    expect(r.unparsed).toContainEqual(expect.objectContaining({
+      clause: expect.stringContaining("未触发则下次攻击附加自身1/3最大体力固伤"),
+      reason: expect.stringContaining("same-event fallback host"),
+    }));
   });
   it("'下次攻击伤害提升N%' → dmg_boost{count:1,pct}", () => {
     const e = first("若当回合未击败对手则下次攻击伤害提升50%") as { ops?: { name?: string; params?: Record<string, number>; turns?: number }[] } | undefined;
@@ -1079,9 +1532,16 @@ describe("FAQ/编号子句与裸值成长（Bug E）", () => {
   it("覆盖率只按子句：已产出 entry 的残留片段不算残余子句", () => {
     const mixed = parseSoulmarkText("若自身是雄性则回合结束时恢复自身100点体力");
     expect(mixed.clauseTotal).toBe(1);
-    expect(mixed.clausesParsed).toBe(1);
-    expect(mixed.fragmentsOnParsed).toBe(1);
-    expect(mixed.fragmentsOnResidual).toBe(0);
+    expect(mixed.entries).toEqual([]);
+    expect(mixed.clausesParsed).toBe(0);
+    expect(mixed.fragmentsOnParsed).toBe(0);
+    expect(mixed.fragmentsOnResidual).toBe(1);
+    expect(mixed.unparsed[0]?.reason).toContain("guard unmodeled");
+    const partial = parseSoulmarkText("回合结束时恢复自身10点体力，若自身是雄性则回合开始时恢复自身100点体力");
+    expect(partial.entries).toMatchObject([{ hook: "onTurnEnd", ops: [{ op: "heal", flat: 10, target: "self" }] }]);
+    expect(partial.clausesParsed).toBe(1);
+    expect(partial.fragmentsOnParsed).toBe(1);
+    expect(partial.fragmentsOnResidual).toBe(0);
     const failed = parseSoulmarkText("自身连续使用同一技能时造成的攻击伤害提升30%，每次触发增加30%，最高叠加至150%");
     expect(failed.clauseTotal).toBe(1);
     expect(failed.clausesParsed).toBe(0);
@@ -1105,7 +1565,13 @@ describe("FAQ/编号子句与裸值成长（Bug E）", () => {
     const c = parseSoulmarkText("回合结束时，若此时体力低于最大体力的1/2则恢复100点体力");
     expect(c.entries[0]?.guard).toEqual({ selfHpBelow: { numerator: 1, denominator: 2 } });
     const eq = parseSoulmarkText("本回合自身造成的攻击伤害为0则吸取对手最大体力1/3");
-    expect(eq.entries[0]?.ops?.[0]?.if ?? eq.entries[0]?.guard).toEqual({ not: { prevDamageAboveAbs: 0 } });
+    expect(eq.entries).toEqual([]);
+    expect(eq.unparsed).toEqual([
+      expect.objectContaining({
+        clause: expect.stringContaining("造成的攻击伤害为0"),
+        reason: "damage-result branch — hit outcome/amount cannot be represented by the current hook window (deferred)",
+      }),
+    ]);
     const le = parseSoulmarkText("若造成的伤害不超过300则自身防御+1");
     expect(le.entries[0]?.guard).toEqual({ prevDamageBelowAbs: 301 });
     const du = parseSoulmarkText("若对手同时处于害怕和冰封则自身攻击+1");
@@ -1154,14 +1620,23 @@ describe("FAQ/编号子句与裸值成长（Bug E）", () => {
   });
 
   // ── SM-52：守卫谓词批 + pendingEmpty opIf 结转 + 裸闪避/令自身AIL/最高先制 ──
-  it("奇偶回合前缀经 pendingEmpty 结转 op.if（'奇数回合，使用属性技能则X' 不再静默丢守卫）", () => {
+  it("奇偶回合延迟效果保留原 IR 并说明未迁移原因", () => {
     const r = parseSoulmarkText("奇数回合，使用属性技能则50%使自身下回合攻击威力翻倍;偶数回合，使用攻击技能则50%使自身下回合闪避受到的攻击");
     expect(r.entries[0]).toMatchObject({ hook: "onMoveUsed", guard: { cat: 1 }, chance: { base: 50 } });
     expect(r.entries[0]?.ops?.[0]?.if).toEqual({ turnParity: "odd" });
     const dodge = r.entries[1]?.ops?.[0];
     expect(dodge).toMatchObject({ name: "dodge", params: { pct: 100 } });
     expect(dodge?.if).toEqual({ turnParity: "even" });
-    expect(r.unparsed).toEqual([]);
+    expect(r.unparsed).toEqual([
+      {
+        clause: "使用属性技能则50%使自身下回合攻击威力翻倍",
+        reason: "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)",
+      },
+      {
+        clause: "使用攻击技能则50%使自身下回合闪避受到的攻击",
+        reason: "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)",
+      },
+    ]);
   });
   it("体力跨侧比较/快照补形 → foeHpAboveSelf / not:foeHpBelowTurnStart / not:hpAboveTurnStart", () => {
     expect(parseSoulmarkText("若对手的体力值高于自身则自身攻击伤害提升50%").entries[0]?.guard).toEqual({ foeHpAboveSelf: true });
@@ -1221,5 +1696,79 @@ describe("FAQ/编号子句与裸值成长（Bug E）", () => {
     const r = parseSoulmarkText("战斗阶段结束消除对手回合类效果");
     expect(r.entries[0]).toMatchObject({ hook: "onTurnEnd" });
     expect(r.entries[0]?.ops?.[0]).toMatchObject({ op: "cleanse", scope: "timed", target: "opponent" });
+  });
+  it("纯使用吸取并成长 → react 载荷按实际扣量回血，无 MISS residual", () => {
+    const pct = parseSoulmarkText("使用攻击技能时吸取对手最大体力的20%，每次使用额外增加5%，最高30%");
+    expect(pct.entries).toEqual([{
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 4 }, stack: true,
+        payload: [
+          { op: "grow", of: "magnitude", step: 5, magCap: 30 },
+          {
+            op: "hp_delta",
+            target: "opponent",
+            frac: { numerator: 20, denominator: 100, of: "max" },
+            kind: "percent",
+            cause: "soulmark:absorb",
+            healSelf: { numerator: 1, denominator: 1, of: "dealt" },
+          },
+        ],
+      }],
+    }]);
+    expect(pct.unparsed).toEqual([]);
+
+    const frac = parseSoulmarkText("使用攻击技能时吸取对手最大体力的1/4，每次使用额外增加5%，最高30%");
+    expect(frac.entries).toEqual([{
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 4 }, stack: true,
+        payload: [
+          { op: "grow", of: "magnitude", step: 5, magCap: 30 },
+          {
+            op: "hp_delta",
+            target: "opponent",
+            frac: { numerator: 1, denominator: 4, of: "max" },
+            kind: "percent",
+            cause: "soulmark:absorb",
+            healSelf: { numerator: 1, denominator: 1, of: "dealt" },
+          },
+        ],
+      }],
+    }]);
+    expect(frac.unparsed).toEqual([]);
+
+    const hit = parseSoulmarkText("自身攻击技能命中后吸取对手最大体力的20%，每次使用额外增加5%，最高30%");
+    expect(hit.entries).toEqual([{
+      hook: "onMoveUsed",
+      guard: { actor: "self", cat: [2, 3] },
+      ops: [
+        { op: "grow", of: "magnitude", step: 5, magCap: 30 },
+        {
+          op: "hp_delta",
+          target: "opponent",
+          frac: { numerator: 20, denominator: 100, of: "max" },
+          kind: "percent",
+          cause: "soulmark:absorb",
+          healSelf: { numerator: 1, denominator: 1, of: "dealt" },
+        },
+      ],
+    }]);
+    expect(hit.unparsed).toEqual([]);
+  });
+  it("命中回调里的本击增伤/吸血不能安装成后续窗口", () => {
+    for (const text of [
+      "自身攻击技能命中后造成的伤害提升50%",
+      "自身攻击技能命中后造成伤害的50%恢复自身体力",
+    ]) {
+      const r = parseSoulmarkText(text);
+      expect(r.entries, text).toEqual([]);
+      expect(r.unparsed, text).toMatchObject([{ clause: text, reason: expect.stringContaining("post-hit modifier") }]);
+    }
+    const observableEffect = parseSoulmarkText("自身攻击技能命中后50%令对手害怕");
+    expect(observableEffect.entries[0]).toMatchObject({ hook: "onMoveUsed", guard: { cat: [2, 3] } });
+    expect(observableEffect.unparsed).toEqual([]);
   });
 });

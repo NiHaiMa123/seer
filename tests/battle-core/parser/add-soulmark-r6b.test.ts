@@ -175,10 +175,12 @@ describe("r6b-没放宽的（边界锁）", () => {
 
   it("原本就解得出的旧句 IR 逐字不变（剥除不抢）", () => {
     expect(entries("自身属性技能命中后附加100点固定伤害")).toEqual([
-      { hook: "onBattleStart", ops: [{ op: "apply_status", name: "dmg_flat", target: "self", params: { flat: 100 } }] },
+      { hook: "onMoveUsed", guard: { actor: "self", cat: 1 }, ops: [{ op: "damage", kind: "fixed", power: 100, target: "opponent" }] },
     ]);
-    expect(entries("自身攻击技能命中后造成的伤害提升50%")).toEqual([
-      { hook: "onDamageDealt", ops: [{ op: "apply_status", name: "dmg_boost", target: "self", params: { pct: 50 } }] },
+    const postHitBoost = parseSoulmarkText("自身攻击技能命中后造成的伤害提升50%");
+    expect(postHitBoost.entries).toEqual([]);
+    expect(postHitBoost.unparsed.map((u) => u.reason)).toEqual([
+      "post-hit modifier — current damage/heal has already resolved before this hook (deferred)",
     ]);
     expect(entries("自身保留1点体力")).toEqual([{ op: "endure" }]);
     expect(entries("自身受到攻击伤害降低50%")).toEqual([

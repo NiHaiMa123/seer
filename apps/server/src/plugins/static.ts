@@ -2,7 +2,7 @@
  * plugins/static.ts —— 静态托管插件：客户端 bundle/index.html。
  * 注册 catch-all（"*"）；headless profile 不装它即无 Web 端点。
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { PluginManifest } from "@seer/contracts";
 import type { PluginSpec, SeerPluginContext } from "@seer/plugin-runtime";
@@ -47,7 +47,7 @@ export function staticPlugin(clientRoot: string): PluginSpec {
         }
         const file = r.path === "/" ? "index.html" : r.path.slice(1);
         const full = join(clientRoot, file);
-        if (existsSync(full) && !file.includes("..")) {
+        if (!file.includes("..") && existsSync(full) && statSync(full).isFile()) {
           const ext = `.${file.split(".").pop()}`;
           r.res.writeHead(200, { "content-type": MIME[ext] ?? "application/octet-stream" });
           r.res.end(readFileSync(full));

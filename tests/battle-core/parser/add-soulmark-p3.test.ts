@@ -64,7 +64,7 @@ describe("p3-3 所有技能命中时X → 同挂点（命中时/命中后同义�
   });
 
   it("邻句不变：'自身攻击技能命中时X' 仍走 onMoveUsed（未被新条吞掉）", () => {
-    expect(first("自身攻击技能命中时吸取对手100点体力")).toMatchObject({ hook: "onDamageDealt", ops: [{ op: "damage", kind: "fixed", power: 100 }, { op: "heal", flat: 100, target: "self" }] });
+    expect(first("自身攻击技能命中时吸取对手100点体力")).toMatchObject({ hook: "onMoveUsed", guard: { actor: "self", cat: [2, 3] }, ops: [{ op: "damage", kind: "fixed", power: 100 }, { op: "heal", flat: 100, target: "self" }] });
   });
 });
 

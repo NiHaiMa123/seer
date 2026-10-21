@@ -1,6 +1,7 @@
 /**
  * PersistedBattleHost —— BattleHost + BattleStore 事务化。
- * 写序纪律：
+ * 一次公开写操作由外层事务包住 receipt、resolution 和公开流；失败同时回退内存。
+ * 内部写序：
  *   submit     → tx1{receipt+input事件+state(inbox)+meta} → 若收齐则 resolve →
  *                tx2{state+新增事件+公开流+resolvedInput+stateHash}
  *   expire     → 同上（timeout receipt 一并入 tx）
@@ -35,13 +36,15 @@ export class PersistedBattleHost {
     const host = new BattleHost(cfg);
     const w = new PersistedBattleHost(host, store);
     const b = host.state.battle;
-    store.createBattle(
-      cfg.battleId,
-      canonicalJson(w.initSnapshot(cfg)),
-      canonicalJson(b),
-      { seqCounter: host.state.seqCounter, publicSeq: host.state.publicSeq },
-    );
-    w.commitOpenDecision();
+    w.atomic(() => {
+      store.createBattle(
+        cfg.battleId,
+        canonicalJson(w.initSnapshot(cfg)),
+        canonicalJson(b),
+        { seqCounter: host.state.seqCounter, publicSeq: host.state.publicSeq },
+      );
+      w.commitOpenDecision();
+    });
     return w;
   }
 
@@ -133,52 +136,71 @@ export class PersistedBattleHost {
   }
 
   submit(playerId: string, cmd: Omit<Command, "schemaVersion">): SubmitResult {
-    const beforeInternal = this.lastCommittedInternalSeq;
-    const r = this.host.submit(playerId, cmd);
-    if (!r.ok) return r;
-    // duplicate-replay：服务端已有同 key 记录——不重插 receipt，也不写新事件
-    if (r.receipt.status === "duplicate-replay") return r;
+    return this.atomic(() => {
+      const beforeInternal = this.lastCommittedInternalSeq;
+      const r = this.host.submit(playerId, cmd);
+      if (!r.ok) return r;
+      // duplicate-replay：服务端已有同 key 记录——不重插 receipt，也不写新事件
+      if (r.receipt.status === "duplicate-replay") return r;
 
-    // tx1: receipt + input-received 事件 + inbox 态
-    const newInternal = this.host.state.internalEvents.filter((e) => e.seq > beforeInternal);
-    this.store.recordReceiptTx(
-      this.host.state.battle.battleId,
-      this.lastReceipt(cmd.idempotencyKey)!,
-      canonicalJson(this.host.state.battle),
-      newInternal,
-      { seqCounter: this.host.state.seqCounter, publicSeq: this.host.state.publicSeq },
-    );
-    this.lastCommittedInternalSeq = this.host.state.battle.eventSeq;
-    this.commitResolutionIfNeeded();
-    return r;
+      // 受理阶段：receipt + input-received 事件 + inbox 态（仍在同一外层事务内）
+      const newInternal = this.host.state.internalEvents.filter((e) => e.seq > beforeInternal);
+      this.store.recordReceiptTx(
+        this.host.state.battle.battleId,
+        this.lastReceipt(cmd.idempotencyKey)!,
+        canonicalJson(this.host.state.battle),
+        newInternal,
+        { seqCounter: this.host.state.seqCounter, publicSeq: this.host.state.publicSeq },
+      );
+      this.lastCommittedInternalSeq = this.host.state.battle.eventSeq;
+      this.commitResolutionIfNeeded();
+      return r;
+    });
   }
 
   expireDecision(): void {
-    const beforeInternal = this.lastCommittedInternalSeq;
-    this.host.expireDecision();
-    const b = this.host.state.battle;
-    const newInternal = this.host.state.internalEvents.filter((e) => e.seq > beforeInternal);
-    const timeoutReceipts = [...this.host.state.receipts.values()].filter(
-      (rec) => rec.origin === "timeout_default" && rec.acceptedSeq > beforeInternal,
-    );
-    this.store.recordTimeoutTx(
-      b.battleId,
-      timeoutReceipts,
-      canonicalJson(b),
-      newInternal,
-      { seqCounter: this.host.state.seqCounter, publicSeq: this.host.state.publicSeq },
-    );
-    this.lastCommittedInternalSeq = b.eventSeq;
-    this.commitResolutionIfNeeded();
+    return this.atomic(() => {
+      const beforeInternal = this.lastCommittedInternalSeq;
+      this.host.expireDecision();
+      const b = this.host.state.battle;
+      const newInternal = this.host.state.internalEvents.filter((e) => e.seq > beforeInternal);
+      const timeoutReceipts = [...this.host.state.receipts.values()].filter(
+        (rec) => rec.origin === "timeout_default" && rec.acceptedSeq > beforeInternal,
+      );
+      this.store.recordTimeoutTx(
+        b.battleId,
+        timeoutReceipts,
+        canonicalJson(b),
+        newInternal,
+        { seqCounter: this.host.state.seqCounter, publicSeq: this.host.state.publicSeq },
+      );
+      this.lastCommittedInternalSeq = b.eventSeq;
+      this.commitResolutionIfNeeded();
+    });
   }
 
   ack(playerId: string, seq: number): number {
-    const v = this.host.ack(playerId, seq);
-    this.store.commitMeta(this.host.state.battle.battleId, { seqCounter: this.host.state.seqCounter, publicSeq: this.host.state.publicSeq }, canonicalJson(this.host.state.battle));
-    return v;
+    return this.atomic(() => {
+      const v = this.host.ack(playerId, seq);
+      this.store.commitMeta(this.host.state.battle.battleId, { seqCounter: this.host.state.seqCounter, publicSeq: this.host.state.publicSeq }, canonicalJson(this.host.state.battle));
+      return v;
+    });
   }
 
   // ---------- 内部 ----------
+
+  /** 落盘失败时，内存快照和增量游标一起回退，允许原请求安全重试。 */
+  private atomic<T>(operation: () => T): T {
+    const before = structuredClone(this.host.state);
+    const cursors = [this.lastCommittedInternalSeq, this.lastCommittedPublicSeq, this.lastCommittedResolved] as const;
+    try {
+      return this.store.transaction(operation);
+    } catch (error) {
+      Object.assign(this.host.state, before);
+      [this.lastCommittedInternalSeq, this.lastCommittedPublicSeq, this.lastCommittedResolved] = cursors;
+      throw error;
+    }
+  }
 
   private lastReceipt(key: string): SubmissionRecord | undefined {
     return this.host.state.receipts.get(key);
@@ -186,8 +208,10 @@ export class PersistedBattleHost {
 
   /** 供恢复路径调用：未决完整 inbox → resolve + commit。 */
   private resolveAndCommit(): void {
-    this.host.resolveNow();
-    this.commitResolutionIfNeeded();
+    return this.atomic(() => {
+      this.host.resolveNow();
+      this.commitResolutionIfNeeded();
+    });
   }
 
   private commitResolutionIfNeeded(): void {

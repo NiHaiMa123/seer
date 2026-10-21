@@ -9,7 +9,9 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-import { applyTurn, compilePack, deriveStats, initBattle, loadPackFromDir, type CoreEvent, type CoreState } from "@seer/battle-core";
+import { applyTurn, compilePack, initBattle, loadPackFromDir, type CoreEvent, type CoreState } from "@seer/battle-core";
+
+import { deriveStats } from "../../../packages/battle-core/src/mechanics/sixstat/index.ts";
 
 const CONTENT = join(fileURLToPath(new URL("../..", import.meta.url)), "..", "content");
 const PACK = loadPackFromDir(CONTENT, "synthetic-v2");

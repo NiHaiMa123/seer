@@ -1,0 +1,5660 @@
+{
+  "summary": {
+    "matches": 64,
+    "ids": 50,
+    "duplicateSaved": 1,
+    "multipleGuards": 54
+  },
+  "rows": [
+    {
+      "id": "pet-4740",
+      "name": "幽阑·执冥",
+      "unitMark": "sm-4740",
+      "clause": "若对手未因上述任一效果受到百分比伤害则消除对手回合类效果",
+      "body": "消除对手回合类效果",
+      "ops": [
+        {
+          "op": "cleanse",
+          "target": "opponent",
+          "scope": "timed"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "cleanse",
+              "target": "opponent",
+              "scope": "timed"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4761",
+      "name": "琉梦",
+      "unitMark": "sm-4761",
+      "clause": "若直到战斗阶段结束时未免疫异常状态则恢复最大体力的1/3",
+      "body": "恢复最大体力的1/3",
+      "ops": [
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onEntry",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4863",
+      "name": "艾莉安娜",
+      "unitMark": "sm-4863",
+      "clause": "若本回合对手使用了攻击技能则下回合攻击技能先制+1",
+      "body": "下回合攻击技能先制+1",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1,
+            "cat": 4
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1,
+                "cat": 4
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4894",
+      "name": "安瑟伦",
+      "unitMark": "sm-4894",
+      "clause": "若该类型与上次记录不同则100%令对手害怕3回合",
+      "body": "100%令对手害怕3回合",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "fear",
+          "target": "opponent",
+          "turns": 3,
+          "chance": 100
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "fear",
+              "target": "opponent",
+              "turns": 3,
+              "chance": 100
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4906",
+      "name": "阿西列维",
+      "unitMark": "sm-4906",
+      "clause": "若不同则技能命中时消除对手能力提升状态",
+      "body": "技能命中时消除对手能力提升状态",
+      "ops": [
+        {
+          "op": "clear_stages",
+          "target": "opponent",
+          "sign": "up",
+          "if": {
+            "prevDamageAboveAbs": 0
+          }
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up",
+              "if": {
+                "prevDamageAboveAbs": 0
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4908",
+      "name": "蕊沃尔",
+      "unitMark": "sm-4908",
+      "clause": "若等于对手则下回合所有技能先制+1",
+      "body": "下回合所有技能先制+1",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-2680",
+      "name": "玄元风神",
+      "unitMark": "sm-2680",
+      "clause": "若对手能力下降被解除，则回合结束时直接给对手造成150点固定伤害",
+      "body": "回合结束时直接给对手造成150点固定伤害",
+      "ops": [
+        {
+          "op": "damage",
+          "kind": "fixed",
+          "power": 150,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 150,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3587",
+      "name": "红桃皇后",
+      "unitMark": "sm-3587",
+      "clause": "若对手不处于处于能力下降状态则附加对手最大体力1/3的固定伤害",
+      "body": "附加对手最大体力1/3的固定伤害",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 1,
+          "kind": "percent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 3
+          }
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3760",
+      "name": "苏利文",
+      "unitMark": "sm-3760",
+      "clause": "若该工具伤害高于自身最大体力的1/2则开启虚空之缝：使对手下1回合攻击技能无效",
+      "body": "开启虚空之缝：使对手下1回合攻击技能无效",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "move_null",
+          "target": "opponent",
+          "params": {
+            "cat": 4
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "move_null",
+              "target": "opponent",
+              "params": {
+                "cat": 4
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3760",
+      "name": "苏利文",
+      "unitMark": "sm-3760",
+      "clause": "若该工具伤害低于自身最大体力1/2则开启虚空之隙：使对手下1回合属性技能无效",
+      "body": "开启虚空之隙：使对手下1回合属性技能无效",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "status_lock",
+          "target": "opponent",
+          "params": {
+            "cat": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "status_lock",
+              "target": "opponent",
+              "params": {
+                "cat": 1
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3848",
+      "name": "时空幻零",
+      "unitMark": "sm-3848",
+      "clause": "若对手当前未处于回合类效果则令对手随机1个技能PP值归零",
+      "body": "令对手随机1个技能PP值归零",
+      "ops": [
+        {
+          "op": "pp_delta",
+          "zeroRandom": 1,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "pp_delta",
+              "zeroRandom": 1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3917",
+      "name": "逝灵尘",
+      "unitMark": "sm-3917",
+      "clause": "若n小于300点则回合结束时令对手全属性-1",
+      "body": "回合结束时令对手全属性-1",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "atk",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spa",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
+          "delta": -1,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3928",
+      "name": "双琬",
+      "unitMark": "sm-3928",
+      "clause": "若当回合受到的攻击伤害低于自身最大体力的25%则触发双生之魂：恢复所有体力且令对手受到自身最大体力25%的固定伤害",
+      "body": "触发双生之魂：恢复所有体力且令对手受到自身最大体力25%的固定伤害",
+      "ops": [
+        {
+          "op": "apply_mark",
+          "mark": "双生之魂",
+          "count": 1,
+          "target": "opponent"
+        },
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 1,
+          "target": "self"
+        },
+        {
+          "op": "damage",
+          "kind": "fixed",
+          "power": 0
+        },
+        {
+          "op": "flat",
+          "of": "flatSelfPct",
+          "value": 25
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_mark",
+              "mark": "双生之魂",
+              "count": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 1,
+              "target": "self"
+            },
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 0
+            },
+            {
+              "op": "flat",
+              "of": "flatSelfPct",
+              "value": 25
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3941",
+      "name": "混沌暗王霍德尔",
+      "unitMark": "sm-3941",
+      "clause": "若对手被自身击败则下只精灵登场后随机2个技能PP归零",
+      "body": "下只精灵登场后随机2个技能PP归零",
+      "ops": [
+        {
+          "op": "pp_delta",
+          "zeroRandom": 2,
+          "target": "nextAlly"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "pp_delta",
+              "zeroRandom": 2,
+              "target": "nextAlly"
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3959",
+      "name": "飒雷喵佐",
+      "unitMark": "sm-3959",
+      "clause": "若对手使用的技能为攻击技能则对手下回合使用属性技能无效",
+      "body": "对手下回合使用属性技能无效",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "status_lock",
+          "target": "opponent",
+          "params": {
+            "cat": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "status_lock",
+              "target": "opponent",
+              "params": {
+                "cat": 1
+              },
+              "turns": 1
+            }
+          ],
+          "chance": {
+            "once": true
+          }
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-3959",
+      "name": "飒雷喵佐",
+      "unitMark": "sm-3959",
+      "clause": "若对手使用的技能为属性技能则对手下回合使用攻击技能无效",
+      "body": "对手下回合使用攻击技能无效",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "move_null",
+          "target": "opponent",
+          "params": {
+            "cat": 4
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "move_null",
+              "target": "opponent",
+              "params": {
+                "cat": 4
+              },
+              "turns": 1
+            }
+          ],
+          "chance": {
+            "once": true
+          }
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4034",
+      "name": "森莎",
+      "unitMark": "sm-4034",
+      "clause": "若当回后出手则恢复自身最大体力1/3",
+      "body": "恢复自身最大体力1/3",
+      "ops": [
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "not": {
+              "orderStreakAtLeast": {
+                "order": "last",
+                "n": 2
+              }
+            }
+          }
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4227",
+      "name": "桑谷",
+      "unitMark": "sm-4227",
+      "clause": "若触发致命一击的几率则使自身攻击+1、命中+1",
+      "body": "使自身攻击+1、命中+1",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "atk",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "acc",
+          "delta": 1,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "acc",
+              "delta": 1,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4300",
+      "name": "宛白",
+      "unitMark": "sm-4300",
+      "clause": "若前述附加的固定伤害低于300点则下回合自身所有技能先制+1",
+      "body": "下回合自身所有技能先制+1",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4326",
+      "name": "辛辛子",
+      "unitMark": "sm-4326",
+      "clause": "若自身当前体力值为偶数则当回合自身攻击必定打出致命一击",
+      "body": "当回合自身攻击必定打出致命一击",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "crit_always",
+          "target": "self",
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_always",
+              "target": "self",
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4326",
+      "name": "辛辛子",
+      "unitMark": "sm-4326",
+      "clause": "若自身当前体力值为奇数则令自身防御+1、特防+1",
+      "body": "令自身防御+1、特防+1",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": 1,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": 1,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4355",
+      "name": "终末大天使",
+      "unitMark": "sm-4355",
+      "clause": "若对手免疫能力下降则消除对手能力提升状态",
+      "body": "消除对手能力提升状态",
+      "ops": [
+        {
+          "op": "clear_stages",
+          "target": "opponent",
+          "sign": "up"
+        }
+      ],
+      "savedIndices": [
+        3
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up"
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4358",
+      "name": "杰特洛",
+      "unitMark": "sm-4358",
+      "clause": "若自身当前体力值与速度值之和低于对手则令对手速度、命中-1",
+      "body": "令对手速度、命中-1",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "acc",
+          "delta": -1,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "acc",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4358",
+      "name": "杰特洛",
+      "unitMark": "sm-4358",
+      "clause": "若自身攻击值与特攻值之和低于对手则令对手攻击、特攻-1",
+      "body": "令对手攻击、特攻-1",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "atk",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spa",
+          "delta": -1,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4358",
+      "name": "杰特洛",
+      "unitMark": "sm-4358",
+      "clause": "若自身防御值与特防值之和低于对手则令对手防御、特防-1",
+      "body": "令对手防御、特防-1",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": -1,
+          "target": "opponent"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": -1,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": -1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": -1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4365",
+      "name": "环·格",
+      "unitMark": "sm-4365",
+      "clause": "若自身当前体力值与对手最大体力值之差小于400则当回合自身受到的攻击伤害降低50%",
+      "body": "当回合自身受到的攻击伤害降低50%",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_taken_down",
+          "target": "self",
+          "params": {
+            "pct": 50
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4367",
+      "name": "本原·泰勒斯",
+      "unitMark": "sm-4367",
+      "clause": "若上回合对手未使用技能则当回合自身造成的伤害提升100%",
+      "body": "当回合自身造成的伤害提升100%",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_boost",
+          "target": "self",
+          "params": {
+            "pct": 100
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        0,
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onMoveUsed",
+          "guard": {
+            "actor": "self",
+            "if": {
+              "not": {
+                "foeFainted": true
+              }
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4386",
+      "name": "缔笙",
+      "unitMark": "sm-4386",
+      "clause": "若对手当前体力不高于回合开始时则下回合自身所有技能先制+1，若对手",
+      "body": "下回合自身所有技能先制+1，若对手",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": [
+        {
+          "clause": "若对手",
+          "reason": "truncated fragment — referent lost (UNVERIFIED)"
+        }
+      ]
+    },
+    {
+      "id": "pet-4390",
+      "name": "玖莉娜",
+      "unitMark": "sm-4390",
+      "clause": "若自身仍受到攻击伤害则令对手下回合受到的固定伤害和百分比伤害提升30%",
+      "body": "令对手下回合受到的固定伤害和百分比伤害提升30%",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_taken_up",
+          "target": "opponent",
+          "params": {
+            "pct": 30,
+            "kindMask": 3
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_up",
+              "target": "opponent",
+              "params": {
+                "pct": 30,
+                "kindMask": 3
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4390",
+      "name": "玖莉娜",
+      "unitMark": "sm-4390",
+      "clause": "若自身上回合未受到攻击伤害则吸取对手300点体力",
+      "body": "吸取对手300点体力",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 300,
+          "kind": "fixed"
+        },
+        {
+          "op": "heal",
+          "flat": 300,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 300,
+              "kind": "fixed"
+            },
+            {
+              "op": "heal",
+              "flat": 300,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4400",
+      "name": "圣律剑灵",
+      "unitMark": "sm-4400",
+      "clause": "若对手不存在处决印记则为对手下只出战精灵附加1层处决印记，（）",
+      "body": "为对手下只出战精灵附加1层处决印记，（）",
+      "ops": [
+        {
+          "op": "apply_mark",
+          "mark": "处决印记",
+          "count": 1,
+          "target": "nextFoe"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_mark",
+              "mark": "处决印记",
+              "count": 1,
+              "target": "nextFoe"
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4414",
+      "name": "瓦普特",
+      "unitMark": "sm-4414",
+      "clause": "若自身能力等级与回合开始时不同，则恢复自身最大体力的1/3和所有技能1点PP值",
+      "body": "恢复自身最大体力的1/3和所有技能1点PP值",
+      "ops": [
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        },
+        {
+          "op": "pp_delta",
+          "amount": 1,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            },
+            {
+              "op": "pp_delta",
+              "amount": 1,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4417",
+      "name": "疾翼先锋",
+      "unitMark": "sm-4417",
+      "clause": "若任意一方未进入流血状态则2回合内对手使用的技能先制效果失效",
+      "body": "2回合内对手使用的技能先制效果失效",
+      "ops": [
+        {
+          "op": "cleanse",
+          "scope": "timed",
+          "effect": [
+            "prio_up",
+            "prio_count"
+          ],
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "cleanse",
+              "scope": "timed",
+              "effect": [
+                "prio_up",
+                "prio_count"
+              ],
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4426",
+      "name": "异能元素·奥薇纳",
+      "unitMark": "sm-4426",
+      "clause": "若自身处于异常状态且数量小于等于2，则恢复自身已损失体力的50%",
+      "body": "恢复自身已损失体力的50%",
+      "ops": [
+        {
+          "op": "heal",
+          "numerator": 50,
+          "denominator": 100,
+          "missing": true,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 50,
+              "denominator": 100,
+              "missing": true,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4435",
+      "name": "蛮龙之戟·赫比德",
+      "unitMark": "sm-4435",
+      "clause": "若连续次数大于等于n次则额外消耗对手全部体力(n=自身携带技能中PP值上限最高技能的PP值上限)",
+      "body": "额外消耗对手全部体力(n=自身携带技能中PP值上限最高技能的PP值上限)",
+      "ops": [
+        {
+          "op": "damage",
+          "kind": "percent",
+          "power": 1,
+          "target": "opponent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 1
+          }
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "percent",
+              "power": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4442",
+      "name": "眠降·玛缇娜",
+      "unitMark": "sm-4442",
+      "clause": "若使用后造成的伤害高于400则重置自身连击次数并附加造成伤害100%的百分比伤害",
+      "body": "重置自身连击次数并附加造成伤害100%的百分比伤害",
+      "ops": [
+        {
+          "op": "damage",
+          "kind": "percent"
+        },
+        {
+          "op": "power",
+          "of": "resetStacks",
+          "value": true
+        },
+        {
+          "op": "flat",
+          "of": "lastDmgFrac",
+          "value": {
+            "numerator": 100,
+            "denominator": 100
+          }
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "percent"
+            },
+            {
+              "op": "power",
+              "of": "resetStacks",
+              "value": true
+            },
+            {
+              "op": "flat",
+              "of": "lastDmgFrac",
+              "value": {
+                "numerator": 100,
+                "denominator": 100
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4450",
+      "name": "逐界苍星",
+      "unitMark": "sm-4450",
+      "clause": "若对手不存在技能被解析则解析该技能并为自身附加1层未来奇点，被解析的技能无法选择直到逐界苍星下场",
+      "body": "解析该技能并为自身附加1层未来奇点，被解析的技能无法选择直到逐界苍星下场",
+      "ops": [
+        {
+          "op": "apply_mark",
+          "mark": "未来奇点",
+          "count": 1,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_mark",
+              "mark": "未来奇点",
+              "count": 1,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": [
+        {
+          "clause": "解析该技能",
+          "reason": "no-rule"
+        },
+        {
+          "clause": "被解析的技能无法选择直到逐界苍星下场",
+          "reason": "no-rule"
+        }
+      ]
+    },
+    {
+      "id": "pet-4450",
+      "name": "逐界苍星",
+      "unitMark": "sm-4450",
+      "clause": "若自身速度值高于对手则当回合自身所有技能先制+1",
+      "body": "当回合自身所有技能先制+1",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4461",
+      "name": "追光·兰可",
+      "unitMark": "sm-4461",
+      "clause": "若自身体力不等于回合开始时则下回合攻击技能先制+1",
+      "body": "下回合攻击技能先制+1",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1,
+            "cat": 4
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        3
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1,
+                "cat": 4
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4489",
+      "name": "普鲁修托",
+      "unitMark": "sm-4489",
+      "clause": "若对手属性微弱自身则为对手附加持续3回合的失能Ⅰ(若对手已持有失能Ⅰ则将回合数刷新至3回合)",
+      "body": "为对手附加持续3回合的失能Ⅰ(若对手已持有失能Ⅰ则将回合数刷新至3回合)",
+      "ops": [
+        {
+          "op": "apply_mark",
+          "mark": "失能Ⅰ",
+          "count": 1,
+          "target": "opponent",
+          "turns": 3
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onEntry",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_mark",
+              "mark": "失能Ⅰ",
+              "count": 1,
+              "target": "opponent",
+              "turns": 3
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4489",
+      "name": "普鲁修托",
+      "unitMark": "sm-4489",
+      "clause": "若当回合结束后对手持有的失能Ⅰ消失则下回合自身造成的固定伤害、百分比伤害提升100%，()，回能Ⅰ：持有精灵使用技能后恢复所有技能1点PP值",
+      "body": "下回合自身造成的固定伤害、百分比伤害提升100%，()，回能Ⅰ：持有精灵使用技能后恢复所有技能1点PP值",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_boost",
+          "target": "self",
+          "params": {
+            "pct": 100,
+            "kindMask": 3
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        7
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100,
+                "kindMask": 3
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": [
+        {
+          "clause": "回能Ⅰ：持有精灵使用技能恢复所有技能1点PP值",
+          "reason": "no-rule"
+        }
+      ]
+    },
+    {
+      "id": "pet-4497",
+      "name": "长蛇·海德拉",
+      "unitMark": "sm-4497",
+      "clause": "若本次攻击打出致命一击则免疫下1次对手攻击技能造成的伤害",
+      "body": "免疫下1次对手攻击技能造成的伤害",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_immune",
+          "target": "self",
+          "params": {
+            "count": 1
+          }
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_immune",
+              "target": "self",
+              "params": {
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4499",
+      "name": "德布比特",
+      "unitMark": "sm-4499",
+      "clause": "若当回合结束后自身持有的回体Ⅰ消失则消除对手回合类效果",
+      "body": "消除对手回合类效果",
+      "ops": [
+        {
+          "op": "cleanse",
+          "target": "opponent",
+          "scope": "timed"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "cleanse",
+              "target": "opponent",
+              "scope": "timed"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4499",
+      "name": "德布比特",
+      "unitMark": "sm-4499",
+      "clause": "若当回合结束后对手持有的失体Ⅰ消失则消除对手能力提升状态",
+      "body": "消除对手能力提升状态",
+      "ops": [
+        {
+          "op": "clear_stages",
+          "target": "opponent",
+          "sign": "up"
+        }
+      ],
+      "savedIndices": [
+        5
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4532",
+      "name": "堕息·迹",
+      "unitMark": "sm-4532",
+      "clause": "若对手已持有痕则免疫下1次受到的攻击，痕：持有精灵无法使用威力为0的攻击技能，触发无法使用后消失",
+      "body": "免疫下1次受到的攻击，痕：持有精灵无法使用威力为0的攻击技能，触发无法使用后消失",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_immune",
+          "target": "self",
+          "params": {
+            "count": 1
+          }
+        }
+      ],
+      "savedIndices": [
+        3
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_immune",
+              "target": "self",
+              "params": {
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": [
+        {
+          "clause": "痕：持有精灵无法使用威力为0的攻击技能",
+          "reason": "named-prefixed payload unparsed: 持有精灵无法使用威力为0的攻击技能"
+        },
+        {
+          "clause": "触发无法使用后消失",
+          "reason": "no-rule"
+        }
+      ]
+    },
+    {
+      "id": "pet-4561",
+      "name": "霆律",
+      "unitMark": "sm-4561",
+      "clause": "若没有则本回合攻击后吸取对手最大体力的1/3",
+      "body": "本回合攻击后吸取对手最大体力的1/3",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 1,
+          "kind": "percent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 3
+          }
+        },
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4568",
+      "name": "幽魅之影·杰格",
+      "unitMark": "sm-4568",
+      "clause": "若不处于则解除自身所处的异常状态且本回合所有技能先制+1",
+      "body": "解除自身所处的异常状态且本回合所有技能先制+1",
+      "ops": [
+        {
+          "op": "cleanse",
+          "target": "self",
+          "scope": "ailment"
+        },
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment"
+            },
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4568",
+      "name": "幽魅之影·杰格",
+      "unitMark": "sm-4568",
+      "clause": "若高于300则抵挡下1次对手的攻击",
+      "body": "抵挡下1次对手的攻击",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_immune",
+          "target": "self",
+          "turns": 99,
+          "params": {
+            "count": 1
+          }
+        }
+      ],
+      "savedIndices": [
+        3
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_immune",
+              "target": "self",
+              "turns": 99,
+              "params": {
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4592",
+      "name": "夜居魔使",
+      "unitMark": "sm-4592",
+      "clause": "若对手的速度、命中能力等级处于下降状态则当回合对手属性技能无效",
+      "body": "当回合对手属性技能无效",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "status_lock",
+          "target": "opponent",
+          "turns": 1,
+          "params": {
+            "cat": 1
+          }
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "status_lock",
+              "target": "opponent",
+              "turns": 1,
+              "params": {
+                "cat": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4592",
+      "name": "夜居魔使",
+      "unitMark": "sm-4592",
+      "clause": "若对手的攻击、特攻处于下降状态则当回合自身先制+1",
+      "body": "当回合自身先制+1",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "prio_up",
+          "target": "self",
+          "params": {
+            "add": 1
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4611",
+      "name": "渊枭",
+      "unitMark": "sm-4611",
+      "clause": "若本回合自身已受到了攻击伤害则额外使下回合自身受到的攻击伤害减少50%",
+      "body": "额外使下回合自身受到的攻击伤害减少50%",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_taken_down",
+          "target": "self",
+          "params": {
+            "pct": 50
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4611",
+      "name": "渊枭",
+      "unitMark": "sm-4611",
+      "clause": "若本回合自身已受到了固定伤害则额外附加对手最大体力1/3的百分比伤害",
+      "body": "额外附加对手最大体力1/3的百分比伤害",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 1,
+          "kind": "percent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 3
+          }
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4611",
+      "name": "渊枭",
+      "unitMark": "sm-4611",
+      "clause": "若本回合自身已受到了百分比伤害则额外恢复自身最大体力的1/3",
+      "body": "额外恢复自身最大体力的1/3",
+      "ops": [
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        3
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4611",
+      "name": "渊枭",
+      "unitMark": "sm-4611",
+      "clause": "若为控制类异常状态则额外令对手当回合属性技能无效",
+      "body": "额外令对手当回合属性技能无效",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "status_lock",
+          "target": "opponent",
+          "turns": 1,
+          "params": {
+            "cat": 1
+          }
+        }
+      ],
+      "savedIndices": [
+        5
+      ],
+      "saved": [
+        {
+          "hook": "onTurnStart",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "status_lock",
+              "target": "opponent",
+              "turns": 1,
+              "params": {
+                "cat": 1
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 5,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4617",
+      "name": "猛虎之刃·泰伯",
+      "unitMark": "sm-4617",
+      "clause": "若成功触发失明则令对手随机1个技能PP值归0",
+      "body": "令对手随机1个技能PP值归0",
+      "ops": [
+        {
+          "op": "pp_delta",
+          "zeroRandom": 1,
+          "target": "opponent"
+        }
+      ],
+      "savedIndices": [
+        4
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "pp_delta",
+              "zeroRandom": 1,
+              "target": "opponent"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4621",
+      "name": "雾灯徘徊者",
+      "unitMark": "sm-4621",
+      "clause": "若当回合自身受到了攻击伤害则吸取对手最大体力的1/3",
+      "body": "吸取对手最大体力的1/3",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 1,
+          "kind": "percent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 3
+          }
+        },
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4625",
+      "name": "伏尔格安",
+      "unitMark": "sm-4625",
+      "clause": "若体力为0则恢复1点体力",
+      "body": "恢复1点体力",
+      "ops": [
+        {
+          "op": "heal",
+          "flat": 1,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 1,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 6,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4634",
+      "name": "佩里德",
+      "unitMark": "sm-4634",
+      "clause": "若本次技能打出了致命一击则吸取对手300点体力",
+      "body": "吸取对手300点体力",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 300,
+          "kind": "fixed"
+        },
+        {
+          "op": "heal",
+          "flat": 300,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 300,
+              "kind": "fixed"
+            },
+            {
+              "op": "heal",
+              "flat": 300,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4635",
+      "name": "枫落殇·西叶",
+      "unitMark": "sm-4635",
+      "clause": "若自身所处的异常状态不低于4种则消除对手回合类效果并触发枫落殇思：解除自身所处的异常状态",
+      "body": "消除对手回合类效果并触发枫落殇思：解除自身所处的异常状态",
+      "ops": [
+        {
+          "op": "cleanse",
+          "target": "opponent",
+          "scope": "timed"
+        },
+        {
+          "op": "apply_mark",
+          "mark": "枫落殇思",
+          "count": 1,
+          "target": "opponent"
+        },
+        {
+          "op": "cleanse",
+          "target": "self",
+          "scope": "ailment"
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "cleanse",
+              "target": "opponent",
+              "scope": "timed"
+            },
+            {
+              "op": "apply_mark",
+              "mark": "枫落殇思",
+              "count": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "cleanse",
+              "target": "self",
+              "scope": "ailment"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4653",
+      "name": "娜娜薇尔",
+      "unitMark": "sm-4653",
+      "clause": "若恢复至满则全属性+1且下次攻击造成的伤害提升100%",
+      "body": "全属性+1且下次攻击造成的伤害提升100%",
+      "ops": [
+        {
+          "op": "apply_stat_stage",
+          "stat": "atk",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "def",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spa",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "sdf",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_stat_stage",
+          "stat": "spd",
+          "delta": 1,
+          "target": "self"
+        },
+        {
+          "op": "apply_status",
+          "name": "dmg_boost",
+          "target": "self",
+          "params": {
+            "count": 1,
+            "pct": 100
+          }
+        }
+      ],
+      "savedIndices": [
+        2
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "count": 1,
+                "pct": 100
+              }
+            }
+          ]
+        }
+      ],
+      "guardCount": 1,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4655",
+      "name": "锚点相座",
+      "unitMark": "sm-4655",
+      "clause": "若本次在场触发过转变则恢复200点体力",
+      "body": "恢复200点体力",
+      "ops": [
+        {
+          "op": "heal",
+          "flat": 200,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 200,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 4,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4671",
+      "name": "噬夜急袭·库拉塔克",
+      "unitMark": "sm-4671",
+      "clause": "若自身体力低于上回合开始则当回合自身使用技能后吸取对手最大体力的1/3",
+      "body": "当回合自身使用技能后吸取对手最大体力的1/3",
+      "ops": [
+        {
+          "op": "damage",
+          "power": 1,
+          "kind": "percent"
+        },
+        {
+          "op": "formula",
+          "of": "frac",
+          "value": {
+            "numerator": 1,
+            "denominator": 3
+          }
+        },
+        {
+          "op": "heal",
+          "numerator": 1,
+          "denominator": 3,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4679",
+      "name": "赛罗奥特曼",
+      "unitMark": "sm-4679",
+      "clause": "若低于上回合开始则当回合自身受到的攻击伤害减少50%",
+      "body": "当回合自身受到的攻击伤害减少50%",
+      "ops": [
+        {
+          "op": "apply_status",
+          "name": "dmg_taken_down",
+          "target": "self",
+          "params": {
+            "pct": 50
+          },
+          "turns": 1
+        }
+      ],
+      "savedIndices": [
+        1
+      ],
+      "saved": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ],
+          "chance": {
+            "once": true
+          }
+        }
+      ],
+      "guardCount": 2,
+      "unparsedBody": []
+    },
+    {
+      "id": "pet-4700",
+      "name": "米格罗斯",
+      "unitMark": "sm-4700",
+      "clause": "若本回合内自身受到的固定伤害、百分比伤害达到了3次则恢复300点体力且令自身下只精灵出战时恢复300点体力",
+      "body": "恢复300点体力且令自身下只精灵出战时恢复300点体力",
+      "ops": [
+        {
+          "op": "heal",
+          "flat": 300,
+          "target": "self"
+        }
+      ],
+      "savedIndices": [
+        0
+      ],
+      "saved": [
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 300,
+              "target": "self"
+            }
+          ]
+        }
+      ],
+      "guardCount": 3,
+      "unparsedBody": [
+        {
+          "clause": "令自身下只精灵出战时恢复300点体力",
+          "reason": "no-rule"
+        }
+      ]
+    }
+  ],
+  "byId": {
+    "pet-4740": [
+      {
+        "id": "pet-4740",
+        "name": "幽阑·执冥",
+        "unitMark": "sm-4740",
+        "clause": "若对手未因上述任一效果受到百分比伤害则消除对手回合类效果",
+        "body": "消除对手回合类效果",
+        "ops": [
+          {
+            "op": "cleanse",
+            "target": "opponent",
+            "scope": "timed"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "cleanse",
+                "target": "opponent",
+                "scope": "timed"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4761": [
+      {
+        "id": "pet-4761",
+        "name": "琉梦",
+        "unitMark": "sm-4761",
+        "clause": "若直到战斗阶段结束时未免疫异常状态则恢复最大体力的1/3",
+        "body": "恢复最大体力的1/3",
+        "ops": [
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onEntry",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4863": [
+      {
+        "id": "pet-4863",
+        "name": "艾莉安娜",
+        "unitMark": "sm-4863",
+        "clause": "若本回合对手使用了攻击技能则下回合攻击技能先制+1",
+        "body": "下回合攻击技能先制+1",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1,
+              "cat": 4
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "params": {
+                  "add": 1,
+                  "cat": 4
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4894": [
+      {
+        "id": "pet-4894",
+        "name": "安瑟伦",
+        "unitMark": "sm-4894",
+        "clause": "若该类型与上次记录不同则100%令对手害怕3回合",
+        "body": "100%令对手害怕3回合",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "fear",
+            "target": "opponent",
+            "turns": 3,
+            "chance": 100
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "fear",
+                "target": "opponent",
+                "turns": 3,
+                "chance": 100
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4906": [
+      {
+        "id": "pet-4906",
+        "name": "阿西列维",
+        "unitMark": "sm-4906",
+        "clause": "若不同则技能命中时消除对手能力提升状态",
+        "body": "技能命中时消除对手能力提升状态",
+        "ops": [
+          {
+            "op": "clear_stages",
+            "target": "opponent",
+            "sign": "up",
+            "if": {
+              "prevDamageAboveAbs": 0
+            }
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "clear_stages",
+                "target": "opponent",
+                "sign": "up",
+                "if": {
+                  "prevDamageAboveAbs": 0
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4908": [
+      {
+        "id": "pet-4908",
+        "name": "蕊沃尔",
+        "unitMark": "sm-4908",
+        "clause": "若等于对手则下回合所有技能先制+1",
+        "body": "下回合所有技能先制+1",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "params": {
+                  "add": 1
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": []
+      }
+    ],
+    "pet-2680": [
+      {
+        "id": "pet-2680",
+        "name": "玄元风神",
+        "unitMark": "sm-2680",
+        "clause": "若对手能力下降被解除，则回合结束时直接给对手造成150点固定伤害",
+        "body": "回合结束时直接给对手造成150点固定伤害",
+        "ops": [
+          {
+            "op": "damage",
+            "kind": "fixed",
+            "power": 150,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "damage",
+                "kind": "fixed",
+                "power": 150,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3587": [
+      {
+        "id": "pet-3587",
+        "name": "红桃皇后",
+        "unitMark": "sm-3587",
+        "clause": "若对手不处于处于能力下降状态则附加对手最大体力1/3的固定伤害",
+        "body": "附加对手最大体力1/3的固定伤害",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 1,
+            "kind": "percent"
+          },
+          {
+            "op": "formula",
+            "of": "frac",
+            "value": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "damage",
+                "power": 1,
+                "kind": "percent"
+              },
+              {
+                "op": "formula",
+                "of": "frac",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 3
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3760": [
+      {
+        "id": "pet-3760",
+        "name": "苏利文",
+        "unitMark": "sm-3760",
+        "clause": "若该工具伤害高于自身最大体力的1/2则开启虚空之缝：使对手下1回合攻击技能无效",
+        "body": "开启虚空之缝：使对手下1回合攻击技能无效",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "move_null",
+            "target": "opponent",
+            "params": {
+              "cat": 4
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "move_null",
+                "target": "opponent",
+                "params": {
+                  "cat": 4
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-3760",
+        "name": "苏利文",
+        "unitMark": "sm-3760",
+        "clause": "若该工具伤害低于自身最大体力1/2则开启虚空之隙：使对手下1回合属性技能无效",
+        "body": "开启虚空之隙：使对手下1回合属性技能无效",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "status_lock",
+            "target": "opponent",
+            "params": {
+              "cat": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "status_lock",
+                "target": "opponent",
+                "params": {
+                  "cat": 1
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3848": [
+      {
+        "id": "pet-3848",
+        "name": "时空幻零",
+        "unitMark": "sm-3848",
+        "clause": "若对手当前未处于回合类效果则令对手随机1个技能PP值归零",
+        "body": "令对手随机1个技能PP值归零",
+        "ops": [
+          {
+            "op": "pp_delta",
+            "zeroRandom": 1,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "pp_delta",
+                "zeroRandom": 1,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3917": [
+      {
+        "id": "pet-3917",
+        "name": "逝灵尘",
+        "unitMark": "sm-3917",
+        "clause": "若n小于300点则回合结束时令对手全属性-1",
+        "body": "回合结束时令对手全属性-1",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "atk",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "def",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "spa",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "sdf",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "spd",
+            "delta": -1,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "atk",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "def",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "spa",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "sdf",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "spd",
+                "delta": -1,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3928": [
+      {
+        "id": "pet-3928",
+        "name": "双琬",
+        "unitMark": "sm-3928",
+        "clause": "若当回合受到的攻击伤害低于自身最大体力的25%则触发双生之魂：恢复所有体力且令对手受到自身最大体力25%的固定伤害",
+        "body": "触发双生之魂：恢复所有体力且令对手受到自身最大体力25%的固定伤害",
+        "ops": [
+          {
+            "op": "apply_mark",
+            "mark": "双生之魂",
+            "count": 1,
+            "target": "opponent"
+          },
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 1,
+            "target": "self"
+          },
+          {
+            "op": "damage",
+            "kind": "fixed",
+            "power": 0
+          },
+          {
+            "op": "flat",
+            "of": "flatSelfPct",
+            "value": 25
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_mark",
+                "mark": "双生之魂",
+                "count": 1,
+                "target": "opponent"
+              },
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 1,
+                "target": "self"
+              },
+              {
+                "op": "damage",
+                "kind": "fixed",
+                "power": 0
+              },
+              {
+                "op": "flat",
+                "of": "flatSelfPct",
+                "value": 25
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3941": [
+      {
+        "id": "pet-3941",
+        "name": "混沌暗王霍德尔",
+        "unitMark": "sm-3941",
+        "clause": "若对手被自身击败则下只精灵登场后随机2个技能PP归零",
+        "body": "下只精灵登场后随机2个技能PP归零",
+        "ops": [
+          {
+            "op": "pp_delta",
+            "zeroRandom": 2,
+            "target": "nextAlly"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "pp_delta",
+                "zeroRandom": 2,
+                "target": "nextAlly"
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-3959": [
+      {
+        "id": "pet-3959",
+        "name": "飒雷喵佐",
+        "unitMark": "sm-3959",
+        "clause": "若对手使用的技能为攻击技能则对手下回合使用属性技能无效",
+        "body": "对手下回合使用属性技能无效",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "status_lock",
+            "target": "opponent",
+            "params": {
+              "cat": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onEntry",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "status_lock",
+                "target": "opponent",
+                "params": {
+                  "cat": 1
+                },
+                "turns": 1
+              }
+            ],
+            "chance": {
+              "once": true
+            }
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-3959",
+        "name": "飒雷喵佐",
+        "unitMark": "sm-3959",
+        "clause": "若对手使用的技能为属性技能则对手下回合使用攻击技能无效",
+        "body": "对手下回合使用攻击技能无效",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "move_null",
+            "target": "opponent",
+            "params": {
+              "cat": 4
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onEntry",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "move_null",
+                "target": "opponent",
+                "params": {
+                  "cat": 4
+                },
+                "turns": 1
+              }
+            ],
+            "chance": {
+              "once": true
+            }
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4034": [
+      {
+        "id": "pet-4034",
+        "name": "森莎",
+        "unitMark": "sm-4034",
+        "clause": "若当回后出手则恢复自身最大体力1/3",
+        "body": "恢复自身最大体力1/3",
+        "ops": [
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              }
+            ],
+            "guard": {
+              "not": {
+                "orderStreakAtLeast": {
+                  "order": "last",
+                  "n": 2
+                }
+              }
+            }
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4227": [
+      {
+        "id": "pet-4227",
+        "name": "桑谷",
+        "unitMark": "sm-4227",
+        "clause": "若触发致命一击的几率则使自身攻击+1、命中+1",
+        "body": "使自身攻击+1、命中+1",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "atk",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "acc",
+            "delta": 1,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "atk",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "acc",
+                "delta": 1,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4300": [
+      {
+        "id": "pet-4300",
+        "name": "宛白",
+        "unitMark": "sm-4300",
+        "clause": "若前述附加的固定伤害低于300点则下回合自身所有技能先制+1",
+        "body": "下回合自身所有技能先制+1",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "turns": 1,
+                "params": {
+                  "add": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4326": [
+      {
+        "id": "pet-4326",
+        "name": "辛辛子",
+        "unitMark": "sm-4326",
+        "clause": "若自身当前体力值为偶数则当回合自身攻击必定打出致命一击",
+        "body": "当回合自身攻击必定打出致命一击",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "crit_always",
+            "target": "self",
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "crit_always",
+                "target": "self",
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4326",
+        "name": "辛辛子",
+        "unitMark": "sm-4326",
+        "clause": "若自身当前体力值为奇数则令自身防御+1、特防+1",
+        "body": "令自身防御+1、特防+1",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "def",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "sdf",
+            "delta": 1,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "def",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "sdf",
+                "delta": 1,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4355": [
+      {
+        "id": "pet-4355",
+        "name": "终末大天使",
+        "unitMark": "sm-4355",
+        "clause": "若对手免疫能力下降则消除对手能力提升状态",
+        "body": "消除对手能力提升状态",
+        "ops": [
+          {
+            "op": "clear_stages",
+            "target": "opponent",
+            "sign": "up"
+          }
+        ],
+        "savedIndices": [
+          3
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "clear_stages",
+                "target": "opponent",
+                "sign": "up"
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4358": [
+      {
+        "id": "pet-4358",
+        "name": "杰特洛",
+        "unitMark": "sm-4358",
+        "clause": "若自身当前体力值与速度值之和低于对手则令对手速度、命中-1",
+        "body": "令对手速度、命中-1",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "spd",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "acc",
+            "delta": -1,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "spd",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "acc",
+                "delta": -1,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4358",
+        "name": "杰特洛",
+        "unitMark": "sm-4358",
+        "clause": "若自身攻击值与特攻值之和低于对手则令对手攻击、特攻-1",
+        "body": "令对手攻击、特攻-1",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "atk",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "spa",
+            "delta": -1,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "atk",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "spa",
+                "delta": -1,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4358",
+        "name": "杰特洛",
+        "unitMark": "sm-4358",
+        "clause": "若自身防御值与特防值之和低于对手则令对手防御、特防-1",
+        "body": "令对手防御、特防-1",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "def",
+            "delta": -1,
+            "target": "opponent"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "sdf",
+            "delta": -1,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "def",
+                "delta": -1,
+                "target": "opponent"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "sdf",
+                "delta": -1,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4365": [
+      {
+        "id": "pet-4365",
+        "name": "环·格",
+        "unitMark": "sm-4365",
+        "clause": "若自身当前体力值与对手最大体力值之差小于400则当回合自身受到的攻击伤害降低50%",
+        "body": "当回合自身受到的攻击伤害降低50%",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_taken_down",
+            "target": "self",
+            "params": {
+              "pct": 50
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_taken_down",
+                "target": "self",
+                "params": {
+                  "pct": 50
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4367": [
+      {
+        "id": "pet-4367",
+        "name": "本原·泰勒斯",
+        "unitMark": "sm-4367",
+        "clause": "若上回合对手未使用技能则当回合自身造成的伤害提升100%",
+        "body": "当回合自身造成的伤害提升100%",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_boost",
+            "target": "self",
+            "params": {
+              "pct": 100
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          0,
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onMoveUsed",
+            "guard": {
+              "actor": "self",
+              "if": {
+                "not": {
+                  "foeFainted": true
+                }
+              }
+            },
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_boost",
+                "target": "self",
+                "params": {
+                  "pct": 100
+                },
+                "turns": 1
+              }
+            ]
+          },
+          {
+            "hook": "onTurnStart",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_boost",
+                "target": "self",
+                "params": {
+                  "pct": 100
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4386": [
+      {
+        "id": "pet-4386",
+        "name": "缔笙",
+        "unitMark": "sm-4386",
+        "clause": "若对手当前体力不高于回合开始时则下回合自身所有技能先制+1，若对手",
+        "body": "下回合自身所有技能先制+1，若对手",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "turns": 1,
+                "params": {
+                  "add": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": [
+          {
+            "clause": "若对手",
+            "reason": "truncated fragment — referent lost (UNVERIFIED)"
+          }
+        ]
+      }
+    ],
+    "pet-4390": [
+      {
+        "id": "pet-4390",
+        "name": "玖莉娜",
+        "unitMark": "sm-4390",
+        "clause": "若自身仍受到攻击伤害则令对手下回合受到的固定伤害和百分比伤害提升30%",
+        "body": "令对手下回合受到的固定伤害和百分比伤害提升30%",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_taken_up",
+            "target": "opponent",
+            "params": {
+              "pct": 30,
+              "kindMask": 3
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_taken_up",
+                "target": "opponent",
+                "params": {
+                  "pct": 30,
+                  "kindMask": 3
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4390",
+        "name": "玖莉娜",
+        "unitMark": "sm-4390",
+        "clause": "若自身上回合未受到攻击伤害则吸取对手300点体力",
+        "body": "吸取对手300点体力",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 300,
+            "kind": "fixed"
+          },
+          {
+            "op": "heal",
+            "flat": 300,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "damage",
+                "power": 300,
+                "kind": "fixed"
+              },
+              {
+                "op": "heal",
+                "flat": 300,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4400": [
+      {
+        "id": "pet-4400",
+        "name": "圣律剑灵",
+        "unitMark": "sm-4400",
+        "clause": "若对手不存在处决印记则为对手下只出战精灵附加1层处决印记，（）",
+        "body": "为对手下只出战精灵附加1层处决印记，（）",
+        "ops": [
+          {
+            "op": "apply_mark",
+            "mark": "处决印记",
+            "count": 1,
+            "target": "nextFoe"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_mark",
+                "mark": "处决印记",
+                "count": 1,
+                "target": "nextFoe"
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4414": [
+      {
+        "id": "pet-4414",
+        "name": "瓦普特",
+        "unitMark": "sm-4414",
+        "clause": "若自身能力等级与回合开始时不同，则恢复自身最大体力的1/3和所有技能1点PP值",
+        "body": "恢复自身最大体力的1/3和所有技能1点PP值",
+        "ops": [
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          },
+          {
+            "op": "pp_delta",
+            "amount": 1,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              },
+              {
+                "op": "pp_delta",
+                "amount": 1,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4417": [
+      {
+        "id": "pet-4417",
+        "name": "疾翼先锋",
+        "unitMark": "sm-4417",
+        "clause": "若任意一方未进入流血状态则2回合内对手使用的技能先制效果失效",
+        "body": "2回合内对手使用的技能先制效果失效",
+        "ops": [
+          {
+            "op": "cleanse",
+            "scope": "timed",
+            "effect": [
+              "prio_up",
+              "prio_count"
+            ],
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onEntry",
+            "ops": [
+              {
+                "op": "cleanse",
+                "scope": "timed",
+                "effect": [
+                  "prio_up",
+                  "prio_count"
+                ],
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4426": [
+      {
+        "id": "pet-4426",
+        "name": "异能元素·奥薇纳",
+        "unitMark": "sm-4426",
+        "clause": "若自身处于异常状态且数量小于等于2，则恢复自身已损失体力的50%",
+        "body": "恢复自身已损失体力的50%",
+        "ops": [
+          {
+            "op": "heal",
+            "numerator": 50,
+            "denominator": 100,
+            "missing": true,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "heal",
+                "numerator": 50,
+                "denominator": 100,
+                "missing": true,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4435": [
+      {
+        "id": "pet-4435",
+        "name": "蛮龙之戟·赫比德",
+        "unitMark": "sm-4435",
+        "clause": "若连续次数大于等于n次则额外消耗对手全部体力(n=自身携带技能中PP值上限最高技能的PP值上限)",
+        "body": "额外消耗对手全部体力(n=自身携带技能中PP值上限最高技能的PP值上限)",
+        "ops": [
+          {
+            "op": "damage",
+            "kind": "percent",
+            "power": 1,
+            "target": "opponent"
+          },
+          {
+            "op": "formula",
+            "of": "frac",
+            "value": {
+              "numerator": 1,
+              "denominator": 1
+            }
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "damage",
+                "kind": "percent",
+                "power": 1,
+                "target": "opponent"
+              },
+              {
+                "op": "formula",
+                "of": "frac",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4442": [
+      {
+        "id": "pet-4442",
+        "name": "眠降·玛缇娜",
+        "unitMark": "sm-4442",
+        "clause": "若使用后造成的伤害高于400则重置自身连击次数并附加造成伤害100%的百分比伤害",
+        "body": "重置自身连击次数并附加造成伤害100%的百分比伤害",
+        "ops": [
+          {
+            "op": "damage",
+            "kind": "percent"
+          },
+          {
+            "op": "power",
+            "of": "resetStacks",
+            "value": true
+          },
+          {
+            "op": "flat",
+            "of": "lastDmgFrac",
+            "value": {
+              "numerator": 100,
+              "denominator": 100
+            }
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "damage",
+                "kind": "percent"
+              },
+              {
+                "op": "power",
+                "of": "resetStacks",
+                "value": true
+              },
+              {
+                "op": "flat",
+                "of": "lastDmgFrac",
+                "value": {
+                  "numerator": 100,
+                  "denominator": 100
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4450": [
+      {
+        "id": "pet-4450",
+        "name": "逐界苍星",
+        "unitMark": "sm-4450",
+        "clause": "若对手不存在技能被解析则解析该技能并为自身附加1层未来奇点，被解析的技能无法选择直到逐界苍星下场",
+        "body": "解析该技能并为自身附加1层未来奇点，被解析的技能无法选择直到逐界苍星下场",
+        "ops": [
+          {
+            "op": "apply_mark",
+            "mark": "未来奇点",
+            "count": 1,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_mark",
+                "mark": "未来奇点",
+                "count": 1,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": [
+          {
+            "clause": "解析该技能",
+            "reason": "no-rule"
+          },
+          {
+            "clause": "被解析的技能无法选择直到逐界苍星下场",
+            "reason": "no-rule"
+          }
+        ]
+      },
+      {
+        "id": "pet-4450",
+        "name": "逐界苍星",
+        "unitMark": "sm-4450",
+        "clause": "若自身速度值高于对手则当回合自身所有技能先制+1",
+        "body": "当回合自身所有技能先制+1",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "turns": 1,
+                "params": {
+                  "add": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4461": [
+      {
+        "id": "pet-4461",
+        "name": "追光·兰可",
+        "unitMark": "sm-4461",
+        "clause": "若自身体力不等于回合开始时则下回合攻击技能先制+1",
+        "body": "下回合攻击技能先制+1",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1,
+              "cat": 4
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          3
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "params": {
+                  "add": 1,
+                  "cat": 4
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4489": [
+      {
+        "id": "pet-4489",
+        "name": "普鲁修托",
+        "unitMark": "sm-4489",
+        "clause": "若对手属性微弱自身则为对手附加持续3回合的失能Ⅰ(若对手已持有失能Ⅰ则将回合数刷新至3回合)",
+        "body": "为对手附加持续3回合的失能Ⅰ(若对手已持有失能Ⅰ则将回合数刷新至3回合)",
+        "ops": [
+          {
+            "op": "apply_mark",
+            "mark": "失能Ⅰ",
+            "count": 1,
+            "target": "opponent",
+            "turns": 3
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onEntry",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_mark",
+                "mark": "失能Ⅰ",
+                "count": 1,
+                "target": "opponent",
+                "turns": 3
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4489",
+        "name": "普鲁修托",
+        "unitMark": "sm-4489",
+        "clause": "若当回合结束后对手持有的失能Ⅰ消失则下回合自身造成的固定伤害、百分比伤害提升100%，()，回能Ⅰ：持有精灵使用技能后恢复所有技能1点PP值",
+        "body": "下回合自身造成的固定伤害、百分比伤害提升100%，()，回能Ⅰ：持有精灵使用技能后恢复所有技能1点PP值",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_boost",
+            "target": "self",
+            "params": {
+              "pct": 100,
+              "kindMask": 3
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          7
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_boost",
+                "target": "self",
+                "params": {
+                  "pct": 100,
+                  "kindMask": 3
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": [
+          {
+            "clause": "回能Ⅰ：持有精灵使用技能恢复所有技能1点PP值",
+            "reason": "no-rule"
+          }
+        ]
+      }
+    ],
+    "pet-4497": [
+      {
+        "id": "pet-4497",
+        "name": "长蛇·海德拉",
+        "unitMark": "sm-4497",
+        "clause": "若本次攻击打出致命一击则免疫下1次对手攻击技能造成的伤害",
+        "body": "免疫下1次对手攻击技能造成的伤害",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_immune",
+            "target": "self",
+            "params": {
+              "count": 1
+            }
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_immune",
+                "target": "self",
+                "params": {
+                  "count": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4499": [
+      {
+        "id": "pet-4499",
+        "name": "德布比特",
+        "unitMark": "sm-4499",
+        "clause": "若当回合结束后自身持有的回体Ⅰ消失则消除对手回合类效果",
+        "body": "消除对手回合类效果",
+        "ops": [
+          {
+            "op": "cleanse",
+            "target": "opponent",
+            "scope": "timed"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "cleanse",
+                "target": "opponent",
+                "scope": "timed"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4499",
+        "name": "德布比特",
+        "unitMark": "sm-4499",
+        "clause": "若当回合结束后对手持有的失体Ⅰ消失则消除对手能力提升状态",
+        "body": "消除对手能力提升状态",
+        "ops": [
+          {
+            "op": "clear_stages",
+            "target": "opponent",
+            "sign": "up"
+          }
+        ],
+        "savedIndices": [
+          5
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "clear_stages",
+                "target": "opponent",
+                "sign": "up"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4532": [
+      {
+        "id": "pet-4532",
+        "name": "堕息·迹",
+        "unitMark": "sm-4532",
+        "clause": "若对手已持有痕则免疫下1次受到的攻击，痕：持有精灵无法使用威力为0的攻击技能，触发无法使用后消失",
+        "body": "免疫下1次受到的攻击，痕：持有精灵无法使用威力为0的攻击技能，触发无法使用后消失",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_immune",
+            "target": "self",
+            "params": {
+              "count": 1
+            }
+          }
+        ],
+        "savedIndices": [
+          3
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_immune",
+                "target": "self",
+                "params": {
+                  "count": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": [
+          {
+            "clause": "痕：持有精灵无法使用威力为0的攻击技能",
+            "reason": "named-prefixed payload unparsed: 持有精灵无法使用威力为0的攻击技能"
+          },
+          {
+            "clause": "触发无法使用后消失",
+            "reason": "no-rule"
+          }
+        ]
+      }
+    ],
+    "pet-4561": [
+      {
+        "id": "pet-4561",
+        "name": "霆律",
+        "unitMark": "sm-4561",
+        "clause": "若没有则本回合攻击后吸取对手最大体力的1/3",
+        "body": "本回合攻击后吸取对手最大体力的1/3",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 1,
+            "kind": "percent"
+          },
+          {
+            "op": "formula",
+            "of": "frac",
+            "value": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          },
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "ops": [
+              {
+                "op": "damage",
+                "power": 1,
+                "kind": "percent"
+              },
+              {
+                "op": "formula",
+                "of": "frac",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 3
+                }
+              },
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4568": [
+      {
+        "id": "pet-4568",
+        "name": "幽魅之影·杰格",
+        "unitMark": "sm-4568",
+        "clause": "若不处于则解除自身所处的异常状态且本回合所有技能先制+1",
+        "body": "解除自身所处的异常状态且本回合所有技能先制+1",
+        "ops": [
+          {
+            "op": "cleanse",
+            "target": "self",
+            "scope": "ailment"
+          },
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "cleanse",
+                "target": "self",
+                "scope": "ailment"
+              },
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "params": {
+                  "add": 1
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4568",
+        "name": "幽魅之影·杰格",
+        "unitMark": "sm-4568",
+        "clause": "若高于300则抵挡下1次对手的攻击",
+        "body": "抵挡下1次对手的攻击",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_immune",
+            "target": "self",
+            "turns": 99,
+            "params": {
+              "count": 1
+            }
+          }
+        ],
+        "savedIndices": [
+          3
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_immune",
+                "target": "self",
+                "turns": 99,
+                "params": {
+                  "count": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4592": [
+      {
+        "id": "pet-4592",
+        "name": "夜居魔使",
+        "unitMark": "sm-4592",
+        "clause": "若对手的速度、命中能力等级处于下降状态则当回合对手属性技能无效",
+        "body": "当回合对手属性技能无效",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "status_lock",
+            "target": "opponent",
+            "turns": 1,
+            "params": {
+              "cat": 1
+            }
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "status_lock",
+                "target": "opponent",
+                "turns": 1,
+                "params": {
+                  "cat": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4592",
+        "name": "夜居魔使",
+        "unitMark": "sm-4592",
+        "clause": "若对手的攻击、特攻处于下降状态则当回合自身先制+1",
+        "body": "当回合自身先制+1",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "prio_up",
+            "target": "self",
+            "params": {
+              "add": 1
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "prio_up",
+                "target": "self",
+                "params": {
+                  "add": 1
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4611": [
+      {
+        "id": "pet-4611",
+        "name": "渊枭",
+        "unitMark": "sm-4611",
+        "clause": "若本回合自身已受到了攻击伤害则额外使下回合自身受到的攻击伤害减少50%",
+        "body": "额外使下回合自身受到的攻击伤害减少50%",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_taken_down",
+            "target": "self",
+            "params": {
+              "pct": 50
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_taken_down",
+                "target": "self",
+                "params": {
+                  "pct": 50
+                },
+                "turns": 1
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4611",
+        "name": "渊枭",
+        "unitMark": "sm-4611",
+        "clause": "若本回合自身已受到了固定伤害则额外附加对手最大体力1/3的百分比伤害",
+        "body": "额外附加对手最大体力1/3的百分比伤害",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 1,
+            "kind": "percent"
+          },
+          {
+            "op": "formula",
+            "of": "frac",
+            "value": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "damage",
+                "power": 1,
+                "kind": "percent"
+              },
+              {
+                "op": "formula",
+                "of": "frac",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 3
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4611",
+        "name": "渊枭",
+        "unitMark": "sm-4611",
+        "clause": "若本回合自身已受到了百分比伤害则额外恢复自身最大体力的1/3",
+        "body": "额外恢复自身最大体力的1/3",
+        "ops": [
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          3
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      },
+      {
+        "id": "pet-4611",
+        "name": "渊枭",
+        "unitMark": "sm-4611",
+        "clause": "若为控制类异常状态则额外令对手当回合属性技能无效",
+        "body": "额外令对手当回合属性技能无效",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "status_lock",
+            "target": "opponent",
+            "turns": 1,
+            "params": {
+              "cat": 1
+            }
+          }
+        ],
+        "savedIndices": [
+          5
+        ],
+        "saved": [
+          {
+            "hook": "onTurnStart",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "status_lock",
+                "target": "opponent",
+                "turns": 1,
+                "params": {
+                  "cat": 1
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 5,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4617": [
+      {
+        "id": "pet-4617",
+        "name": "猛虎之刃·泰伯",
+        "unitMark": "sm-4617",
+        "clause": "若成功触发失明则令对手随机1个技能PP值归0",
+        "body": "令对手随机1个技能PP值归0",
+        "ops": [
+          {
+            "op": "pp_delta",
+            "zeroRandom": 1,
+            "target": "opponent"
+          }
+        ],
+        "savedIndices": [
+          4
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "pp_delta",
+                "zeroRandom": 1,
+                "target": "opponent"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4621": [
+      {
+        "id": "pet-4621",
+        "name": "雾灯徘徊者",
+        "unitMark": "sm-4621",
+        "clause": "若当回合自身受到了攻击伤害则吸取对手最大体力的1/3",
+        "body": "吸取对手最大体力的1/3",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 1,
+            "kind": "percent"
+          },
+          {
+            "op": "formula",
+            "of": "frac",
+            "value": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          },
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "damage",
+                "power": 1,
+                "kind": "percent"
+              },
+              {
+                "op": "formula",
+                "of": "frac",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 3
+                }
+              },
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4625": [
+      {
+        "id": "pet-4625",
+        "name": "伏尔格安",
+        "unitMark": "sm-4625",
+        "clause": "若体力为0则恢复1点体力",
+        "body": "恢复1点体力",
+        "ops": [
+          {
+            "op": "heal",
+            "flat": 1,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "heal",
+                "flat": 1,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 6,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4634": [
+      {
+        "id": "pet-4634",
+        "name": "佩里德",
+        "unitMark": "sm-4634",
+        "clause": "若本次技能打出了致命一击则吸取对手300点体力",
+        "body": "吸取对手300点体力",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 300,
+            "kind": "fixed"
+          },
+          {
+            "op": "heal",
+            "flat": 300,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "damage",
+                "power": 300,
+                "kind": "fixed"
+              },
+              {
+                "op": "heal",
+                "flat": 300,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4635": [
+      {
+        "id": "pet-4635",
+        "name": "枫落殇·西叶",
+        "unitMark": "sm-4635",
+        "clause": "若自身所处的异常状态不低于4种则消除对手回合类效果并触发枫落殇思：解除自身所处的异常状态",
+        "body": "消除对手回合类效果并触发枫落殇思：解除自身所处的异常状态",
+        "ops": [
+          {
+            "op": "cleanse",
+            "target": "opponent",
+            "scope": "timed"
+          },
+          {
+            "op": "apply_mark",
+            "mark": "枫落殇思",
+            "count": 1,
+            "target": "opponent"
+          },
+          {
+            "op": "cleanse",
+            "target": "self",
+            "scope": "ailment"
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "cleanse",
+                "target": "opponent",
+                "scope": "timed"
+              },
+              {
+                "op": "apply_mark",
+                "mark": "枫落殇思",
+                "count": 1,
+                "target": "opponent"
+              },
+              {
+                "op": "cleanse",
+                "target": "self",
+                "scope": "ailment"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4653": [
+      {
+        "id": "pet-4653",
+        "name": "娜娜薇尔",
+        "unitMark": "sm-4653",
+        "clause": "若恢复至满则全属性+1且下次攻击造成的伤害提升100%",
+        "body": "全属性+1且下次攻击造成的伤害提升100%",
+        "ops": [
+          {
+            "op": "apply_stat_stage",
+            "stat": "atk",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "def",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "spa",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "sdf",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_stat_stage",
+            "stat": "spd",
+            "delta": 1,
+            "target": "self"
+          },
+          {
+            "op": "apply_status",
+            "name": "dmg_boost",
+            "target": "self",
+            "params": {
+              "count": 1,
+              "pct": 100
+            }
+          }
+        ],
+        "savedIndices": [
+          2
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "apply_stat_stage",
+                "stat": "atk",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "def",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "spa",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "sdf",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_stat_stage",
+                "stat": "spd",
+                "delta": 1,
+                "target": "self"
+              },
+              {
+                "op": "apply_status",
+                "name": "dmg_boost",
+                "target": "self",
+                "params": {
+                  "count": 1,
+                  "pct": 100
+                }
+              }
+            ]
+          }
+        ],
+        "guardCount": 1,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4655": [
+      {
+        "id": "pet-4655",
+        "name": "锚点相座",
+        "unitMark": "sm-4655",
+        "clause": "若本次在场触发过转变则恢复200点体力",
+        "body": "恢复200点体力",
+        "ops": [
+          {
+            "op": "heal",
+            "flat": 200,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "ops": [
+              {
+                "op": "heal",
+                "flat": 200,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 4,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4671": [
+      {
+        "id": "pet-4671",
+        "name": "噬夜急袭·库拉塔克",
+        "unitMark": "sm-4671",
+        "clause": "若自身体力低于上回合开始则当回合自身使用技能后吸取对手最大体力的1/3",
+        "body": "当回合自身使用技能后吸取对手最大体力的1/3",
+        "ops": [
+          {
+            "op": "damage",
+            "power": 1,
+            "kind": "percent"
+          },
+          {
+            "op": "formula",
+            "of": "frac",
+            "value": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          },
+          {
+            "op": "heal",
+            "numerator": 1,
+            "denominator": 3,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onMoveUsed",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "damage",
+                "power": 1,
+                "kind": "percent"
+              },
+              {
+                "op": "formula",
+                "of": "frac",
+                "value": {
+                  "numerator": 1,
+                  "denominator": 3
+                }
+              },
+              {
+                "op": "heal",
+                "numerator": 1,
+                "denominator": 3,
+                "target": "self"
+              }
+            ],
+            "guard": {
+              "actor": "self"
+            }
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4679": [
+      {
+        "id": "pet-4679",
+        "name": "赛罗奥特曼",
+        "unitMark": "sm-4679",
+        "clause": "若低于上回合开始则当回合自身受到的攻击伤害减少50%",
+        "body": "当回合自身受到的攻击伤害减少50%",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_taken_down",
+            "target": "self",
+            "params": {
+              "pct": 50
+            },
+            "turns": 1
+          }
+        ],
+        "savedIndices": [
+          1
+        ],
+        "saved": [
+          {
+            "hook": "onEntry",
+            "ops": [
+              {
+                "op": "apply_status",
+                "name": "dmg_taken_down",
+                "target": "self",
+                "params": {
+                  "pct": 50
+                },
+                "turns": 1
+              }
+            ],
+            "chance": {
+              "once": true
+            }
+          }
+        ],
+        "guardCount": 2,
+        "unparsedBody": []
+      }
+    ],
+    "pet-4700": [
+      {
+        "id": "pet-4700",
+        "name": "米格罗斯",
+        "unitMark": "sm-4700",
+        "clause": "若本回合内自身受到的固定伤害、百分比伤害达到了3次则恢复300点体力且令自身下只精灵出战时恢复300点体力",
+        "body": "恢复300点体力且令自身下只精灵出战时恢复300点体力",
+        "ops": [
+          {
+            "op": "heal",
+            "flat": 300,
+            "target": "self"
+          }
+        ],
+        "savedIndices": [
+          0
+        ],
+        "saved": [
+          {
+            "hook": "onTurnEnd",
+            "bossGate": true,
+            "ops": [
+              {
+                "op": "heal",
+                "flat": 300,
+                "target": "self"
+              }
+            ]
+          }
+        ],
+        "guardCount": 3,
+        "unparsedBody": [
+          {
+            "clause": "令自身下只精灵出战时恢复300点体力",
+            "reason": "no-rule"
+          }
+        ]
+      }
+    ]
+  }
+}

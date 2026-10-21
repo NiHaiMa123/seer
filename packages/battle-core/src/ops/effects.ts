@@ -19,6 +19,7 @@
  * 数值为惯例默认（4399/wiki 口径），全部 UNVERIFIED——精确原作值待取证后只改表。
  */
 import type { UnitState } from "../mechanics/types.ts";
+import { evaluateValue, type NumericValue } from "./value.ts";
 
 export interface EffectDef {
   zh?: string;
@@ -415,6 +416,10 @@ export function dmgFlatOf(u: UnitState, foe?: UnitState, movePower?: number, hea
   let flat = 0;
   for (const e of u.effects) {
     if (!isMod(e, "dmgFlat")) continue;
+    if (e.amountExpr !== undefined) {
+      if (statusGateOk(e, u, foe)) flat += numericValueOf(e.amountExpr, u, foe);
+      continue;
+    }
     let add = e.params?.flat ?? 0;
     if (e.params?.defSumPct !== undefined) add += Math.floor(((u.base.def + (u.base.sdf ?? 0)) * e.params.defSumPct) / 100);
     // statSumPct+statMask：限时窗属性缩放固伤（"下N回合附加自身防御、特防总和N%固伤"折算 dmg_flat；bitmask 编码 atk1 def2 spa4 sdf8 spd16 hp32）
@@ -535,7 +540,7 @@ export function dmgTakenDownPctOf(u: UnitState, foe?: UnitState, kind?: string, 
     }
     // 已损体力步进减免（"HP每降低10%，受到的伤害减少5%"——perHpLostStep=10 步进 × perHpLostPct=5 每步；pct 共存为基数：减伤效果降低族 perHpLostPct 为负）
     if (e.params?.perHpLostStep !== undefined && e.params?.perHpLostPct !== undefined) {
-      const miss = Math.max(0, 100 - Math.floor((u.currentHp * 100) / Math.max(1, u.base.hp)));
+      const miss = Math.floor((Math.max(0, u.base.hp - u.currentHp) * 100) / Math.max(1, u.base.hp));
       pct += (e.params.pct ?? 0) + Math.floor(miss / e.params.perHpLostStep) * e.params.perHpLostPct;
       continue;
     }
@@ -599,61 +604,54 @@ export function shieldFlatOf(u: UnitState): number {
   return v;
 }
 
-/** 异常状态**种数**（按 effectDefOf().ailment 判定；同一 kind 只算一种）。 */
-export function ailmentCountOf(u: UnitState | undefined): number {
-  if (u === undefined) return 0;
-  const kinds = new Set<string>();
-  for (const e of u.effects) if (effectDefOf(e.kind)?.ailment === true) kinds.add(e.kind);
-  return kinds.size;
-}
+/** 数值只读当前面板；状态持有者是 self，heal 的接收者是 target。 */
+export const numericValueOf = (value: NumericValue, u: UnitState, foe?: UnitState, target = u): number =>
+  evaluateValue(value, { self: u, foe, target, isAilment: (kind) => effectDefOf(kind)?.ailment === true });
 
-/**
- * 「每处于N种异常则 +M」的迭代读数：floor(种数 / per) * pct。
- * 与布尔门 foeStatused/selfStatused 的区别：后者只管"有没有"，这里按**种数**迭代。
- */
-export function perAilmentOf(
-  spec: { who?: "self" | "foe"; per?: number; pct: number } | undefined,
-  u: UnitState,
-  foe: UnitState | undefined,
-): number {
-  if (spec === undefined) return 0;
-  const target = spec.who === "self" ? u : foe;
-  const steps = Math.floor(ailmentCountOf(target) / Math.max(1, spec.per ?? 1));
-  return steps * spec.pct;
-}
-
-/** 双方某维数值差的幅值键（"根据双方X值之差n触发…"——n 的读数来源）。 */
 export type StatDiffStat = "atk" | "def" | "spa" | "sdf" | "spd" | "hp";
-
-/**
- * 两维之和的百分比：floor((a + b) * pct / 100)。
- *
- * 语料 187 处、21 种组合（防御+特防 91、特攻+速度 13、体力+速度 10…），
- * 引擎原来只有 defSumPct 写死「防御+特防」。这里做成通用读数，
- * defSumPct 保留兼容（等价于 { a:"def", b:"sdf", pct:defSumPct }）。
- */
-export function statSumPctOf(
-  u: UnitState,
-  spec: { a: StatDiffStat; b: StatDiffStat; pct: number } | undefined,
-): number {
-  if (spec === undefined) return 0;
-  return Math.floor(((u.base[spec.a] ?? 0) + (u.base[spec.b] ?? 0)) * spec.pct / 100);
+interface ValueSource {
+  amountExpr?: NumericValue;
+  statDiff?: StatDiffStat;
+  statDiffDenom?: number;
+  statSumPct?: { a: StatDiffStat; b: StatDiffStat; pct: number };
+  perAilment?: { who?: "self" | "foe"; per?: number; pct: number };
+  params?: Record<string, unknown>;
 }
 
-/**
- * |自身该维 - 对手该维|，按可选分母取整。
- *
- * 4 只魂印（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索）都用 "n = 双方某维之差"
- * 作为多个效果的共同幅值。引擎不引入局部变量作用域，改为让每个 op 各自带
- * statDiff 读数：同回合内两侧面板相同，语义等价，且每个 op 独立可测。
- */
-export function statDiffOf(u: UnitState, foe: UnitState | undefined, stat: StatDiffStat, denom?: number): number {
-  if (foe === undefined) return 0;
-  const a = u.base[stat] ?? 0;
-  const b = foe.base[stat] ?? 0;
-  const d = Math.abs(a - b);
-  return denom !== undefined && denom > 1 ? Math.floor(d / denom) : d;
+/** 唯一旧格式适配层。新组合直接写 amountExpr，不再增加专属字段。 */
+export function valueExpressionOf(source: ValueSource): NumericValue | undefined {
+  if (source.amountExpr !== undefined) return source.amountExpr;
+  if (source.perAilment !== undefined) {
+    const p = source.perAilment;
+    return { product: [{ divide: { value: { count: "ailments", of: p.who ?? "self" }, by: Math.max(1, p.per ?? 1) } }, p.pct] };
+  }
+  const stat = source.statDiff ?? source.params?.statDiff;
+  if (typeof stat === "string") {
+    const denom = source.statDiffDenom ?? (source.params?.statDiffDenom as number | undefined) ?? 1;
+    return { divide: { value: { difference: [{ stat: stat as StatDiffStat }, { stat: stat as StatDiffStat, of: "foe" }] }, by: Math.max(1, denom) } };
+  }
+  if (source.statSumPct !== undefined) {
+    const p = source.statSumPct;
+    return { divide: { value: { product: [{ sum: [{ stat: p.a, of: "target" }, { stat: p.b, of: "target" }] }, p.pct] }, by: 100 } };
+  }
+  return undefined;
 }
+
+export function valueAmountOf(source: ValueSource, u: UnitState, foe?: UnitState, target = u): number | undefined {
+  const value = valueExpressionOf(source);
+  // 旧 statDiff 的缺失对手约定保留；新表达式的缺失读数则为 0。
+  if (source.amountExpr === undefined && (source.statDiff !== undefined || typeof source.params?.statDiff === "string") && foe === undefined) return 0;
+  return value === undefined ? undefined : numericValueOf(value, u, foe, target);
+}
+
+export const ailmentCountOf = (u: UnitState | undefined): number =>
+  u === undefined ? 0 : numericValueOf({ count: "ailments" }, u);
+export const perAilmentOf = (spec: ValueSource["perAilment"], u: UnitState, foe?: UnitState): number =>
+  spec === undefined ? 0 : valueAmountOf({ perAilment: spec }, u, foe)!;
+export const statSumPctOf = (u: UnitState, spec: ValueSource["statSumPct"]): number =>
+  spec === undefined ? 0 : valueAmountOf({ statSumPct: spec }, u)!;
+export const statDiffOf = (u: UnitState, foe: UnitState | undefined, stat: StatDiffStat, denom?: number): number =>
+  valueAmountOf({ statDiff: stat, ...(denom !== undefined ? { statDiffDenom: denom } : {}) }, u, foe)!;
 
 /** 承伤固定减免合计（dmgReduceFlat flag；params.flat 加算；params.statDiff 读双方该维数值差）。 */
 export function dmgReduceFlatOf(u: UnitState, foe?: UnitState, kind?: string): number {
@@ -661,17 +659,7 @@ export function dmgReduceFlatOf(u: UnitState, foe?: UnitState, kind?: string): n
   for (const e of u.effects) {
     if (!isMod(e, "dmgReduceFlat")) continue;
     if (!statusGateOk(e, u, foe, kind)) continue;
-    // statDiff 可落在条目顶层（apply_status 的 params 限 number）或 params 内
-    // perAilment：按异常种数迭代。放 op 顶层（params 是 Record<string, number>）。
-    const paV = (e as { perAilment?: { who?: "self" | "foe"; per?: number; pct: number } }).perAilment;
-    if (paV !== undefined) {
-      v += perAilmentOf(paV, u, foe);
-      continue;
-    }
-    const sd = (e as { statDiff?: unknown }).statDiff ?? e.params?.statDiff;
-    const sdDenom = (e as { statDiffDenom?: number }).statDiffDenom ?? e.params?.statDiffDenom;
-    if (typeof sd === "string") v += statDiffOf(u, foe, sd as StatDiffStat, sdDenom);
-    else v += e.params?.flat ?? 0;
+    v += valueAmountOf(e, u, foe) ?? e.params?.flat ?? 0;
   }
   return v;
 }
@@ -760,11 +748,9 @@ export function dmgOutPctOf(u: UnitState, foe?: UnitState, rng?: { drawBelow: (n
   let pct = 0;
   for (const e of u.effects) {
     if (!isMod(e, "dmgOutPct")) continue;
-    // perAilment：按异常种数迭代（"对手每处于1种异常状态则造成伤害提升60%"）。
-    // 放 op 顶层（params 是 Record<string, number>）。
-    const paP = (e as { perAilment?: { who?: "self" | "foe"; per?: number; pct: number } }).perAilment;
-    if (paP !== undefined) {
-      pct += perAilmentOf(paP, u, foe);
+    const value = valueAmountOf(e, u, foe);
+    if (value !== undefined) {
+      if (statusGateOk(e, u, foe, kind, moveType)) pct += value;
       continue;
     }
     // moveType 系别门控（"电系技能威力翻倍"——本招 type 不符则窗关）
@@ -815,12 +801,6 @@ export function dmgOutPctOf(u: UnitState, foe?: UnitState, rng?: { drawBelow: (n
       pct += Math.min(Math.floor(diff / Math.max(1, e.params.perHpDiffEvery)) * e.params.perHpDiffPct, e.params.perStageCap ?? Number.MAX_SAFE_INTEGER);
       continue;
     }
-    // statDiff 可落在条目顶层（apply_status 的 params 限 number）或 params 内
-    const sdv = (e as { statDiff?: unknown }).statDiff ?? e.params?.statDiff;
-    if (typeof sdv === "string") {
-      pct += statDiffOf(u, foe, sdv as StatDiffStat, (e as { statDiffDenom?: number }).statDiffDenom ?? e.params?.statDiffDenom);
-      continue;
-    }
     // 护盾点数步进 ×pct（"双方每有5点护盾伤害提升1%"——perShieldWho: 1=self 2=foe 3=both 缺省 both；perStageCap 封顶）
     if (e.params?.perShieldEvery !== undefined && e.params?.perShieldPct !== undefined) {
       const who = e.params.perShieldWho ?? 3;
@@ -830,7 +810,7 @@ export function dmgOutPctOf(u: UnitState, foe?: UnitState, rng?: { drawBelow: (n
     }
     // 已损体力步进增幅（"体力每减少10%则伤害提升5%"——perHpLostStep 步进 × perHpLostPct 每步；pct 共存为基数：增伤效果降低族 perHpLostPct 为负）
     if (e.params?.perHpLostStep !== undefined && e.params?.perHpLostPct !== undefined) {
-      const miss = Math.max(0, 100 - Math.floor((u.currentHp * 100) / Math.max(1, u.base.hp)));
+      const miss = Math.floor((Math.max(0, u.base.hp - u.currentHp) * 100) / Math.max(1, u.base.hp));
       pct += (e.params.pct ?? 0) + Math.floor(miss / e.params.perHpLostStep) * e.params.perHpLostPct;
       continue;
     }

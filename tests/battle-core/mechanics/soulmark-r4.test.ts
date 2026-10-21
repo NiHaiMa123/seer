@@ -107,21 +107,54 @@ const healsAfterMove = (evs: Ev[], moveId: string) => evs.some((e, i) => {
   const next = s < 0 ? undefined : win[s + 1];
   return (next?.type === "heal" && next.detail.side === "p1") || (next?.type === "action-failed" && next.detail.side === "p1" && next.detail.reason === "hp-full");
 });
+const reactHealAfterMove = (evs: Ev[], moveId: string) => evs.some((e, i) => {
+  if (e.type !== "action-declared" || e.detail.side !== "p1" || e.detail.moveId !== moveId) return false;
+  const end = evs.findIndex((x, j) => j > i && x.type === "action-declared");
+  const win = evs.slice(i + 1, end < 0 ? undefined : end).filter((x) => x.type !== "rng-draw");
+  const r = win.findIndex((x) => x.type === "effect-applied" && x.detail.side === "p1" && x.detail.name === "react");
+  return r >= 0 && win.slice(r + 1).some((x) =>
+    (x.type === "heal" && x.detail.side === "p1")
+    || (x.type === "action-failed" && x.detail.side === "p1" && x.detail.reason === "hp-full"),
+  );
+});
 
-describe("R4 补齐一句后整印无残留的魂印：固定种子对局", () => {
+describe("R4 已支持条款与残留边界：固定种子对局", () => {
   it("2923 佐伊尔：属性技能 → 恢复 200（原「恢复200Hp」）", () => {
     const { me, events } = play("2923");
     expect(me.sm.unparsed).toEqual([]);
-    expect(me.sm.entries[1]).toEqual({ hook: "onMoveUsed", guard: { actor: "self", cat: 1 }, ops: [{ op: "heal", flat: 200, target: "self" }] });
-    expect(healsAfterMove(events, "mv-2923-2")).toBe(true); // 第 3 招「气力」是属性技能
-    expect(healsAfterMove(events, "mv-2923-0")).toBe(false); // 攻击技能不触发回复
+    expect(me.sm.entries[1]).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 1 }, stack: true,
+        payload: [{ op: "heal", flat: 200, target: "self" }],
+      }],
+    });
+    expect(reactHealAfterMove(events, "mv-2923-2")).toBe(true); // 第 3 招「气力」是属性技能
+    expect(reactHealAfterMove(events, "mv-2923-0")).toBe(false); // 攻击技能不触发回复
   });
 
-  it("3316 瓦特艾沃：攻击技能 → 消除对手回合类效果（原「清除」）", () => {
-    const { me } = play("3316");
-    expect(me.sm.unparsed).toEqual([]);
-    expect(me.sm.entries[0]).toEqual({ hook: "onMoveUsed", guard: { actor: "self", cat: [2, 3] }, ops: [{ op: "cleanse", target: "opponent", scope: "timed" }] });
-    expect(soulHooks(play("3316").events)).toContain("hook:onMoveUsed");
+  it("3316 瓦特艾沃：攻击技能清除可运行；属性用技先制保留Boss范围残留", () => {
+    const { me, events } = play("3316");
+    expect(me.sm.unparsed).toEqual([{
+      clause: "自身使用属性技能则下2回合自身先制+1",
+      reason: "move-use scope — boss gate cannot persist across the react window (deferred)",
+    }]);
+    expect(me.sm.entries[0]).toEqual({
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 4 }, stack: true,
+        payload: [{ op: "cleanse", target: "opponent", scope: "timed" }],
+      }],
+    });
+    expect(me.sm.entries[1]).toEqual({
+      hook: "onMoveUsed",
+      bossGate: true,
+      ops: [{ op: "apply_status", name: "prio_up", target: "self", params: { add: 1 }, turns: 2 }],
+      guard: { actor: "self", cat: 1 },
+    });
+    expect(events.some((event) => event.type === "effect-applied" && event.detail.side === "p1" && event.detail.name === "react")).toBe(true);
   });
 
   it("3500 埃摩蒂：攻击技能 → 恢复 200（原「恢复自身200体力」）", () => {
@@ -140,9 +173,18 @@ describe("R4 补齐一句后整印无残留的魂印：固定种子对局", () =
     expect(hooks).not.toContain("hook:onTurnStart");
   });
 
-  it("3891 未来·伊优：回合末条件条目带上恢复体力与 PP（原「恢复自身所有体力和技能PP值」）", () => {
+  it("3891 未来·伊优：保留回合末恢复条目，攻击技能暴击段单独留残", () => {
     const { me, events } = play("3891");
-    expect(me.sm.unparsed).toEqual([]);
+    expect(me.sm.unparsed).toEqual([{
+      clause: "自身使用攻击技能30%打出致命一击",
+      reason: "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)",
+    }]);
+    expect(me.sm.entries[0]).toEqual({
+      hook: "onMoveUsed",
+      ops: [{ op: "apply_status", name: "crit_up", target: "self", turns: 1 }],
+      chance: { base: 30, grow: { add: 10, cap: 100 } },
+      guard: { actor: "self", cat: [2, 3] },
+    });
     expect((me.sm.entries[1] as any).ops.map((o: any) => o.op)).toEqual(["transfer_stages", "cleanse", "heal", "pp_delta"]);
     expect(soulHooks(events).length).toBeGreaterThan(0);
   });

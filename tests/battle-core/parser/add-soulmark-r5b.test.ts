@@ -90,7 +90,10 @@ describe("r5b-段边界：段首「自身受到(物理|特殊)攻击时…」自
       "自身受到物理攻击时50%令对手害怕,未触发则令对手攻击-1、速度-1," +
       "自身受到特殊攻击时50%令对手麻痹,未触发则令对手特攻-1、速度-1";
     const r = parseSoulmarkText(S);
-    expect(r.unparsed).toHaveLength(0);
+    expect(r.unparsed.map((u) => u.clause)).toEqual([
+      "未触发则令对手攻击-1、速度-1",
+      "未触发则令对手特攻-1、速度-1",
+    ]);
     expect(r.entries).toHaveLength(2);
 
     // 物理窗（与前一段「未触发则…」同组，逐字未变）
@@ -104,11 +107,9 @@ describe("r5b-段边界：段首「自身受到(物理|特殊)攻击时…」自
           params: { trigger: 1, cat: 2 },
           payload: [{ op: "apply_status", name: "fear", target: "opponent", chance: 50 }],
         },
-        { op: "apply_stat_stage", stat: "atk", delta: -1, target: "opponent", if: { not: { prevApplied: true } } },
-        { op: "apply_stat_stage", stat: "spd", delta: -1, target: "opponent", if: { not: { prevApplied: true } } },
       ],
     });
-    // 特殊窗（本轮新落的一条——与裸形同格，只是不再被并走）
+    // 第二个明确的受击事件是独立宿主，前一个失败分支不能吞掉它。
     expect(r.entries[1]).toEqual({
       hook: "onBattleStart",
       ops: [
@@ -119,8 +120,6 @@ describe("r5b-段边界：段首「自身受到(物理|特殊)攻击时…」自
           params: { trigger: 1, cat: 3 },
           payload: [{ op: "apply_status", name: "paralysis", target: "opponent", chance: 50 }],
         },
-        { op: "apply_stat_stage", stat: "spa", delta: -1, target: "opponent", if: { not: { prevApplied: true } } },
-        { op: "apply_stat_stage", stat: "spd", delta: -1, target: "opponent", if: { not: { prevApplied: true } } },
       ],
     });
   });
@@ -130,7 +129,10 @@ describe("r5b-段边界：段首「自身受到(物理|特殊)攻击时…」自
       "疾:自身受到物理攻击时50%令对手害怕,未触发则令对手攻击-1、速度-1," +
         "自身受到特殊攻击时50%令对手麻痹,未触发则令对手特攻-1、速度-1(boss无效)",
     );
-    expect(r.unparsed).toHaveLength(0);
+    expect(r.unparsed.map((u: any) => u.clause)).toEqual([
+      "未触发则令对手攻击-1、速度-1",
+      "未触发则令对手特攻-1、速度-1",
+    ]);
     expect(r.bossGate).toBe(true);
     expect(r.entries).toHaveLength(2);
     expect(r.entries.map((e: any) => e.bossGate)).toEqual([true, true]);
@@ -167,7 +169,7 @@ describe("r5b-未放宽：本轮只认这两条确定形，别的句子原样", 
       "hit-window — move-landed second-phase trigger unmodeled (deferred)",
     ]);
     expect(entries("自身属性技能命中时消耗30%的体力")).toHaveLength(0);
-    expect(reasons("自身属性技能命中时消耗30%的体力")).toEqual(["no-trigger-prefix"]);
+    expect(reasons("自身属性技能命中时消耗30%的体力")).toEqual(["no-rule"]);
   });
 
   it("r4b/r3c 的旧边界不变：'自身保留1点体力' 仍解得出、'自身吸取对手240点体力' 仍是两条旧条", () => {

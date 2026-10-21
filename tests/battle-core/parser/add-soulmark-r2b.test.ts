@@ -155,11 +155,15 @@ describe("r2b-turn-parity：句首「自身」冗余的奇偶回合句（兔兔�
     });
   });
 
-  it("邻句不变：非奇偶句首的 '自身使用技能时附加350点固定伤害' 仍走 w11 的剥除链（cat 无限制）", () => {
+  it("纯使用时句式：'自身使用技能时附加350点固定伤害' → 出招前 react（cat 无限制）", () => {
     expect(first("自身使用技能时附加350点固定伤害")).toEqual({
-      hook: "onMoveUsed",
-      ops: [{ op: "damage", kind: "fixed", power: 350, target: "opponent" }],
-      guard: { actor: "self" },
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11 }, stack: true,
+        payload: [{ op: "damage", kind: "fixed", power: 350, target: "opponent" }],
+      }],
     });
+    expect(parseSoulmarkText("自身使用技能时附加350点固定伤害").unparsed).toEqual([]);
   });
 });

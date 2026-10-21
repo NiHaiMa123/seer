@@ -1,7 +1,7 @@
 /** ops/heal.ts —— heal：按最大体力分数回复（numerator/denominator）或固定值（flat）。 */
 import { EngineFault, OTHER } from "../types.ts";
 import type { SideId } from "../types.ts";
-import { noHealOn, healCutPctOf, healBoostPctOf, hpCapOf, effectDefOf, flatImmuneOn, statDiffOf, statSumPctOf } from "./effects.ts";
+import { noHealOn, healCutPctOf, healBoostPctOf, hpCapOf, effectDefOf, flatImmuneOn, valueAmountOf } from "./effects.ts";
 import { condEval } from "./cond.ts";
 import { checkpoint } from "./shared.ts";
 import { fireReactive } from "./index.ts";
@@ -16,7 +16,7 @@ const healCore: OpHandler = (ctx, fx) => {
     const bench = next.sides[side].bench ?? [];
     for (const b of bench) {
       if (b.currentHp <= 0) continue;
-      const amt = fx.flat ?? Math.floor((b.base.hp * (fx.numerator ?? 1)) / (fx.denominator ?? 1));
+      const amt = Math.max(0, valueAmountOf(fx, unit, foe, b) ?? fx.flat ?? Math.floor((b.base.hp * (fx.numerator ?? 1)) / (fx.denominator ?? 1)));
       const before = b.currentHp;
       b.currentHp = Math.min(hpCapOf(b), b.currentHp + amt);
       if (b.currentHp > before) events.push({ type: "heal", detail: { side, amount: b.currentHp - before, hpAfter: { current: b.currentHp, max: b.base.hp }, source: "bench" } });
@@ -121,7 +121,7 @@ const healCore: OpHandler = (ctx, fx) => {
     // 禁疗反噬（"对手无法通过自身技能恢复体力且受到原本恢复量N/M的百分比伤害"）——heal_block params.echoN/echoD
     const blk = t.effects.find((e) => e.kind === "heal_block" && e.params?.echoN !== undefined);
     if (blk !== undefined) {
-      const base = fx.flat ?? Math.floor((t.base.hp * (fx.numerator ?? 1)) / (fx.denominator ?? 1));
+      const base = Math.max(0, valueAmountOf(fx, unit, ctx.foe, t) ?? fx.flat ?? Math.floor((t.base.hp * (fx.numerator ?? 1)) / (fx.denominator ?? 1)));
       const ed = Math.max(1, Math.floor((base * blk.params!.echoN!) / (blk.params!.echoD ?? 1)));
       t.currentHp = Math.max(0, t.currentHp - ed);
       events.push({ type: "damage", detail: { side: fx.target === "opponent" ? OTHER[side] : side, amount: ed, hpAfter: { current: t.currentHp, max: t.base.hp }, damageKind: "percent", cause: "heal_echo" } });
@@ -152,11 +152,8 @@ const healCore: OpHandler = (ctx, fx) => {
     return "continue";
   }
   let base = shieldAmt > 0 ? shieldAmt
-    // statDiff：恢复量 = |自身该维 - 对手该维|（"根据双方防御值之差n…②恢复n点体力"）
-    : fx.statDiff !== undefined
-    ? statDiffOf(unit, ctx.foe, fx.statDiff, fx.statDiffDenom)
-    : fx.statSumPct !== undefined
-    ? statSumPctOf(t, fx.statSumPct)
+    : fx.amountExpr !== undefined || fx.statDiff !== undefined || fx.statSumPct !== undefined
+    ? valueAmountOf(fx, unit, ctx.foe, t)!
     : fx.perBelowAbs !== undefined
     ? Math.floor(Math.max(0, fx.perBelowAbs.threshold - t.currentHp) / Math.max(1, fx.perBelowAbs.per)) * fx.perBelowAbs.add
     : fx.foeLastHealPct !== undefined
@@ -169,6 +166,7 @@ const healCore: OpHandler = (ctx, fx) => {
         ? Math.floor(((t.base.def + (t.base.sdf ?? 0)) * fx.defSumPct) / 100)
         : Math.floor(((fx.missing === true ? t.base.hp - t.currentHp : t.base.hp) * fx.numerator!) / fx.denominator!);
   // fracIf：条件换分数（"自身体力低于1/2变为吸取1/2"——满足时按新分数而非基础分数）
+  base = Math.max(0, base);
   if (fx.fracIf !== undefined && fx.flat === undefined && fx.flatRange === undefined && condEval(ctx, fx.fracIf.when)) {
     base = Math.floor((t.base.hp * fx.fracIf.numerator) / fx.fracIf.denominator);
   }

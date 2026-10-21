@@ -29,6 +29,11 @@ const NAMES = [
 ];
 
 describe("peak roster", () => {
+  it("真实包使用独立规则配置，命中能力和嵌套直损原子已声明", () => {
+    expect(PACK.rules.rulesetId).toBe("peak-v1");
+    expect(PACK.features.has("accuracy")).toBe(true);
+    expect(PACK.operatorAllowlist).toContain("hp_delta");
+  });
   it("12 只巅峰常见手工条目不变，生成单位全部可编译", () => {
     expect([...PACK.unitsById.keys()].sort()).toEqual(SOURCE.map((u) => u.id).sort());
     expect(PACK.unitsById.size).toBe(SOURCE.length);

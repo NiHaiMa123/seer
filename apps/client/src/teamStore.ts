@@ -52,7 +52,7 @@ export const teamStore = {
   setTeam: (team: string[]): void => setAll({ team }),
   setLoadout: (loadout: Record<string, string[]>): void => setAll({ loadout }),
   setCarried: (carried: Record<string, string[]>): void => setAll({ carried }),
-  reset: (): void => { state = EMPTY; persist(state); emit(); },
+  reset: (): void => setAll(EMPTY),
   sub: (f: () => void): (() => void) => { subs.add(f); return () => subs.delete(f); },
 };
 

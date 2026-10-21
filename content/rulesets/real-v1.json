@@ -16,6 +16,7 @@
   ],
   "operatorAllowlist": [
     "damage",
+    "hp_delta",
     "applyDrainRider",
     "applyFlatIfFoeImmune",
     "applySelfCostEcho",

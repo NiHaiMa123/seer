@@ -12,6 +12,89 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseEffectText, condOf, reactWrap, liftDrainRiders, isHitRider, OF_RIDER_FIELDS, ON_HIT_RIDER_FIELDS, DRAIN_RIDER_KEYS } from "./effects-parse.mjs";
+import { AILMENTS } from "./effects-rules/lex.mjs";
+
+const PREV_APPLIED_RESULT_OPS = new Set([
+  "damage", "heal", "cleanse", "clear_stages", "invert_stages", "apply_stat_stage", "pp_delta", "apply_mark",
+]);
+const PREV_APPLIED_STATUS_RESULTS = new Set(["shield", "ward", "heal_block", "no_switch"]);
+/** Positive classification of direct outcomes; a chance field does not turn an installed window into an event result. */
+const isPrevAppliedResultOp = (op) => {
+  if (op === null || typeof op !== "object") return false;
+  if (op.op === "apply_status") return Object.values(AILMENTS).includes(op.name) || PREV_APPLIED_STATUS_RESULTS.has(op.name);
+  return PREV_APPLIED_RESULT_OPS.has(op.op);
+};
+
+const MAX_HP_ABSORB_RE = /吸取(?:对手|对方|敌方)(?:的)?最大(?:体力|HP)/;
+const maxHpAbsorbHpDelta = (ops, sourceText, hasGrowingAmount = false) => {
+  if (!MAX_HP_ABSORB_RE.test(sourceText)) return { found: false, ops };
+  const damageIndexes = [];
+  const healIndexes = [];
+  const formulaIndexes = [];
+  const growIndexes = [];
+  for (let i = 0; i < ops.length; i++) {
+    const op = ops[i];
+    if (op?.op === "damage" && op.kind === "percent") damageIndexes.push(i);
+    else if (op?.op === "heal" && (op.target ?? "self") === "self") healIndexes.push(i);
+    else if (op?.op === "formula" && op.of === "frac") formulaIndexes.push(i);
+    else if (op?.op === "grow") growIndexes.push(i);
+  }
+  const removed = new Set([...damageIndexes, ...healIndexes, ...formulaIndexes]);
+  const invalidRemoved = new Set([...removed, ...growIndexes]);
+  const invalidOps = ops.filter((_, i) => !invalidRemoved.has(i));
+  // The new paired hp_delta mapping is only needed when the amount grows along
+  // with the max-HP drain. Keep older standalone drain/factor paths unchanged.
+  if (growIndexes.length === 0 && !hasGrowingAmount) return { found: false, ops };
+  if (damageIndexes.length !== 1 || healIndexes.length !== 1 || formulaIndexes.length > 1) {
+    return { found: true, converted: false, ops: invalidOps };
+  }
+
+  const damageIndex = damageIndexes[0];
+  const healIndex = healIndexes[0];
+  const damage = ops[damageIndex];
+  const heal = ops[healIndex];
+  const formulaIndex = formulaIndexes[0];
+  const formula = formulaIndex === undefined ? undefined : ops[formulaIndex];
+  const ratio = (n, d) => Number.isInteger(n) && Number.isInteger(d) && n > 0 && d > 0 ? { numerator: n, denominator: d } : undefined;
+  const damageFrac = formula !== undefined
+    ? formula.value
+    : damage.frac !== undefined
+      ? damage.frac
+      : ratio(damage.power, 100);
+  const healFrac = ratio(heal.numerator, heal.denominator);
+  const compatibleFrac = damageFrac !== undefined
+    && Number.isInteger(damageFrac.numerator) && Number.isInteger(damageFrac.denominator)
+    && damageFrac.numerator > 0 && damageFrac.denominator > 0
+    && (damageFrac.of === undefined || damageFrac.of === "max")
+    && healFrac !== undefined
+    && damageFrac.numerator * healFrac.denominator === healFrac.numerator * damageFrac.denominator;
+  const sameGate = JSON.stringify(damage.if ?? null) === JSON.stringify(heal.if ?? null)
+    && damage.chance === heal.chance
+    && (formula === undefined || JSON.stringify(formula.if ?? null) === JSON.stringify(damage.if ?? null));
+  const formulaFollowsDamage = formulaIndex === undefined || (damageIndex < formulaIndex && formulaIndex < healIndex);
+  const maxHpBased = (damage.percentBase === undefined || damage.percentBase === "max")
+    && (damage.frac?.of === undefined || damage.frac.of === "max");
+  if (!compatibleFrac || !sameGate || !formulaFollowsDamage || !maxHpBased || damage.target === "self") {
+    return { found: true, converted: false, ops: invalidOps };
+  }
+
+  const hpDelta = {
+    op: "hp_delta",
+    target: "opponent",
+    frac: { numerator: damageFrac.numerator, denominator: damageFrac.denominator, of: "max" },
+    kind: "percent",
+    cause: "soulmark:absorb",
+    healSelf: { numerator: 1, denominator: 1, of: "dealt" },
+    ...(damage.chance !== undefined ? { chance: damage.chance } : {}),
+    ...(damage.if !== undefined ? { if: damage.if } : {}),
+  };
+  const convertedOps = [];
+  for (let i = 0; i < ops.length; i++) {
+    if (i === damageIndex) convertedOps.push(hpDelta);
+    else if (!removed.has(i)) convertedOps.push(ops[i]);
+  }
+  return { found: true, converted: true, ops: convertedOps };
+};
 
 /** 已收成 rider 的旧键在宿主后面。按键读写，避免把旧键写回 damage。 */
 const readHit = (ops, key) => {
@@ -64,7 +147,6 @@ const smCondOf = (p) => {
   if (/^(?:攻击|技能|招式)?未命中(?:对手|目标)?$/.test(n)) return { not: { selfHitStreakAtLeast: 1 } };
   return condOf(p);
 };
-import { AILMENTS } from "./effects-rules/lex.mjs";
 
 // 段级冗余主语剥除的递归护栏：「未剥」探针要跨 parseSoulmarkText 调用共享（r0 探针内不得再剥）
 let r3cRedOff = false;
@@ -85,7 +167,7 @@ const STAT_DIFF_DIM = { "防御值": "def", "特防值": "sdf", "体力上限值
  * 「回合开始时自身根据双方X值之差n触发以下效果：①…②…③若n≥200则…」→ 直接产出条目。
  *
  * 4 只魂印（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索）共用这一个骨架，n 是同一读数。
- * 引擎不为魂印开局部变量作用域，所以这里把每个分档**直接翻译成自带 statDiff 幅值的 op**：
+ * 不使用局部变量作用域；普通效果读取 statDiff 幅值，回合开始快照效果由 amountTiming:"apply" 冻结：
  *   n              → |自身该维 - 对手该维|
  *   ①/②/③ 的效果措辞各不相同，逐个映射到已有 op 的对应字段。
  * 映射不上的分档返回 null（调用方保留原文，交给常规留档，不静默丢失）。
@@ -93,69 +175,129 @@ const STAT_DIFF_DIM = { "防御值": "def", "特防值": "sdf", "体力上限值
  * 返回 { entries, consumed } 或 null（不是这个骨架）。
  */
 function statDiffEntries(src, bossGate) {
-  const head = src.match(/^(?:掌[：:])?\s*回合开始时自身根据双方([^\s，,]{1,6}?)之差\s*[nN]\s*触发(?:如下|以下)?效果[:：]/);
+  const localBossTail = src.match(/[（(][^（）()]*?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效|免疫)[^（）()]*?[）)]\s*$/);
+  const source = localBossTail === null ? src : src.slice(0, localBossTail.index).trimEnd();
+  const entryBossGate = bossGate || localBossTail !== null;
+  const head = source.match(/^(?:掌[：:])?\s*回合开始时自身根据双方([^\s，,]{1,6}?)之差\s*[nN]\s*触发(?:如下|以下)?效果[:：]/);
   if (head === null) return null;
   const stat = STAT_DIFF_DIM[head[1]];
   if (stat === undefined) return null;
-  const body = src.slice(head[0].length);
+  const body = source.slice(head[0].length);
   // 分档切分：①②③ 或 1. 2. 3.（语料里常见「①.」和「1、」两种混排）
   const parts = body
     .split(/[①②③④⑤]|(?:^|\s)[1-5][.．、]\s*|[；;]/)
-    .map((x) => x.replace(/[（(][^（）()]*(?:boss|BOSS|Boss)[^（）()]*[）)]/g, "").replace(/^[\s.．、]+|[\s.]+$/g, "").trim())
+    .map((x) => x.replace(/^[\s.．、]+|[\s.]+$/g, "").trim())
     .filter(Boolean);
   if (parts.length === 0) return null;
 
   const ops = [];
+  const residuals = [];
+  const snapshotSensitive = (clause) => /^当回合(?:使用技能时附加\s*[nN]\s*点固定伤害|被击败时对手无法主动切换精灵\s*[nN]\s*\/\s*\d+\s*回合)$/.test(clause);
   /** 每个分档 → 零个或多个 op；null = 该档映射不了。 */
   const translate = (clause) => {
-    const gate = bossGate ? { bossGate: true } : {};
     // "若n≥T则X" → X 带 nAbove 条件
-    const cond = clause.match(/^若\s*[nN]\s*[≥>]=?\s*(\d+)\s*则(.+)$/);
+    const cond = clause.match(/^若\s*[nN]\s*(>=|≥|>)\s*(\d+)\s*则(.+)$/);
     if (cond !== null) {
-      const thr = Number(cond[1]);
-      const inner = translate(cond[2].trim());
+      // Stat differences are integers: n>k is exactly n≥k+1.
+      const thr = Number(cond[2]) + (cond[1] === ">" ? 1 : 0);
+      const inner = translate(cond[3].trim());
       if (inner === null) return null;
-      return inner.map((o) => ({ ...o, if: { statDiffAbove: { stat, atLeast: thr } }, ...gate }));
+      return inner.map((o) => ({ ...o, if: { statDiffAbove: { stat, atLeast: thr } } }));
     }
     // ② 恢复 n 点体力
-    if (/^恢复\s*[nN]\s*点体力$/.test(clause)) return [{ op: "heal", target: "self", statDiff: stat, ...gate }];
-    // ① 受到的攻击伤害减少 n 点 → dmg_reduce（statDiff 放顶层：params 的 additionalProperties 限 integer）
-    const red = clause.match(/^当回合受到的(?:攻击)?伤害减少\s*[nN]\s*点$/);
-    if (red !== null) return [{ op: "apply_status", name: "dmg_reduce", target: "self", turns: 1, statDiff: stat, ...gate }];
+    if (/^恢复\s*[nN]\s*点体力$/.test(clause)) return [{ op: "heal", target: "self", statDiff: stat }];
+    // ① 受到的伤害减少 n 点；明确写攻击才限制到标准攻击伤害，未写类别不缩窄原文范围。
+    const red = clause.match(/^当回合受到的(攻击)?伤害减少\s*[nN]\s*点$/);
+    if (red !== null) return [{ op: "apply_status", name: "dmg_reduce", target: "self", turns: 1, statDiff: stat, amountTiming: "apply", ...(red[1] !== undefined ? { params: { kindMask: 4 } } : {}) }];
     // ① 附加 n 点固定伤害 → foe_dot
     const dot = clause.match(/^当回合使用技能时附加\s*[nN]\s*点固定伤害$/);
-    if (dot !== null) return [{ op: "apply_status", name: "foe_dot", target: "self", turns: 1, statDiff: stat, ...gate }];
-    // ① 造成的攻击伤害提升 n% → dmg_boost(pct)
-    const boost = clause.match(/^当回合造成的(?:攻击)?伤害提升\s*[nN]\s*%$/);
-    if (boost !== null) return [{ op: "apply_status", name: "dmg_boost", target: "self", turns: 1, statDiff: stat, params: { pct: 0 }, ...gate }];
+    if (dot !== null) return null; // 每次出招重算与触发时冻结不等价。
+    // ① 造成的伤害提升 n%；明确写攻击才限制到标准攻击伤害，未写类别保留原文范围。
+    const boost = clause.match(/^当回合造成的(攻击)?伤害提升\s*[nN]\s*%$/);
+    if (boost !== null) return [{ op: "apply_status", name: "dmg_boost", target: "self", turns: 1, statDiff: stat, amountTiming: "apply", ...(boost[1] !== undefined ? { params: { kindMask: 4 } } : {}) }];
     // ③ 免疫受到的异常状态
-    if (/^当回合免疫受到的异常状态$/.test(clause)) return [{ op: "apply_status", name: "immune_status", target: "self", turns: 1, ...gate }];
+    if (/^当回合免疫受到的异常状态$/.test(clause)) return [{ op: "apply_status", name: "immune_status", target: "self", turns: 1 }];
     // ③ 攻击必定打出致命一击
-    if (/^当回合攻击必定(?:打出)?致命一击$/.test(clause)) return [{ op: "apply_status", name: "crit_always", target: "self", turns: 1, ...gate }];
+    if (/^当回合攻击必定(?:打出)?致命一击$/.test(clause)) return [{ op: "apply_status", name: "crit_always", target: "self", turns: 1 }];
     // ③ 所有技能先制+1
     const prio = clause.match(/^当回合所有技能先制([+-])\s*(\d+)$/);
-    if (prio !== null) return [{ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: (prio[1] === "-" ? -1 : 1) * Number(prio[2]) }, ...gate }];
+    if (prio !== null) return [{ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: (prio[1] === "-" ? -1 : 1) * Number(prio[2]) } }];
     // ③ 受到的非真实伤害减少 30%
     const nr = clause.match(/^当回合受到的非真实伤害减少\s*(\d+)\s*%$/);
-    if (nr !== null) return [{ op: "apply_status", name: "flat_taken_pct", target: "self", turns: 1, params: { pct: Number(nr[1]) }, ...gate }];
-    // ① 当回合被击败时对手无法主动切换精灵（时长由 n/200 决定，另存 denom）
+    if (nr !== null) return [{ op: "apply_status", name: "dmg_taken_down", target: "self", turns: 1, params: { pct: Number(nr[1]), kindMask: 7 } }];
+    // ① 当回合被击败时对手无法主动切换精灵（时长由 n/200 决定，无对应动态持续时长字段）
     const lock = clause.match(/^当回合被击败时对手无法主动切换精灵\s*[nN]\s*\/\s*(\d+)\s*回合$/);
-    if (lock !== null) return [{ op: "apply_status", name: "no_switch", target: "opponent", turns: 1, statDiff: stat, statDiffDenom: Number(lock[1]), ...gate }];
+    if (lock !== null) return null; // 持续时长也必须按回合开始时 n 冻结。
     return null;
   };
 
   for (const p of parts) {
     const t = translate(p);
-    if (t === null) return null; // 有一档翻译不了就整体放弃，保留原文走常规路径
+    if (t === null) {
+      residuals.push({ clause: p, reason: snapshotSensitive(p)
+        ? "statDiff timing — per-use trigger or dynamic-duration hook unavailable (deferred)"
+        : "statDiff clause — effect shape unmodeled (deferred)" });
+      continue;
+    }
     ops.push(...t);
   }
-  return { entries: [{ hook: "onTurnStart", ...(bossGate ? { bossGate: true } : {}), ops }], consumed: src.length };
+  return {
+    entries: ops.length > 0 ? [{ hook: "onTurnStart", ...(entryBossGate ? { bossGate: true } : {}), ops }] : [],
+    unparsed: residuals,
+    consumed: src.length,
+  };
 }
 
 // 文本级 boss 门控（"以上效果boss无效"覆盖整条魂印；位置任意）。
 const TEXT_BOSS_RE = /以上(?:效果|特效)(?:对)?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效)[！!]?|所有(?:效果|特效|技能效果|特性效果)(?:对)?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效)/;
 // 子句级 boss 门控（"（boss无效）"/"（下场后重置，BOSS无效）"/"（除…外的所有效果boss无效）"前/后置）。
 const CLAUSE_BOSS_RE = /[（(][^（）()]*?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效|免疫)[^（）()]*?[）)]/;
+const BOSS_SCOPE_TRIGGER_RE = /(?:战斗开始|战斗结束|(?<!上)回合开始|(?<!上)回合结束|自身登场|登场|出场|受到致命伤害|受到(?:攻击|技能|伤害)|自身使用(?:攻击|属性|物理|特殊)?技能)(?:时|后)/g;
+function splitLocalBossScopes(raw) {
+  const invalidatedSkill = raw.match(/(?:若|当)?(?:(?:己方|我方|对手|对方|敌方|自身|自己)[^，,；;。]{0,8})?技能(?:效果)?无效时/);
+  const nextEntry = raw.match(/(?:自身|自己)?下回合(?:登场|出场)时/);
+  if (invalidatedSkill !== null && nextEntry !== null && invalidatedSkill.index < nextEntry.index) {
+    return [
+      ...splitLocalBossScopes(raw.slice(0, invalidatedSkill.index)),
+      { text: raw.slice(invalidatedSkill.index), localBossGate: false, crossEventDefer: true },
+    ];
+  }
+  const shieldEquality = raw.match(/若(?:对手|对方|敌方)(?:的)?(?:护盾|护罩)(?:[、和与及])?(?:护盾|护罩)?(?:数量|数值|量)?相等/);
+  if (shieldEquality !== null && /(?:额外)?(?:消除|清除).{0,12}(?:护盾|护罩)/.test(raw.slice(shieldEquality.index))) {
+    return [
+      ...splitLocalBossScopes(raw.slice(0, shieldEquality.index)),
+      { text: raw.slice(shieldEquality.index), localBossGate: false, shieldEqualityDefer: true },
+    ];
+  }
+  const note = CLAUSE_BOSS_RE.exec(raw);
+  if (note === null) return [{ text: raw, localBossGate: false }];
+  const prefix = raw.slice(0, note.index);
+  const suffix = raw.slice(note.index + note[0].length);
+  let scopeStart = 0;
+  const timingTriggers = [...prefix.matchAll(BOSS_SCOPE_TRIGGER_RE)];
+  const eventStarts = [];
+  for (let i = 0; i < timingTriggers.length; i++) {
+    const trigger = timingTriggers[i];
+    let start = trigger.index;
+    const previous = i > 0 ? timingTriggers[i - 1] : undefined;
+    const scanStart = previous === undefined ? 0 : previous.index + previous[0].length;
+    const guards = [...prefix.slice(scanStart, trigger.index).matchAll(/(?:若|当)/g)];
+    const guard = guards.at(-1);
+    // If a condition introduces this timing clause, retain its prefix with the event.
+    if (guard !== undefined) start = scanStart + guard.index;
+    // Coordinated effects ("X，同时Y") share one semantic scope; a trailing boss note
+    // applies to the full linked group rather than just its final timing clause.
+    const between = previous === undefined ? "" : prefix.slice(previous.index + previous[0].length, trigger.index);
+    if (previous !== undefined && /(?:同时|并且|且)\s*$/.test(between)) start = eventStarts[i - 1];
+    eventStarts.push(start);
+    scopeStart = start;
+  }
+  return [
+    ...splitLocalBossScopes(prefix.slice(0, scopeStart)),
+    ...(prefix.slice(scopeStart).trim() !== "" ? [{ text: prefix.slice(scopeStart), localBossGate: true }] : []),
+    ...splitLocalBossScopes(suffix),
+  ];
+}
 // boss 有效标注——等价未声明，剥掉即可。
 const BOSS_OK_RE = /[（(][BbＢ][OoＯ][SsＳ][SsＳ]?(?:有效|中有效)[）)]/g;
 
@@ -163,15 +305,17 @@ const BOSS_OK_RE = /[（(][BbＢ][OoＯ][SsＳ][SsＳ]?(?:有效|中有效)[）)
 // 前缀词若含触发关键字则视为正文保留，如"回合开始：X"不剥）。
 const NAME_PREFIX_RE = /^[一-龥A-Za-z·\s]{1,14}[：:]|^(?:buff|BUFF|效果)?(?:说明|作用如下|效果如下|机制)[：:]|^[Tt]\d{1,2}[：:]|^[一-龥]{1,2}，/;
 const NAME_PREFIX_GUARD = /回合|攻击|受到|对手|自身|登场|击败|使用|战斗|体力|每/;
+const NAMED_DOMAIN_LABEL_RE = /^(?:[^：:]{1,18}(?:图腾|场地效果说明|场地|庇护|状态说明|轮舞)[^：:]{0,8}|(?:触发|开启|启动)[^：:]{1,18}(?:轮舞|循环|状态机|印记)[^：:]{0,4})[：:]/;
 const stripNamePrefix = (s) => {
   const m = s.match(NAME_PREFIX_RE);
-  if (m === null || NAME_PREFIX_GUARD.test(m[0])) return s;
+  if (m === null || NAME_PREFIX_GUARD.test(m[0]) || NAMED_DOMAIN_LABEL_RE.test(s)) return s;
   return s.slice(m[0].length);
 };
 // 编号项前缀："1、" "2." "（1）" / 名缩写+编号："鲁 1."——4399 魂印常见编号分条。
 const NUM_PREFIX_RE = /^(?:[0-9０-９]{1,2}[、.．]|[（(][0-9０-９]{1,2}[）)]|[①②③④⑤⑥⑦⑧⑨⑩]|第?[一二三四五六七八九十]+[条、.]|第[一二三四五六七八九十0-9]+柄[:：]?|[一-龥]{1,4}\s+[0-9０-９]{1,2}[、.])/;
-// FAQ 块："问：...答：赛尔号X是： <真魂印文本> ...进化图种族值技能表>>>"——抽取"是："之后为正文。
-const FAQ_ANSWER_RE = /答：(?:赛尔号)?[^是：]{0,20}是[:：]/;
+// FAQ 块先截到「答：」；答案正文可能直接开始，也可能带「赛尔号X是：」或「X的魂印是印名：」引导。
+const FAQ_ANSWER_RE = /答[：:]/;
+const FAQ_ANSWER_LEAD_RE = /^(?:(?:赛尔号)?[^，,。；;]{0,30}?(?:的)?(?:魂印|专属特性|特性)(?:是|为|叫)(?:[一-龥]{1,2})?[：:]|(?:赛尔号)?[^，,。；;]{1,30}是[：:])\s*/;
 // 尾巴噪声："X进化图种族值技能表>>>" / ">>>" 之后整段。
 const TAIL_NOISE_RE = />>>.{0,30}|[一-龥]{1,8}(?:进化图|种族值|技能表|获得方法|培养方案).*$/;
 
@@ -183,6 +327,7 @@ const DIRTY_RE = /^(?:问|答)[：:]|图鉴|技能表|种族值|进化图|获得
 const UNSUPPORTED_TRIGGERS = [
   { re: /^背包内(?!每存在|每存活(?:一|1)只?精灵)|^己方每有(?!一?只?精灵存活)|^己方场下(?!每有一只精灵存活)|^场下精灵|^背包中/, reason: "party-scope" },
   { re: /^使用第[一二三四五六七八九十\d]+技能/, reason: "slot-mark" },
+  { re: /^(?:自身|自己)?主动切换时.{0,24}(?:选择并使用|使用自身的?第?[一二三四五六七八九十\d]+号位技能)/, reason: "switch-move window — selected-move/switch timing unmodeled (deferred)", quarantine: true },
   { re: /^抵挡(?:所有)?(?:攻击|伤害)/, reason: "passive-modifier" },
   { re: /^必杀/, reason: "passive-modifier" },
   // 跨单位快照传递（"将自身能力提升状态附加给己方下只出战精灵"——需 from-unit 引用，无对应 op）
@@ -195,8 +340,9 @@ const UNSUPPORTED_TRIGGERS = [
   // 性别门：裸形「对手为雄性/雌性/无性别」（condOf 已有 foeGender 谓词）放行；尾巴「精灵」同位语已并入 condOf。
   // 只有否定形（「若对手不是雄性精灵」——谓词取反未建模）与裸「性别」字样留在这条里。
   { re: /不是(?:雄性|雌性|无性别)|不为(?:雄性|雌性|无性别)|性别/, reason: "gender-cond — foe-gender predicate not modeled (deferred)" },
+  { re: /信仰对象/, reason: "named target relation — external unit reference unmodeled (deferred)", quarantine: true },
   // 场下/背包态（"自身位于场下时X"——非出战位生效域未建模；"位于场上时"为恒真冗余前缀，body 归一剥离）
-  { re: /^(?:自身|自己)?位于场(?:下|边|后)/, reason: "bench-state — off-field scope unmodeled (deferred)" },
+  { re: /^(?:自身|自己)?位于场(?:下|边|后)|己方下只(?:出战)?精灵/, reason: "party-scope — off-field/next-ally target unmodeled (deferred)", quarantine: true },
   { re: /异常状态?(?:只|至多|最多|仅)?持续.{0,4}回合/, reason: "ailment-duration-cap — debuff turn clamp not modeled (deferred)" },
   // 复活族扩展（"受到攻击伤害低于N则N%几率复活"——与 self-KO revive 同一检查点缺口）
   { re: /复活|重生/, reason: "revive/checkpoint — hook not modeled (deferred)" },
@@ -216,6 +362,12 @@ const UNSUPPORTED_TRIGGERS = [
   { re: /每个?月(?:的)?\d+日|每周[一二三四五六日]/, reason: "calendar trigger — non-battle timescale (deferred)" },
   // 动态概率已建模（chanceDyn 挂载）；此桶仅兜底非常规表述
   { re: /几率等同.{0,10}(?:几率|百分比.{0,6}几率)|概率随.{0,10}变化/, reason: "dynamic-chance variant — nonstandard dynamic-chance phrasing (deferred)" },
+  // 具名印记层数按层直接缩放幅值（当前计数引用只能表达固定 countPerMark，不能表达每层伤害/减伤系数）。
+  { re: /^每有(?:\d+|一|两|二|三|四|五|六|七|八|九|十)(?:层|句)/, reason: "per-mark scaling — stack/count-dependent magnitude unmodeled (deferred)", quarantine: true },
+  // “未触发则重新触发登场效果并……”依赖再次派发既有 entry hook，整条 else 组需保留。
+  { re: /^(?:若)?未触发则重新触发(?:自身的?)?登场效果/, reason: "entry-effect replay — linked fallback payload unmodeled (deferred)", quarantine: true },
+  // 低血量分支中以刚结算的攻击伤害为基准，当前持久窗/回合末 hook 不能等价表达。
+  { re: /^若.{2,32}?则附加等量固伤/, reason: "damage-result reference — equal amount of preceding attack unmodeled (deferred)" },
   // 具名招式触发（"N%触发百刃斩"——外部 move 引用无对应 op）
   { re: /\d+%(?:的?(?:概率|几率))?触发[一二三四五六七八九十百千刃斩裂空破绝灭神魔光暗火水冰雷风土龙圣灵超能次元暗影]/, reason: "named-move trigger — external move ref not modeled (deferred)" },
   // 专属道具计数（"每拥有N方永昌玺"——外部 inventory 引用）
@@ -256,6 +408,8 @@ const UNSUPPORTED_TRIGGERS = [
   { re: /附属类异常/, reason: "sub-ailment class unmodeled (deferred)" },
   // 命中反应窗（"技能命中则在回合结束后X"——move-landed 二段钩子未建模，prevApplied 条目守卫不可达）
   { re: /命中则(?:在)?回合结束|技能命中则/, reason: "hit-window — move-landed second-phase trigger unmodeled (deferred)" },
+  { re: /^回合开始时[，,、\s]*若.{1,30}则当回合攻击技能\d+%(?:的)?(?:几率|概率)打出致命(?:一击)?/, reason: "attack-category window — turn-start crit status cannot retain attack-only category (deferred)", quarantine: true },
+  { re: /(?:消耗高出的体力并获得等量护盾|消耗(?:自身|自己的)?护盾并恢复等量体力|(?:若)?(?:自身|自己)?(?:拥有|存在)护罩则获得等量护盾)/, reason: "resource-value transfer — current HP/shield amount cannot be consumed or copied (deferred)", quarantine: true },
   // 对手附加异常反应（"对手每次执行异常状态附加效果后"——apply-observed 钩子未建模）
   { re: /执行.{0,6}异常.{0,4}附加|每次.*附加.*后/, reason: "foe-apply react — ailment-application trigger unmodeled (deferred)" },
   // 先制清除（"清除所有先制效果"——cleanse prio-scope 未建模）
@@ -315,6 +469,8 @@ const UNSUPPORTED_TRIGGERS = [
   { re: /含有.{0,4}的特性|除此特性外|每有一个.{0,4}特性/, reason: "trait-count — external trait roster unmodeled (deferred)" },
   // 印记声明块（"风龙结：…"/"希望之花：…"——具名印记状态机声明，整体归入 named domain）
   { re: /^[一-龥·]{2,8}：|数量达到\d+时|消耗所有.{0,4}的?[一-龥]{2,8}/, reason: "mark-declaration — named-mark state machine unmodeled (deferred)" },
+  { re: /^(?:[^：:]{1,18}(?:图腾|场地效果说明|场地|庇护|状态说明|轮舞)[^：:]{0,8})[：:]|^(?:触发|开启|启动)[^：:]{1,18}(?:轮舞|循环|状态机|印记)[^：:]{0,4}[：:]/, reason: "named-domain definition — field/state-machine effects unmodeled (deferred)", quarantine: true },
+  { re: /(?:点亮|连接)(?:对应|上一|前一|未被点亮)|(?:点亮|连接).{0,12}(?:进度|上一颗|前一颗|次数)/, reason: "named-state transition — linked counter/state snapshot unmodeled (deferred)", quarantine: true },
   // 印记持有者引用（"狩杀之的的体力"/"标记为狩杀之的"——跨单位印记指代/赋予未建模；获得N层X 的 apply_mark 授权不受此桶）
   { re: /[之魂愚祰耀怯]的(?:体力|PP|精灵|对手|自身)|标记为.{1,6}的|标记.{1,6}为.{1,6}的/, reason: "mark-holder-ref — cross-unit mark referent unmodeled (deferred)" },
   // 重置此效果（"重置此效果"——自指效果状态机复位，跨条目引用）
@@ -326,7 +482,7 @@ const UNSUPPORTED_TRIGGERS = [
   // 登场效果比例可变状态（"本效果比例减少10%"/"重置自身登场效果的比例"——条目级可变系数未建模）
   { re: /效果的比例|比例(?:每)?(?:减少|增加|重置)|重置.{0,6}比例|变化量/, reason: "mutable mark ratio — entry coefficient state unmodeled (deferred)" },
   // 异常回合数增量（"自身流血回合数+1"——在挂异常 remainingTurns 后置增量无对应 op）
-  { re: new RegExp(`(?:${"感染|害怕|麻痹|冰封|烧伤|睡眠|沉默|臣服|焚烬|失明|混乱|石化|束缚|瘫痪|流血|疲惫|诅咒|冻伤"}|异常状态)(?:的)?回合数\\s*[+＋加]\\s*\\d+`), reason: "ailment-duration increment — post-hoc remainingTurns mutation unmodeled (deferred)" },
+  { re: new RegExp(`(?:${"感染|害怕|麻痹|冰封|烧伤|睡眠|沉默|臣服|焚烬|失明|混乱|石化|束缚|瘫痪|流血|疲惫|诅咒|冻伤"}|异常状态)(?:的)?回合数\\s*[+＋加\\-－−减]\\s*\\d+`), reason: "ailment-duration mutation — post-hoc remainingTurns change unmodeled (deferred)", quarantine: true },
   // 无效化成功事件（"无效成功则恢复…"——招式被本印记无效化的观察钩子未建模）
   { re: /^(?:若|当)?(?:技能|招式|使其)?无效(?:化)?成功(?:时|后|则|，|,)/, reason: "nullify-success — move-nullification observation unmodeled (deferred)" },
   // 具名资源/形态域（"获得N点算力"/"算力乱流"/"星赐中随机"/"衍化"——具名资源与形态机未建模）
@@ -389,7 +545,7 @@ const PASSIVES = [
   { re: /^反弹(?:对手|受到|所受)?(?:的)?(?:攻击)?伤害(?:的)?(\d+)\s*\/\s*(\d+)/, mk: (m) => ({ name: "reflect_dmg", params: { n: +m[1], d: +m[2] } }) },
   { re: /^免疫低于(\d+)(?:点)?的?(?:攻击)?伤害/, mk: (m) => ({ name: "dmg_floor", params: { min: +m[1] } }) },
   { re: /^(\d+)%(?:概率|几率)?(?:使)?对手攻击落空/, mk: (m) => ({ name: "dodge", params: { pct: +m[1] } }) },
-  { re: /^有?(\d+)%(?:概率|几率)?闪避(?:当回合)?(?:受到|对手)?(?:的)?(?:所有)?攻击/, mk: (m) => ({ name: "dodge", params: { pct: +m[1] } }) },
+  { re: /^有?(\d+)%(?:概率|几率)?闪避(?:当回合)?(?:受到|对手)?(?:的)?(?:所有)?攻击/, mk: (m) => ({ name: "dodge", params: { pct: +m[1], cat: 4 } }) },
   // 概率免疫异常（immune_chance flag——每次施加单独判定）
   { re: /^有?(\d+)%(?:概率|几率)?免疫(?:所有|任何)?(?:的)?异常(?:状态)?|^满体力时有?(\d+)%(?:概率|几率)?免疫所有异常状态/, mk: (m) => ({ name: "immune_chance", params: m[2] !== undefined ? { chance: +m[2], hpFull: 1 } : { chance: +m[1] } }) },
   // 类别必中（"所有特殊攻击必定命中"→sure_hit cat=3）
@@ -564,6 +720,11 @@ const negateBaseParam = (o, cond) => {
   else if (cond?.selfHpBelow !== undefined) o.params = { ...(o.params ?? {}), notSelfHpBelowFracN: cond.selfHpBelow.numerator, notSelfHpBelowFracD: cond.selfHpBelow.denominator };
   else if (cond?.selfHpAbove !== undefined) o.params = { ...(o.params ?? {}), notSelfHpAboveFracN: cond.selfHpAbove.numerator, notSelfHpAboveFracD: cond.selfHpAbove.denominator };
 };
+const markPermanentBattleStartClone = (entry, base, clone) => {
+  if (entry?.hook !== "onBattleStart" || base.turns !== undefined || clone.turns !== undefined) return;
+  base.stack = true;
+  clone.stack = true;
+};
 
 // 破盾边沿触发（组级与 body 再分派共用）——"护[盾罩](或护罩)?(任意一个)?消失(时|后|则)X" → react trigger4
 const SHIELD_BREAK_RE = /^(?:若|当)?(?:自身|自己)?(?:的)?护[盾罩](?:或|和|与)(?:护罩|护盾)?任意(?:一|1)个?消失(?:时|后|则)(.+)$|^(?:若|当)?(?:自身|自己)?(?:的)?此?护[盾罩]消失(?:时|后|则)(.+)$|^护[盾罩](?:或|和|与)(?:护罩|护盾)?任意(?:一|1)个?消失(?:时|后|则)(.+)$/;
@@ -574,6 +735,8 @@ const TRIGGERS = [
   // ── onDamageDealt（攻击方命中后）——先于 onMoveUsed 的近似规则 ──
   { mk: (g) => { const t = g.match(/^(?:自身|自己)?(?:攻击|攻击技能|技能)?造成(?:的)?(?:攻击)?伤害(?:若)?(?:高于|大于|超过)(\d+)(?:点)?则?/); if (t === null) return undefined; return { hook: "onDamageDealt", extra: { guard: { prevDamageAboveAbs: +t[1] } }, body: g.slice(t[0].length).replace(/^[，,、\s]+/, "") }; } },
   { mk: (g) => { const t = g.match(/^(?:若)?(?:当回合|本次|本回合)?(?:自身|自己)?(?:攻击|攻击技能|技能)?造成(?:的)?(?:攻击)?伤害(?:若)?(?:低于|小于|不足)(\d+)(?:点)?[则，,]?/); if (t === null) return undefined; return { hook: "onDamageDealt", extra: { guard: { prevDamageBelowAbs: +t[1] } }, body: g.slice(t[0].length).replace(/^[，,、\s]+/, "") }; } },
+  // 成功命中发生在 move resolution 完成后，适用于属性技能等无伤招式；攻击类别须保留 cat。
+  { re: /^(?:当|每次|若)?(?:自身|自己)?(?:使用|释放|打出)?(?:攻击技能|攻击)(?:成功)?命中(?:对手|目标)?(?:时|后|则|[，,])/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
   { re: /^(?:当|每次|若)?(?:自身|自己)?(?:使用)?(?:攻击技能|攻击|直接攻击)(?:成功)?命中(?:对手|目标)?(?:时|后)/, hook: "onDamageDealt" },
   { re: /^命中后/, hook: "onDamageDealt" },
   // "自身(每次)?(物理|特殊|攻击)(技能)?命中(后|时)X" → onDamageDealt + cat（类别词限维；"自身特殊攻击命中后"/"使用物理攻击追加"）
@@ -685,10 +848,13 @@ const TRIGGERS = [
   { mk: (g) => { const t = g.match(/^(?:前|登场后前|出场后前|出场前|登场前|(?:每次|自身|自己|自身每次|自己每次)?(?:登场|出场)(?:之?后|时))(\d+)回合(?:内)?|^登场(\d+)回合内|^出场(\d+)回合内|^(?:每次)?(?:自身|自己)?(?:每次)?(?:登场|出场)首回合(?:内)?|^(?:出场|登场)?首回合(?:内)?|^效果(?:是|为)?首次登场|^每次登场首次?攻击(?:技能)?/); if (t === null) return undefined; const turns = +(t[1] ?? t[2] ?? t[3] ?? 1); return { hook: "onEntry", extra: { injectTurns: turns }, body: g.slice(t[0].length).replace(/^[，,、\s]+/, "") }; } },
   // ── 使用所有技能 ──
   { re: /^使用所有技能(?:都有|时|，|,)/, hook: "onMoveUsed", extra: { actor: "self" } },
+  // “属性技能命中后”在 resolveHit 成功后派发 onMoveUsed；onDamageDealt 不会收到无伤害的属性招式。
+  { re: /^(?:当|每次)?(?:自身|自己)?属性技能命中(?:后|时|则|，|,)/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 } },
+  { re: /^对手(?:每次)?属性技能命中(?:后|时|则|，|,)/, hook: "onMoveUsed", extra: { actor: "foe", cat: 1 } },
   // "每经过/每隔 N 个回合 X" → __turn__ + everyNTurns 守卫（周期门；"每经过3回合，X积蓄强力攻击"）
   { mk: (g) => { const t = g.match(/^每(?:经过|隔|过)(\d+)个?回合(?:，|,|、|\s)*(.+)$/); if (t === null) return undefined; return { hook: "__turn__", extra: { guard: { everyNTurns: +t[1] }, injectTurns: 1 }, body: t[2] }; } },
   // "使用攻击(技能)时 X"（无"技能"裸形——"使用攻击时50%附加…"）
-  { re: /^(?:每次|当|若)?(?:自身|自己)?(?:每次|每回)?(?:使用|释放)攻击(?:技能)?(?:时|后|，|,|则)/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
+  { re: /^(?:每次|当|若)?(?:自身|自己)?(?:每次|每回)?(?:使用|释放)攻击(?:技能)?(?:时|后|，|,|则)/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, useTime: true },
   // "对手(使用)?(物理|特殊)攻击命中自身时X" → onDamaged + cat（命中侧事件）
   { mk: (g) => { const t = g.match(/^对手(?:每次)?(?:使用|释放)?的?(物理|特殊)攻击(?:技能)?命中(?:自身|自己)(?:时|后|则|，|,)/); if (t === null) return undefined; return { hook: "onDamaged", extra: { cat: t[1] === "物理" ? 2 : 3 }, body: g.slice(t[0].length) }; } },
   // "双方出手后X" → 回合末结算（双侧行动完毕≈onTurnEnd UNVERIFIED）
@@ -810,13 +976,13 @@ const TRIGGERS = [
   { mk: (g) => { const t = g.match(/^(?:自身|自己)?每使用一次?(属性|攻击)?技能(?:时|后|则|，|,)?/); if (t === null) return undefined; return { hook: "onMoveUsed", extra: { actor: "self", ...(t[1] === "属性" ? { cat: 1 } : t[1] === "攻击" ? { cat: [2, 3] } : {}) }, body: g.slice(t[0].length).replace(/^(?:从下回合起|从下个回合起)(?:自身|自己)?在本场战斗中?/, "") }; } },
   // "（与X）每持续战斗N回合X" → onTurnEnd + everyNTurns（N=1 即逐回合；搭挡名前缀剥除）
   { mk: (g) => { const t = g.match(/^(?:与[^，,。；]{1,8})?每持续战斗(\d+)回合(?:时|后|则|，|,)?/); if (t === null) return undefined; return { hook: "onTurnEnd", extra: { guard: { everyNTurns: +t[1] } }, body: g.slice(t[0].length) }; } },
-  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方)?(?:当回合|本回合)?(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=附加|使|令|造成|恢复|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
-  { re: /^对手(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: [2, 3] } },
+  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方)?(?:当回合|本回合)?(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=附加|使|令|造成|恢复|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, useTime: true },
+  { re: /^对手(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: [2, 3] }, useTime: true },
   // "对手使用攻击技能命中率降低N%" → onMoveUsed foe + dodge（foe 命中率降幅≈自身闪避窗）
   { mk: (g) => { const t = g.match(/^对手(?:每次)?使用(?:攻击|属性)?技能命中率?(?:降低|下降|减少)(\d+)%/); if (t === null) return undefined; return { hook: "onMoveUsed", extra: { actor: "foe" }, body: `<acc_down ${t[1]}>` + g.slice(t[0].length) }; } },
-  { re: /^(?:当|每次)?(?:自身|我方|己方)?(?:每次)?使用(?:属性|工具)技能(?:时|后|则|，|,|(?=有|都|增加|使|令|附加|恢复|回复|吸取|减少|降低|提升|造成|消除|清除|额外|对|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 } },
-  { re: /^对手(?:每次)?使用属性技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: 1 } },
-  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方)?使用属性技能(?:时|后|则|，|,|(?=有|都|恢复|回复|使|令|附加|吸取|造成))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 } },
+  { re: /^(?:当|每次)?(?:自身|我方|己方)?(?:每次)?使用(?:属性|工具)技能(?:时|后|则|，|,|(?=有|都|增加|使|令|附加|恢复|回复|吸取|减少|降低|提升|造成|消除|清除|额外|对|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
+  { re: /^对手(?:每次)?使用属性技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: 1 }, useTime: true },
+  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方)?使用属性技能(?:时|后|则|，|,|(?=有|都|恢复|回复|使|令|附加|吸取|造成))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
   // "使用物理攻击时"/"使用特殊攻击时"（cat 精确：2=物理 3=特殊）
   { re: /^(?:当|每次|若)?(?:自身|自己)?(?:每次)?使用物理攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "self", cat: 2 } },
   { re: /^(?:当|每次|若)?(?:自身|自己)?(?:每次)?使用特殊攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "self", cat: 3 } },
@@ -825,8 +991,8 @@ const TRIGGERS = [
   { re: /^对手(?:每次)?使用物理攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "foe", cat: 2 } },
   { re: /^对手(?:每次)?使用特殊攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "foe", cat: 3 } },
   // "所有攻击技能X"/"所有技能X" —— 骑带式 rider（cat [2,3] / 全类别）
-  { re: /^(?:所有|全部|每次使用)攻击技能(?:，|,|(?=使|令|附加|恢复|造成|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
-  { re: /^(?:所有|全部|每次使用)技能(?:，|,|(?=使|令|附加|恢复|造成|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self" } },
+  { re: /^(?:所有|全部|每次使用)攻击技能(?:，|,|(?=使|令|附加|恢复|造成|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, useTime: true },
+  { re: /^(?:所有|全部|每次使用)技能(?:，|,|(?=使|令|附加|恢复|造成|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self" }, useTime: true },
   // "自身攻击技能X"（动词骑带——消除/清除/恢复/造成/附加/先制）
 
   // 类别连用（"连续使用攻击/属性技能时X"）：上一动与本动同属攻击(2|3)或同属属性(1)。
@@ -869,8 +1035,15 @@ const TRIGGERS = [
   { re: /^下回(?!合)(?:自身|自己)?[，,、]?/, hook: "onTurnEnd", extra: { injectTurns: 1 } },
   // "打出致命一击则X"/"致命一击后X" → onDamageDealt + prevCrit 守卫
   { mk: (g) => { const t = g.match(/^(?:自身)?(?:攻击)?(?:打出|造成)致命[一1]?击(?:时|后|则)[，,、]?/) ?? g.match(/^致命[一1]?击后[，,、]?/); if (t === null) return undefined; return { hook: "onDamageDealt", extra: { opIf: { prevCrit: true } }, body: g.slice(t[0].length) }; } },
-  { re: /^(?:当|每次)?(?:自身)?(?:每次)?使用技能(?:时|后|则|，|,|(?=若))/, hook: "onMoveUsed", extra: { actor: "self" } },
-  { re: /^对手(?:每次)?使用技能(?:时|后|则|，|,|(?=若))/, hook: "onMoveUsed", extra: { actor: "foe" } },
+  { re: /^(?:当|每次)?(?:自身)?(?:每次)?使用技能(?:时|后|则|，|,|(?=若))/, hook: "onMoveUsed", extra: { actor: "self" }, useTime: true },
+  // 语料省略「时」时仍可能明确表示使用技能触发；保留显式类别门控，只在后接概率或效果谓词时承认。
+  { mk: (g) => {
+    const t = g.match(/^(?:当|每次|若)?(?:自身|自己)?(?:每次)?使用(攻击|属性|物理|特殊)?技能(?=有?\d+%|令|使|附加|恢复|回复|吸取|造成|消除|清除|降低|提升|增加|先制)/);
+    if (t === null) return undefined;
+    const cat = t[1] === "攻击" ? [2, 3] : t[1] === "属性" ? 1 : t[1] === "物理" ? 2 : t[1] === "特殊" ? 3 : undefined;
+    return { hook: "onMoveUsed", extra: { actor: "self", ...(cat === undefined ? {} : { cat }) }, body: g.slice(t[0].length), useTime: true };
+  } },
+  { re: /^对手(?:每次)?使用技能(?:时|后|则|，|,|(?=若))/, hook: "onMoveUsed", extra: { actor: "foe" }, useTime: true },
   // 裸类别前缀（"属性技能吸取对手150点体力"——省略"使用"）
   { re: /^(?:自身|自己)?属性技能(?=\d|有|使|令|附加|吸取|恢复|造成)/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 } },
   { re: /^(?:自身|自己)?攻击技能(?=\d|有|使|令|附加|吸取|恢复|造成)/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
@@ -884,8 +1057,8 @@ const TRIGGERS = [
   // 先后手条件触发：保留"先出手时"在体内——parseEffectText 的 condPrefix 会产出 {order} 守卫挂到 ops 上
   { re: /^(?=(?:自身?)?先出手(?:时|则|，|,|自身|使|令|攻击|附加|恢复|造成)|(?:自身?)?后出手(?:时|则|，|,|自身|使|令|对手|附加|吸取|恢复)|先手时|后手时|先出手，|后出手，)/, hook: "onMoveUsed", extra: { actor: "self" } },
   // 对手先/后手：守卫挂在条目级 guard——condEval 的 order 是"行动方序位"，actor:foe 时即对手序位
-  { re: /^对手?先出手时/, hook: "onMoveUsed", extra: { actor: "foe", guard: { order: "first" } } },
-  { re: /^对手?后出手时/, hook: "onMoveUsed", extra: { actor: "foe", guard: { order: "last" } } },
+  { re: /^(?:若|当)?(?:对手|对方|敌方)先出手(?:时|则|[，,])/, hook: "onMoveUsed", extra: { actor: "foe", guard: { order: "first" } } },
+  { re: /^(?:若|当)?(?:对手|对方|敌方)后出手(?:时|则|[，,])/, hook: "onMoveUsed", extra: { actor: "foe", guard: { order: "last" } } },
   // "闪避则X"/"闪避成功则X" → onMiss who:foe（对手攻击落空=自身闪避）
   { re: /^(?:若)?闪避(?:成功)?(?:则|时|后)/, hook: "onMiss", extra: { who: "foe" } },
   // "攻击时X"：近似 on-use（命中语义归 post-damage-trigger 族单独处理）
@@ -1087,8 +1260,14 @@ export function liftSoulPrio(e) {
 export function parseSoulmarkText(text, petName) {
   const entries = [];
   const unparsed = [];
+  // Use-time migration is delayed until all group tails, upgrades and cross-group
+  // mounts have landed. Otherwise a later grow/else clause can attach to a
+  // battle-start react window instead of the source move entry.
+  const plainUseMigrations = [];
   const pointGrow = new Set(); // growStep 为裸值（点）域的条目——"最高N点"只回挂点域宿主，不与 % 域混挂
   let bossGate = false;
+  let textBossGate = false;
+  let anyBossGate = false;
   if (text === null || text === undefined) return { entries, unparsed, bossGate, clauseTotal: 0, clausesParsed: 0, fragmentsOnParsed: 0, fragmentsOnResidual: 0, fragmentsOutside: 0 };
   let src = cleanEntities(String(text)).trim();
   // 裸名前缀（"布莱克所有攻击附带…"——无冒号的自称名；含"作为首发精灵"的自称；括号形态后缀取基名）
@@ -1102,19 +1281,45 @@ export function parseSoulmarkText(text, petName) {
   const stripPet = (s, look) => { for (const a of nameAlts) { const r = s.replace(new RegExp(`^${esc(a)}\\s*(?=${look})`), ""); if (r !== s) return r; } return s; };
   if (nameAlts.length > 0) src = stripPet(src, `所有|每|自身|攻击|对|回|受|免疫|在|处|使|令|技|先|后|登|作`);
   if (src === "" || EMPTY_MARK_RE.test(src)) return { entries, unparsed, bossGate, clauseTotal: 0, clausesParsed: 0, fragmentsOnParsed: 0, fragmentsOnResidual: 0, fragmentsOutside: 0 };
-  // FAQ 块抽取："问：...答：X是： <正文>"——正文才是魂印文本
+  // FAQ 块抽取：答案可能直接是正文，也可能有标题式引导；只去掉已识别的答前言。
   const faq = src.match(FAQ_ANSWER_RE);
-  if (faq) src = src.slice(faq.index + faq[0].length);
+  if (faq) {
+    src = src.slice(faq.index + faq[0].length);
+    const lead = src.match(FAQ_ANSWER_LEAD_RE);
+    if (lead !== null) src = src.slice(lead[0].length);
+    else {
+      // 旧 FAQ 变体把印名和「效果如下」分开写：「魂印是骁，效果如下：1、…」。
+      const list = src.match(/^[^。；;]{0,100}?效果如下[:：]/);
+      if (list !== null) src = src.slice(list[0].length);
+    }
+  }
   else {
     // "答：...魂印是<印名>，效果如下： 1、X：…"——是后接印名非冒号的 QA 变体，取"效果如下："之后
     const lst = src.match(/(?:问：|答：|的魂印是|效果?是)[\s\S]{0,80}?效果如下[:：]/);
     if (lst) src = src.slice(lst.index + lst[0].length);
   }
+  src = src.trimStart();
+  if (src === "" || EMPTY_MARK_RE.test(src)) return { entries, unparsed, bossGate, clauseTotal: 0, clausesParsed: 0, fragmentsOnParsed: 0, fragmentsOnResidual: 0, fragmentsOutside: 0 };
   // 印名冠词（"的魂印是骁：每回合…"——FAQ 抽取后遗留的单字印名+冒号；仅句首剥，中段"危机感：定义"保留分桶）
   src = src.replace(/^[㐀-䶿一-龥]{1,3}：(?=[一-龥0-9]{4,})/, "");
   src = src.replace(TAIL_NOISE_RE, "");
-  if (TEXT_BOSS_RE.test(src)) { bossGate = true; src = src.replace(TEXT_BOSS_RE, ""); }
+  if (TEXT_BOSS_RE.test(src)) { bossGate = true; textBossGate = true; anyBossGate = true; src = src.replace(TEXT_BOSS_RE, ""); }
   src = stripNamePrefix(src).replace(BOSS_OK_RE, "");
+
+  // A duration-bearing state introduced earlier in the same source can define
+  // a later `name：...` block even when the name itself has no generic marker
+  // such as 图腾/场地/状态. Keep this relation source-local and literal: ordinary
+  // soulmark headings are not treated as state domains unless the text first
+  // introduces that exact duration-bearing name.
+  const introducedDomainLabels = new Set();
+  for (const match of src.matchAll(/(?:获得|进入|开启|启动|附加|赋予)(?:\d+|[一二两三四五六七八九十]+)?回合的?([一-龥·]{2,10}?)(?=[，,；;。\s])/g)) {
+    const name = match[1];
+    if (name !== undefined && src.includes(`${name}：`)) introducedDomainLabels.add(name);
+  }
+  const isIntroducedDomainLabel = (s) => {
+    const label = s.match(/^([^：:]{1,18})[：:]/);
+    return label !== null && introducedDomainLabels.has(label[1]);
+  };
 
   // 「自身位于/存活于出战背包时，<效果>」——前置守卫。剥离后让效果本体走常规规则。
   // 注意：只剥前缀；"本人已出场则失效"这一半尚未建模
@@ -1123,20 +1328,63 @@ export function parseSoulmarkText(text, petName) {
 
   // ── 「根据双方X值之差n触发以下效果：①…②…③若n≥200则…」直接产条目 ──
   // 语料只有 4 只（决囚钢骨/堕魂之手/覆骸冥土/拟态绞索），骨架固定、n 是同一读数。
-  // 引擎不为魂印开局部变量作用域，所以整体翻译成自带 statDiff 幅值的 op 序列。
-  // 有一档翻译不了就整体放弃（保留原文走常规路径，仍会被留档接住）。
+  // 即时幅值与静态分档可直接翻译；持续效果若需要把回合开始时 n 冻结，当前 IR 无此能力，逐档保留 residual。
   {
     const sd = statDiffEntries(src, bossGate);
     if (sd !== null) {
       for (const e of sd.entries) entries.push(e);
+      unparsed.push(...sd.unparsed);
       src = src.slice(sd.consumed).trim();
       if (src === "") {
-        return { entries, unparsed, bossGate, clauseTotal: 1, clausesParsed: 1, fragmentsOnParsed: 0, fragmentsOnResidual: 0, fragmentsOutside: 0 };
+        const parsed = sd.entries.some((e) => (e.ops?.length ?? 0) > 0);
+        return {
+          entries,
+          unparsed,
+          bossGate: anyBossGate || entries.some((e) => e.bossGate === true),
+          clauseTotal: 1,
+          clausesParsed: parsed ? 1 : 0,
+          fragmentsOnParsed: parsed ? sd.unparsed.length : 0,
+          fragmentsOnResidual: parsed ? 0 : sd.unparsed.length,
+          fragmentsOutside: 0,
+        };
       }
     }
   }
 
   let lastHook; // 触发器继承：无前缀子句沿用同一文本内前句的 hook
+  let guardQuarantine = false; // 未知守卫后的关联语句暂不解析，直到显式、可解析的触发前缀重新建立边界
+  const guardUnmodeledReason = "guard unmodeled — effect withheld (deferred)";
+  let guardQuarantineReason = guardUnmodeledReason;
+  let namedDomainQuarantine = false;
+  const namedDomainReason = "named-domain definition — field/state-machine effects unmodeled (deferred)";
+  const isGuardElse = (s) => /^(?:若)?(?:未触发|未命中|未击败|没有触发|均未触发|皆未触发|反转失败|触发失败|免疫成功|触发成功)(?:令|使|恢复|回复|吸取|造成|附加|消除|清除|解除|下|回合|自身|对手|对方|敌方|则)/.test(s);
+  const startsWithSupportedTrigger = (s) => {
+    if (isGuardElse(s)) return false;
+    // A typed incoming-attack react is an explicit event boundary, even though
+    // its existing IR is encoded as a battle-start `react` window rather than
+    // one of the ordinary hook prefixes below.
+    if (/^(?:自身|自己)?受到(?:物理|特殊)攻击(?:时|后|则)/.test(s)) return true;
+    for (const t of TRIGGERS) {
+      if (t.mk !== undefined) {
+        const r = t.mk(s);
+        // Generic conditions/passives use __turn__ as the parser's default timing bucket.
+        // They cannot prove a new independent event boundary after an unknown guard.
+        if (r !== undefined && r.extra?.guardDropped === undefined && r.hook !== "__turn__" && r.weak !== true) return true;
+      }
+      if (t.re !== undefined && t.weak !== true && t.hook !== "__turn__") {
+        const m = s.match(t.re);
+        if (m !== null && m.index === 0) return true;
+      }
+    }
+    return false;
+  };
+  const firstSupportedTriggerOffset = (s) => {
+    for (let i = 1; i < s.length; i++) {
+      if (!/[，,、\s]/.test(s[i - 1] ?? "")) continue;
+      if (startsWithSupportedTrigger(s.slice(i))) return i;
+    }
+    return -1;
+  };
   const danglingEmpty = []; // {text,atEntries}——跨。段裸触发：hook 经 lastHook 结转后续子句；文本末仍无条目产出才记 empty-body
   let clauseTotal = 0;
   let clausesParsed = 0; // 产出 ≥1 条 entry 的子句计数（残余 unparsed 片段不否决该句）
@@ -1145,8 +1393,108 @@ export function parseSoulmarkText(text, petName) {
   let fragmentsOnResidual = 0;
   let fragmentsOutside = 0;
   let fragmentCursor = 0;
-  for (const raw of src.split(/[；;。]/)) {
+  const recordOuterResidual = (clause, reason) => {
+    const text = clause.trim();
+    if (text === "") return;
+    unparsed.push({ clause: text, reason });
+    clauseTotal++;
+    fragmentsOnResidual++;
+    fragmentCursor = unparsed.length;
+  };
+  for (const rawPart of src.split(/[；;。]/).flatMap(splitLocalBossScopes)) {
+    const raw = rawPart.text;
+    bossGate = textBossGate || rawPart.localBossGate; // 全文标注覆盖全部；局部括注仅覆盖其最近独立时序片段。
+    if (rawPart.localBossGate) anyBossGate = true;
+    if (namedDomainQuarantine) {
+      recordOuterResidual(raw, namedDomainReason);
+      continue;
+    }
+    if (rawPart.crossEventDefer) {
+      const reason = "cross-event prerequisite — skill-invalid condition cannot guard a later entry event (deferred)";
+      recordOuterResidual(raw, reason);
+      guardQuarantine = true;
+      guardQuarantineReason = reason;
+      lastHook = undefined;
+      continue;
+    }
+    if (rawPart.shieldEqualityDefer) {
+      const reason = "shield-value comparison — equal shield/ward amounts cannot guard the linked effect (deferred)";
+      recordOuterResidual(raw, reason);
+      guardQuarantine = true;
+      guardQuarantineReason = reason;
+      lastHook = undefined;
+      continue;
+    }
     let clause = raw.trim();
+    const firstUseBeforeWindow = /首次(?:使用|攻击|出手).{0,32}(?:在打出之前|打出之前)/.test(clause);
+    let namedDefinitionQuarantine = false;
+    // FIRST_ENTRY_RE's `chance.once` is not a substitute for a first-turn
+    // window. Preserve the linked branch instead of emitting an effect that
+    // can trigger on a later turn.
+    if (/^首次(?:登场|出战|出场|上场|入场)(?:后|时)?[，,、\s]*(?:首回合|第一回合|第1回合)(?:内|中)?[，,、\s]*使用(?:攻击|属性|物理|特殊)?技能(?:后|时|则)/.test(clause)) {
+      const reason = "first-entry move window — first-turn gate cannot be represented by once (deferred)";
+      recordOuterResidual(clause, reason);
+      guardQuarantine = true; guardQuarantineReason = reason; lastHook = undefined;
+      continue;
+    }
+    // These linked phrases depend on the result/amount of the current hit, or
+    // couple mutually exclusive stage branches across timing windows. Do not
+    // retain an ungated stat, priority, heal, or damage fragment from the same
+    // raw clause when the complete relation is not expressible.
+    const hasZeroDamageDrain = /(?:造成(?:的)?(?:攻击)?伤害|攻击伤害)为?0(?:点)?(?:时|后|则)[，,、\s]*(?:吸取|吸收)(?:对手|对方|敌方)/.test(clause);
+    const hasThresholdMaxHpDrain = /(?:自身|自己)?造成(?:的)?(?:攻击)?伤害(?:高于|大于|超过)\d+(?:点)?(?:时|后|则)[，,、\s]*(?:吸取|吸收)(?:对手|对方|敌方)最大(?:体力|HP)/.test(clause);
+    const hasNoHighDamageStage = /自身未造成(?:高于|大于|超过)\d+(?:点)?的?(?:攻击)?伤害的回合[，,、\s]*战斗阶段结束[时后][，,、\s]*(?:自身|自己)?(?:特攻|速度)/.test(clause);
+    const hasPairedStageBranches = /若(?:敌我双方|敌我|双方)(?:中)?(?:任意一方|有一方|一方).{0,24}处于能力(?:提升|强化)(?:的)?状态.{0,60}则[\s\S]*若(?:敌我双方|敌我|双方)(?:中)?(?:皆|都|均)不处于能力(?:提升|强化)/.test(clause);
+    if (hasZeroDamageDrain || hasThresholdMaxHpDrain || hasNoHighDamageStage) {
+      const reason = "damage-result branch — hit outcome/amount cannot be represented by the current hook window (deferred)";
+      recordOuterResidual(clause, reason);
+      guardQuarantine = true; guardQuarantineReason = reason; lastHook = undefined;
+      continue;
+    }
+    if (hasPairedStageBranches) {
+      const reason = "stage-state split — mutually exclusive turn windows cannot share a frozen condition (deferred)";
+      recordOuterResidual(clause, reason);
+      guardQuarantine = true; guardQuarantineReason = reason; lastHook = undefined;
+      continue;
+    }
+    if (guardQuarantine && clause !== "") {
+      if (startsWithSupportedTrigger(clause)) {
+        guardQuarantine = false;
+        guardQuarantineReason = guardUnmodeledReason;
+        lastHook = undefined;
+      } else {
+        const boundary = firstSupportedTriggerOffset(clause);
+        if (boundary > 0) {
+          recordOuterResidual(clause.slice(0, boundary), guardQuarantineReason);
+          clause = clause.slice(boundary).trim();
+          guardQuarantine = false;
+          guardQuarantineReason = guardUnmodeledReason;
+          lastHook = undefined;
+        } else {
+          recordOuterResidual(clause, guardQuarantineReason);
+          continue;
+        }
+      }
+    }
+    // A turn-start comparison grants a crit window for attacks made during
+    // that turn. Keep the snapshot predicate and probability on the applying
+    // turn-start hook; onDamageDealt would be too late for the current hit.
+    const turnStartCrit = clause.match(/^回合开始时[，,、\s]*自身(?:当前)?体力(高于|大于|超过|低于|小于|少于|不足)(?:对手|对方|敌方)(?:的)?(?:体力)?则当回合攻击(\d+)%(?:的)?(?:几率|概率)打出致命(?:一击)?[，,、\s]*自身(?:当前)?体力(高于|大于|超过|低于|小于|少于|不足)(?:对手|对方|敌方)(?:的)?(?:体力)?则当回合攻击(\d+)%(?:的)?(?:几率|概率)打出致命(?:一击)?$/);
+    if (turnStartCrit !== null) {
+      const condOfSide = (comparison) => smCondOf(`自身体力${comparison}对手`);
+      const firstCond = condOfSide(turnStartCrit[1]);
+      const secondCond = condOfSide(turnStartCrit[3]);
+      if (firstCond !== undefined && secondCond !== undefined) {
+        entries.push(
+          { hook: "onTurnStart", guard: firstCond, ops: [{ op: "apply_status", name: "crit_up", target: "self", turns: 1, params: { n: +turnStartCrit[2], d: 100 } }] },
+          { hook: "onTurnStart", guard: secondCond, ops: [{ op: "apply_status", name: "crit_up", target: "self", turns: 1, params: { n: +turnStartCrit[4], d: 100 } }] },
+        );
+        fragmentsOutside += unparsed.length - fragmentCursor;
+        fragmentCursor = unparsed.length;
+        clauseTotal++; clausesParsed++;
+        continue;
+      }
+    }
     // 伴生上下文传染：段内命中契约/召唤即整段记 companion（同。段内后续编号项均属伴生作用域）
     if (/缔结契约|与.{1,6}缔结|缔结伴生|存活期间|守护.{1,8}存活|伴生(?:精灵|伙伴)|召唤.{1,4}(?:伙伴|守卫|化身)/.test(clause)) {
       unparsed.push({ clause: raw.trim().slice(0, 120), reason: "companion/summon — contract entity unmodeled (deferred)" });
@@ -1162,7 +1510,7 @@ export function parseSoulmarkText(text, petName) {
       if (clause === "") break;
     }
     if (clause === "") continue;
-    if (CLAUSE_BOSS_RE.test(clause)) { bossGate = true; clause = clause.replace(CLAUSE_BOSS_RE, "").replace(/^[，,、\s]+|[，,、\s]+$/g, ""); }
+    if (CLAUSE_BOSS_RE.test(clause)) { bossGate = true; anyBossGate = true; clause = clause.replace(CLAUSE_BOSS_RE, "").replace(/^[，,、\s]+|[，,、\s]+$/g, ""); }
     if (clause === "") continue;
     if (DIRTY_RE.test(clause) || /^无特性$|^没有特性/.test(clause)) {
       // 脏尾截断：编号子句+尾部站点噪声（"…最高400点 3、（boss无效） 精灵资料：…"）——截掉脏尾保留头部有效子句；整段脏文本才跳过
@@ -1288,7 +1636,13 @@ export function parseSoulmarkText(text, petName) {
     // reason 尾缀 FALLTHROUGH 的两行（clear-stages / taken-down）等于"抢在 R4 之前整句拦下"，它们要发的
     // clear_stages{foe,up} 和 dmg_taken_down{pct} 都是现成格子，所以列作"未被支持的触发"的豁免：
     // 放行后落得到旧句式的就照旧句式发，落不到的（如"消除对手能力提升效果"）仍按原路退回、reason 逐字不变。
-    if (unsup !== undefined && !unsup.reason.endsWith("FALLTHROUGH")) { unparsed.push({ clause, reason: unsup.reason }); continue; }
+    if (unsup !== undefined && !unsup.reason.endsWith("FALLTHROUGH")) {
+      if (unsup.quarantine === true) {
+        recordOuterResidual(clause, unsup.reason);
+        guardQuarantine = true; guardQuarantineReason = unsup.reason; lastHook = undefined;
+      } else unparsed.push({ clause, reason: unsup.reason });
+      continue;
+    }
     const clauseEntryStart = entries.length;
 
     // "，"段内嵌触发词/被动族/未支持族 → 开新组；其余并入前组
@@ -1351,23 +1705,55 @@ export function parseSoulmarkText(text, petName) {
       || /^自身(?=自身(?:下回合|本回合|当回合))|^自身(?=受到(?:特殊|物理)攻击(?:时|后|则))/.test(seg);
     const groups = [];
     let cur = [];
+    cur.linkedContinuation = false;
     // 空格=句界（图鉴源用空格分句："…80% 回合开始时，…"——无正句内空格，已全库验证）；
     // 与 "，" 同级切分，每段再过 segBoundary 判定是否开新组（裸触发/新触发→独立组）
     let parenDepth = 0; // 括号内枚举不切组（"（防御+2，特防+2）"是上一句的维度列表——，碎片曾整批丢进 no-trigger-prefix）
     for (const seg of clause.split(/[，,\s　]+/)) {
+      const linkedSegment = /^(?:并且?|且|同时|以及)/.test(seg.trim());
       let cs = seg.trim().replace(/[％﹪]/g, "%").replace(/[＋﹢]/g, "+").replace(/[－﹣]/g, "-").replace(/^(?:并且?|且|同时|以及|此外|另外)[，,、]?/, "").replace(NUM_PREFIX_RE, "").replace(/\s+[0-9０-９]{1,2}[、.．]?\s*$/, "").trim();
       if (cs === "" || /^[0-9０-９]{1,2}$/.test(cs)) continue; // 纯编号段=FAQ 页码碎屑
+      if (cur.length === 0 && linkedSegment) cur.linkedContinuation = true;
       cs = redTry(cs); // 段级冗余主语剥除（只在剥后确实落到规则表、且未剥解不出时才生效；否则整段保持原文）
       const nested = parenDepth > 0;
       parenDepth = Math.max(0, parenDepth + (cs.match(/[（(]/g) ?? []).length - (cs.match(/[）)]/g) ?? []).length);
       if (nested) { cur.push(cs); continue; } // 括号深内的片段并入当前组不做边界判定；括号字符保留——下游 cap-tail/stat 处理器需要"（…）"标记
       // "且"内联边界（"先出手特攻+1且回合结束时恢复X"——逗号未断处且+触发词二次切分）
       const qi = cs.length > 4 ? cs.search(/且(?=回合开始|回合结束|受到攻击|若(?:自身|对手|对方|当|每)|对手使用|自身登场|每次|本场战斗|每回合|下回合|当前回合)/) : -1;
-      if (qi > 0) { cur.push(cs.slice(0, qi).trim()); if (cur.length > 0) groups.push(cur); cur = [cs.slice(qi + 1).trim()]; continue; }
-      if (cur.length > 0 && segBoundary(cs)) { groups.push(cur); cur = [cs]; }
+      if (qi > 0) { cur.push(cs.slice(0, qi).trim()); if (cur.length > 0) groups.push(cur); cur = [cs.slice(qi + 1).trim()]; cur.linkedContinuation = true; continue; }
+      if (cur.length > 0 && segBoundary(cs)) { groups.push(cur); cur = [cs]; cur.linkedContinuation = linkedSegment; }
       else cur.push(cs);
     }
     if (cur.length > 0) groups.push(cur);
+    // A result branch may be split at `且` before it reaches the effect
+    // parser. Preserve that scope across tokenizer groups: a bare timed/passive
+    // tail joined with a conjunction is still part of `triggered/failed then`
+    // and cannot escape as an unconditional entry.
+    let outcomeScopePending = false;
+    let outcomeChanceGrowCapPending = false;
+    const outcomeMarker = /(?:免疫成功|触发成功|施加成功|反转成功|未触发|未命中|未击败|免疫失败|触发失败|反转失败)/;
+    const outcomeChanceGrow = /^(?:若)?(?:未触发|未命中|未击败|没有触发|均未触发|皆未触发)(?:则|，|,)(?:(?:下次|本次在场|在场)?[^，,；;。]{0,12}(?:概率|几率)(?:提升|增加|提高)\d+%|下次提升\d+%)/;
+    const outcomeGrowCap = /^最高(?:提升至|提高到|增加到|提升|提高|增加|为|至|到|可达|可叠加)?\d+%?$/;
+    for (const group of groups) {
+      const groupText = group.join("，").trim().replace(/^[，,、；;：:\s]+/, "");
+      const linked = group.linkedContinuation === true;
+      if (outcomeScopePending) {
+        if (outcomeChanceGrowCapPending && !linked && outcomeGrowCap.test(groupText)) {
+          // A bare cap is the terminal part of the same explicit failed-chance
+          // growth clause. Let the existing chanceGrow cap handler consume it.
+          outcomeScopePending = false;
+          outcomeChanceGrowCapPending = false;
+          group.outcomeChanceGrowCap = true;
+        } else if (!linked && startsWithSupportedTrigger(groupText)) {
+          outcomeScopePending = false;
+          outcomeChanceGrowCapPending = false;
+        } else group.withholdOutcomeTail = true;
+      }
+      if (outcomeMarker.test(groupText)) {
+        outcomeScopePending = true;
+        outcomeChanceGrowCapPending = outcomeChanceGrow.test(groupText);
+      }
+    }
 
     let pendingCond = clauseBenchCond; // 跨组条件（"P时，Q"逗号拆分——P 暂存 Condition；括号背包守卫预置种子）
     let pendingCondSrc; // 条件来源子句（orphan 诊断时挂原文而非 JSON）
@@ -1375,15 +1761,64 @@ export function parseSoulmarkText(text, petName) {
     let pendingEmpty; // 裸触发组结转（"回合开始时"独占一组被逗号边界切开——其 hook 结转 lastHook，不即时报 empty-body）
     let pendingBenchCtx; // "背包内每存活/阵亡N只精灵"跨组缩放语境（逗号把计数片段与效果句切开——flags.benchCtx 透出后暂存，挂下一组 pct/shield op）
     let pendingHpStep; // "自身HP每降低N%"跨组步进语境（逗号切开后暂存，下组 pct 宿主转 perHpLostStep/perHpLostPct）
+    let pendingHpStepKindMask; // 显式“攻击技能前”步进只覆盖攻击伤害类型
     let pendingAilTurn; // "自身每有1回合流血"跨组缩放语境（逗号切开——下组 pct 窗转 pctPerAilTurn 落地烘焙）
     let pendingHpDiffCtx; // "每与对手相差N点"跨组缩放语境（下组 pct 窗转 perHpDiffEvery/perHpDiffPct）
     let pendingShieldCtx; // "双方每有N点护盾"跨组缩放语境（下组 pct 窗转 perShieldEvery/perShieldPct/perShieldWho）
     let pendingAtCap; // "当效果叠加至N%时"跨组达顶语境（逗号切开——下组 ops 归入宿主 atCapOps 而非独立条目）
     const elsePending = []; // "不相同时X"inner else 支路暂存——newEntry 落地后克隆 not 守卫条
     const condGroups = () => (pendingCond !== undefined ? pendingCond : undefined);
+    const enterQuarantine = (reason) => {
+      guardQuarantine = true;
+      guardQuarantineReason = reason;
+      lastHook = undefined;
+      pendingCond = undefined; pendingCondSrc = undefined; pendingEmpty = undefined;
+      pendingBenchCtx = undefined; pendingHpStep = undefined; pendingHpStepKindMask = undefined; pendingAilTurn = undefined;
+      pendingHpDiffCtx = undefined; pendingShieldCtx = undefined; pendingAtCap = undefined;
+      lastGrowMount = undefined; elsePending.length = 0;
+    };
+    const quarantineGroup = (text, reason) => {
+      unparsed.push({ clause: text, reason });
+      enterQuarantine(reason);
+    };
+    const prevAppliedHost = () => {
+      const entry = entries[entries.length - 1];
+      if (entries.length <= clauseEntryStart || entry?.hook === undefined || lastHook?.hook !== entry.hook) return undefined;
+      const entryGuard = entry.guard;
+      const entryActor = entryGuard?.actor ?? entry.actor;
+      const entryCat = entryGuard?.cat ?? entry.cat;
+      const hostActor = lastHook.extra?.actor;
+      const hostCat = lastHook.extra?.cat;
+      if (hostActor !== undefined && entryActor !== hostActor) return undefined;
+      if (hostCat !== undefined && JSON.stringify(entryCat) !== JSON.stringify(hostCat)) return undefined;
+      // Entry chance failure selects elseOps before the main ops run. It cannot
+      // be observed by a later `if: not prevApplied` in the skipped main list.
+      // Keep a host only when a real operation in the same event can update the
+      // runner's prevApplied outcome; a chance field alone is not such a result.
+      return Array.isArray(entry.ops) && entry.ops.some(isPrevAppliedResultOp) ? entry : undefined;
+    };
     outerG: for (const g of groups) {
+      const linkedContinuation = g.linkedContinuation === true;
+      const groupUnparsedStart = unparsed.length;
       let gtext = g.join("，").trim().replace(/^[，,、；;：:\s]+/, "").replace(/，(?=[+-]\d)/g, ""); // "体力，+10"切分碎片回拼——逗号后紧跟有符号数属上维度增量，非子句边界
       if (gtext === "") continue;
+      if (g.withholdOutcomeTail === true) {
+        quarantineGroup(gtext, "prevApplied branch continuation — linked tail cannot be detached safely (deferred)");
+        continue;
+      }
+      const linkedOutcomeScope = /(?:免疫成功|触发成功|施加成功|反转成功|未触发|未命中|未击败|免疫失败|触发失败|反转失败)/.test(gtext);
+      if (namedDefinitionQuarantine) { recordOuterResidual(gtext, "named-domain definition — field/state-machine effects unmodeled (deferred)"); continue; }
+      if (NAMED_DOMAIN_LABEL_RE.test(gtext) || isIntroducedDomainLabel(gtext)) {
+        namedDefinitionQuarantine = true;
+        namedDomainQuarantine = true;
+        quarantineGroup(gtext, "named-domain definition — field/state-machine effects unmodeled (deferred)");
+        continue;
+      }
+      // “首次使用……在打出之前”的前置关系覆盖随后清场窗口；它不能被中间的回合结束触发词释放。
+      if (firstUseBeforeWindow && (/(?:首次(?:使用|攻击|出手))/.test(gtext) || /^在打出之前/.test(gtext))) {
+        quarantineGroup(gtext, "first-use prerequisite — before-first-use window cannot be represented (deferred)");
+        continue;
+      }
       // 单字孤儿（"辛"/"时"——名前缀剥后残余，无语义载量）
       if (/^[一-龥]$/.test(gtext)) continue;
       // "赛尔号X·"整句残余——FAQ/名前缀污染（无语义载量）
@@ -1402,6 +1837,57 @@ export function parseSoulmarkText(text, petName) {
       if (gtext === "") continue;
       // 组级裸名前缀补剥（"死亡后，混元天尊开始免疫…"逗号切组后名+动词起首——子句级剥只覆盖组首）
       if (nameAlts.length > 0) gtext = stripPet(gtext, `所有|每|自身|攻击|对|回|受|免疫|在|处|使|令|技|先|后|登|作|死|开|缔|附|进|变|切|闪|驱|失|获|吸|恢|造|消|抵|免|克|微`);
+      // Quarantine before any tail handler can mutate the previous entry (dynamic chance,
+      // grow, attach-all, caps, and other cross-group mounts all share this boundary).
+      if (guardQuarantine) {
+        if (startsWithSupportedTrigger(gtext) && !linkedContinuation) {
+          guardQuarantine = false;
+          guardQuarantineReason = guardUnmodeledReason;
+          lastHook = undefined;
+        } else {
+          quarantineGroup(gtext, guardQuarantineReason);
+          continue;
+        }
+      }
+      // A comma-delimited `若P，X` is a guard even without `则`. If P has no
+      // supported predicate, retain the linked body and quarantine its tails;
+      // otherwise the preceding explicit turn hook can make X unconditional.
+      // Event phrases such as `若自身被击败时` still go through their explicit
+      // trigger rule, while modeled predicates (for example `自身满体力`) remain
+      // available to the normal condition carry path below.
+      const unknownGuardIn = (text) => {
+        const comma = text.match(/^若([^，,、]{2,32}?)(?:时)?[，,、]\s*(.+)$/);
+        const timed = text.match(/^若([^，,、]{2,32}?)时(.+)$/);
+        const bare = text.match(/^若([^，,、]{2,32}?)(?:时)?$/);
+        const then = text.match(/^若([^，,、]{2,32}?)则(.+)$/);
+        const m = then ?? comma ?? timed ?? bare;
+        if (m === null || smCondOf(m[1].replace(/^处于/, "自身处于")) !== undefined) return false;
+        if (startsWithSupportedTrigger(text)) return false;
+        // More specific deferred families should retain their established
+        // reason instead of being collapsed into the generic guard bucket.
+        if (UNSUPPORTED_TRIGGERS.some((u) => u.re.test(text))) return false;
+        const hasBody = comma !== null || timed !== null || then !== null;
+        const looksLikeAction = /(?:触发|令|使|造成|恢复|回复|吸取|消除|清除|解除|提升|增加|降低|减少|免疫)/.test(text);
+        return hasBody || !looksLikeAction;
+      };
+      let unknownGuard = unknownGuardIn(gtext);
+      // A trigger and a comma-style guard can land in one parser group when the
+      // guard itself has no modeled predicate, e.g. `回合开始时，若未知条件`.
+      // Inspect only explicit event prefixes; default-timed conditions do not
+      // establish a trustworthy boundary after an unknown guard.
+      if (!unknownGuard) {
+        for (const t of TRIGGERS) {
+          if (t.re === undefined || t.weak === true || t.hook === "__turn__") continue;
+          const m = gtext.match(t.re);
+          if (m === null || m.index !== 0 || m[0].length === 0) continue;
+          const rest = gtext.slice(m[0].length).replace(/^[，,、\s]+/, "");
+          if (unknownGuardIn(rest)) { unknownGuard = true; break; }
+        }
+      }
+      if (unknownGuard) {
+        quarantineGroup(gtext, guardUnmodeledReason);
+        continue;
+      }
       // "此效果翻倍"/"本场战斗此效果翻倍" → attachAll effectDouble 挂载 token（回挂前条目 ops）
       if (/^(?:本场战斗)?(?:此|该|上述)效果翻倍$/.test(gtext)) gtext = "<attachAll effectDouble>";
       // "几率等同(于)自身当前/已损失体力百分比" —— 动态概率挂载前条目（chanceDyn：判定时刻按体力比例算）
@@ -1418,6 +1904,20 @@ export function parseSoulmarkText(text, petName) {
       gtext = gtext.replace(/^触发后/, "之后");
       if (gtext.startsWith("之后") && gtext.length > 2) gtext = gtext.slice(2);
       if (gtext === "") continue;
+      // Permanent maximum-HP costs cannot be represented by the temporary max_hp_down status.
+      // Keep the linked cost and recovery together so a free full heal is never emitted.
+      if (/消耗自身\d+点(?:体力上限|最大体力).{0,12}(?:并|后|，|,)\s*(?:恢复|回复)(?:自身)?全部(?:体力|HP)/.test(gtext)) {
+        const reason = "permanent max-HP cost — semantic cost unsupported (deferred)";
+        quarantineGroup(gtext, reason);
+        continue;
+      }
+      // A start/end-of-turn condition that assigns a later move-triggered effect crosses timing windows.
+      // Defer the whole group before ordinary trigger extraction can move its guard onto onMoveUsed.
+      if (/^(?:每次)?(?:回合开始|回合结束)(?:时|后|[，,])(?:若|当).{1,36}?(?:则|时)(?:当回合|本回合)?(?:自身|自己)?使用(?:攻击|属性|物理|特殊)?技能/.test(gtext)) {
+        const reason = "nested trigger timing — turn-scope condition cannot guard later move event (deferred)";
+        quarantineGroup(gtext, reason);
+        continue;
+      }
       // 括号内联封顶尾（"降低10%（最高可叠加5次）"——括号含数字不被纯文本剥除，残留句尾）→ 剥出追加为新组走 gcap/rdc 回挂本组条目
       const ipc = gtext.match(/[（(](最高(?:可)?叠加(?:至|到)?\d+(?:次|%|点)|最多(?:可)?叠加(?:至|到)?\d+(?:次|%|点)|至多叠加(?:至|到)?\d+(?:次|%|点)|最[高多至]+(?:减少|降低|减免)(?:至|到)?\d+%?)[)）]\s*$/);
       if (ipc !== null) { groups.push([ipc[1]]); gtext = gtext.slice(0, gtext.length - ipc[0].length).replace(/[，,\s]+$/, ""); if (gtext === "") continue; }
@@ -1708,38 +2208,72 @@ export function parseSoulmarkText(text, petName) {
         const rest = okm[1].trim();
         const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true });
         liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
-        if (sub.effects.length > 0 && entries.length > 0) {
-          for (const o of sub.effects) entries[entries.length - 1].ops.push({ ...o, if: o.if !== undefined ? { and: [g2, o.if] } : g2 });
+        const host = prevAppliedHost();
+        // An immunity window describes protection offered by a status, not
+        // successful prevention of an incoming move. Likewise, an orphan
+        // `triggered successfully` clause has no event result to observe.
+        if (/免疫成功/.test(okm[0]) || host === undefined) {
+          quarantineGroup(gtext, "prevApplied prerequisite — no same-event successful host (deferred)");
+          continue;
+        }
+        if (sub.effects.length > 0) {
+          if (!pos && /(?:均|皆)未触发/.test(okm[0]) && entries.length - clauseEntryStart > 1) {
+            quarantineGroup(gtext, "prevApplied aggregate prerequisite — multiple entry outcomes are not shared by the hook runner (deferred)");
+            continue;
+          }
+          if (!pos && host.chance !== undefined) {
+            host.elseOps = [...(host.elseOps ?? []), ...sub.effects];
+          } else {
+            for (const o of sub.effects) host.ops.push({ ...o, if: o.if !== undefined ? { and: [g2, o.if] } : g2 });
+          }
           for (const u of sub.unparsed) unparsed.push(u);
+          if (sub.unparsed.length > 0) enterQuarantine("prevApplied branch payload partially unmodeled — linked tail withheld (deferred)");
           segParsed = true; continue;
         }
-        pendingCond = pendingCond === undefined ? g2 : { and: [pendingCond, g2] };
-        pendingCondSrc = pendingCondSrc ?? okm[0].trim();
-        gtext = rest;
-        if (gtext === "") continue;
+        quarantineGroup(gtext, "prevApplied prerequisite — linked payload has no supported effect (deferred)");
+        continue;
       }
       // "未触发则X"/"未命中则X"组级 else 链：余文无触发词时并入前条目 ops（else 语义=前 op 未适用则本条）；
       // 余文自带触发词则照常触发流 + {not:prevApplied} 暂存（"未触发则回合结束时X"）
       const elsem = gtext.match(new RegExp(`^(?:若)?(?:未触发|未命中|未击败|没有触发|均未触发|皆未触发|反转失败|触发失败)(?:${AIL_ALT}|闪避)?(?:则|，|,)(.+)$`));
       if (elsem !== null) {
         const rest = elsem[1].trim();
+        // Replaying an entry effect is linked to the earlier entry branch and
+        // cannot be reduced to the generic not-prevApplied condition below.
+        // Quarantine before this early else path can append a free-standing
+        // cleanse/status effect to the previous supported host.
+        if (/^重新触发(?:自身的?)?登场效果/.test(rest)) {
+          quarantineGroup(gtext, "entry-effect replay — linked fallback payload unmodeled (deferred)");
+          continue;
+        }
+        const host = prevAppliedHost();
+        if (host === undefined) {
+          quarantineGroup(gtext, "prevApplied prerequisite — no same-event fallback host (deferred)");
+          continue;
+        }
         // 事件词起首的余文走正常触发流（"未触发则回合结束时X"→新条目+守卫）；
         // 非事件词（"未触发则100%令对手失明"）→ ops 并入前条目（else 语义=前 op 未适用）
         const eventLead = /^(?:回合|受到|登场|出场|击败|击倒|换下|闪避|出手|先出手|后出手|每次|每回合|当回合|下回合|使用|自身登场|首次|受到攻击|受到技能|对手使用|对手攻击|对手回合|对手登场|对手出场|对手换下|对手受到)/.test(rest);
-        if (!eventLead && rest !== "") {
+        if (eventLead) {
+          quarantineGroup(gtext, "prevApplied prerequisite — fallback crosses trigger boundary (deferred)");
+          continue;
+        }
+        if (rest !== "") {
           const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true });
           liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
-          const prev = entries[entries.length - 1];
-          if (sub.effects.length > 0 && prev?.ops !== undefined) {
-            for (const o of sub.effects) prev.ops.push({ ...o, if: o.if !== undefined ? { and: [{ not: { prevApplied: true } }, o.if] } : { not: { prevApplied: true } } });
+          if (sub.effects.length > 0) {
+            if (host.chance !== undefined) {
+              host.elseOps = [...(host.elseOps ?? []), ...sub.effects];
+            } else {
+              for (const o of sub.effects) host.ops.push({ ...o, if: o.if !== undefined ? { and: [{ not: { prevApplied: true } }, o.if] } : { not: { prevApplied: true } } });
+            }
             for (const u of sub.unparsed) unparsed.push(u);
+            if (sub.unparsed.length > 0) enterQuarantine("prevApplied fallback payload partially unmodeled — linked tail withheld (deferred)");
             segParsed = true; continue;
           }
         }
-        pendingCond = pendingCond === undefined ? { not: { prevApplied: true } } : { and: [pendingCond, { not: { prevApplied: true } }] };
-        pendingCondSrc = pendingCondSrc ?? elsem[0].trim();
-        gtext = rest;
-        if (gtext === "") continue;
+        quarantineGroup(gtext, "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)");
+        continue;
       }
       // "不相同时X"/"不同时X" 互补 else 支路（"使用技能类型与上次相同时先制+1，不相同时恢复最大体力1/3"）——克隆前条目钩子+守卫取反，body ops 收进克隆条
       const notM = gtext.match(/^(?:不|非|反之|否则)?(?:相同|一样|同)(?:的|时|，|,)+(.+)$/);
@@ -1792,7 +2326,15 @@ export function parseSoulmarkText(text, petName) {
       }
 
       const unsup2 = UNSUPPORTED_TRIGGERS.find((u) => u.re.test(gtext) && !u.reason.endsWith("FALLTHROUGH")); // 同上：FALLTHROUGH 行不拦"组内已经能解"的余文
-      if (unsup2 !== undefined) { unparsed.push({ clause: pendingCondSrc !== undefined && pendingCond !== undefined ? pendingCondSrc : gtext, reason: unsup2.reason }); pendingCond = undefined; pendingCondSrc = undefined; continue; } // 条件已结转进 deferred 报告——不再双报 cond-orphan
+      if (unsup2 !== undefined) {
+        const deferredText = pendingCondSrc !== undefined && pendingCond !== undefined ? pendingCondSrc : gtext;
+        if (unsup2.quarantine === true) quarantineGroup(gtext, unsup2.reason);
+        else {
+          unparsed.push({ clause: deferredText, reason: unsup2.reason });
+          if (linkedOutcomeScope) enterQuarantine("prevApplied branch payload unmodeled — linked tail withheld (deferred)");
+        }
+        pendingCond = undefined; pendingCondSrc = undefined; continue;
+      } // 条件已结转进 deferred 报告——不再双报 cond-orphan
 
       // 组内"条件时余文"剥离（"对手体力大于300时，所有攻击暴击几率提升25%"；无逗号时仅当余文以则/动词起且谓词非 order——"对手先出手时"交触发表）
       for (;;) {
@@ -1877,6 +2419,7 @@ export function parseSoulmarkText(text, petName) {
 
       // 触发前缀
       let hook, extra = {}, body = gtext, inherited = false;
+      let plainUseCandidate = false, plainUseMatchedHead = "", plainUseNestedChanged = false;
       // "若P，则X"逗号切组后"则"落组首——剥除走触发环（pendingCond 已由 cond 组暂存）
       if (pendingCond !== undefined && /^则/.test(gtext)) { gtext = gtext.replace(/^则/, ""); body = gtext; }
       // "N%…" 组：已有上下文钩子时优先继承（"自身死亡时，50%令X"→onKO 而非 onDamageDealt 重推导）
@@ -1891,10 +2434,12 @@ export function parseSoulmarkText(text, petName) {
           if (r === undefined) continue;
           // weak 首扫：外境钩已立时只取 extra（"登场时，背包每有一只精灵存活则X"——计数缩放不抢 onEntry 时序）
           if ((r.weak ?? t.weak) === true && lastHook !== undefined) { hook = lastHook.hook; extra = { ...lastHook.extra, ...(r.extra ?? {}) }; body = hoistCond + (r.body ?? "").replace(/^[，,、\s]+/, ""); inherited = true; break; }
-          hook = r.hook; extra = r.extra ?? {}; body = hoistCond + (r.body ?? "").replace(/^[，,、\s]+/, ""); break;
+          hook = r.hook; extra = r.extra ?? {}; body = hoistCond + (r.body ?? "").replace(/^[，,、\s]+/, "");
+          if (r.useTime === true) { plainUseCandidate = true; plainUseMatchedHead = gtext.slice(0, gtext.length - body.length); }
+          break;
         }
         const m = gtext.match(t.re);
-        if (m) { hook = t.hook; extra = t.extra ?? {}; body = hoistCond + gtext.slice(m[0].length).replace(/^[，,、\s]+/, ""); break; }
+        if (m) { hook = t.hook; extra = t.extra ?? {}; body = hoistCond + gtext.slice(m[0].length).replace(/^[，,、\s]+/, ""); if (t.useTime === true) { plainUseCandidate = true; plainUseMatchedHead = m[0]; } break; }
       }
       // 类别连用里明确不做的体（威力成长、附加固伤翻倍）——退回 deferred，不落条目
       if (hook === "__streakDefer__") {
@@ -1938,10 +2483,26 @@ export function parseSoulmarkText(text, petName) {
         if (nbody === null || (nbody === body && (nhook === hook || nhook === "__turn__" || weak === true))) break; // 无进展 break——body 未变且 hook 无变化/弱触发时；hook 变化本身算进展（"使对手在回合结束时X"只重挂钩子不剥文）
         if (nextra.guard !== undefined && extra.guard !== undefined) nextra = { ...nextra, guard: { and: [extra.guard, nextra.guard] } };
         extra = { ...extra, ...nextra };
-        if (nhook !== "__turn__" && weak !== true) hook = nhook; // __turn__/weak（"当回合"窗口标记）不覆盖既有精确钩子
+        if (nhook !== "__turn__" && weak !== true) {
+          if (plainUseCandidate && nhook !== hook) plainUseNestedChanged = true;
+          hook = nhook; // __turn__/weak（"当回合"窗口标记）不覆盖既有精确钩子
+        }
         body = nbody.replace(/^[，,、\s]+/, "");
       }
       if (hook === "__turn__") hook = lastHook !== undefined && (lastHook.hook === "onTurnStart" || lastHook.hook === "onEntry" || lastHook.hook === "onTurnEnd") ? lastHook.hook : "onTurnEnd";
+      // A turn-start/entry snapshot cannot directly gate an effect that only occurs on a later move.
+      // Keep that compound scope (and its else tail) residual instead of checking the condition at move time.
+      if (["onTurnStart", "onTurnEnd", "onEntry"].includes(hook) && /^(?:若|当).{2,40}?(?:则|时)(?=(?:自身|自己)?使用(?:攻击|属性|物理|特殊)?技能)/.test(body)) {
+        const reason = "nested trigger timing — turn-scope condition cannot guard later move event (deferred)";
+        quarantineGroup(gtext, reason);
+        continue outerG;
+      }
+      // guardDropped 不能只作为旁注：当前条件连同 body 一起保留为 residual，避免效果体被降成无条件执行。
+      // 同时清掉 hook 与跨组挂载上下文；后续 chance/else/裸尾会在上方 quarantine 分支隔离。
+      if (extra.guardDropped !== undefined) {
+        quarantineGroup(gtext, guardUnmodeledReason);
+        continue;
+      }
       // __beforeOrderOnce__：一次性排序加权（"下次使用技能先制±K"→beforeOrder+limitBattle+prio 区间）
       if (hook === "__beforeOrderOnce__") {
         entries.push({ hook: "beforeOrder", limitBattle: true, ...(bossGate ? { bossGate: true } : {}), prio: { min: extra.prioV, max: extra.prioV } });
@@ -2107,7 +2668,10 @@ export function parseSoulmarkText(text, petName) {
           const host = condKey !== undefined ? [...(entries[entries.length - 1]?.ops ?? [])].reverse().find((o) => o.op === "apply_status" && (PCT_WIN.has(o.name) ? o.params?.pct !== undefined : o.name === "crit_up" && o.params?.n !== undefined)) : undefined;
           const gate = host !== undefined ? passCondGate(pendingCond, host.name) : undefined;
           if (host !== undefined && gate !== undefined) {
-            entries[entries.length - 1].ops.push({ op: "apply_status", name: host.name, target: host.target ?? "self", ...(host.turns !== undefined ? { turns: host.turns } : {}), params: { ...(host.name === "crit_up" ? { n: aaTok.chanceSet, d: 100 } : { pct: aaTok.chanceSet }), ...gate } });
+            const entry = entries[entries.length - 1];
+            const clone = { op: "apply_status", name: host.name, target: host.target ?? "self", ...(host.turns !== undefined ? { turns: host.turns } : {}), params: { ...(host.params?.cat !== undefined ? { cat: host.params.cat } : {}), ...(host.name === "crit_up" ? { n: aaTok.chanceSet, d: 100 } : { pct: aaTok.chanceSet }), ...gate } };
+            markPermanentBattleStartClone(entry, host, clone);
+            entry.ops.push(clone);
             host.params = { ...(host.params ?? {}), [NEG_KEY[condKey]]: 1 };
             pendingCond = undefined; pendingCondSrc = undefined; pendingEmpty = undefined; segParsed = true;
             continue;
@@ -2159,7 +2723,7 @@ export function parseSoulmarkText(text, petName) {
         else unparsed.push({ clause: gtext, reason: "no-trigger-prefix" });
         pendingEmpty = undefined; continue;
       }
-      if (!inherited) { const { dupActor: _dd, guardDropped: _gd2, ...extraKeep } = extra; if (_gd2 !== undefined) unparsed.push({ clause: `若${_gd2}则`, reason: "guard unmodeled — condition dropped (UNVERIFIED)" }); lastHook = { hook, extra: extraKeep }; }
+      if (!inherited) { const { dupActor: _dd, guardDropped: _gd2, ...extraKeep } = extra; lastHook = { hook, extra: extraKeep }; }
       if (limitBattle) extra = { ...extra, limitBattle: true };
       if (hook === "__fatal__" || hook === "__crit__" || hook === "__order__") {
         // beforeOrder 特例：体为"先制+K"/"先制-K"时可直接落 prio 区间
@@ -2414,7 +2978,7 @@ export function parseSoulmarkText(text, petName) {
               for (const o of allOps) if (o.op === "apply_status" && PCT_WIN.has(o.name) && o.params?.pct !== undefined) {
                 if (cond !== undefined) {
                   const g = condKey !== undefined ? passCondGate(cond, o.name) : undefined;
-                  if (g !== undefined) { const pc = Math.min(100, Math.floor((o.params.pct * 100) / Math.max(1, 100 - o.params.pct))); const clone = { op: "apply_status", name: o.name, target: o.target ?? "self", ...(o.turns !== undefined ? { turns: o.turns } : {}), params: { pct: pc, ...g } }; if (prevOps.includes(o)) { entries[entries.length - 1].ops.push(clone); mountedPrev = true; } else effects.push(clone); o.params = { ...o.params, [NEG_KEY[condKey]]: 1 }; hit = true; }
+                  if (g !== undefined) { const pc = Math.min(100, Math.floor((o.params.pct * 100) / Math.max(1, 100 - o.params.pct))); const clone = { op: "apply_status", name: o.name, target: o.target ?? "self", ...(o.turns !== undefined ? { turns: o.turns } : {}), params: { ...(o.params?.cat !== undefined ? { cat: o.params.cat } : {}), pct: pc, ...g } }; const owner = prevOps.includes(o) ? entries[entries.length - 1] : { hook }; markPermanentBattleStartClone(owner, o, clone); if (prevOps.includes(o)) { entries[entries.length - 1].ops.push(clone); mountedPrev = true; } else effects.push(clone); o.params = { ...o.params, [NEG_KEY[condKey]]: 1 }; hit = true; }
                 } else { o.params = { ...o.params, pct: Math.min(100, o.params.pct * 2) }; hit = true; }
               }
             }
@@ -2433,7 +2997,9 @@ export function parseSoulmarkText(text, petName) {
               if (host !== undefined) {
                 const gate = passCondGate(cond, host.name);
                 if (gate !== undefined) {
-                  const clone = { op: "apply_status", name: host.name, target: host.target ?? "self", ...(host.turns !== undefined ? { turns: host.turns } : {}), params: { ...(host.name === "crit_up" ? { n: v, d: 100 } : { pct: v }), ...gate } };
+                  const clone = { op: "apply_status", name: host.name, target: host.target ?? "self", ...(host.turns !== undefined ? { turns: host.turns } : {}), params: { ...(host.params?.cat !== undefined ? { cat: host.params.cat } : {}), ...(host.name === "crit_up" ? { n: v, d: 100 } : { pct: v }), ...gate } };
+                  const owner = prevOps.includes(host) ? entries[entries.length - 1] : { hook };
+                  markPermanentBattleStartClone(owner, host, clone);
                   if (prevOps.includes(host)) { entries[entries.length - 1].ops.push(clone); mountedPrev = true; } else effects.push(clone); // 克隆挂宿主同条目同钩
                   host.params = { ...(host.params ?? {}), [NEG_KEY[condKey]]: 1 }; // 互斥半支：条件成立时基窗关闭
                   clearCond(); continue;
@@ -2850,8 +3416,59 @@ export function parseSoulmarkText(text, petName) {
       // 效果翻倍的占位键不是这条伤害的倍率。上面没挂走就丢掉，不收成 rider。
       if (effDoubleFlag !== undefined) dropBagKey(flags, effDoubleFlag);
       liftDrainRiders(effects, flags, { lone: "drain" });
+      const currentHitWindow = /(?:命中|击中)(?:后|时)/.test(gtext)
+        && !/(?:下次|下一次|下回合|接下来|此后|之后|随后)/.test(`${gtext} ${body}`)
+        && hook === "onMoveUsed"
+        && bodyDyn === undefined
+        && !effects.some((o) => o.op === "apply_status" && o.params?.chanceSelfMissingPct !== undefined)
+        && effects.some((o) => o.op === "apply_status" && o.name === "dmg_boost")
+        && /造成(?:的)?(?:攻击)?伤害(?:提升|提高|增加)\d+%/.test(`${gtext} ${body}`);
+      const currentHitDrain = /(?:命中|击中)(?:后|时)/.test(gtext)
+        && !/(?:下次|下一次|下回合|接下来|此后|之后|随后)/.test(`${gtext} ${body}`)
+        && hook === "onMoveUsed"
+        && effects.some((o) => o.op === "apply_status" && o.name === "drain_atk")
+        && /造成(?:的)?(?:攻击)?伤害(?:的)?\d+%恢复/.test(`${gtext} ${body}`);
+      if (currentHitWindow || currentHitDrain) {
+        quarantineGroup(gtext, "post-hit modifier — current damage/heal has already resolved before this hook (deferred)");
+        continue;
+      }
+      const maxHpAbsorb = maxHpAbsorbHpDelta(effects, `${gtext} ${body}`, growTail !== undefined || growFields.growStep !== undefined || growFields.growCap !== undefined);
+      if (maxHpAbsorb.found) {
+        effects.splice(0, effects.length, ...maxHpAbsorb.ops);
+        if (!maxHpAbsorb.converted) {
+          delete growFields.growStep;
+          delete growFields.growCap;
+          growTail = undefined;
+          unparsed.push({ clause: gtext, reason: "max-HP drain — damage/heal amount cannot be tied to actual HP dealt (deferred)" });
+        }
+      }
+      if (effects.length === 0 && maxHpAbsorb.found) continue;
       const newEntry = { hook, ...restExtra, ...growFields, ...(localAtCap !== undefined ? { growStep: localAtCap.step, growCap: localAtCap.cap } : {}), ...(pendingPromoteChance !== undefined ? { chance: pendingPromoteChance } : {}), ...(bossGate ? { bossGate: true } : {}), ...(bodyDyn !== undefined ? { chanceDyn: bodyDyn } : {}), ops: effects };
+      const plainUseHeadIsImmediate = plainUseCandidate
+        && plainUseMatchedHead !== ""
+        && /(?:使用|释放)/.test(plainUseMatchedHead)
+        && !/后\s*$/.test(plainUseMatchedHead)
+        && !/^若/.test(plainUseMatchedHead)
+        && !/(?:首次|第一次|首个|第\d+|下次|下一次|下回合|之后|此前|先选择|选择技能)/.test(plainUseMatchedHead);
+      const plainUseActor = restExtra.actor ?? "self";
       entries.push(newEntry);
+      if (plainUseCandidate && plainUseHeadIsImmediate && hook === "onMoveUsed" && unparsed.length === groupUnparsedStart) {
+        plainUseMigrations.push({
+          entry: newEntry,
+          clause: gtext,
+          source: `${gtext} ${body}`,
+          head: plainUseMatchedHead,
+          actor: plainUseActor,
+          cat: restExtra.cat,
+          nestedChanged: plainUseNestedChanged,
+          inherited,
+          linkedContinuation,
+          maxHpAbsorb: maxHpAbsorb.found && maxHpAbsorb.converted,
+        });
+      }
+      if (!plainUseCandidate && maxHpAbsorb.converted && hook === "onMoveUsed" && !/(?:命中|击中)/.test(gtext)) {
+        unparsed.push({ clause: gtext, reason: "move-use scope — onMoveUsed observes successful hits only; MISS is not modeled (deferred)" });
+      }
       if (localAtCap !== undefined) { pendingAtCap = newEntry; localAtCap = undefined; }
       // pendingAtCap：本组 ops 是上组"当…叠加至N%时"的达顶负载——归入 atCapOps 而非独立条目（"当效果叠加至75%时，重置此效果，自身所有能力值提升50点"）
       if (pendingAtCap !== undefined && pendingAtCap !== newEntry) {
@@ -2890,7 +3507,10 @@ export function parseSoulmarkText(text, petName) {
     if (pendingEmpty !== undefined) danglingEmpty.push(pendingEmpty);
     if (clauseCap !== undefined) for (let i = clauseEntryStart; i < entries.length; i++) for (const o of entries[i].ops ?? []) if (o.op === "heal" && o.cap === undefined) o.cap = clauseCap;
     if (clauseCapFrac !== undefined) for (let i = clauseEntryStart; i < entries.length; i++) for (const o of entries[i].ops ?? []) if (o.op === "heal" && o.capFracN === undefined) { o.capFracN = clauseCapFrac.n; o.capFracD = clauseCapFrac.d; }
-    if (growTail !== undefined && !attachGrow()) unparsed.push({ clause: gm[0].trim(), reason: "grow-tail-orphan" });
+    if (growTail !== undefined) {
+      if (guardQuarantine) unparsed.push({ clause: gm[0].trim(), reason: guardQuarantineReason });
+      else if (!attachGrow()) unparsed.push({ clause: gm[0].trim(), reason: "grow-tail-orphan" });
+    }
     if (segParsed) clausesParsed++;
     } finally {
       const added = unparsed.length - unparsedAtClause;
@@ -2919,7 +3539,100 @@ export function parseSoulmarkText(text, petName) {
     liftSoulGrow(e);
     liftSoulPrio(e);
   }
-  return { entries, unparsed, bossGate, clauseTotal, clausesParsed, fragmentsOnParsed, fragmentsOnResidual, fragmentsOutside };
+  // Convert only fully assembled, fully lifted entries. This preserves grow
+  // tails, mutually exclusive branches and later event-scope corrections.
+  for (const candidate of plainUseMigrations) {
+    const index = entries.indexOf(candidate.entry);
+    if (index < 0) continue; // e.g. the entry was absorbed into an at-cap host
+    const entry = candidate.entry;
+    const cat = candidate.cat;
+    const reactCat = cat === undefined ? undefined
+      : cat === 1 || cat === 2 || cat === 3 ? cat
+        : Array.isArray(cat) && cat.length === 2 && cat[0] === 2 && cat[1] === 3 ? 4
+          : null;
+    const ops = entry.ops ?? [];
+    const growIndexes = ops.flatMap((op, opIndex) => op.op === "grow" ? [opIndex] : []);
+    const magnitudeGrowPayload = growIndexes.length === 1
+      && growIndexes[0] === 0
+      && ops[0]?.of === "magnitude"
+      && typeof ops[0]?.step === "number"
+      && (ops[0]?.magCap === undefined || typeof ops[0].magCap === "number")
+      && ops[0]?.payload === undefined
+      && ops[0]?.if === undefined
+      && ops[0]?.chance === undefined
+      && ops[0]?.chanceMulIf === undefined
+      && ops[0]?.chanceSetIf === undefined
+      && ops[0]?.chanceGrow === undefined
+      && ops[0]?.nullifyOnly === undefined
+      && ops.length === 2
+      && ops[1]?.op === "hp_delta"
+      && candidate.maxHpAbsorb;
+    const currentFractionDamagePayload = ops.length === 3
+      && ops[0]?.op === "damage"
+      && ops[0]?.kind === "percent"
+      && ops[0]?.power === 1
+      && ops[0]?.target === "opponent"
+      && ops[1]?.op === "formula"
+      && ops[1]?.of === "percentBase"
+      && ops[1]?.value === "current"
+      && ops[2]?.op === "formula"
+      && ops[2]?.of === "frac"
+      && typeof ops[2]?.value === "object"
+      && ops[2]?.value !== null
+      && typeof ops[2]?.value.numerator === "number"
+      && typeof ops[2]?.value.denominator === "number";
+    const singleAtomPayload = ops.length === 1 && ops[0]?.op !== "formula" && ops[0]?.op !== "grow";
+    const hasChance = ops.some((op) => op.chance !== undefined || op.flatChance !== undefined);
+    const hasEmbeddedMagnitudeTail = ops.some((op) => op.op === "apply_status"
+      && (op.params?.growStep !== undefined || op.params?.growCap !== undefined));
+    const expectedGuard = { actor: candidate.actor, ...(cat !== undefined ? { cat } : {}) };
+    const actualGuard = entry.guard;
+    const actorCatGuard = actualGuard === undefined
+      || (Object.keys(actualGuard).every((key) => key === "actor" || key === "cat")
+        && actualGuard.actor === candidate.actor
+        && JSON.stringify(actualGuard.cat) === JSON.stringify(expectedGuard.cat));
+    const fieldsSafe = Object.keys(entry).every((key) => ["hook", "ops", "actor", "cat", "guard"].includes(key));
+    const followupTiming = /(?:下(?:[0-9０-９一二两三四五六七八九十百]+)?(?:个)?(?:回合|次|招|击|只)|下一次|下个|接下来|下回合|下一回合|之后|此后|随后|本次在场|在场首次)/.test(candidate.source);
+    const safe = candidate.head !== ""
+      && /(?:使用|释放)/.test(candidate.head)
+      && !/后\s*$/.test(candidate.head)
+      && !/(?:首次|第一次|首个|第\d+|下次|下一次|下回合|之后|此前|先选择|选择技能)/.test(candidate.head)
+      && !followupTiming
+      && entry.hook === "onMoveUsed"
+      && !candidate.nestedChanged
+      && !candidate.inherited
+      && !candidate.linkedContinuation
+      && actorCatGuard
+      && !entry.bossGate
+      && !entry.limitBattle
+      && fieldsSafe
+      && (cat === undefined || reactCat !== null)
+      && (candidate.actor === "self" || candidate.actor === "foe")
+      && !entry.chance && !entry.chanceGrow && !entry.chanceDyn
+      && !entry.atCapOps && !entry.elseOps
+      && !ops.some((op) => op.if !== undefined || op.elseOps !== undefined || op.atCapOps !== undefined)
+      && (!hasChance || ops.length === 1)
+      && !hasEmbeddedMagnitudeTail
+      && (growIndexes.length === 0 || magnitudeGrowPayload)
+      && (singleAtomPayload || magnitudeGrowPayload || currentFractionDamagePayload);
+    if (safe) {
+      const params = { trigger: candidate.actor === "self" ? 11 : 3, ...(reactCat !== undefined ? { cat: reactCat } : {}) };
+      const react = { op: "apply_status", name: "react", target: "self", params, stack: true, payload: ops };
+      entries[index] = { hook: "onBattleStart", ops: [react] };
+      continue;
+    }
+    const existing = unparsed.some((u) => u.clause === candidate.clause && /move-use scope/.test(u.reason ?? ""));
+    if (!existing) {
+      const reason = entry.bossGate
+        ? "move-use scope — boss gate cannot persist across the react window (deferred)"
+        : followupTiming
+          ? "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
+          : "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)";
+      unparsed.push({ clause: candidate.clause, reason });
+      fragmentsOnParsed++;
+    }
+  }
+  return { entries, unparsed, bossGate: anyBossGate || entries.some((e) => e.bossGate === true), clauseTotal, clausesParsed, fragmentsOnParsed, fragmentsOnResidual, fragmentsOutside };
 }
 
 export function run(catalogPath = SRC, outDir = OUT_DIR) {

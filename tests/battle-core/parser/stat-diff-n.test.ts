@@ -22,13 +22,15 @@ const CASES = [
 ];
 
 describe("双方某维之差 n", () => {
-  it.each(CASES)("$name：全部子句落地，不留档", ({ name, text }) => {
+  it.each(CASES)("$name：支持已冻结幅值，其余语义留显式档", ({ name, text }) => {
     const r = parseSoulmarkText(text, name);
-    expect(r.unparsed, name + ": " + JSON.stringify(r.unparsed)).toEqual([]);
-    // 骨架是「回合开始时」单一 hook，三个分档作为同一 entry 的 op 序列
+    const expectsResidual = name === "决囚钢骨" || name === "拟态绞索";
+    expect(r.unparsed, name + ": " + JSON.stringify(r.unparsed)).toHaveLength(expectsResidual ? 1 : 0);
+    if (expectsResidual) expect(r.unparsed[0]?.reason).toContain("statDiff timing");
     expect(r.entries.length, name).toBeGreaterThanOrEqual(1);
     const ops = r.entries.flatMap((e) => e.ops ?? []);
-    expect(ops.length, name).toBeGreaterThanOrEqual(3);
+    expect(ops.length, name).toBe(name === "堕魂之手" || name === "覆骸冥土" ? 3 : 2);
+    expect(JSON.stringify(ops)).not.toMatch(/"name":"(?:foe_dot|no_switch)"/);
   });
 
   it.each(CASES)("$name：恢复 n 点体力带 statDiff=$stat", ({ name, text, stat }) => {
@@ -40,7 +42,61 @@ describe("双方某维之差 n", () => {
 
   it("③ 的 n≥200 门控成为条件", () => {
     const r = parseSoulmarkText(CASES[0]!.text, "决囚钢骨");
-    expect(JSON.stringify(r.entries)).toMatch(/200/);
+    expect(r.entries[0]?.ops?.find((op) => op.name === "dmg_taken_down")).toMatchObject({
+      params: { pct: 30, kindMask: 7 },
+      if: { statDiffAbove: { stat: "def", atLeast: 200 } },
+    });
+  });
+
+  it("回合开始时快照减伤/增伤按 apply 冻结，技能触发附伤与 KO 时长仍留档", () => {
+    const red = parseSoulmarkText("回合开始时自身根据双方体力上限值之差n触发如下效果：①当回合受到的攻击伤害减少n点");
+    const redOp = red.entries.flatMap((entry) => entry.ops ?? []).find((op) => op.name === "dmg_reduce");
+    expect(redOp).toMatchObject({
+      amountTiming: "apply",
+      statDiff: "hp",
+      turns: 1,
+      params: { kindMask: 4 },
+    });
+
+    const unqualifiedRed = parseSoulmarkText("回合开始时自身根据双方体力上限值之差n触发如下效果：①当回合受到的伤害减少n点");
+    const unqualifiedRedOp = unqualifiedRed.entries.flatMap((entry) => entry.ops ?? []).find((op) => op.name === "dmg_reduce");
+    expect(unqualifiedRedOp).toMatchObject({ amountTiming: "apply", statDiff: "hp", turns: 1 });
+    expect(unqualifiedRedOp).not.toHaveProperty("params.kindMask");
+
+    const boost = parseSoulmarkText("回合开始时自身根据双方特防值之差n触发如下效果：①当回合造成的攻击伤害提升n%");
+    const boostOp = boost.entries.flatMap((entry) => entry.ops ?? []).find((op) => op.name === "dmg_boost");
+    expect(boostOp).toMatchObject({
+      amountTiming: "apply",
+      statDiff: "sdf",
+      turns: 1,
+      params: { kindMask: 4 },
+    });
+
+    const unqualifiedBoost = parseSoulmarkText("回合开始时自身根据双方特防值之差n触发如下效果：①当回合造成的伤害提升n%");
+    const unqualifiedBoostOp = unqualifiedBoost.entries.flatMap((entry) => entry.ops ?? []).find((op) => op.name === "dmg_boost");
+    expect(unqualifiedBoostOp).toMatchObject({ amountTiming: "apply", statDiff: "sdf", turns: 1 });
+    expect(unqualifiedBoostOp).not.toHaveProperty("params.kindMask");
+
+    const phrases = [
+      "回合开始时自身根据双方速度值之差n触发如下效果：①当回合使用技能时附加n点固定伤害",
+      "回合开始时自身根据双方防御值之差n触发如下效果：①当回合被击败时对手无法主动切换精灵n/200回合",
+    ];
+    for (const text of phrases) {
+      const r = parseSoulmarkText(text);
+      expect(r.entries).toEqual([]);
+      expect(r.unparsed).toHaveLength(1);
+      expect(r.unparsed[0]?.reason).toContain("statDiff timing");
+    }
+  });
+
+  it("n>200 使用严格整数边界 n≥201，n≥200 保持 200", () => {
+    const strict = parseSoulmarkText("回合开始时自身根据双方防御值之差n触发如下效果：①恢复n点体力②若n>200则恢复n点体力");
+    const inclusive = parseSoulmarkText("回合开始时自身根据双方防御值之差n触发如下效果：①恢复n点体力②若n≥200则恢复n点体力");
+    const hasStatDiffGate = (op: { if?: unknown }) => (op.if as { statDiffAbove?: unknown } | undefined)?.statDiffAbove !== undefined;
+    const strictGate = strict.entries.flatMap((entry) => entry.ops ?? []).find(hasStatDiffGate);
+    const inclusiveGate = inclusive.entries.flatMap((entry) => entry.ops ?? []).find(hasStatDiffGate);
+    expect(strictGate?.if).toEqual({ statDiffAbove: { stat: "def", atLeast: 201 } });
+    expect(inclusiveGate?.if).toEqual({ statDiffAbove: { stat: "def", atLeast: 200 } });
   });
 
   it("普通句子不被误吃", () => {

@@ -18,28 +18,27 @@ import { parseSoulmarkText } from "../../../tools/soulmark-parse.mjs";
 const CHECKPOINT_REASON = "checkpoint-restore — hp snapshot/restore pair not modeled (deferred)";
 
 describe("add one effect (w04：记录体力)", () => {
-  it("伊塔·回溯型：体力值存/取两个子句仍留档 checkpoint-restore，后半句条目不变", () => {
+  it("伊塔·回溯型：快照存取与下只精灵作用域都留档", () => {
     const r = parseSoulmarkText(
       "每次登场时记录自身的体力值，自身受到致死攻击伤害时，使自身的体力值回归记录的体力值，每场战斗限一次；"
       + "自身被击败后，己方下只精灵登场首回合免疫受到的攻击，触发成功则令对手瘫痪（boss无效）",
       "伊塔·回溯型",
     ) as { entries: unknown[]; unparsed: { clause: string; reason: string }[] };
     // 存/取两个子句仍显式留档（新 op 未落地前不许静默丢掉）
-    expect(r.unparsed.map((u) => u.reason)).toEqual([CHECKPOINT_REASON, CHECKPOINT_REASON]);
+    expect(r.unparsed.map((u) => u.reason)).toEqual([
+      CHECKPOINT_REASON,
+      CHECKPOINT_REASON,
+      "party-scope — off-field/next-ally target unmodeled (deferred)",
+      "party-scope — off-field/next-ally target unmodeled (deferred)",
+    ]);
     expect(r.unparsed.map((u) => u.clause)).toEqual([
       "每次登场时记录自身的体力值，自身受到致死攻击伤害时",
       "使自身的体力值回归记录的体力值",
+      "己方下只精灵登场首回合免疫受到的攻击",
+      "触发成功则令对手瘫痪",
     ]);
-    // 同一条魂印的另一半（`；` 之后）照旧成条目——这一类不动它
-    expect(r.entries).toEqual([{
-      hook: "onKO",
-      bossGate: true,
-      ops: [
-        { op: "apply_status", name: "dmg_immune", target: "nextAlly", turns: 1 },
-        { op: "apply_status", name: "shock", target: "opponent", if: { prevApplied: true } },
-      ],
-      guard: { victim: "self" },
-    }]);
+    // 下一名队友的效果没有受体/出场窗口支持，不能被拆成孤立免疫与瘫痪条目。
+    expect(r.entries).toEqual([]);
   });
 
   it("技能侧 0 命中：招式文本里的「记录」没有一条是体力快照，旧句结果不变", () => {

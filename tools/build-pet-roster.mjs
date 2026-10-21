@@ -85,11 +85,11 @@ function assemble(id, ownType, skill, fifth) {
   const keyHits = damageKeyHits(effs);
   if (keyHits.length > 0) throw new Error(`${id} ${skill.name} damage key outside the list: ${keyHits.map((h) => h.key).join(",")}`);
   const scaled = effs.some((e) => e.op === "damage" && (e.kind === undefined || e.kind === "standard" || e.kind === "true"));
-  // 命中/暴击（acc/crt）不在 synthetic-v2 六维 stage 域——该规则集无法结算，整条 op 丢弃并计数
+  // peak-v1 已启用 accuracy；仅暴击等级 crt 仍不属于 stage 域。
   const before = effs.length;
   for (let i = effs.length - 1; i >= 0; i--) {
     const st = effs[i]?.stat;
-    if (st === "acc" || st === "crt") effs.splice(i, 1);
+    if (st === "crt") effs.splice(i, 1);
   }
   report.droppedAccCrt = (report.droppedAccCrt ?? 0) + (before - effs.length);
   const typed = kindOf(skill.kind, ownType);
@@ -196,7 +196,7 @@ for (const c of pets) {
     // host.soulMark；魂印本体仍照常编译进 soulmarks.json，供其他单位引用。
     const smText = c.soulMark?.text;
     if (smText != null && smText.trim() !== "") {
-      const sm = parseSoulmarkText(smText);
+      const sm = parseSoulmarkText(smText, c.name);
       if (sm.entries.length > 0) {
         soulmarks[`sm-${idSuffix}`] = { id: `sm-${idSuffix}`, name: `${c.name}魂印`, desc: smText.slice(0, 2000), effects: sm.entries };
         report.smAttached++;
@@ -238,7 +238,7 @@ for (const c of pets) {
   // 魂印：有 ≥1 条目即出 sm-<petNo> 并挂引用（残留也挂——部分生效）
   const smText = c.soulMark?.text;
   if (smText != null && smText.trim() !== "") {
-    const sm = parseSoulmarkText(smText);
+    const sm = parseSoulmarkText(smText, c.name);
     if (sm.entries.length > 0) {
       soulmarks[`sm-${idSuffix}`] = { id: `sm-${idSuffix}`, name: `${c.name}魂印`, desc: smText.slice(0, 2000), effects: sm.entries };
       unit.soulMark = `sm-${idSuffix}`;

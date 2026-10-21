@@ -2,7 +2,7 @@
  * M3-04：ModelProvider + 提案管线 + deadline/fallback。
  * 全部用 EchoProvider/inject 离线 mock——不碰真网络。
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { loadPackFromDir } from "@seer/battle-core";
@@ -31,6 +31,42 @@ const decide = (p: EchoProvider, host: BattleHost) => {
 };
 
 describe("LLM 提案管线", () => {
+  it("复用 policy 时每个决策有独立预算", async () => {
+    const policy = new LlmPolicy(new EchoProvider());
+    for (let i = 0; i < 3; i++) {
+      const result = await policy.decide(mkHost().observe("A"), PACK, new DecisionClock(LOCAL_BUDGET), new AbortController().signal);
+      expect(result.path).toBe("llm");
+      expect(result.modelCalls).toBe(1);
+    }
+  });
+  it("取消会立即结束不遵守 AbortSignal 的 provider，且不启动修复", async () => {
+    vi.useFakeTimers();
+    try {
+      const provider = new EchoProvider(); provider.inject = () => new Promise(() => {});
+      const ctrl = new AbortController(), policy = new LlmPolicy(provider);
+      const pending = policy.decide(mkHost().observe("A"), PACK, new DecisionClock(LOCAL_BUDGET), ctrl.signal);
+      ctrl.abort();
+      const result = await pending;
+      expect(result.path).toBe("fallback");
+      expect(result.modelCalls).toBe(1);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally { vi.useRealTimers(); }
+  });
+  it("快速成功不会留下预算计时器", async () => {
+    vi.useFakeTimers();
+    try {
+      await decide(new EchoProvider(), mkHost());
+      expect(vi.getTimerCount()).toBe(0);
+    } finally { vi.useRealTimers(); }
+  });
+  it("系统时钟回拨不会放大决策预算", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      const clock = new DecisionClock(LOCAL_BUDGET);
+      vi.setSystemTime(Date.now() - 3600000);
+      expect(clock.remaining()).toBeLessThanOrEqual(LOCAL_BUDGET.totalMs);
+    } finally { vi.useRealTimers(); }
+  });
   it("echo 正常提案 → path=llm + 合法 actionId", async () => {
     const h = mkHost();
     const r = await decide(new EchoProvider(), h);
@@ -112,6 +148,28 @@ describe("provider 纪律", () => {
 });
 
 describe("llm agent 完赛", () => {
+  it("同时调用 stepAsync 只发起一次模型决策和提交", async () => {
+    const h = mkHost(), provider = new EchoProvider();
+    let release!: (result: ModelResponse) => void;
+    const pending = new Promise<ModelResponse>((resolve) => { release = resolve; });
+    let calls = 0;
+    provider.inject = () => { calls++; return pending; };
+    const agent = new BattleAgent({ view: createReadOnlyView(h, "A") as AgentView, pack: PACK, submit: (c) => h.submit("A", c), policy: "llm", provider });
+    const first = agent.stepAsync(), second = agent.stepAsync();
+    release(OK('{"actionId":"act_syn-strike","rationale":"test"}'));
+    expect((await Promise.all([first, second])).filter((r) => r.submitted)).toHaveLength(1);
+    expect(calls).toBe(1);
+    expect(agent.transcriptEntries).toHaveLength(1);
+  });
+  it("等待对手提交时不浪费模型调用", async () => {
+    const h = mkHost(), d = h.observe("A").decision!;
+    h.submit("A", { battleId: "btl_llm", decisionId: d.decisionId, baseRevision: d.baseRevision, actionId: "act_syn-strike", idempotencyKey: "wait-test" });
+    const provider = new EchoProvider(); let calls = 0;
+    provider.inject = async () => { calls++; return OK('{}'); };
+    const agent = new BattleAgent({ view: createReadOnlyView(h, "A") as AgentView, pack: PACK, submit: (c) => h.submit("A", c), policy: "llm", provider });
+    expect((await agent.stepAsync()).submitted).toBe(false);
+    expect(calls).toBe(0);
+  });
   it("echo provider 的 llm agent 对 baseline 打完一局", async () => {
     const h = mkHost({ p2: ["syn-epsilon"] });
     const llmAgent = new BattleAgent({ view: createReadOnlyView(h, "A") as AgentView, pack: PACK, submit: (c) => h.submit("A", c) as ReturnType<SubmitFn>, policy: "llm", provider: new EchoProvider() });

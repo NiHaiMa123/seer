@@ -1,0 +1,270 @@
+{
+  "removals": [
+    {
+      "petId": "pet-4132",
+      "markId": "sm-4132",
+      "oldIndex": 2,
+      "source": "问：赛尔号魅妖辛克斯魂印是什么？赛尔号魅妖辛克斯专属特性是什么？ 答： 赛尔号魅妖辛克斯的魂印是：魅 1、辛克斯善于蛊惑心智：若对手为雄性精灵则每回合开始时50%令对手失神，若对手为雌性精灵则每回合开始时50%令对手失明，未触发则当回合技能命中后随机吸取对手200-350点体力； 2、回合结束时，若对手体力值高于回合开始时则下回合自身攻击必定打出致命一击 3、（boss无效） 精灵资料：赛尔号魅妖辛克斯进化图种族值技能表>>>",
+      "sourceGuard": [
+        {
+          "clause": "若对手为雄性精灵则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        },
+        {
+          "clause": "若对手为雌性精灵则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        }
+      ],
+      "removedEntry": {
+        "hook": "onTurnEnd",
+        "ops": [
+          {
+            "op": "damage",
+            "kind": "fixed",
+            "power": 1,
+            "if": {
+              "not": {
+                "prevApplied": true
+              }
+            }
+          },
+          {
+            "op": "flat",
+            "of": "flatRange",
+            "value": {
+              "min": 200,
+              "max": 350
+            }
+          },
+          {
+            "op": "applyDrainRider",
+            "drain": {
+              "numerator": 1,
+              "denominator": 1
+            }
+          }
+        ]
+      },
+      "reason": "source requires a successful skill hit in this turn after both gender-specific 50% attempts fail; saved fallback is unconditional onTurnEnd except not prevApplied"
+    },
+    {
+      "petId": "pet-4854",
+      "markId": "sm-4854",
+      "oldIndex": 1,
+      "source": "问：赛尔号西忒蕾妃是什么？西忒蕾妃专属特性是什么？ 答：赛尔号西忒蕾妃是： 自身背包内每存活1只精灵则自身受到的伤害减少5%且属性技能命中后吸取对手50点体力 自身受到攻击伤害时，若该伤害不高于300则100%令对手中毒，若已处于中毒状态则改为吸取对手300点体力 回合开始时，若己方存在图特摩斯且对手处于中毒状态，则获得300点护盾 (boss无效) 精灵资料：赛尔号西忒蕾妃进化图种族值技能表>>>",
+      "sourceGuard": [
+        {
+          "clause": "若该伤害不高于300则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        }
+      ],
+      "removedEntry": {
+        "hook": "onTurnEnd",
+        "guard": {
+          "foeHas": "poison"
+        },
+        "ops": [
+          {
+            "op": "damage",
+            "power": 300,
+            "kind": "fixed"
+          },
+          {
+            "op": "heal",
+            "flat": 300,
+            "target": "self"
+          }
+        ]
+      },
+      "reason": "source requires this incoming attack damage to be <=300 and onDamaged; saved poisoned fallback is only onTurnEnd with foeHas poison"
+    },
+    {
+      "petId": "pet-3870",
+      "markId": "sm-3870",
+      "oldIndex": 3,
+      "source": "问：赛尔号暗瞳&middot;魔眼凯兮魂印是什么？赛尔号暗瞳&middot;魔眼凯兮专属特性是什么？ 答：赛尔号暗瞳&middot;魔眼凯兮的魂印是：兮 1.每回合开始时解除自身能力下降状态，解除成功则当回合攻击先制+1且造成的伤害提升50%； 2.自身攻击技能命中后，若对手每处于一种能力提升状态则附加80点固定伤害，若对手不处于能力提升状态则有50%的几率令对手石化，未触发则下回合造成的伤害提升50% 3.（boss无效） 精灵资料：赛尔号暗瞳&middot;魔眼凯兮进化图种族值技能表 >>>",
+      "sourceGuard": [
+        {
+          "clause": "若对手每处于一种能力提升状态则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        }
+      ],
+      "removedEntry": {
+        "hook": "onTurnEnd",
+        "guard": {
+          "not": {
+            "foeStageUp": true
+          }
+        },
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "petrify",
+            "target": "opponent",
+            "chance": 50,
+            "turns": 1
+          }
+        ]
+      },
+      "reason": "source petrify is after own attack skill hit when foe has no stages; saved hook is onTurnEnd"
+    },
+    {
+      "petId": "pet-3870",
+      "markId": "sm-3870",
+      "oldIndex": 4,
+      "source": "问：赛尔号暗瞳&middot;魔眼凯兮魂印是什么？赛尔号暗瞳&middot;魔眼凯兮专属特性是什么？ 答：赛尔号暗瞳&middot;魔眼凯兮的魂印是：兮 1.每回合开始时解除自身能力下降状态，解除成功则当回合攻击先制+1且造成的伤害提升50%； 2.自身攻击技能命中后，若对手每处于一种能力提升状态则附加80点固定伤害，若对手不处于能力提升状态则有50%的几率令对手石化，未触发则下回合造成的伤害提升50% 3.（boss无效） 精灵资料：赛尔号暗瞳&middot;魔眼凯兮进化图种族值技能表 >>>",
+      "sourceGuard": [
+        {
+          "clause": "若对手每处于一种能力提升状态则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        }
+      ],
+      "removedEntry": {
+        "hook": "onTurnEnd",
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "dmg_boost",
+            "target": "self",
+            "params": {
+              "pct": 50
+            },
+            "turns": 1,
+            "if": {
+              "not": {
+                "prevApplied": true
+              }
+            }
+          }
+        ]
+      },
+      "reason": "source fallback boost is next-turn after the failed petrify attempt following own attack hit; saved hook is onTurnEnd"
+    },
+    {
+      "petId": "pet-4634",
+      "markId": "sm-4634",
+      "oldIndex": 2,
+      "source": "自身每次登场首次攻击技能必定打出致命一击，之后每次攻击60%打出致命一击；自身使用技能后，若本次技能打出了致命一击则吸取对手300点体力，若未打出致命一击则60%令对手害怕（boss无效）",
+      "sourceGuard": [
+        {
+          "clause": "若本次技能打出了致命一击则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        }
+      ],
+      "removedEntry": {
+        "hook": "onTurnEnd",
+        "guard": {
+          "not": {
+            "prevCrit": true
+          }
+        },
+        "ops": [
+          {
+            "op": "apply_status",
+            "name": "fear",
+            "target": "opponent",
+            "chance": 60,
+            "turns": 1
+          }
+        ]
+      },
+      "reason": "source branches immediately after own skill use based on this move critical result; saved hook is onTurnEnd"
+    },
+    {
+      "petId": "pet-3875",
+      "markId": "sm-3875",
+      "oldIndex": 1,
+      "source": "问：赛尔号暗战&middot;艾辛格斯魂印是什么？赛尔号暗战&middot;艾辛格斯专属特性是什么？ 答：赛尔号暗战&middot;艾辛格斯的魂印是：艾 1.攻击造成伤害的50%恢复自身体力，若自身体力低于最大体力的1/2则附加等量固伤； 2.回合开始时，若敌我双方中任意一方处于能力提升状态则自身所有技能先制+1且造成的攻击伤害提升100%，若敌我双方中皆不处于能力提升状态则自身当回合攻击50%打出致命一击且回合结束后自身随机3项能力值+1 3.（boss无效） 精灵资料：赛尔号暗战&middot;艾辛格斯进化图种族值技能表 >>>",
+      "sourceGuard": [
+        {
+          "clause": "若敌我双方中任意一方处于能力提升状态则",
+          "reason": "guard unmodeled — condition dropped (UNVERIFIED)"
+        }
+      ],
+      "removedEntry": {
+        "hook": "onTurnEnd",
+        "guard": {
+          "selfHpBelow": {
+            "numerator": 1,
+            "denominator": 2
+          }
+        },
+        "ops": [
+          {
+            "op": "damage",
+            "kind": "fixed",
+            "power": 1,
+            "target": "opponent"
+          },
+          {
+            "op": "flat",
+            "of": "lastDmgFrac",
+            "value": {
+              "numerator": 100,
+              "denominator": 100
+            }
+          }
+        ]
+      },
+      "reason": "source fixed damage is an additional equal-to-this-attack-drain rider under low HP; saved lastDmgFrac at onTurnEnd lacks the attack/drain amount reference and timing"
+    }
+  ],
+  "emptyRemoved": [
+    {
+      "petId": "pet-2680",
+      "markId": "sm-2680"
+    },
+    {
+      "petId": "pet-3886",
+      "markId": "sm-3886"
+    },
+    {
+      "petId": "pet-3917",
+      "markId": "sm-3917"
+    },
+    {
+      "petId": "pet-4326",
+      "markId": "sm-4326"
+    },
+    {
+      "petId": "pet-4358",
+      "markId": "sm-4358"
+    },
+    {
+      "petId": "pet-4442",
+      "markId": "sm-4442"
+    },
+    {
+      "petId": "pet-4497",
+      "markId": "sm-4497"
+    },
+    {
+      "petId": "pet-4544",
+      "markId": "sm-4544"
+    },
+    {
+      "petId": "pet-4592",
+      "markId": "sm-4592"
+    },
+    {
+      "petId": "pet-4629",
+      "markId": "sm-4629"
+    },
+    {
+      "petId": "pet-4671",
+      "markId": "sm-4671"
+    },
+    {
+      "petId": "pet-4679",
+      "markId": "sm-4679"
+    },
+    {
+      "petId": "pet-4700",
+      "markId": "sm-4700"
+    },
+    {
+      "petId": "pet-4706",
+      "markId": "sm-4706"
+    }
+  ]
+}

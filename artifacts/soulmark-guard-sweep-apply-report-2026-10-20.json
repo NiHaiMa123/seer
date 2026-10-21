@@ -1,0 +1,1548 @@
+{
+  "removals": [
+    {
+      "id": "pet-4740",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手未因上述任一效果受到百分比伤害则消除对手回合类效果",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4761",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若直到战斗阶段结束时未免疫异常状态则恢复最大体力的1/3",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4863",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本回合对手使用了攻击技能则下回合攻击技能先制+1",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4894",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若该类型与上次记录不同则100%令对手害怕3回合",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4906",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若不同则技能命中时消除对手能力提升状态",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4908",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若等于对手则下回合所有技能先制+1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-2680",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手能力下降被解除，则回合结束时直接给对手造成150点固定伤害",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-3587",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手不处于处于能力下降状态则附加对手最大体力1/3的固定伤害",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-3760",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若该工具伤害高于自身最大体力的1/2则开启虚空之缝：使对手下1回合攻击技能无效",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-3760",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若该工具伤害低于自身最大体力1/2则开启虚空之隙：使对手下1回合属性技能无效",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-3848",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手当前未处于回合类效果则令对手随机1个技能PP值归零",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-3917",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若n小于300点则回合结束时令对手全属性-1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-3928",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若当回合受到的攻击伤害低于自身最大体力的25%则触发双生之魂：恢复所有体力且令对手受到自身最大体力25%的固定伤害",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-3941",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手被自身击败则下只精灵登场后随机2个技能PP归零",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-3959",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手使用的技能为攻击技能则对手下回合使用属性技能无效",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-3959",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手使用的技能为属性技能则对手下回合使用攻击技能无效",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4034",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若当回后出手则恢复自身最大体力1/3",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4227",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若触发致命一击的几率则使自身攻击+1、命中+1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4300",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若前述附加的固定伤害低于300点则下回合自身所有技能先制+1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4326",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身当前体力值为偶数则当回合自身攻击必定打出致命一击",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4326",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身当前体力值为奇数则令自身防御+1、特防+1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4355",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手免疫能力下降则消除对手能力提升状态",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4358",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身当前体力值与速度值之和低于对手则令对手速度、命中-1",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4358",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身攻击值与特攻值之和低于对手则令对手攻击、特攻-1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4358",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身防御值与特防值之和低于对手则令对手防御、特防-1",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4365",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身当前体力值与对手最大体力值之差小于400则当回合自身受到的攻击伤害降低50%",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4367",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若上回合对手未使用技能则当回合自身造成的伤害提升100%",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4386",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手当前体力不高于回合开始时则下回合自身所有技能先制+1，若对手",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4390",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身仍受到攻击伤害则令对手下回合受到的固定伤害和百分比伤害提升30%",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4390",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身上回合未受到攻击伤害则吸取对手300点体力",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4400",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手不存在处决印记则为对手下只出战精灵附加1层处决印记，（）",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4414",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身能力等级与回合开始时不同，则恢复自身最大体力的1/3和所有技能1点PP值",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4417",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若任意一方未进入流血状态则2回合内对手使用的技能先制效果失效",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4426",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身处于异常状态且数量小于等于2，则恢复自身已损失体力的50%",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4435",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若连续次数大于等于n次则额外消耗对手全部体力(n=自身携带技能中PP值上限最高技能的PP值上限)",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4442",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若使用后造成的伤害高于400则重置自身连击次数并附加造成伤害100%的百分比伤害",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4450",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手不存在技能被解析则解析该技能并为自身附加1层未来奇点，被解析的技能无法选择直到逐界苍星下场",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4450",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身速度值高于对手则当回合自身所有技能先制+1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4461",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身体力不等于回合开始时则下回合攻击技能先制+1",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4489",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手属性微弱自身则为对手附加持续3回合的失能Ⅰ(若对手已持有失能Ⅰ则将回合数刷新至3回合)",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4489",
+      "oldIndex": 7,
+      "currentIndex": 7,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若当回合结束后对手持有的失能Ⅰ消失则下回合自身造成的固定伤害、百分比伤害提升100%，()，回能Ⅰ：持有精灵使用技能后恢复所有技能1点PP值",
+      "candidates": [
+        7
+      ]
+    },
+    {
+      "id": "pet-4497",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本次攻击打出致命一击则免疫下1次对手攻击技能造成的伤害",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4499",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若当回合结束后自身持有的回体Ⅰ消失则消除对手回合类效果",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4499",
+      "oldIndex": 5,
+      "currentIndex": 5,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若当回合结束后对手持有的失体Ⅰ消失则消除对手能力提升状态",
+      "candidates": [
+        5
+      ]
+    },
+    {
+      "id": "pet-4532",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手已持有痕则免疫下1次受到的攻击，痕：持有精灵无法使用威力为0的攻击技能，触发无法使用后消失",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4561",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若没有则本回合攻击后吸取对手最大体力的1/3",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4568",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若不处于则解除自身所处的异常状态且本回合所有技能先制+1",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4568",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若高于300则抵挡下1次对手的攻击",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4592",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手的速度、命中能力等级处于下降状态则当回合对手属性技能无效",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4592",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若对手的攻击、特攻处于下降状态则当回合自身先制+1",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4611",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本回合自身已受到了攻击伤害则额外使下回合自身受到的攻击伤害减少50%",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4611",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本回合自身已受到了固定伤害则额外附加对手最大体力1/3的百分比伤害",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4611",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本回合自身已受到了百分比伤害则额外恢复自身最大体力的1/3",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4611",
+      "oldIndex": 5,
+      "currentIndex": 5,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若为控制类异常状态则额外令对手当回合属性技能无效",
+      "candidates": [
+        5
+      ]
+    },
+    {
+      "id": "pet-4617",
+      "oldIndex": 4,
+      "currentIndex": 4,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若成功触发失明则令对手随机1个技能PP值归0",
+      "candidates": [
+        4
+      ]
+    },
+    {
+      "id": "pet-4621",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若当回合自身受到了攻击伤害则吸取对手最大体力的1/3",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4625",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若体力为0则恢复1点体力",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4634",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本次技能打出了致命一击则吸取对手300点体力",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4635",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身所处的异常状态不低于4种则消除对手回合类效果并触发枫落殇思：解除自身所处的异常状态",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4653",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若恢复至满则全属性+1且下次攻击造成的伤害提升100%",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4655",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本次在场触发过转变则恢复200点体力",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4671",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若自身体力低于上回合开始则当回合自身使用技能后吸取对手最大体力的1/3",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4679",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若低于上回合开始则当回合自身受到的攻击伤害减少50%",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4700",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "exact body ops and source residual match; condition+body quarantined",
+      "sourceClause": "若本回合内自身受到的固定伤害、百分比伤害达到了3次则恢复300点体力且令自身下只精灵出战时恢复300点体力",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4870",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: equal-PP branch index 1 and no-equal-PP crit/PP-average clauses indices 2–3 all omit their distinct guards/triggers.",
+      "sourceClause": "若自身存在pp值相等的技能则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4870",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: equal-PP branch index 1 and no-equal-PP crit/PP-average clauses indices 2–3 all omit their distinct guards/triggers.",
+      "sourceClause": "若自身存在pp值相等的技能则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4870",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: equal-PP branch index 1 and no-equal-PP crit/PP-average clauses indices 2–3 all omit their distinct guards/triggers.",
+      "sourceClause": "若自身存在pp值相等的技能则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-3789",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: the unique-highest-failure branch is the entire clear-stages+priority entry.",
+      "sourceClause": "若使自身能力值增加则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-3970",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: low-HP attack damage rider is saved as unconditional turn-end fixed damage.",
+      "sourceClause": "若自身当前体力低于最大体力的50%则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4573",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: no-attack-this-turn gate is absent from the whole turn-end growth/heal entry.",
+      "sourceClause": "若本回合自身未使用攻击技能则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4629",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: unique-highest damage reduction is merged with named Frost Thorn fallback bind; neither has a valid turn-end boundary.",
+      "sourceClause": "若没有唯一最高则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4671",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: both opposite HP snapshot branches are saved without their mutually exclusive guards.",
+      "sourceClause": "若自身体力不低于上回合开始则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4834",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: source miss condition maps to this standalone move-null entry; the unsupported power multiplier is not saved.",
+      "sourceClause": "若本次攻击无效则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4318",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: all-opponent-stages-up condition maps to the standalone cleanse/frostbite entry.",
+      "sourceClause": "若对手所有属性值均处于能力提升状态则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4401",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: pre-attack low-HP rider and opponent-immunity response map to indices 2 and 5; both lost their local guards.",
+      "sourceClause": "若使用攻击技能前自身体力低于最大体力的1/2则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4401",
+      "oldIndex": 5,
+      "currentIndex": 5,
+      "reason": "Manual source mapping: pre-attack low-HP rider and opponent-immunity response map to indices 2 and 5; both lost their local guards.",
+      "sourceClause": "若使用攻击技能前自身体力低于最大体力的1/2则",
+      "candidates": [
+        5
+      ]
+    },
+    {
+      "id": "pet-4524",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: foe-below-half branch is stored as unconditional end-turn damage/priority rider.",
+      "sourceClause": "若对手体力低于其最大体力的1/2则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4648",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: level-100 fatal-hit branch maps to the complete end-turn cleanse/heal/shield entry.",
+      "sourceClause": "若自身的等级为100则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4663",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: no-attack-damage branch is the complete end-turn ember/fallback bundle.",
+      "sourceClause": "若当回合对手未受到攻击伤害则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4679",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: both energy-delta branches are saved without the greater/lower-than-turn-start split.",
+      "sourceClause": "若减少前自身拥有的光辉能量高于上回合开始则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-3869",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: neither-triggered fallback shield+ward is saved unconditionally; ward was also miswritten as shield.",
+      "sourceClause": "若都不触发则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4193",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: failed-crit branch heal and equal fixed damage are saved unconditionally at turn end.",
+      "sourceClause": "若对手攻击技能未打出致命一击则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4414",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: the changed-stage branch recovery and next-turn priority/crit/hit bundle lack their source guard.",
+      "sourceClause": "若自身能力等级与回合开始时不同则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4745",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: lower/equal marked-target HP branch is saved without the HP comparison.",
+      "sourceClause": "若对手的体力不低于狩杀之的的体力则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4747",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: foe-above-half attack rider is saved without foe HP guard; own HP multiplier remains inside that unsafe entry.",
+      "sourceClause": "若对手的体力高于1/2则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4814",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: neutral effectiveness bleed and its failed-trigger cleanse are merged in an entry without the typechart guard.",
+      "sourceClause": "若自身对对手克制系数为1则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4854",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: damage-at-most-300 poison entry retains only the already-poisoned guard, not the damage bound.",
+      "sourceClause": "若该伤害不高于300则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-3488",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: no-stage-up after-KO next-reserve fear is saved unconditional; stage transfer index 0 is independent.",
+      "sourceClause": "若击败对手时对手未处于能力提升状态则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-3750",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: opponent attack hit frostbite/fallback-freeze pair is incorrectly saved at turn start with no trigger guard.",
+      "sourceClause": "若对手攻击技能为命中则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-3870",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: stage-count fixed damage is unconditional; no-stage-up petrify index 3 has the exact correct guard and stays.",
+      "sourceClause": "若对手每处于一种能力提升状态则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-3875",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: random-stat fallback needs neither-stage guard; only that op is removed, while correctly guarded crit_up remains in index 2.",
+      "sourceClause": "若敌我双方中任意一方处于能力提升状态则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-3886",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: foe-stage-up water-seal/fallback damage-cap pair has an impossible taken-damage guard and no stage guard.",
+      "sourceClause": "若对手当前处于能力提升状态则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-3917",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: >300 last-attack branch heal is unconditional; <300 stat-drop index 1 was independently exact-mapped.",
+      "sourceClause": "若n大于300点则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4035",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: saint/evil state branches are applied at turn end without either state guard.",
+      "sourceClause": "若自身为圣念状态则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4035",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: saint/evil state branches are applied at turn end without either state guard.",
+      "sourceClause": "若自身为圣念状态则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4132",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: gender-specific daze and blind are both unconditional; fallback drain index 2 is separate and retained.",
+      "sourceClause": "若对手为雄性精灵则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4132",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: gender-specific daze and blind are both unconditional; fallback drain index 2 is separate and retained.",
+      "sourceClause": "若对手为雄性精灵则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4227",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: fixed-rider-trigger boost and execute-trigger fatigue lack their corresponding event guards.",
+      "sourceClause": "若触发致命一击的几率则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4227",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: fixed-rider-trigger boost and execute-trigger fatigue lack their corresponding event guards.",
+      "sourceClause": "若触发致命一击的几率则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4302",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: >300 damage fatigue and five-stat fallback are saved with no high-damage guard.",
+      "sourceClause": "若高于300则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4330",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: mutually exclusive low/high HP-difference status entries are both unconditional.",
+      "sourceClause": "若体力值之差低于300则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4330",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: mutually exclusive low/high HP-difference status entries are both unconditional.",
+      "sourceClause": "若体力值之差低于300则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4332",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: opponent-hit damage reduction is unconditional; statused/clean branches remain separate.",
+      "sourceClause": "若对手命中则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4391",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: >300 attack-damage priority is saved without threshold guard.",
+      "sourceClause": "若当回合造成的攻击伤害高于300点则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4442",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: defense/special-defense equality boost is unconditional; >400 rider index 0 was exact-mapped.",
+      "sourceClause": "若使用后造成的伤害不高于400则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4477",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: no-skill-turn self-paralysis is saved unconditional; later success branch is separate.",
+      "sourceClause": "若当回合自身未使用技能则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4483",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: attack-miss frostbite fallback fear and all-allies-full freeze are missing their guards.",
+      "sourceClause": "若未触发冻伤且本次使用的技能为攻击技能则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4483",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: attack-miss frostbite fallback fear and all-allies-full freeze are missing their guards.",
+      "sourceClause": "若未触发冻伤且本次使用的技能为攻击技能则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4489",
+      "oldIndex": 4,
+      "currentIndex": 4,
+      "reason": "Manual source mapping: self-mark disappearance boost is unconditional; opponent-mark branch index 7 was exact-mapped.",
+      "sourceClause": "若对手属性微弱自身则",
+      "candidates": [
+        4
+      ]
+    },
+    {
+      "id": "pet-4497",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: failed-crit next-attack crit is unconditional; successful-crit immunity index 0 was exact-mapped.",
+      "sourceClause": "若本次攻击打出致命一击则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4525",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: zero-heal fear branch has no zero-heal condition.",
+      "sourceClause": "若恢复的体力值为0则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4544",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: opponent-speed-below-minus-three bind is unconditional and omits the stat transfer.",
+      "sourceClause": "若对手速度等级小于-3则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4553",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: >5-turn named cleanse bundle is unconditional.",
+      "sourceClause": "若总回合数超过5则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4556",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: opponent-no-skill gate is absent from the entire growth bundle; separate always-true 250 fixed damage is retained.",
+      "sourceClause": "若上回合自身未受到攻击伤害则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4589",
+      "oldIndex": 5,
+      "currentIndex": 5,
+      "reason": "Manual source mapping: attack-no-damage-or-own-burn ember is saved as unconditional turn-end status.",
+      "sourceClause": "若本次攻击未造成伤害或自身处于烧伤状态则",
+      "candidates": [
+        5
+      ]
+    },
+    {
+      "id": "pet-4593",
+      "oldIndex": 4,
+      "currentIndex": 4,
+      "reason": "Manual source mapping: different-trigger PP-free clause is saved unconditionally; high/low damage rider bodies are not represented here.",
+      "sourceClause": "若高于回合开始则",
+      "candidates": [
+        4
+      ]
+    },
+    {
+      "id": "pet-4592",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: attacked-and-own-HP-lower petrify/fallback bundle is unconditional; turn-start debuffs have their own clauses.",
+      "sourceClause": "若自身的体力低于对手则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4599",
+      "oldIndex": 1,
+      "currentIndex": 1,
+      "reason": "Manual source mapping: mark-count comparison heal is saved without the comparison; PP/equal-immunity clauses have no saved entry.",
+      "sourceClause": "若自身命起层数不低于魂落则",
+      "candidates": [
+        1
+      ]
+    },
+    {
+      "id": "pet-4617",
+      "oldIndex": 3,
+      "currentIndex": 3,
+      "reason": "Manual source mapping: burn-success fixed damage is unconditional; blind-success PP zero index 4 was exact-mapped.",
+      "sourceClause": "若成功触发烧伤则",
+      "candidates": [
+        3
+      ]
+    },
+    {
+      "id": "pet-4656",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: no-opponent-shield grant and shield-loss response are merged without their condition.",
+      "sourceClause": "若对手不处于护盾则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4655",
+      "oldIndex": 2,
+      "currentIndex": 2,
+      "reason": "Manual source mapping: all-transformations-complete paralysis is unconditional; any-transformation heal index 1 was exact-mapped.",
+      "sourceClause": "若本次在场未触发过转变则",
+      "candidates": [
+        2
+      ]
+    },
+    {
+      "id": "pet-4662",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: own-crit next-turn crit is applied on any attack move with no crit guard.",
+      "sourceClause": "若当回合自身攻击打出了致命一击则",
+      "candidates": [
+        0
+      ]
+    },
+    {
+      "id": "pet-4695",
+      "oldIndex": 0,
+      "currentIndex": null,
+      "reason": "Manual source mapping: max-HP-greater damage reduction lacks its comparison; the opposite branch has the correct foeMaxHpAboveSelf guard.",
+      "sourceClause": "若自身最大体力高于对手则",
+      "candidates": []
+    },
+    {
+      "id": "pet-4706",
+      "oldIndex": 0,
+      "currentIndex": 0,
+      "reason": "Manual source mapping: below-four support mark grant is saved without the stack/support conditions.",
+      "sourceClause": "若自身命运晨星的层数低于4则",
+      "candidates": [
+        0
+      ]
+    }
+  ],
+  "removedByMark": {
+    "sm-4740": [
+      1
+    ],
+    "sm-4761": [
+      2
+    ],
+    "sm-4863": [
+      2
+    ],
+    "sm-4894": [
+      0
+    ],
+    "sm-4906": [
+      1
+    ],
+    "sm-4908": [
+      1
+    ],
+    "sm-2680": [
+      0
+    ],
+    "sm-3587": [
+      2
+    ],
+    "sm-3760": [
+      1,
+      2
+    ],
+    "sm-3848": [
+      1
+    ],
+    "sm-3917": [
+      0,
+      1
+    ],
+    "sm-3928": [
+      1
+    ],
+    "sm-3941": [
+      2
+    ],
+    "sm-3959": [
+      0,
+      1
+    ],
+    "sm-4034": [
+      0
+    ],
+    "sm-4227": [
+      1,
+      2,
+      3
+    ],
+    "sm-4300": [
+      1
+    ],
+    "sm-4326": [
+      0,
+      1
+    ],
+    "sm-4355": [
+      3
+    ],
+    "sm-4358": [
+      0,
+      1,
+      2
+    ],
+    "sm-4365": [
+      1
+    ],
+    "sm-4367": [
+      2
+    ],
+    "sm-4386": [
+      2
+    ],
+    "sm-4390": [
+      1,
+      2
+    ],
+    "sm-4400": [
+      1
+    ],
+    "sm-4414": [
+      1,
+      2
+    ],
+    "sm-4417": [
+      1
+    ],
+    "sm-4426": [
+      1
+    ],
+    "sm-4435": [
+      2
+    ],
+    "sm-4442": [
+      0,
+      1
+    ],
+    "sm-4450": [
+      0,
+      1
+    ],
+    "sm-4461": [
+      3
+    ],
+    "sm-4489": [
+      1,
+      4,
+      7
+    ],
+    "sm-4497": [
+      0,
+      1
+    ],
+    "sm-4499": [
+      2,
+      5
+    ],
+    "sm-4532": [
+      3
+    ],
+    "sm-4561": [
+      2
+    ],
+    "sm-4568": [
+      1,
+      3
+    ],
+    "sm-4592": [
+      0,
+      1,
+      2
+    ],
+    "sm-4611": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "sm-4617": [
+      3,
+      4
+    ],
+    "sm-4621": [
+      2
+    ],
+    "sm-4625": [
+      1
+    ],
+    "sm-4634": [
+      1
+    ],
+    "sm-4635": [
+      0
+    ],
+    "sm-4653": [
+      2
+    ],
+    "sm-4655": [
+      1,
+      2
+    ],
+    "sm-4671": [
+      0,
+      1
+    ],
+    "sm-4679": [
+      0,
+      1
+    ],
+    "sm-4700": [
+      0
+    ],
+    "sm-4870": [
+      1,
+      2,
+      3
+    ],
+    "sm-3789": [
+      2
+    ],
+    "sm-3970": [
+      0
+    ],
+    "sm-4573": [
+      1
+    ],
+    "sm-4629": [
+      0
+    ],
+    "sm-4834": [
+      3
+    ],
+    "sm-4318": [
+      3
+    ],
+    "sm-4401": [
+      2,
+      5
+    ],
+    "sm-4524": [
+      1
+    ],
+    "sm-4648": [
+      0
+    ],
+    "sm-4663": [
+      0
+    ],
+    "sm-3869": [
+      2
+    ],
+    "sm-4193": [
+      1
+    ],
+    "sm-4745": [
+      1
+    ],
+    "sm-4747": [
+      1
+    ],
+    "sm-4814": [
+      3
+    ],
+    "sm-4854": [
+      0
+    ],
+    "sm-3488": [
+      1
+    ],
+    "sm-3750": [
+      2
+    ],
+    "sm-3870": [
+      2
+    ],
+    "sm-3875": [
+      3
+    ],
+    "sm-3886": [
+      0
+    ],
+    "sm-4035": [
+      0,
+      1
+    ],
+    "sm-4132": [
+      0,
+      1
+    ],
+    "sm-4302": [
+      2
+    ],
+    "sm-4330": [
+      0,
+      1
+    ],
+    "sm-4332": [
+      1
+    ],
+    "sm-4391": [
+      1
+    ],
+    "sm-4477": [
+      0
+    ],
+    "sm-4483": [
+      1,
+      3
+    ],
+    "sm-4525": [
+      0
+    ],
+    "sm-4544": [
+      0
+    ],
+    "sm-4553": [
+      1
+    ],
+    "sm-4556": [
+      1
+    ],
+    "sm-4589": [
+      5
+    ],
+    "sm-4593": [
+      4
+    ],
+    "sm-4599": [
+      1
+    ],
+    "sm-4656": [
+      2
+    ],
+    "sm-4662": [
+      0
+    ],
+    "sm-4706": [
+      0
+    ]
+  },
+  "removedEntryCount": 123
+}

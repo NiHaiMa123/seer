@@ -28,6 +28,7 @@ export class BattleAgent {
   private readonly tools: ToolServer;
   private readonly pack: FrozenPack;
   private readonly decided = new Set<string>();
+  private readonly deciding = new Set<string>();
   private readonly belief: Belief | null;
   private readonly policy: "baseline" | "planner" | "llm";
   private readonly plannerCfg: PlannerConfig;
@@ -54,12 +55,12 @@ export class BattleAgent {
     const obs = this.tools.call({ tool: "observe", battleId: "btl_agent" }); // view 已按 side 绑定，battleId 仅过 schema 形态
     const observation = obs.data as Observation;
     const dec = observation.decision;
-    if (dec === null || this.decided.has(dec.decisionId)) {
+    if (dec === null || !dec.actors.includes(observation.side) || observation.legalActions.length === 0 || this.decided.has(dec.decisionId) || this.deciding.has(dec.decisionId)) {
       return { submitted: false, observation };
     }
     const samples = this.belief === null ? null : this.belief.update(observation).samples;
     const decision = this.policy === "planner"
-      ? { actionId: plan(this.pack, observation, samples ?? [{}], dec.baseRevision).actionId, rationale: "planner" }
+      ? { actionId: plan(this.pack, observation, samples ?? [{}], dec.baseRevision, this.plannerCfg).actionId, rationale: "planner" }
       : decideBaseline(this.pack, observation, {
           ...(samples !== null ? { hypotheses: samples } : {}),
         });
@@ -90,39 +91,42 @@ export class BattleAgent {
     const obs = this.tools.call({ tool: "observe", battleId: "btl_agent" });
     const observation = obs.data as Observation;
     const dec = observation.decision;
-    if (dec === null || this.decided.has(dec.decisionId)) {
+    if (dec === null || !dec.actors.includes(observation.side) || observation.legalActions.length === 0 || this.decided.has(dec.decisionId) || this.deciding.has(dec.decisionId)) {
       return { submitted: false, observation };
     }
-    let decision: { actionId: string; rationale: string };
-    if (this.policy === "llm" && this.llm !== null) {
-      const r = await this.llm.decide(observation, this.pack, new DecisionClock(this.budgetSpec), new AbortController().signal);
-      decision = r.proposal;
-    } else {
-      const samples = this.belief === null ? null : this.belief.update(observation).samples;
-      decision = this.policy === "planner"
-        ? { actionId: plan(this.pack, observation, samples ?? [{}], dec.baseRevision).actionId, rationale: "planner" }
-        : decideBaseline(this.pack, observation, {
-            ...(samples !== null ? { hypotheses: samples } : {}),
-          });
-    }
-    const key = `agt_${observation.side}_${sha256hex(`${dec.decisionId}:${decision.actionId}`).slice(0, 20)}`;
-    const r = this.tools.call({
-      tool: "submit_action",
-      schemaVersion: 1,
-      battleId: observation.battleId,
-      decisionId: dec.decisionId,
-      baseRevision: dec.baseRevision,
-      idempotencyKey: key,
-      actionId: decision.actionId,
-    });
-    const inner = r.data as { ok?: boolean } | undefined;
-    if (!r.ok || inner?.ok !== true) {
-      this.lastError = r.error?.message ?? JSON.stringify(inner ?? {});
-      return { submitted: false, observation };
-    }
-    this.decided.add(dec.decisionId);
-    this.transcript.push({ decisionId: dec.decisionId, actionId: decision.actionId, rationale: decision.rationale });
-    return { submitted: true, observation };
+    this.deciding.add(dec.decisionId);
+    try {
+      let decision: { actionId: string; rationale: string };
+      if (this.policy === "llm" && this.llm !== null) {
+        const r = await this.llm.decide(observation, this.pack, new DecisionClock(this.budgetSpec), new AbortController().signal);
+        decision = r.proposal;
+      } else {
+        const samples = this.belief === null ? null : this.belief.update(observation).samples;
+        decision = this.policy === "planner"
+          ? { actionId: plan(this.pack, observation, samples ?? [{}], dec.baseRevision, this.plannerCfg).actionId, rationale: "planner" }
+          : decideBaseline(this.pack, observation, {
+              ...(samples !== null ? { hypotheses: samples } : {}),
+            });
+      }
+      const key = `agt_${observation.side}_${sha256hex(`${dec.decisionId}:${decision.actionId}`).slice(0, 20)}`;
+      const r = this.tools.call({
+        tool: "submit_action",
+        schemaVersion: 1,
+        battleId: observation.battleId,
+        decisionId: dec.decisionId,
+        baseRevision: dec.baseRevision,
+        idempotencyKey: key,
+        actionId: decision.actionId,
+      });
+      const inner = r.data as { ok?: boolean } | undefined;
+      if (!r.ok || inner?.ok !== true) {
+        this.lastError = r.error?.message ?? JSON.stringify(inner ?? {});
+        return { submitted: false, observation };
+      }
+      this.decided.add(dec.decisionId);
+      this.transcript.push({ decisionId: dec.decisionId, actionId: decision.actionId, rationale: decision.rationale });
+      return { submitted: true, observation };
+    } finally { this.deciding.delete(dec.decisionId); }
   }
 
   private transcript: AgentResult["transcript"] = [];

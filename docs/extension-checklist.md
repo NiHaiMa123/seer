@@ -66,3 +66,47 @@
 - 不改：为了过检查给旗标现补结算分支；`packages/battle-core/src/ops/damage.ts`。
 - 跑：`node tools/effects-compile-check.ts`。
 - 插错的样子（第三种，禁止）：解析成功、表上有键、`DEFERRED_FLAGS` 没有、源码里也没有读取。
+
+## 9. 组合数值
+
+- 改：已有节点能表达的幅值只改 `content/<pack>/`。需要识别新中文时，家族规则发同一个 `amountExpr`，沿用第 4 节触点；不再增加 `statSumPct2`、`perXxx` 等专属幅值字段。
+- 支持：`heal.amountExpr`、`hp_delta.amountExpr`；`apply_status` 的 `dmg_boost`（增伤百分比）、`dmg_reduce`（减伤点数）、`dmg_flat`（附加固伤点数）。其他状态没有通用读数入口，schema 会拒绝，不能只挂字段。
+- 节点：整数、`{stat, of?}`、`{count:"ailments", of?}`、`{sum:[...]}`、`{product:[...]}`、`{difference:[a,b]}`（差的绝对值）、`{divide:{value,by}}`（正整数分母，每个节点向下取整）、`{min:[...]}`、`{max:[...]}`。`of` 为 `self` / `foe` / `target`，默认 `self`。异常按种类去重；读取不存在的单位或面板维度得到 0。求值限 256 个节点、32 层，所有中间值必须是安全整数。
+- 上下文：直接 op 的 `self` 是执行者，`target` 是接收者（含逐个后备）；持久状态的 `self` / `target` 是状态持有者，`foe` 是结算时的当前对手。状态表达式保存到内部状态，每次结算重新读取，换对手或面板变化不会沿用施加时的旧数。
+
+`apply_status` 的 `dmg_boost`、`dmg_reduce`、`dmg_flat` 需要在施加时定值时可加 `"amountTiming": "apply"`，并提供 `amountExpr` 或受支持的旧幅值来源（如 `statDiff` / `perAilment`）；缺省不写该字段，仍按上面的规则动态读取。冻结时按最终状态持有者求值：`self` 和 `target` 指持有者，`foe` 指另一侧单位，因此施加到 `target: "opponent"` 时也以接收方为视角。内部状态只保存求出的整数 `amountExpr`，不保存 `amountTiming`。
+
+例如“恢复自身攻击与特攻之和的 40%”只需已有的回复 op：
+
+```json
+{
+  "op": "heal",
+  "target": "self",
+  "amountExpr": {
+    "divide": {
+      "value": { "product": [{ "sum": [{ "stat": "atk" }, { "stat": "spa" }] }, 40] },
+      "by": 100
+    }
+  }
+}
+```
+
+“对手每有两种异常增伤 30%，最高 90%”使用同一组节点：
+
+```json
+{
+  "op": "apply_status",
+  "name": "dmg_boost",
+  "target": "self",
+  "turns": 3,
+  "amountExpr": {
+    "min": [90, { "product": [{ "divide": { "value": { "count": "ailments", "of": "foe" }, "by": 2 } }, 30] }]
+  }
+}
+```
+
+`amountExpr` 优先于旧的基础幅值字段；已有条件、护盾消耗、回复增减等流程仍按原顺序执行。回复和直损不会因负幅值反向扣血或加血。`statDiff`、`statSumPct`、`perAilment` 保留兼容，经同一个适配层读取，不要求批量迁移旧数据或解析规则。
+
+新增表达式节点仍是单独的契约改动：同步内容和内部状态的 `numericValue` schema，运行 `node tools/gen-contract-types.ts`，在 `ops/value.ts` 加求值分支和行为测试。类型直接取生成的状态契约；`schema-sync-check` 检查两份 schema 同形，不另建手写节点联合。不要在同一次契约改动里再改中文匹配链。
+
+验证：`node tools/schema-sync-check.ts`；`node node_modules/vitest/vitest.mjs run tests/battle-core/ops/numeric-value.test.ts tests/battle-core/mechanics/mechanics-registry.test.ts tests/agent/tools.test.ts`。

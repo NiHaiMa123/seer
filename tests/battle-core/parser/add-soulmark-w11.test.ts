@@ -26,18 +26,20 @@ describe("w11-自身-攻击-lookahead：句首「自身」落在一个已认动�
     expect(parseSoulmarkText("自身攻击必定暴击").unparsed).toHaveLength(0);
   });
 
-  it("新句：'自身攻击技能命中后50%令对手害怕' → 命中后族（挂点不变）", () => {
+  it("新句：'自身攻击技能命中后50%令对手害怕' → 成功招式回调 + 类别守卫", () => {
     expect(first("自身攻击技能命中后50%令对手害怕")).toEqual({
-      hook: "onDamageDealt",
+      hook: "onMoveUsed",
+      guard: { actor: "self", cat: [2, 3] },
       ops: [{ op: "apply_status", name: "fear", target: "opponent", chance: 50 }],
     });
   });
 
-  it("新句：'自身攻击技能命中后造成伤害的50%恢复自身体力' → drain_atk 分数窗", () => {
-    expect(first("自身攻击技能命中后造成伤害的50%恢复自身体力")).toEqual({
-      hook: "onDamageDealt",
-      ops: [{ op: "apply_status", name: "drain_atk", target: "self", params: { n: 50, d: 100 } }],
-    });
+  it("新句：'自身攻击技能命中后造成伤害的50%恢复自身体力' 留残，drain_atk 窗口会晚一击", () => {
+    const r = parseSoulmarkText("自身攻击技能命中后造成伤害的50%恢复自身体力");
+    expect(r.entries).toEqual([]);
+    expect(r.unparsed.map((u) => u.reason)).toEqual([
+      "post-hit modifier — current damage/heal has already resolved before this hook (deferred)",
+    ]);
   });
 
   it("新句：'自身攻击技能无视对手能力提升状态' → pierce_stages", () => {
@@ -49,22 +51,28 @@ describe("w11-自身-攻击-lookahead：句首「自身」落在一个已认动�
 
   it("邻句不变：'自身攻击技能命中时吸取对手100点体力' 仍走命中后族（触发词必须在句首，不被中间截断）", () => {
     expect(first("自身攻击技能命中时吸取对手100点体力")).toEqual({
-      hook: "onDamageDealt",
+      hook: "onMoveUsed",
+      guard: { actor: "self", cat: [2, 3] },
       ops: [{ op: "damage", power: 100, kind: "fixed" }, { op: "heal", flat: 100, target: "self" }],
     });
   });
 
-  it("邻句不变：'自身使用攻击技能时30%令对手麻痹' 仍是 onMoveUsed + cat 守卫", () => {
+  it("纯使用时句式：'自身使用攻击技能时30%令对手麻痹' → 攻击类 react", () => {
     expect(first("自身使用攻击技能时30%令对手麻痹")).toEqual({
-      hook: "onMoveUsed",
-      ops: [{ op: "apply_status", name: "paralysis", target: "opponent", chance: 30 }],
-      guard: { actor: "self", cat: [2, 3] },
+      hook: "onBattleStart",
+      ops: [{
+        op: "apply_status", name: "react", target: "self",
+        params: { trigger: 11, cat: 4 }, stack: true,
+        payload: [{ op: "apply_status", name: "paralysis", target: "opponent", chance: 30 }],
+      }],
     });
+    expect(parseSoulmarkText("自身使用攻击技能时30%令对手麻痹").unparsed).toEqual([]);
   });
 
-  it("邻句不变：'自身属性技能命中后100%令对手失神' 仍走 onBattleStart（属性技能起首不剥）", () => {
+  it("自身属性技能命中后明确绑定成功招式类别窗", () => {
     expect(first("自身属性技能命中后100%令对手失神")).toEqual({
-      hook: "onBattleStart",
+      hook: "onMoveUsed",
+      guard: { actor: "self", cat: 1 },
       ops: [{ op: "apply_status", name: "daze", target: "opponent", chance: 100 }],
     });
   });
@@ -75,11 +83,14 @@ describe("w11-自身-攻击-lookahead：句首「自身」落在一个已认动�
 });
 
 describe("w11-自身-使用技能：句首「自身」落在「使用技能」上时冗余", () => {
-  it("新句：'自身使用技能50%令对手害怕' → 裸'使用技能50%令对手害怕' 同形", () => {
+  it("纯使用句式：'自身使用技能50%令对手害怕' → 与裸形同 react IR", () => {
     expect(first("自身使用技能50%令对手害怕")).toEqual(first("使用技能50%令对手害怕"));
     expect(first("自身使用技能50%令对手害怕")).toEqual({
       hook: "onBattleStart",
-      ops: [{ op: "apply_status", name: "fear", target: "opponent", chance: 50 }],
+      ops: [{
+        op: "apply_status", name: "react", target: "self", params: { trigger: 11 }, stack: true,
+        payload: [{ op: "apply_status", name: "fear", target: "opponent", chance: 50 }],
+      }],
     });
     expect(parseSoulmarkText("自身使用技能50%令对手害怕").unparsed).toHaveLength(0);
   });
@@ -91,23 +102,29 @@ describe("w11-自身-使用技能：句首「自身」落在「使用技能」�
     });
   });
 
-  it("整句：霍莱「回合开始时…则自身使用技能50%令对手害怕，未触发则消除对手回合类效果」", () => {
-    expect(first("回合开始时若自身满体力则自身使用技能50%令对手害怕，未触发则消除对手回合类效果")).toEqual({
-      hook: "onTurnStart",
-      guard: { selfHpFull: true },
-      ops: [
-        { op: "apply_status", name: "fear", target: "opponent", chance: 50, turns: 1 },
-        { op: "cleanse", target: "opponent", scope: "timed", if: { not: { prevApplied: true } } },
-      ],
-    });
+  it("整句：霍莱回合开始快照不能改挂为后续出招条件，关联 else 一起延期", () => {
+    const text = "回合开始时若自身满体力则自身使用技能50%令对手害怕，未触发则消除对手回合类效果";
+    const result = parseSoulmarkText(text);
+    expect(result.entries.flatMap((entry) => entry.ops ?? []).some((op) => op.name === "fear" || op.op === "cleanse")).toBe(false);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("自身使用技能50%令对手害怕"))).toBe(true);
+    expect(result.unparsed.some((fragment) => fragment.clause.includes("未触发则消除对手回合类效果"))).toBe(true);
   });
 
-  it("邻句不变：'自身使用技能时吸取对手200点体力' 仍走 onMoveUsed（时字形态动词在后面，不从中间截断）", () => {
-    expect(first("自身使用技能时吸取对手200点体力")).toEqual({
+  it("纯使用吸取的damage+heal序列保留旧招式窗并标记时序残留", () => {
+    const text = "自身使用技能时吸取对手200点体力";
+    const parsed = parseSoulmarkText(text);
+    expect(first(text)).toEqual({
       hook: "onMoveUsed",
-      ops: [{ op: "damage", power: 200, kind: "fixed" }, { op: "heal", flat: 200, target: "self" }],
+      ops: [
+        { op: "damage", power: 200, kind: "fixed" },
+        { op: "heal", flat: 200, target: "self" },
+      ],
       guard: { actor: "self" },
     });
+    expect(parsed.unparsed).toEqual([{
+      clause: text,
+      reason: "move-use scope — additional guard, limit, linked trigger, or payload is not supported by the plain-use react path (deferred)",
+    }]);
   });
 
   it("邻句不变：'自身所有技能必定先手' 旧 IR 逐字不变（所有技能起首无动词锚，不剥）", () => {

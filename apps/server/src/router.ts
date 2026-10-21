@@ -4,6 +4,7 @@
  * 卸载插件 → disposer 撤路由 → 端点随模块消失。
  */
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { TransportError } from "./transport.ts";
 
 export interface RouteRequest {
   method: string;
@@ -52,16 +53,21 @@ export class Router {
       res.end(JSON.stringify(body));
     };
     let pathMatched = false;
-    for (const route of this.routes) {
-      const params = this.match(route.segments, parts);
-      if (params === null) continue;
-      pathMatched = true;
-      if (route.method !== "*" && route.method !== req.method) continue;
-      await route.handler({
-        method: req.method ?? "GET", path: url.pathname, query: url.searchParams,
-        params, req, res, json,
-      });
-      return true;
+    // 后装插件的具体路由优先于静态 catch-all；方法不匹配也不能被它吞成 404。
+    for (const wildcard of [false, true]) {
+      for (const route of this.routes) {
+        if (route.segments.includes("*") !== wildcard) continue;
+        const params = this.match(route.segments, parts);
+        if (params === null) continue;
+        pathMatched = true;
+        if (route.method !== "*" && route.method !== req.method) continue;
+        await route.handler({
+          method: req.method ?? "GET", path: url.pathname, query: url.searchParams,
+          params, req, res, json,
+        });
+        return true;
+      }
+      if (pathMatched) break;
     }
     if (pathMatched) {
       json(405, { code: "INVALID_SCHEMA", message: "method" });
@@ -77,7 +83,10 @@ export class Router {
       if (seg === "*") return params;
       const part = parts[i];
       if (part === undefined) return null;
-      if (seg.startsWith(":")) params[seg.slice(1)] = decodeURIComponent(part);
+      if (seg.startsWith(":")) {
+        try { params[seg.slice(1)] = decodeURIComponent(part); }
+        catch { throw new TransportError(400, "invalid URL encoding"); }
+      }
       else if (seg !== part) return null;
     }
     return segments.length === parts.length || segments[segments.length - 1] === "*" ? params : null;
