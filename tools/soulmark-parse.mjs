@@ -1724,6 +1724,9 @@ export function parseSoulmarkText(text, petName) {
     const groups = [];
     let cur = [];
     cur.linkedContinuation = false;
+    // 结果分支标记（"触发成功/未触发…"）——「且」内联切分时用它判断能不能把前半段另起一组：
+    // 带标记的分支必须与其尾句保持在一起（尾句要跟着该分支的作用域）。
+    const outcomeMarker = /(?:免疫成功|触发成功|施加成功|反转成功|未触发|未命中|未击败|免疫失败|触发失败|反转失败)/;
     // 空格=句界（图鉴源用空格分句："…80% 回合开始时，…"——无正句内空格，已全库验证）；
     // 与 "，" 同级切分，每段再过 segBoundary 判定是否开新组（裸触发/新触发→独立组）
     let parenDepth = 0; // 括号内枚举不切组（"（防御+2，特防+2）"是上一句的维度列表——，碎片曾整批丢进 no-trigger-prefix）
@@ -1737,8 +1740,22 @@ export function parseSoulmarkText(text, petName) {
       parenDepth = Math.max(0, parenDepth + (cs.match(/[（(]/g) ?? []).length - (cs.match(/[）)]/g) ?? []).length);
       if (nested) { cur.push(cs); continue; } // 括号深内的片段并入当前组不做边界判定；括号字符保留——下游 cap-tail/stat 处理器需要"（…）"标记
       // "且"内联边界（"先出手特攻+1且回合结束时恢复X"——逗号未断处且+触发词二次切分）
+      // 切出的前半段要按普通分段处理：当前组非空、前半段本身是边界（自带触发词）、
+      // 且两边都没有结果分支标记时，另起一组。
+      // 不另起的后果：「A，B且C」并成一组——A 的触发词与守卫罩住 C，C 的触发词丢失，
+      // 条件还可能被 A 的守卫反号（pet-3839：双防提升条件把「不处于」取反成「处于」，
+      // 效果永远不触发）。
+      // 结果分支标记（"触发成功/未触发…"）不能拆：尾句必须跟着该分支的作用域，
+      // 否则会逃成无条件条目（soulmark-parse.test 的「不误伤并列子句」用例）。
       const qi = cs.length > 4 ? cs.search(/且(?=回合开始|回合结束|受到攻击|若(?:自身|对手|对方|当|每)|对手使用|自身登场|每次|本场战斗|每回合|下回合|当前回合)/) : -1;
-      if (qi > 0) { cur.push(cs.slice(0, qi).trim()); if (cur.length > 0) groups.push(cur); cur = [cs.slice(qi + 1).trim()]; cur.linkedContinuation = true; continue; }
+      if (qi > 0) {
+        const head = cs.slice(0, qi).trim();
+        const hasOutcome = outcomeMarker.test(head) || cur.some((x) => outcomeMarker.test(x));
+        if (cur.length > 0 && !hasOutcome && segBoundary(head)) { groups.push(cur); cur = [head]; }
+        else cur.push(head);
+        groups.push(cur);
+        cur = [cs.slice(qi + 1).trim()]; cur.linkedContinuation = true; continue;
+      }
       if (cur.length > 0 && segBoundary(cs)) { groups.push(cur); cur = [cs]; cur.linkedContinuation = linkedSegment; }
       else cur.push(cs);
     }
@@ -1749,7 +1766,6 @@ export function parseSoulmarkText(text, petName) {
     // and cannot escape as an unconditional entry.
     let outcomeScopePending = false;
     let outcomeChanceGrowCapPending = false;
-    const outcomeMarker = /(?:免疫成功|触发成功|施加成功|反转成功|未触发|未命中|未击败|免疫失败|触发失败|反转失败)/;
     const outcomeChanceGrow = /^(?:若)?(?:未触发|未命中|未击败|没有触发|均未触发|皆未触发)(?:则|，|,)(?:(?:下次|本次在场|在场)?[^，,；;。]{0,12}(?:概率|几率)(?:提升|增加|提高)\d+%|下次提升\d+%)/;
     const outcomeGrowCap = /^最高(?:提升至|提高到|增加到|提升|提高|增加|为|至|到|可达|可叠加)?\d+%?$/;
     for (const group of groups) {

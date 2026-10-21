@@ -65,7 +65,8 @@ export const rules = [
   { id: "e36-14", re: new RegExp(`^(?:将|把)?反弹${NUM}倍(?:的)?伤害(?:给|至)(?:对手|对方|敌方)$|^反弹${NUM}倍(?:的)?伤害$`),
     go: (m) => ({ effects: [{ op: "apply_status", name: "counter", target: "self", params: { mul: num(m[1] ?? m[2]) } }] }) },
   // "反弹给对手造成伤害值N%的百分比伤害"/"反弹对手伤害N/M" → reflect_dmg
-  { id: "e36-15", re: new RegExp(`^反弹给(?:对手|对方|敌方)(?:造成|的)?伤害值?${NUM}%的(?:百分比)?伤害$|^反弹(?:对手|对方|敌方)?伤害${NUM}\\s*/\\s*${NUM}$|^自身受到(?:直接)?攻击伤害${NUM}%(?:反馈|反弹)(?:给)?(?:对手|对方|敌方)?$`),
+  // 「固伤/固定伤害」是同一形态的别称（反弹的那部分按固伤计）——语料里两种写法都有。
+  { id: "e36-15", re: new RegExp(`^反弹给(?:对手|对方|敌方)(?:造成|的)?伤害值?${NUM}%的(?:百分比)?(?:伤害|固伤|固定伤害)$|^反弹(?:对手|对方|敌方)?伤害${NUM}\\s*/\\s*${NUM}$|^自身受到(?:直接)?攻击伤害${NUM}%(?:反馈|反弹)(?:给)?(?:对手|对方|敌方)?$`),
     go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { effects: [{ op: "apply_status", name: "reflect_dmg", target: "self", params: ns.length === 1 ? { n: ns[0], d: 100 } : { n: ns[0], d: ns[1] } }] }; } },
   // "受到攻击N%对手冻伤"（受击→异常载荷；trigger:1 + 条目 chance）
   { id: "e36-16", re: new RegExp(`^受到(?:对手|对方|敌方)?(?:的)?攻击(?:时|后)?${NUM}%?(?:几率|概率)?(?:使|令)?(?:对手|对方|敌方)(${AIL_RE})(?:状态)?$`),

@@ -9470,6 +9470,36 @@
       "desc": "兰：免疫并反弹致命一击伤害，触发后自身恢复500点体力且下回合自身先制+2；能力提升状态被消除则对手瘫痪，未触发瘫痪则消除对手回合类效果",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_immune",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_reflect",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 500,
+              "target": "self"
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "ops": [
             {
@@ -9501,16 +9531,6 @@
                 }
               ],
               "turns": 1
-            },
-            {
-              "op": "cleanse",
-              "target": "opponent",
-              "scope": "timed",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -22397,7 +22417,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -22431,7 +22450,13 @@
               "numerator": 1,
               "denominator": 4,
               "target": "self"
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
             {
               "op": "apply_stat_stage",
               "stat": "sdf",
@@ -22450,7 +22475,10 @@
                 "order": "last"
               }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self"
+          }
         },
         {
           "hook": "onTurnEnd",
@@ -24051,14 +24079,20 @@
                 "flat": 250
               },
               "turns": 1
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "prevDamageBelowAbs": 300
+          },
+          "bossGate": true,
+          "ops": [
             {
               "op": "cleanse",
               "target": "opponent",
-              "scope": "timed",
-              "if": {
-                "takenBelowAbs": 300
-              }
+              "scope": "timed"
             }
           ]
         },
@@ -27793,6 +27827,30 @@
           }
         },
         {
+          "hook": "onEntry",
+          "guard": {
+            "prevApplied": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              },
+              "if": {
+                "selfHpBelow": {
+                  "numerator": 1,
+                  "denominator": 2
+                }
+              }
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "bossGate": true,
           "ops": [
@@ -30162,16 +30220,22 @@
               "op": "pp_delta",
               "zeroRandom": 1,
               "target": "opponent"
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "prevDamageAboveAbs": 280
+          },
+          "bossGate": true,
+          "ops": [
             {
               "op": "apply_stat_stage",
               "stat": "random",
               "randomCount": 3,
               "delta": -1,
-              "target": "opponent",
-              "if": {
-                "takenAboveAbs": 280
-              }
+              "target": "opponent"
             }
           ]
         },
@@ -32505,6 +32569,52 @@
       "desc": "兰：免疫并反弹致命一击伤害，触发后吸取对手300点体力且下回合自身先制+3；自身能力提升被消除则对手瘫痪，未触发瘫痪则消除对手回合类效果且令对手下1回合必定致命一击（boss无效）",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_immune",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_reflect",
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "damage",
+              "power": 300,
+              "kind": "fixed"
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "heal",
+              "flat": 300,
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        },
+        {
           "hook": "onTurnEnd",
           "ops": [
             {
@@ -32537,27 +32647,6 @@
                 }
               ],
               "turns": 1
-            },
-            {
-              "op": "cleanse",
-              "target": "opponent",
-              "scope": "timed",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_status",
-              "name": "crit_always",
-              "target": "self",
-              "turns": 1,
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -32792,11 +32881,17 @@
                   "chance": 100
                 }
               ],
-              "if": {
-                "selfHpBelowFoe": true
-              },
               "turns": 1
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "bossGate": true,
+          "ops": [
             {
               "op": "apply_status",
               "name": "crit_always",
@@ -32804,9 +32899,6 @@
               "turns": 1,
               "params": {
                 "count": 1
-              },
-              "if": {
-                "selfHpBelowFoe": true
               }
             }
           ]
@@ -32859,6 +32951,24 @@
               "numerator": 1,
               "denominator": 1,
               "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "prevDamageBelowAbs": 350
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "reflect_dmg",
+              "target": "self",
+              "params": {
+                "n": 50,
+                "d": 100
+              }
             }
           ]
         }
@@ -38708,56 +38818,49 @@
               "name": "fear",
               "target": "opponent",
               "chance": 80
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onDamageDealt",
+          "guard": {
+            "prevDamageBelowAbs": 300
+          },
+          "ops": [
             {
               "op": "apply_stat_stage",
               "stat": "atk",
               "delta": 1,
               "target": "self",
-              "chance": 100,
-              "if": {
-                "prevDamageBelowAbs": 300
-              }
+              "chance": 100
             },
             {
               "op": "apply_stat_stage",
               "stat": "def",
               "delta": 1,
               "target": "self",
-              "chance": 100,
-              "if": {
-                "prevDamageBelowAbs": 300
-              }
+              "chance": 100
             },
             {
               "op": "apply_stat_stage",
               "stat": "spa",
               "delta": 1,
               "target": "self",
-              "chance": 100,
-              "if": {
-                "prevDamageBelowAbs": 300
-              }
+              "chance": 100
             },
             {
               "op": "apply_stat_stage",
               "stat": "sdf",
               "delta": 1,
               "target": "self",
-              "chance": 100,
-              "if": {
-                "prevDamageBelowAbs": 300
-              }
+              "chance": 100
             },
             {
               "op": "apply_stat_stage",
               "stat": "spd",
               "delta": 1,
               "target": "self",
-              "chance": 100,
-              "if": {
-                "prevDamageBelowAbs": 300
-              }
+              "chance": 100
             }
           ]
         },
@@ -39237,7 +39340,6 @@
           "guard": {
             "selfHpAboveFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -39247,7 +39349,15 @@
                 "pct": 50
               },
               "turns": 1
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "ops": [
             {
               "op": "apply_status",
               "name": "dmg_taken_down",
@@ -39255,16 +39365,12 @@
               "params": {
                 "pct": 50
               },
-              "if": {
-                "selfHpBelowFoe": true
-              },
               "turns": 1
             }
           ]
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -45895,22 +46001,29 @@
           ]
         },
         {
-          "hook": "onDamageDealt",
+          "hook": "onMoveUsed",
           "guard": {
-            "or": [
-              {
-                "selfStatAtLeast": {
-                  "stat": "def",
-                  "stage": 1
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ],
+            "if": {
+              "or": [
+                {
+                  "selfStatAtLeast": {
+                    "stat": "def",
+                    "stage": 1
+                  }
+                },
+                {
+                  "selfStatAtLeast": {
+                    "stat": "sdf",
+                    "stage": 1
+                  }
                 }
-              },
-              {
-                "selfStatAtLeast": {
-                  "stat": "sdf",
-                  "stage": 1
-                }
-              }
-            ]
+              ]
+            }
           },
           "ops": [
             {
@@ -45919,6 +46032,38 @@
               "target": "self",
               "params": {
                 "pct": 100
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onDamaged",
+          "guard": {
+            "not": {
+              "or": [
+                {
+                  "selfStatAtLeast": {
+                    "stat": "def",
+                    "stage": 1
+                  }
+                },
+                {
+                  "selfStatAtLeast": {
+                    "stat": "sdf",
+                    "stage": 1
+                  }
+                }
+              ]
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
               },
               "turns": 1
             }
@@ -46361,7 +46506,12 @@
                 "d": 100
               },
               "turns": 1
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "ops": [
             {
               "op": "damage",
               "kind": "fixed",
@@ -55476,61 +55626,46 @@
                 "pct": 50
               },
               "turns": 1
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "selfStageUp": true
+            }
+          },
+          "ops": [
             {
               "op": "apply_stat_stage",
               "stat": "atk",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "selfStageUp": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "def",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "selfStageUp": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "spa",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "selfStageUp": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "sdf",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "selfStageUp": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "spd",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "selfStageUp": true
-                }
-              }
+              "target": "self"
             }
           ]
         },
@@ -57721,15 +57856,21 @@
               "name": "sleep",
               "target": "opponent",
               "turns": 1,
-              "chance": 50,
-              "if": {
-                "markCountAtLeast": {
-                  "mark": "速度能力提升",
-                  "n": 1,
-                  "on": "foe"
-                }
-              }
-            },
+              "chance": 50
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "markCountAtLeast": {
+              "mark": "速度能力提升",
+              "n": 1,
+              "on": "foe"
+            }
+          },
+          "bossGate": true,
+          "ops": [
             {
               "op": "apply_status",
               "name": "prio_up",
@@ -57737,13 +57878,6 @@
               "turns": 1,
               "params": {
                 "add": 1
-              },
-              "if": {
-                "markCountAtLeast": {
-                  "mark": "速度能力提升",
-                  "n": 1,
-                  "on": "foe"
-                }
               }
             }
           ]
@@ -60368,20 +60502,10 @@
               "name": "dodge",
               "target": "self",
               "params": {
-                "pct": 100
+                "pct": 100,
+                "cat": 4
               },
               "turns": 1
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "ops": [
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self"
             }
           ]
         },
@@ -62257,46 +62381,11 @@
       "effects": [
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
               "flat": 300,
               "target": "self"
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "selfHpFull": true
-          },
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "frostbite",
-              "target": "opponent",
-              "if": {
-                "prevDamageAboveAbs": 300
-              },
-              "chance": 100,
-              "turns": 1
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_boost",
-              "target": "self",
-              "params": {
-                "pct": 100
-              },
-              "turns": 1
             }
           ]
         }
@@ -65280,6 +65369,26 @@
       "desc": "问：赛尔号墨纪拉魂印是什么？ 墨纪拉专属特性是什么？ 答： 赛尔号墨纪拉的魂印是：墨 当回合若自身先出手则受到的攻击伤害减少50%且回合结束时附加对手最大体力1/3的固定伤害；回合开始时，若对手处于回合类效果则自身攻击技能先制+1，若自身处于回合类效果则当回合使用技能70%令对手焚烬，未触发则令对手2回合内无法通过自身技能恢复体力（boss无效） 精灵资料：赛尔号墨纪拉进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onMoveUsed",
+          "guard": {
+            "actor": "self",
+            "if": {
+              "order": "first"
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "ops": [
             {
@@ -65316,12 +65425,15 @@
           ]
         },
         {
-          "hook": "onTurnStart",
+          "hook": "onMoveUsed",
           "guard": {
-            "markCountAtLeast": {
-              "mark": "回合类效果",
-              "n": 1,
-              "on": "self"
+            "actor": "self",
+            "if": {
+              "markCountAtLeast": {
+                "mark": "回合类效果",
+                "n": 1,
+                "on": "self"
+              }
             }
           },
           "bossGate": true,
@@ -66624,7 +66736,63 @@
       "effects": [
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_status",
+              "name": "shield",
+              "target": "self",
+              "params": {
+                "flat": 200
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "shield",
+              "target": "self",
+              "params": {
+                "flat": 200
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "heal_block",
+              "target": "opponent",
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
           "ops": [
             {
               "op": "apply_status",
@@ -68182,24 +68350,6 @@
           "bossGate": true,
           "ops": [
             {
-              "op": "apply_stat_stage",
-              "stat": "def",
-              "delta": -2,
-              "target": "opponent",
-              "if": {
-                "selfHpBelowFoe": true
-              }
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "acc",
-              "delta": -1,
-              "target": "opponent",
-              "if": {
-                "selfHpBelowFoe": true
-              }
-            },
-            {
               "op": "damage",
               "kind": "fixed",
               "power": 1,
@@ -68212,6 +68362,27 @@
                 "numerator": 1,
                 "denominator": 3
               }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": -2,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "acc",
+              "delta": -1,
+              "target": "opponent"
             }
           ]
         },
@@ -68629,17 +68800,10 @@
               },
               "turns": 1,
               "if": {
-                "and": [
-                  {
-                    "selfHpBelow": {
-                      "numerator": 1,
-                      "denominator": 2
-                    }
-                  },
-                  {
-                    "prevTakenZero": true
-                  }
-                ]
+                "selfHpBelow": {
+                  "numerator": 1,
+                  "denominator": 2
+                }
               }
             }
           ]
@@ -68657,10 +68821,17 @@
               },
               "turns": 1,
               "if": {
-                "selfHpAbove": {
-                  "numerator": 1,
-                  "denominator": 2
-                }
+                "and": [
+                  {
+                    "prevTakenZero": true
+                  },
+                  {
+                    "selfHpAbove": {
+                      "numerator": 1,
+                      "denominator": 2
+                    }
+                  }
+                ]
               }
             }
           ]
@@ -71724,61 +71895,37 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "prio_up",
+              "name": "periodic",
               "target": "self",
-              "turns": 1,
               "params": {
-                "add": 1
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onMoveUsed",
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ],
-            "if": {
-              "foeStatused": true
-            }
-          },
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "fatigue",
-              "target": "opponent",
-              "chance": 100,
+                "win": 15
+              },
+              "payload": [
+                {
+                  "op": "cleanse",
+                  "target": "self",
+                  "scope": "ailment",
+                  "plain": true,
+                  "noHooks": true
+                }
+              ],
+              "if": {
+                "prevTakenZero": true
+              },
               "turns": 1
             }
           ]
         },
         {
-          "hook": "onMoveUsed",
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ],
-            "if": {
-              "not": {
-                "foeStatused": true
-              }
-            }
-          },
-          "bossGate": true,
+          "hook": "onTurnEnd",
           "ops": [
             {
               "op": "apply_status",
-              "name": "crit_always",
+              "name": "prio_up",
               "target": "self",
               "turns": 1,
               "params": {
-                "count": 1
+                "add": 1
               }
             }
           ]
@@ -71950,7 +72097,15 @@
               "op": "cleanse",
               "scope": "shield",
               "target": "opponent"
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onEntry",
+          "guard": {
+            "prevApplied": true
+          },
+          "ops": [
             {
               "op": "apply_status",
               "name": "status_lock",
@@ -71958,10 +72113,28 @@
               "params": {
                 "cat": 1
               },
-              "turns": 2,
-              "if": {
-                "prevApplied": true
-              }
+              "turns": 2
+            }
+          ]
+        },
+        {
+          "hook": "onEntry",
+          "guard": {
+            "foeHas": "shock"
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": 1,
+              "target": "opponent"
             }
           ]
         }
@@ -72096,12 +72269,37 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "dmg_boost",
+              "name": "react",
               "target": "self",
               "params": {
-                "pct": 50,
-                "kindMask": 4
-              }
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "dmg_boost",
+                  "target": "self",
+                  "params": {
+                    "pct": 50
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "prevDamageBelowAbs": 300
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 600,
+              "target": "opponent"
             }
           ]
         }
@@ -87824,17 +88022,10 @@
       "desc": "对手使用攻击技能时，若对手不处于异常状态则受到伤害减少20%且受到攻击后令对手烧伤，若对手处于烧伤状态则受到攻击后50%令对手害怕，未触发则恢复300点体力，自身处于烧伤状态时改为抵挡本次攻击且受到攻击后令对手害怕",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onTurnEnd",
           "guard": {
-            "actor": "foe",
-            "cat": [
-              2,
-              3
-            ],
-            "if": {
-              "not": {
-                "foeStatused": true
-              }
+            "not": {
+              "foeStatused": true
             }
           },
           "ops": [
@@ -87881,47 +88072,6 @@
                 }
               ],
               "turns": 1
-            },
-            {
-              "op": "heal",
-              "flat": 300,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_status",
-              "name": "dmg_immune",
-              "target": "self",
-              "turns": 1,
-              "params": {
-                "count": 1
-              },
-              "if": {
-                "and": [
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  },
-                  {
-                    "selfHas": "burn"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onDamaged",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "fear",
-              "target": "opponent"
             }
           ]
         }
@@ -87933,17 +88083,10 @@
       "desc": "对手使用攻击技能时，若对手不处于异常状态则受到伤害减少20%且受到攻击后令对手烧伤，若对手处于烧伤状态则受到攻击后50%令对手害怕，未触发则恢复300点体力，自身处于烧伤状态时改为抵挡本次攻击且受到攻击后令对手害怕",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onTurnEnd",
           "guard": {
-            "actor": "foe",
-            "cat": [
-              2,
-              3
-            ],
-            "if": {
-              "not": {
-                "foeStatused": true
-              }
+            "not": {
+              "foeStatused": true
             }
           },
           "ops": [
@@ -87990,47 +88133,6 @@
                 }
               ],
               "turns": 1
-            },
-            {
-              "op": "heal",
-              "flat": 300,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_status",
-              "name": "dmg_immune",
-              "target": "self",
-              "turns": 1,
-              "params": {
-                "count": 1
-              },
-              "if": {
-                "and": [
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  },
-                  {
-                    "selfHas": "burn"
-                  }
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onDamaged",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "fear",
-              "target": "opponent"
             }
           ]
         }
@@ -88748,30 +88850,11 @@
               "name": "crit_always",
               "target": "self",
               "turns": 1,
-              "params": {}
-            }
-          ]
-        },
-        {
-          "hook": "onTurnStart",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "hot",
-              "target": "self",
-              "turns": 1,
               "params": {
-                "n": 1,
-                "d": 3
+                "count": 1
               }
             }
-          ],
-          "guard": {
-            "not": {
-              "selfStageUp": true
-            }
-          }
+          ]
         },
         {
           "hook": "onTurnStart",
@@ -88791,6 +88874,18 @@
                 "kindMask": 3
               },
               "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
             }
           ]
         }

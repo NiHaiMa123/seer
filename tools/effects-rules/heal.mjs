@@ -367,7 +367,9 @@ export const rules = [
   // "获得N%的A伤害、B伤害…减免"（获得语态多 kind 承伤减免——kindMask 位图；词序 kind 在前减免在后）
   { id: "heal-183", re: new RegExp(`^获得${NUM}%的(?:(?:固定|百分比|真实|攻击)伤害[、和与])+?(?:固定|百分比|真实|攻击)伤害减免$|^获得${NUM}%的(固定|百分比|真实|攻击)伤害减免$`), go: (m) => { const K = { 固定: 1, 百分比: 2, 攻击: 4, 真实: 8 }; const mask = (m[0].match(/固定|百分比|真实|攻击/g) ?? []).reduce((a, k) => a | (K[k] ?? 0), 0); return { effects: [{ op: "apply_status", name: "dmg_taken_down", target: "self", params: { pct: num(m[1] ?? m[3]), ...(mask !== 0 ? { kindMask: mask } : {}) } }] }; } },
   // "受到的伤害减N%"（减字尾变体——被动承伤降幅）
-  { id: "heal-184", re: new RegExp(`^受到(?:的)?(?:攻击)?伤害(?:减少|减|降低|下降)${NUM}%$|^受到(?:的)?攻击(?:伤害)?(?:减少|减|降低|下降)${NUM}%$|^受到(?:的)?攻击(?:减少|降低)${NUM}%$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_taken_down", target: "self", params: { pct: num(m[1] ?? m[2] ?? m[3]) } }] }) },
+  // 「将」前缀：「…则将受到的攻击伤害降低50%」——把字标记在句中（normalizeClause 的剥除锚定句首，剥不掉），
+  // 这里由规则自己认。语义与不带「将」时相同。
+  { id: "heal-184", re: new RegExp(`^(?:将|把)?受到(?:的)?(?:攻击)?伤害(?:减少|减|降低|下降)${NUM}%$|^(?:将|把)?受到(?:的)?攻击(?:伤害)?(?:减少|减|降低|下降)${NUM}%$|^(?:将|把)?受到(?:的)?攻击(?:减少|降低)${NUM}%$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_taken_down", target: "self", params: { pct: num(m[1] ?? m[2] ?? m[3]) } }] }) },
   // "对手造成的A伤害、B伤害减少N%直到下场"（foe 出伤削弱多 kind——dmg_boost 负 pct + kindMask；直到下场=常驻窗）
   { id: "heal-185", re: new RegExp(`^(?:对手|对方|敌方)造成的?(?:(?:攻击|固定|百分比|真实|技能|普通)伤害[、和与])+?(?:攻击|固定|百分比|真实|技能|普通)伤害的?(?:减少|降低|下降|减免)${NUM}%(?:直到下场)?$`), go: (m) => { const K = { 固定: 1, 百分比: 2, 攻击: 4, 技能: 4, 普通: 4, 真实: 8 }; const mask = (m[0].match(/固定|百分比|真实|攻击|技能|普通/g) ?? []).reduce((a, k) => a | (K[k] ?? 0), 0); return { effects: [{ op: "apply_status", name: "dmg_boost", target: "opponent", params: { pct: -num(m[1]), ...(mask !== 0 ? { kindMask: mask } : {}) } }] }; } },
   // "使对手下一次攻击伤害降低N%" → dmg_weaken count:1（下次出伤后窗尽）
