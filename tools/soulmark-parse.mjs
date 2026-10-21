@@ -944,7 +944,9 @@ const TRIGGERS = [
   { re: /^首次(?:攻击|出手|使用技能)(?:时|后|则|，|,)?/, hook: "onMoveUsed", extra: { actor: "self", limitBattle: true } },
   { re: /^首次使用属性技能(?:时|后|则|，|,)?/, hook: "onMoveUsed", extra: { actor: "self", cat: 1, limitBattle: true } },
   // "自身每次出手时X"/"出手时X"/"当出手时自身体力少于1/2时X" → onMoveUsed（出手≈出招；余文 HP 谓词落 pendingCond 守卫）
-  { re: /^(?:当|若)?(?:自身|自己)?(?:每次|每次出手|出手)(?:时|，|,)[，,、]?(?=若|当|造成|使|令|附加|恢复|消除|清除|\d|有|自身体力|自身HP|对手|自身|使)/, hook: "onMoveUsed", extra: { actor: "self" } },
+  // 尾词收「后」：「出手后恢复…」（出手之后）同样是出招时点——原来只认 时/，/,，
+  // 「出手后」整组匹配不上触发词，回血那半句被丢掉、只留「并造成等量固定伤害」。
+  { re: /^(?:当|若)?(?:自身|自己)?(?:每次|每次出手|出手)(?:时|后|，|,)[，,、]?(?=若|当|造成|使|令|附加|恢复|消除|清除|\d|有|自身体力|自身HP|对手|自身|使)/, hook: "onMoveUsed", extra: { actor: "self" } },
   { re: /^(?:当|每次)?(?:自身)?(?:主动)?(?:换下|离场|下场|撤退|被换下|切换下场)(?:时|后)/, hook: "onSwitchOut" },
   { re: /^(?:每次)?(?:自身)?(?:直接)?攻击(?:技能)?(?:时|后)(?=有?\d+%|使|令|附加|恢复|造成)/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
   // "第N回合X"——回合序数窗（onTurnStart+turnEq guard）
@@ -976,13 +978,19 @@ const TRIGGERS = [
   { mk: (g) => { const t = g.match(/^(?:自身|自己)?每使用一次?(属性|攻击)?技能(?:时|后|则|，|,)?/); if (t === null) return undefined; return { hook: "onMoveUsed", extra: { actor: "self", ...(t[1] === "属性" ? { cat: 1 } : t[1] === "攻击" ? { cat: [2, 3] } : {}) }, body: g.slice(t[0].length).replace(/^(?:从下回合起|从下个回合起)(?:自身|自己)?在本场战斗中?/, "") }; } },
   // "（与X）每持续战斗N回合X" → onTurnEnd + everyNTurns（N=1 即逐回合；搭挡名前缀剥除）
   { mk: (g) => { const t = g.match(/^(?:与[^，,。；]{1,8})?每持续战斗(\d+)回合(?:时|后|则|，|,)?/); if (t === null) return undefined; return { hook: "onTurnEnd", extra: { guard: { everyNTurns: +t[1] } }, body: g.slice(t[0].length) }; } },
-  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方)?(?:当回合|本回合)?(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=附加|使|令|造成|恢复|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, useTime: true },
+  // 「若…使用攻击/属性技能」单独成组（逗号后才是负载）——若形触发词到组尾就结束，没有「时/后/则」。
+  // 尾段可省只对「若」形开放：若把通用触发词的尾段也放开，「每次自身使用攻击技能在…」
+  // 「自身使用攻击技能前…」这类组尾会误落成裸触发组，把钩子结转给下一组——
+  // 实测会让 4 条魂印回归（pet-3139/3525/3557/4347），残文净增。
+  { re: /^若(?:自身|自己|我方|己方|本方)?(?:每次)?使用攻击技能$/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, useTime: true },
+  { re: /^若(?:自身|自己|我方|己方|本方)?(?:每次)?使用属性技能$/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
+  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方|本方)?(?:当回合|本回合)?(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=附加|使|令|造成|恢复|消除|清除|降低|提升|减少|额外|吸取|有|都|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, useTime: true },
   { re: /^对手(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: [2, 3] }, useTime: true },
   // "对手使用攻击技能命中率降低N%" → onMoveUsed foe + dodge（foe 命中率降幅≈自身闪避窗）
   { mk: (g) => { const t = g.match(/^对手(?:每次)?使用(?:攻击|属性)?技能命中率?(?:降低|下降|减少)(\d+)%/); if (t === null) return undefined; return { hook: "onMoveUsed", extra: { actor: "foe" }, body: `<acc_down ${t[1]}>` + g.slice(t[0].length) }; } },
-  { re: /^(?:当|每次)?(?:自身|我方|己方)?(?:每次)?使用(?:属性|工具)技能(?:时|后|则|，|,|(?=有|都|增加|使|令|附加|恢复|回复|吸取|减少|降低|提升|造成|消除|清除|额外|对|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
+  { re: /^(?:当|每次)?(?:自身|我方|己方|本方)?(?:每次)?使用(?:属性|工具)技能(?:时|后|则|，|,|(?=有|都|增加|使|令|附加|恢复|回复|吸取|减少|降低|提升|造成|消除|清除|额外|对|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
   { re: /^对手(?:每次)?使用属性技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: 1 }, useTime: true },
-  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方)?使用属性技能(?:时|后|则|，|,|(?=有|都|恢复|回复|使|令|附加|吸取|造成))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
+  { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方|本方)?使用属性技能(?:时|后|则|，|,|(?=有|都|恢复|回复|使|令|附加|吸取|造成))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
   // "使用物理攻击时"/"使用特殊攻击时"（cat 精确：2=物理 3=特殊）
   { re: /^(?:当|每次|若)?(?:自身|自己)?(?:每次)?使用物理攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "self", cat: 2 } },
   { re: /^(?:当|每次|若)?(?:自身|自己)?(?:每次)?使用特殊攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "self", cat: 3 } },
