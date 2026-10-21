@@ -3318,6 +3318,31 @@
               "turns": 1
             }
           ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "percent",
+              "power": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "formula",
+              "of": "percentBase",
+              "value": "current"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            }
+          ]
         }
       ]
     },
@@ -5915,6 +5940,21 @@
       "name": "重生之翼魂印",
       "desc": "问：赛尔号重生之翼专属魂印是什么？赛尔号重生之翼专属特性是什么？ 答：赛尔号重生之翼是2016年年费精灵。他的专属魂印名字效果比较多。 专属特性： ① 若被击败则有50%随机复活出战背包内已被击败的1只精灵（无法复活自己） （强化后概率为100%） ② 自身可以储存最多5层神耀能量，神耀能量的层数越多，获得的效果越多： 1层：减少自身受到伤害的8%，每增加1层额外获得8%减伤。（满层就是40%减伤）； 2层：免疫所有异常状态、免疫所有能力下降状态； 3层：每回合结束时恢复1/3最大HP； 4层：每回合结束后，本回合自身受到的固定伤害转移到对手身上； 5层：所有攻击先制额外+1。 ps：2016年10月14日，重生之翼开启了第6层魂印效果：自身所有攻击技能威力提升60%；且第五技能威力提升不再消耗自身神耀能量；赛尔对战中击败对手后自身神耀能量清零且下回合先制额外+3；非赛尔对战4回合后自身神耀能量清零且下回合先制额外+3。",
       "effects": [
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "power_mul",
+              "target": "self",
+              "params": {
+                "n": 160,
+                "d": 100
+              },
+              "turns": 1
+            }
+          ]
+        },
         {
           "hook": "onTurnEnd",
           "ops": [
@@ -9831,7 +9871,47 @@
       "desc": "问：赛尔号曹操的魂印效果是什么？赛尔号曹操的专属特性是什么？ 答：赛尔号曹操的魂印效果是雄：受到攻击时有50%概率使对手造成的伤害减半并使对手下回合先制-1，未触发减伤则回合结束时恢复自身最大体力的1/3；攻击命中时有50%概率使自身造成的伤害翻倍并使自身下回合先制+1，未触发增伤则回合结束时对手减少1/3的最大体力。 相关活动攻略：赛尔号曹操 霸君登场等你获得>>>",
       "effects": [
         {
-          "hook": "onDamageDealt",
+          "hook": "onDamaged",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_weaken",
+              "target": "opponent",
+              "params": {
+                "n": 1,
+                "d": 2
+              },
+              "chance": 50
+            },
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "opponent",
+              "turns": 1,
+              "params": {
+                "add": -1
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "prevApplied": true
+            }
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -9851,7 +9931,14 @@
                 "add": 1
               }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
         }
       ]
     },
@@ -12938,15 +13025,7 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
-            {
-              "op": "apply_stat_stage",
-              "stat": "atk",
-              "delta": 2,
-              "target": "self",
-              "chance": 50
-            },
             {
               "op": "damage",
               "kind": "fixed",
@@ -12969,6 +13048,18 @@
               3
             ]
           }
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 2,
+              "target": "self"
+            }
+          ]
         }
       ]
     },
@@ -15096,6 +15187,20 @@
           },
           "ops": [
             {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
               "op": "apply_stat_stage",
               "stat": "atk",
               "delta": 1,
@@ -15129,17 +15234,11 @@
               "delta": 1,
               "target": "self",
               "chance": 50
-            },
-            {
-              "op": "apply_status",
-              "name": "prio_up",
-              "target": "self",
-              "turns": 1,
-              "params": {
-                "add": 1
-              }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self"
+          }
         },
         {
           "hook": "onTurnEnd",
@@ -15192,6 +15291,32 @@
       "desc": "问：赛尔号魔君索伦森魂印是什么？赛尔号魔君索伦森专属特性是什么？ 答：赛尔号魔君索伦森的魂印是源 ：登场时消除对手能力提升状态，消除成功则对手2回合内无法处于能力提升状态（BOSS无效）；回合开始时若对手有高于自身的能力等级，则使对手该能力等级变为与自身相同（BOSS无效）；自身处于能力提升状态时每回合恢复自身1/3最大体力，自身不处于能力提升状态时受到的伤害减少50% 精灵资料：赛尔号魔君索伦森进化图种族值技能表 >>>",
       "effects": [
         {
+          "hook": "onEntry",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up"
+            }
+          ]
+        },
+        {
+          "hook": "onEntry",
+          "guard": {
+            "prevApplied": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "no_stage_up",
+              "target": "opponent",
+              "turns": 2
+            }
+          ]
+        },
+        {
           "hook": "onTurnStart",
           "guard": {
             "foeStageAboveSelf": true
@@ -15207,7 +15332,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -15222,7 +15346,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -15706,8 +15829,30 @@
       "desc": "问：赛尔号茉蕊儿魂印是什么？赛尔号茉蕊儿专属特性是什么？ 答：赛尔号茉蕊儿是草系精灵王，她的魂印是蕊 ：若对手使用攻击技能则造成的攻击伤害不超过自身最大体力的一半，若对手使用属性技能则当回合免疫异常且回合结束后解除自身能力下降状态（BOSS无效）；自身死亡后则下只登场精灵获得500点护盾且免疫1次异常状态。 精灵资料：赛尔号小茉 蕊儿 茉蕊儿进化图种族值技能表 >>>",
       "effects": [
         {
-          "hook": "onKO",
+          "hook": "onTurnEnd",
           "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "target": "self",
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "self",
+              "sign": "down"
+            }
+          ]
+        },
+        {
+          "hook": "onKO",
           "ops": [
             {
               "op": "apply_status",
@@ -15942,6 +16087,22 @@
       "desc": "问：赛尔号圣王萨格罗斯的魂印是什么？赛尔号圣王萨格罗斯的专属特性是什么？ 答：赛尔号圣王萨格罗斯的魂印是寰：我方每次使用属性技能恢复所有技能pp1点，对手每次使用属性技能则使之随机1个技能pp归零（boss无效）；每一次恢复体力，则下回合解除自身异常和能力下降，同时下2回合免异常和能力下降且攻击技能50%威力翻倍。 获得攻略：赛尔号圣王&middot;萨格罗斯 王萨格罗斯完全体>>>",
       "effects": [
         {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "pp_delta",
+              "amount": 1,
+              "scope": "all",
+              "target": "self"
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": 1
+          }
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "prevHealAbove": 0
@@ -15949,7 +16110,6 @@
           "chance": {
             "base": 50
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "cleanse",
@@ -16365,7 +16525,32 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "move_null",
+              "target": "opponent",
+              "params": {
+                "count": 1
+              },
+              "if": {
+                "order": "first"
+              },
+              "chance": 50,
+              "chanceSetIf": {
+                "when": {
+                  "selfStageUp": true
+                },
+                "value": 65
+              }
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        },
+        {
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -16393,56 +16578,31 @@
               "op": "apply_stat_stage",
               "stat": "atk",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "def",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "spa",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "sdf",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
+              "target": "self"
             },
             {
               "op": "apply_stat_stage",
               "stat": "spd",
               "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
+              "target": "self"
             }
           ]
         }
@@ -17938,6 +18098,75 @@
           "hook": "onTurnEnd",
           "ops": [
             {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "if": {
+                "and": [
+                  {
+                    "and": [
+                      {
+                        "catStreakAtLeast": {
+                          "n": 2
+                        }
+                      },
+                      {
+                        "catStreakAtLeast": {
+                          "n": 2
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "catStreakAtLeast": {
+                      "n": 2
+                    }
+                  }
+                ]
+              },
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              },
+              "if": {
+                "and": [
+                  {
+                    "and": [
+                      {
+                        "catStreakAtLeast": {
+                          "n": 2
+                        }
+                      },
+                      {
+                        "catStreakAtLeast": {
+                          "n": 2
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "catStreakAtLeast": {
+                      "n": 2
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
@@ -17972,12 +18201,7 @@
             {
               "op": "damage",
               "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
+              "kind": "percent"
             },
             {
               "op": "formula",
@@ -17985,11 +18209,6 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
               }
             }
           ]
@@ -18135,17 +18354,40 @@
       "desc": "问：赛尔号大梵天王魂印是什么？赛尔号大梵天王专属特性是什么？ 答：赛尔号大梵天王的魂印是梵： 1、回合开始时若自身体力低于对手则所有技能先制+1，回合结束时若自身体力高于对手则下回合自身攻击附加对手最大体力1/3固伤； 2、每次使用技能未击败对手则自身下次攻击造成伤害提高50%,每次击败对手则自身攻击+2（BOSS无效）。 精灵资料：赛尔号大梵天王进化图种族值技能表 >>> 详细攻略内容请看：赛尔号大梵天王 武极梵天完全体优惠得 >>>",
       "effects": [
         {
-          "hook": "onTurnEnd",
+          "hook": "onTurnStart",
           "guard": {
-            "foeFainted": true
+            "selfHpBelowFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
-              "op": "apply_stat_stage",
-              "stat": "atk",
-              "delta": 2,
-              "target": "self"
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onDamageDealt",
+          "guard": {
+            "selfHpAboveFoe": true
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
             }
           ]
         }
@@ -18184,8 +18426,37 @@
       "desc": "问：赛尔号阿尔蒂克魂印是什么？赛尔号阿尔蒂克专属特性是什么？ 答：赛尔号阿尔蒂克魂印是蛮： 1、登场时使对手当回合属性技能失效且下回合攻击技能无效（每场战斗触发2次，首次出场触发1次，再次上场时触发第2次，boss无效）； 2、每次登场后首回合对手使用攻击技能则使其下次受到的伤害提高100%，使用属性技能则附加对手最大体力1/3的固定伤害并恢复等量体力，同时每次回合结束时使自身本次战斗中造成的伤害提高30%，最高提高150%（下场时保留提升效果，boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onEntry",
           "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "status_lock",
+              "target": "opponent",
+              "turns": 1,
+              "params": {
+                "cat": 1
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "move_null",
+              "target": "opponent",
+              "params": {
+                "cat": 4
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "damage",
@@ -18320,6 +18591,48 @@
       "desc": "问：赛尔号莉尔魂印是什么？赛尔号莉尔专属特性是什么？ 答：赛尔号莉尔的魂印是奥： 回合开始时，若对手不处于能力提升或下降状态时，则当回合自身造成的伤害提高100%，同时吸取对手最大体力的1/3；回合结束时若自身不处于能力提升状态则消除对手能力提升、下降状态，消除成功则解除自身能力下降状态（BOSS无效） 精灵资料：赛尔号莉尔进化图种族值技能表 >>>",
       "effects": [
         {
+          "hook": "onTurnStart",
+          "guard": {
+            "not": {
+              "markCountAtLeast": {
+                "mark": "能力提升或下降",
+                "n": 1,
+                "on": "foe"
+              }
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100
+              },
+              "turns": 1
+            },
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "not": {
@@ -18419,6 +18732,44 @@
       "desc": "问：赛尔号天道魂帝魂印是什么？赛尔号天道魂帝专属特性是什么？ 答：赛尔号天道魂帝的魂印是魂： 回合开始时若对手处于异常状态则自身全属性+1；当回合受到的伤害大于300则给对手附加自身受到攻击伤害70%的固定伤害，同时消除对手回合类效果并有50%几率令对手疲惫；当回合受到的伤害小于300则下回合自身造成的攻击伤害提升50%（BOSS无效） 精灵资料：赛尔号天道魂帝进化图种族值技能表 >>>",
       "effects": [
         {
+          "hook": "onTurnStart",
+          "guard": {
+            "foeStatused": true
+          },
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "def",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spa",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "sdf",
+              "delta": 1,
+              "target": "self"
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": 1,
+              "target": "self"
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "takenAboveAbs": 300
@@ -18474,7 +18825,31 @@
       "desc": "问：赛尔号无限自由魂印效果是什么？赛尔号无限自由专属特性是什么？ 答：赛尔号无限自由魂印是志：回合开始时，若体力低于对手则清除对手回合类效果，清除成功则免疫下2次异常状态；击败对手则恢复自身全部体力以及PP值； 奇迹之力buff说明：攻击有50%几率伤害翻倍；所有攻击先制+1；攻击附带自身最大体力1/3的固定伤害。",
       "effects": [
         {
-          "hook": "onTurnEnd",
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "ops": [
+            {
+              "op": "cleanse",
+              "target": "opponent",
+              "scope": "timed"
+            },
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "target": "self",
+              "params": {
+                "count": 2
+              },
+              "if": {
+                "prevApplied": true
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
           "guard": {
             "foeFainted": true
           },
@@ -19877,6 +20252,33 @@
       "desc": "问：赛尔号格劳恩斯魂印效果是什么？赛尔号格劳恩斯专属特性是什么？ 答：赛尔号格劳恩斯魂印为：煷，效果为： 1、回合开始时，若自身体力高于对手，则当回合自身攻击先制+1且造成的伤害提高50%； 2、回合结束时，若自身体力低于对手，则回合结束后使对手麻痹2回合，未触发麻痹则自身下2次攻击先制+2且有80%几率使对手焚烬，若触发麻痹则麻痹效果结束后使对手烧伤2回合； 3、回合开始时若对手处于异常状态则当回合结束时恢复自身最大体力的1/3并造成等量固定伤害； 4、以上效果boss无效。",
       "effects": [
         {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpAboveFoe": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "selfHpBelowFoe": true
@@ -20200,6 +20602,41 @@
       "desc": "问：赛尔号混沌魔君索伦森魂印是什么？赛尔号混沌魔君索伦森专属特性是什么？ 答：赛尔号混沌魔君索伦森魂印是源，效果为： 1、登场时消除对手能力提升状态，消除成功则对手2回合内无法处于能力提升状态，同时对手下1次属性技能无效（boss无效）； 2、回合开始时若对手有高于自身的能力等级，则使对手该能力等级变为与自身相同（boss无效）； 3、自身处于能力提升状态时，每回合恢复自身最大体力的1/3并造成等量固定伤害，自身不处于能力提升状态时有50%几率免疫攻击伤害，未触发则受到的攻击减少50%",
       "effects": [
         {
+          "hook": "onEntry",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "clear_stages",
+              "target": "opponent",
+              "sign": "up"
+            }
+          ]
+        },
+        {
+          "hook": "onEntry",
+          "guard": {
+            "prevApplied": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "no_stage_up",
+              "target": "opponent",
+              "turns": 2
+            },
+            {
+              "op": "apply_status",
+              "name": "move_null",
+              "target": "opponent",
+              "params": {
+                "cat": 1
+              },
+              "turns": 2
+            }
+          ]
+        },
+        {
           "hook": "onTurnStart",
           "guard": {
             "foeStageAboveSelf": true
@@ -20215,7 +20652,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -20250,7 +20686,6 @@
           "chance": {
             "base": 50
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -20259,25 +20694,6 @@
               "if": {
                 "not": {
                   "selfStageUp": true
-                }
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_taken_down",
-              "target": "self",
-              "params": {
-                "pct": 50
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
                 }
               }
             }
@@ -20554,6 +20970,35 @@
       "desc": "蛮：增加200点体力上限，每回合自身技能附加对手与自身最大体力差值的固定伤害，连续使用属性技能时附加的固定伤害翻倍；连续使用攻击技能时先制+1（BOSS无效）",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "stat_boost",
+              "stats": [
+                "hp"
+              ],
+              "add": 200,
+              "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 0,
+              "target": "opponent"
+            },
+            {
+              "op": "flat",
+              "of": "flatMaxHpDiffPct",
+              "value": 100
+            }
+          ]
+        },
+        {
           "hook": "beforeOrder",
           "bossGate": true,
           "guard": {
@@ -20568,19 +21013,6 @@
               "op": "priority",
               "min": 1,
               "max": 1
-            }
-          ]
-        },
-        {
-          "hook": "onBattleStart",
-          "ops": [
-            {
-              "op": "stat_boost",
-              "stats": [
-                "hp"
-              ],
-              "add": 200,
-              "target": "self"
             }
           ]
         }
@@ -20984,6 +21416,42 @@
       "effects": [
         {
           "hook": "onDamageDealt",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "drain_atk",
+              "target": "self",
+              "params": {
+                "n": 50,
+                "d": 100
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "prevHealBelow": 300
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "prevHealBelow": 300
+          },
           "chance": {
             "base": 50
           },
@@ -20996,27 +21464,6 @@
               "params": {
                 "count": 1,
                 "cat": 1
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "move_null",
-              "target": "opponent",
-              "params": {
-                "count": 1,
-                "cat": 1
-              },
-              "chance": 100,
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
               }
             }
           ]
@@ -23456,6 +23903,36 @@
       "desc": "问：赛尔号不灭艾恩斯魂印是什么？赛尔号不灭艾恩斯专属特性是什么？ 答：赛尔号不灭艾恩斯魂印是火，效果为： 1、受到致命攻击时残留1点体力，消除双方能力提升状态及回合类效果，使对手进入2回合烧伤状态（该效果每场战斗仅触发1次，Boss无效） 2、回合开始时若自身体力高于对手则当回合受到攻击时使对手焚烬，未触发则消除对手回合类效果； 3、回合结束时若自身体力低于对手则恢复自身已损失体力的1/2； 以上特效boss无效。 详细攻略：赛尔号不灭&middot;艾恩斯 艾恩斯浴火重生>>>",
       "effects": [
         {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpAboveFoe": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "ember",
+              "target": "opponent",
+              "if": {
+                "not": {
+                  "prevTakenZero": true
+                }
+              },
+              "turns": 1
+            },
+            {
+              "op": "cleanse",
+              "target": "opponent",
+              "scope": "timed",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "selfHpBelowFoe": true
@@ -23478,6 +23955,37 @@
       "name": "毒水妖灵魂印",
       "desc": "问：赛尔号毒水妖灵魂印是什么？赛尔号毒水妖灵专属特性是什么？ 答：赛尔号毒水妖灵的魂印是毒： 回合开始时若自身体力高于对手则当回合自身技能100%令对手中毒、100%令对手冻伤，未触发则回合结束时恢复自身最大体力的1/3；回合结束时若对手处于中毒状态则下回合自身受到的攻击伤害减少50%，若处于冻伤状态则下回合对手所有技能先制-1（BOSS无效）。 精灵资料：赛尔号毒水妖灵进化图种族值技能表 >>>",
       "effects": [
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpAboveFoe": true
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 12
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "poison",
+                  "target": "opponent",
+                  "chance": 100
+                },
+                {
+                  "op": "apply_status",
+                  "name": "frostbite",
+                  "target": "opponent",
+                  "chance": 100
+                }
+              ],
+              "turns": 1
+            }
+          ]
+        },
         {
           "hook": "onTurnEnd",
           "guard": {
@@ -23924,8 +24432,47 @@
       "desc": "问：赛尔号传奇忍王&middot;壬无月的魂印是什么？传奇忍王&middot;壬无月的专属特性是什么？ 答：传奇忍王&middot;壬无月的专属特性是&ldquo;忍&rdquo;，效果是： 自身体力高于1/2时所有技能先制+1且攻击技能造成的伤害提升50%，自身体力低于1/2时所用技能先制+2且当回合受到的攻击伤害减少50%（Boss无效）； 每次直接攻击都有25%概率使对手随机进入1种异常状态，未触发则自身攻击+1、速度+1；先出手时消除对手回合类效果。 精灵相关资料：赛尔号壬无月超进化现世 忍者之王强势归来 >>>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfHpAbove": {
+              "numerator": 1,
+              "denominator": 2
+            }
+          },
           "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfHpAbove": {
+              "numerator": 1,
+              "denominator": 2
+            }
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -23962,28 +24509,6 @@
               },
               "target": "opponent",
               "chance": 25
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "atk",
-              "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "spd",
-              "delta": 1,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ],
           "guard": {
@@ -23996,7 +24521,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "cleanse",
@@ -24910,15 +25434,26 @@
       "desc": "问：赛尔号奥斯兰魂印是什么？赛尔号奥斯兰专属特性是什么？ 答：赛尔号奥斯兰的魂印是奥： 50%闪避对手攻击，未触发则当回合所受到的攻击伤害减少50%，且下次闪避触发几率提升至100%； 自身体力低于对手时，攻击附加对手最大体力1/3的固伤； 自身体力高于对手时，攻击技能必定致命一击。 （BOSS无效） 精灵资料：赛尔号奥斯兰进化图种族值技能表 >>>",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "params": {
+                "pct": 50,
+                "cat": 4
+              }
+            }
+          ]
+        },
+        {
           "hook": "onDamageDealt",
           "ops": [
             {
               "op": "damage",
               "power": 1,
-              "kind": "percent",
-              "if": {
-                "selfHpBelowFoe": true
-              }
+              "kind": "percent"
             },
             {
               "op": "formula",
@@ -24926,9 +25461,6 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
-              },
-              "if": {
-                "selfHpBelowFoe": true
               }
             }
           ]
@@ -25637,15 +26169,36 @@
       "desc": "问：赛尔号冥王&middot;破天殇魂印是什么？赛尔号冥王&middot;破天殇专属特性是什么？ 答：赛尔号冥王&middot;破天殇的魂印是破： 1、场后，攻击技能附加150点固伤，自身每次使用攻击技能额外增加150点固伤，最高附加对手最大体力1/2的固伤； 2、后，受到的攻击伤害减少75%，自身每次使用攻击技能则百分比减少25%，最多减少到0（下场后重置）； 3、以上效果Bss无效。",
       "effects": [
         {
+          "hook": "onDamageDealt",
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 150,
+              "target": "opponent"
+            }
+          ]
+        },
+        {
           "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "dmg_taken_down",
+              "name": "react",
               "target": "self",
               "params": {
-                "pct": 75
-              }
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "damage",
+                  "kind": "fixed",
+                  "power": 150,
+                  "target": "opponent"
+                }
+              ]
             }
           ]
         },
@@ -25654,10 +26207,10 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "pct_taken_pct",
+              "name": "dmg_taken_down",
               "target": "self",
               "params": {
-                "pct": 25
+                "pct": 75
               }
             }
           ],
@@ -25668,6 +26221,31 @@
               3
             ]
           }
+        },
+        {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "pct_taken_pct",
+                  "target": "self",
+                  "params": {
+                    "pct": 25
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -26309,15 +26887,26 @@
       "desc": "问：赛尔号玄冥魂者&middot;奥斯兰魂印是什么？赛尔号玄冥魂者&middot;奥斯兰专属特性是什么？ 答：赛尔号玄冥魂者&middot;奥斯兰的魂印是奥： 1、50%闪避对手攻击，未触发则当回合所受到的攻击伤害减少50%，且下次闪避触发几率提升至100%； 2、自身体力低于对手时，攻击附加对手最大体力1/3的固定伤害，自身体力高于对手时，攻击必定致命一击； 3、先出手时有50%概率使对手害怕，后出手时属性技能吸取对手300点体力 以上BOSS无效",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dodge",
+              "target": "self",
+              "params": {
+                "pct": 50,
+                "cat": 4
+              }
+            }
+          ]
+        },
+        {
           "hook": "onDamageDealt",
           "ops": [
             {
               "op": "damage",
               "power": 1,
-              "kind": "percent",
-              "if": {
-                "selfHpBelowFoe": true
-              }
+              "kind": "percent"
             },
             {
               "op": "formula",
@@ -26325,9 +26914,6 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
-              },
-              "if": {
-                "selfHpBelowFoe": true
               }
             }
           ]
@@ -40783,6 +41369,29 @@
       "desc": "哲：明翼登场时受到了圣灵之光保护：每回合50%免疫异常和能力下降；回合开始时，若自身体力高于对手则当回合攻击附加自身最大体力1/3固伤，若自身体力低于对手则当回合攻击造成伤害提升50%（boss有效）",
       "effects": [
         {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "chance": 50
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "immune_degrade",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "chance": 50
+              }
+            }
+          ]
+        },
+        {
           "hook": "onDamageDealt",
           "guard": {
             "selfHpAboveFoe": true
@@ -42445,6 +43054,21 @@
           ]
         },
         {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "perHpLostStep": 20,
+                "perHpLostPct": 10
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onTurnStart",
           "guard": {
             "selfStatused": true
@@ -42492,11 +43116,7 @@
           ]
         },
         {
-          "hook": "onTurnEnd",
-          "guard": {
-            "selfStageDown": true
-          },
-          "bossGate": true,
+          "hook": "onKO",
           "ops": [
             {
               "op": "apply_mark",
@@ -42508,26 +43128,22 @@
             {
               "op": "apply_status",
               "name": "immune_status",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
               "name": "immune_degrade",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
               "name": "flat_immune",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
               "name": "flat_immune",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
@@ -42536,10 +43152,12 @@
               "params": {
                 "n": 100,
                 "d": 100
-              },
-              "turns": 1
+              }
             }
-          ]
+          ],
+          "guard": {
+            "victim": "self"
+          }
         }
       ]
     },
@@ -42565,6 +43183,21 @@
           ]
         },
         {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "perHpLostStep": 20,
+                "perHpLostPct": 10
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onTurnStart",
           "guard": {
             "selfStatused": true
@@ -42612,11 +43245,7 @@
           ]
         },
         {
-          "hook": "onTurnEnd",
-          "guard": {
-            "selfStageDown": true
-          },
-          "bossGate": true,
+          "hook": "onKO",
           "ops": [
             {
               "op": "apply_mark",
@@ -42628,26 +43257,22 @@
             {
               "op": "apply_status",
               "name": "immune_status",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
               "name": "immune_degrade",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
               "name": "flat_immune",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
               "name": "flat_immune",
-              "target": "self",
-              "turns": 1
+              "target": "self"
             },
             {
               "op": "apply_status",
@@ -42656,10 +43281,12 @@
               "params": {
                 "n": 100,
                 "d": 100
-              },
-              "turns": 1
+              }
             }
-          ]
+          ],
+          "guard": {
+            "victim": "self"
+          }
         }
       ]
     },
@@ -44025,6 +44652,17 @@
       "desc": "问：赛尔号哀伤公爵&middot;阿洛希尔魂印是什么？赛尔号哀伤公爵&middot;阿洛希尔专属特性是什么？ 答：赛尔号哀伤公爵&middot;阿洛希尔的魂印是：爵 1、阿洛希尔登场后启封霜之哀伤：天生免疫麻痹状态，受到攻击后50%使对手进入失神状态； 2、自身攻击技能命中后则对手下1次属性技能无效，自身属性技能命中后则附加对手上次造成伤害数值50%的固定伤害且50%令对手害怕，未触发害怕则下次触发几率额外提升20%； 3、（boss无效）。 精灵资料：赛尔号哀伤公爵&middot;阿洛希尔进化图种族值技能表 >>>",
       "effects": [
         {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "immune_status",
+              "ailment": "paralysis",
+              "target": "self"
+            }
+          ]
+        },
+        {
           "hook": "onDamaged",
           "ops": [
             {
@@ -44036,7 +44674,7 @@
           ]
         },
         {
-          "hook": "onDamageDealt",
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -44046,12 +44684,35 @@
                 "cat": 1,
                 "count": 1
               }
-            },
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
             {
               "op": "apply_status",
               "name": "fear",
               "target": "opponent",
               "chance": 50
+            },
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 0,
+              "target": "opponent"
+            },
+            {
+              "op": "flat",
+              "of": "flatPrevTakenPct",
+              "value": 50
             },
             {
               "op": "apply_status",
@@ -44060,7 +44721,7 @@
               "params": {
                 "add": 20,
                 "count": 1,
-                "ei": 1
+                "ei": 3
               },
               "if": {
                 "not": {
@@ -44068,7 +44729,11 @@
                 }
               }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": 1
+          }
         }
       ]
     },
@@ -45551,7 +46216,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -45572,15 +46236,34 @@
               "if": {
                 "selfHpAboveFoe": true
               }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "hot",
+              "target": "self",
+              "params": {
+                "n": 1,
+                "d": 3
+              },
+              "if": {
+                "prevTakenZero": true
+              },
+              "turns": 1
             },
             {
               "op": "damage",
               "kind": "fixed",
               "power": 1,
-              "target": "opponent",
               "if": {
-                "selfHpAboveFoe": true
-              }
+                "prevTakenZero": true
+              },
+              "target": "opponent"
             },
             {
               "op": "flat",
@@ -52694,6 +53377,43 @@
               "turns": 1
             }
           ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1,
+                "cat": 4
+              },
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "max_hp_down",
+              "target": "opponent",
+              "params": {
+                "n": 20,
+                "d": 1
+              },
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
         }
       ]
     },
@@ -56229,18 +56949,29 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "pp_free",
+              "name": "react",
               "target": "self",
-              "chance": 50,
-              "chanceSetIf": {
-                "when": {
-                  "selfHpBelow": {
-                    "numerator": 1,
-                    "denominator": 3
+              "params": {
+                "trigger": 11
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "pp_free",
+                  "target": "self",
+                  "chance": 50,
+                  "chanceSetIf": {
+                    "when": {
+                      "selfHpBelow": {
+                        "numerator": 1,
+                        "denominator": 3
+                      }
+                    },
+                    "value": 70
                   }
-                },
-                "value": 70
-              }
+                }
+              ]
             }
           ]
         },
@@ -57462,20 +58193,6 @@
           "ops": [
             {
               "op": "apply_status",
-              "name": "freeze",
-              "target": "opponent",
-              "chance": 50,
-              "turns": 1
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "random",
-              "randomCount": 2,
-              "delta": 1,
-              "target": "self"
-            },
-            {
-              "op": "apply_status",
               "name": "dmg_boost",
               "target": "self",
               "params": {
@@ -57491,6 +58208,30 @@
               "params": {
                 "add": 1
               }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "chance": {
+            "base": 50
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "freeze",
+              "target": "opponent",
+              "turns": 1
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "random",
+              "randomCount": 2,
+              "delta": 1,
+              "target": "self"
             }
           ]
         }
@@ -60503,18 +61244,19 @@
           ]
         },
         {
-          "hook": "onSwitchOut",
-          "bossGate": true,
+          "hook": "onEntry",
           "ops": [
             {
               "op": "apply_status",
-              "name": "prio_up",
+              "name": "immune_status",
               "target": "self",
-              "params": {
-                "add": 2
-              },
               "turns": 3
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
             {
               "op": "damage",
               "kind": "fixed",
@@ -60528,12 +61270,27 @@
                 "stat": "spd",
                 "pct": 70
               }
+            },
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 2
+              }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "pp_delta",
@@ -60871,6 +61628,25 @@
               "turns": 1
             }
           ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            }
+          ]
         }
       ]
     },
@@ -61083,7 +61859,7 @@
       "desc": "曼:自身攻击技能命中后100%令对手失明,未触发则令对手下回合使用技能所消耗的PP值为5倍,自身属性技能命中后则下回合攻击先制+1且50%打出致命一击;若对手当回合使用的攻击技能对自身造成伤害则该技能下回合必定失效(boss无效)",
       "effects": [
         {
-          "hook": "onDamageDealt",
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -61105,7 +61881,42 @@
                 }
               }
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
+            },
+            {
+              "op": "apply_status",
+              "name": "crit_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "n": 50,
+                "d": 100
+              }
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": 1
+          }
         }
       ]
     },
@@ -62940,6 +63751,29 @@
           "bossGate": true,
           "ops": [
             {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 1
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "dmg_immune",
+                  "target": "self",
+                  "turns": 1
+                }
+              ],
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
               "op": "damage",
               "power": 1,
               "kind": "percent"
@@ -63052,6 +63886,19 @@
       "name": "堕魂·格特鲁德魂印",
       "desc": "问：赛尔号堕魂&middot;格特鲁德魂印是什么？赛尔号堕魂&middot;格特鲁德专属特性是什么？ 答： 赛尔号堕魂&middot;格特鲁德的魂印是：堕 1、堕魂&middot;格特鲁德登场后造成的伤害提升25%，背包内每阵亡一只精灵则造成的伤害提升10%，若背包内精灵全部阵亡则自身攻击命中后额外附加自身最大体力25%的真实伤害； 2、回合开始时，若对手处于异常状态则当回合造成的攻击克制倍数最低为1倍，若对手不处于异常状态则当回合自身攻击命中后50%令对手害怕，未触发则随机忽略对手15%-30%的双防值且令自身下回合攻击技能先制+1 3、（boss无效） 精灵资料：赛尔号堕魂&middot;格特鲁德进化图种族值技能表>>>",
       "effects": [
+        {
+          "hook": "onEntry",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 25
+              }
+            }
+          ]
+        },
         {
           "hook": "onTurnStart",
           "guard": {
@@ -64833,6 +65680,34 @@
               "target": "self"
             },
             {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 1,
+              "target": "opponent"
+            },
+            {
+              "op": "flat",
+              "of": "lastDmgFrac",
+              "value": {
+                "numerator": 100,
+                "denominator": 100
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "markCountAtLeast": {
+                "mark": "回合类效果",
+                "n": 1,
+                "on": "foe"
+              }
+            }
+          },
+          "ops": [
+            {
               "op": "apply_stat_stage",
               "stat": "random",
               "randomCount": 2,
@@ -64846,20 +65721,6 @@
               "turns": 1,
               "params": {
                 "count": 1
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
               }
             },
             {
@@ -65576,8 +66437,7 @@
               "params": {
                 "n": 35,
                 "d": 100
-              },
-              "turns": 1
+              }
             },
             {
               "op": "apply_status",
@@ -65585,8 +66445,7 @@
               "target": "self",
               "params": {
                 "pct": 2
-              },
-              "turns": 1
+              }
             }
           ]
         },
@@ -65606,10 +66465,23 @@
               "target": "self",
               "params": {
                 "pct": 1
-              },
-              "turns": 1
+              }
             }
           ]
+        },
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
         }
       ]
     },
@@ -66638,7 +67510,6 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -66654,7 +67525,20 @@
               "name": "sleep",
               "target": "opponent",
               "chance": 70
-            },
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
             {
               "op": "apply_status",
               "name": "prio_up",
@@ -66668,15 +67552,13 @@
               "op": "apply_status",
               "name": "fatigue",
               "target": "opponent",
-              "chance": 70
+              "chance": 70,
+              "turns": 1
             }
           ],
           "guard": {
             "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
+            "cat": 1
           }
         },
         {
@@ -67383,6 +68265,32 @@
       "effects": [
         {
           "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "apply_stat_stage",
+              "stat": "atk",
+              "delta": 1,
+              "target": "self",
+              "if": {
+                "order": "last"
+              }
+            },
+            {
+              "op": "apply_stat_stage",
+              "stat": "spd",
+              "delta": 1,
+              "target": "self",
+              "if": {
+                "order": "last"
+              }
+            }
+          ],
+          "guard": {
+            "actor": "self"
+          }
+        },
+        {
+          "hook": "onMoveUsed",
           "bossGate": true,
           "ops": [
             {
@@ -67408,7 +68316,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -67531,11 +68438,25 @@
       "desc": "问：赛尔号伊莱恩特魂印是什么？伊莱恩特专属特性是什么？ 答： 赛尔号伊莱恩特魂印是是：莱 莱：回合结束时若自身体力低于对手则恢复自身已损失体力的50%；自身攻击造成的伤害高于350则100%令对手失明，自身攻击造成的伤害低于350则下回合必定打出致命一击，若回合开始时自身体力高于对手则伤害判定改为250（boss无效） 精灵资料：赛尔号沃卡奥拉进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfHpBelowFoe": true
+          },
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 50,
+              "denominator": 100,
+              "missing": true,
+              "target": "self"
+            }
+          ]
+        },
+        {
           "hook": "onDamageDealt",
           "guard": {
             "prevDamageAboveAbs": 350
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -67550,7 +68471,6 @@
           "guard": {
             "prevDamageBelowAbs": 350
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -67670,6 +68590,33 @@
       "effects": [
         {
           "hook": "onMoveUsed",
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ],
+            "if": {
+              "foeHpAbove": {
+                "numerator": 1,
+                "denominator": 2
+              }
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "crit_always",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onMoveUsed",
           "bossGate": true,
           "ops": [
             {
@@ -67759,13 +68706,28 @@
       "desc": "问：赛尔号塔威尔魂印是什么？塔威尔专属特性是什么？ 答： 赛尔号塔威尔魂印是是：塔 塔：自身伤害抗性减免额外提高15%，回合开始时若自身体力低于最大体力1/2则效果翻倍；自身受到的攻击伤害高于自身最大体力的1/3则回合结束时恢复自身最大体力的1/2，高于自身最大体力的1/2则额外消除对手回合类效果，高于自身最大体力则50%令对手瘫痪，未触发则100%令对手石化（boss无效） 精灵资料：赛尔号沃卡奥拉进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onTurnEnd",
+          "hook": "onTurnStart",
           "guard": {
-            "takenAboveHpFrac": {
+            "selfHpBelow": {
               "numerator": 1,
-              "denominator": 3
+              "denominator": 2
             }
           },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "power_mul",
+              "target": "self",
+              "params": {
+                "n": 2,
+                "d": 1
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
           "bossGate": true,
           "ops": [
             {
@@ -67812,6 +68774,16 @@
       "desc": "问：赛尔号宛白魂印是什么？宛白专属特性是什么？ 答： 赛尔号宛白魂印是是：宛 宛：在战斗中，自身攻击和特攻等于其中最高的一项；自身每次使用攻击技能则附加造成伤害50%的固定伤害，伤害为0则转变为附加该攻击技能威力值300%的固定伤害，若前述附加的固定伤害低于300点则下回合自身所有技能先制+1（boss无效） 精灵资料：赛尔号沃卡奥拉进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "unify_offense",
+              "target": "self"
+            }
+          ]
+        },
+        {
           "hook": "onMoveUsed",
           "bossGate": true,
           "ops": [
@@ -67846,6 +68818,41 @@
       "desc": "问：赛尔号风魔之骸魂印是什么？风魔之骸专属特性是什么？ 答： 赛尔号风魔之骸魂印是是：骸 骸：回合开始时，若对手处于异常状态时自身造成的攻击伤害提升50%，若对手不处于异常状态则自身受到的攻击伤害降低50%；回合结束时，若对手当回合未受到攻击伤害则50%令对手睡眠，未触发则下回合触发概率翻倍（boss无效） 精灵资料：赛尔号风魔之骸进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onTurnStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "if": {
+                "foeStatused": true
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnStart",
+          "guard": {
+            "not": {
+              "foeStatused": true
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_taken_down",
+              "target": "self",
+              "params": {
+                "pct": 50
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "foeTakenZero": true
@@ -67857,16 +68864,7 @@
               "name": "sleep",
               "target": "opponent",
               "chance": 50,
-              "turns": 1,
-              "chanceMulIf": {
-                "when": {
-                  "not": {
-                    "prevApplied": true
-                  }
-                },
-                "numerator": 2,
-                "denominator": 1
-              }
+              "turns": 1
             }
           ]
         }
@@ -70641,7 +71639,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -70673,7 +71670,18 @@
               "op": "cleanse",
               "target": "opponent",
               "scope": "timed"
-            },
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfHpBelow": {
+              "numerator": 1,
+              "denominator": 2
+            }
+          },
+          "ops": [
             {
               "op": "apply_status",
               "name": "prio_up",
@@ -70693,7 +71701,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -70714,7 +71721,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "pp_delta",
@@ -74539,31 +75545,61 @@
       "desc": "问：赛尔号爵刻&middot;黑沃德是什么？爵刻&middot;黑沃德专属特性是什么？ 答： 赛尔号爵刻&middot;黑沃德魂印是：爵 爵刻 爵：自身攻击技能有40%的概率使造成伤害提升100%，未触发则使用后随机吸取对手200~400点体力；自身登场时进入流血状态n回合并获得n枚爵刻（n＝己方场下体力不为满的精灵数+1，爵刻最多可获得6枚，下场后保留，boss无效） 爵刻：自身拥有爵刻时所有技能先制+1且使用后吸取对手最大体力的1/3并为所有不在场精灵恢复100点体力，每次触发后爵刻减少1枚 精灵资料： 赛尔号爵刻&middot;黑沃德进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onDamageDealt",
+          "hook": "onEntry",
           "ops": [
             {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              },
               "if": {
-                "not": {
-                  "prevApplied": true
+                "markCountAtLeast": {
+                  "mark": "爵刻",
+                  "n": 1,
+                  "on": "self"
                 }
               }
             },
             {
-              "op": "flat",
-              "of": "flatRange",
-              "value": {
-                "min": 200,
-                "max": 400
+              "op": "damage",
+              "power": 1,
+              "kind": "percent",
+              "if": {
+                "markCountAtLeast": {
+                  "mark": "爵刻",
+                  "n": 1,
+                  "on": "self"
+                }
               }
             },
             {
-              "op": "applyDrainRider",
-              "drain": {
+              "op": "formula",
+              "of": "frac",
+              "value": {
                 "numerator": 1,
-                "denominator": 1
+                "denominator": 3
+              },
+              "if": {
+                "markCountAtLeast": {
+                  "mark": "爵刻",
+                  "n": 1,
+                  "on": "self"
+                }
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self",
+              "if": {
+                "markCountAtLeast": {
+                  "mark": "爵刻",
+                  "n": 1,
+                  "on": "self"
+                }
               }
             }
           ]
@@ -75758,6 +76794,17 @@
       "desc": "问：赛尔号艾隆德是什么？艾隆德专属特性是什么？ 答：赛尔号艾隆德是：飡 飡： 自身技能命中前100%令对手冻伤，若未触发冻伤且本次使用的技能为攻击技能则造成伤害前100%令对手害怕，未触发害怕则当次攻击造成的伤害提升80%； 回合结束时若自身处于冻伤状态则恢复己方所有存活精灵80点体力，若己方所有存活精灵均为满体力则100%令自身冰封； 回合结束时若对手不处于冻伤状态则下回合自身100%闪避对手的攻击 (boss无效) 精灵资料：赛尔号艾隆德进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onBattleStart",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "frostbite",
+              "target": "opponent",
+              "chance": 100
+            }
+          ]
+        },
+        {
           "hook": "onTurnEnd",
           "guard": {
             "not": {
@@ -76096,7 +77143,6 @@
           "guard": {
             "prevDamageAboveAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -76106,6 +77152,21 @@
                 "count": 1,
                 "cat": 1
               }
+            }
+          ]
+        },
+        {
+          "hook": "onDamageDealt",
+          "guard": {
+            "prevDamageBelowAbs": 300
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "shock",
+              "target": "opponent",
+              "chance": 50
             }
           ]
         }
@@ -76937,6 +77998,22 @@
               "target": "opponent"
             }
           ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 100,
+              "kind": "fixed"
+            },
+            {
+              "op": "heal",
+              "flat": 100,
+              "target": "self"
+            }
+          ]
         }
       ]
     },
@@ -76953,6 +78030,61 @@
               "numerator": 1,
               "denominator": 3,
               "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onDamageDealt",
+          "guard": {
+            "prevDamageBelowAbs": 250
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "shock",
+              "target": "opponent",
+              "chance": 100,
+              "turns": 1
+            },
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "prevDamageBelowAbs": 250
+            }
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "power": 250,
+              "kind": "fixed"
+            },
+            {
+              "op": "heal",
+              "flat": 250,
+              "target": "self"
+            },
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "add": 1
+              }
             }
           ]
         }
@@ -77107,6 +78239,19 @@
               "stat": "spd",
               "delta": 1,
               "target": "opponent"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 6
+              }
             }
           ]
         }
@@ -77860,18 +79005,40 @@
       "desc": "问：赛尔号堕息&middot;迹是什么？堕息&middot;迹特性是什么？ 答：赛尔号堕息&middot;迹是：迹 迹： 每次登场2回合内自身使用技能无视对手能力提升状态且对手的先制等级最高为3，若本次登场为首次登场，则登场时额外为对手附加痕； 自身使用技能后会根据双方当回合先制等级总和n触发如下效果： n&le;0：若当回合自身未受到攻击伤害则令对手全属性-1，若当回合自身受到攻击伤害则令己方免疫下1次受到的异常状态； n&ge;3：若使用的为攻击技能则附加给对手n&times;100点固定伤害，若使用的为属性技能则恢复自身n&times;100点体力； 回合结束后若自身死亡，则反转对手能力提升状态且己方下只精灵出战时为其附加刻 （刻、痕下场后保留，所有特效boss无效） 刻：持有精灵使用攻击技能后消失并为对手附加痕，若对手已持有痕则免疫下1次受到的攻击 痕：持有精灵无法使用威力为0的攻击技能，触发无法使用后消失；若持有精灵被击败，则之后的下只精灵出战时随机进入疲惫或害怕中的1种异常状态 精灵资料：赛尔号堕息&middot;迹进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onKO",
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "prevTakenZero": true
+            }
+          },
           "bossGate": true,
           "ops": [
             {
-              "op": "invert_stages",
-              "sign": "up",
+              "op": "apply_status",
+              "name": "immune_status",
+              "target": "self",
+              "params": {
+                "count": 1
+              }
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "prevTakenZero": true
+            }
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 100,
               "target": "opponent"
             }
-          ],
-          "guard": {
-            "victim": "self"
-          }
+          ]
         }
       ]
     },
@@ -79857,21 +81024,12 @@
       "effects": [
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
               "kind": "fixed",
               "power": 100,
               "target": "self"
-            },
-            {
-              "op": "apply_status",
-              "name": "dmg_boost",
-              "target": "self",
-              "params": {
-                "pct": 150
-              }
             }
           ],
           "guard": {
@@ -79882,6 +81040,21 @@
             ],
             "streak": "attack"
           }
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 150
+              },
+              "turns": 1
+            }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -80108,31 +81281,33 @@
                   "prevApplied": true
                 }
               }
-            },
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
+        },
+        {
+          "hook": "onSwitchOut",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 3,
+                "powerMax": 0,
+                "cat": 4
+              },
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "sleep",
+                  "target": "opponent"
+                }
+              ]
+            }
+          ],
+          "guard": {
+            "switcher": "foe"
+          }
         }
       ]
     },
@@ -80728,6 +81903,23 @@
       "desc": "问：赛尔号猛虎之刃&middot;泰伯是什么？猛虎之刃&middot;泰伯专属特性是什么？ 答：赛尔号猛虎之刃&middot;泰伯是： 对手使用技能后，若自身体力不为满则80%令对手麻痹，未触发则下回合攻击技能先制+1; 自身使用攻击技能后随机令对手进入烧伤、失明中的1种异常状态，若成功触发烧伤则附加300点固定伤害，若成功触发失明则令对手随机1个技能PP值归0(boss无效) 精灵资料：赛尔号猛虎之刃&middot;泰伯进化图种族值技能表>>>",
       "effects": [
         {
+          "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "selfHpFull": true
+            }
+          },
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "paralysis",
+              "target": "opponent",
+              "chance": 80,
+              "turns": 1
+            }
+          ]
+        },
+        {
           "hook": "onMoveUsed",
           "bossGate": true,
           "ops": [
@@ -80985,6 +82177,24 @@
               "params": {
                 "add": 1,
                 "cat": 4
+              },
+              "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "prevTakenZero": true
+          },
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_boost",
+              "target": "self",
+              "params": {
+                "pct": 100
               },
               "turns": 1
             }
@@ -83672,8 +84882,7 @@
       "desc": "问：赛尔号华光之翼&middot;杰洛恩是什么？华光之翼&middot;杰洛恩专属特性是什么？ 答：赛尔号华光之翼&middot;杰洛恩是： 自身攻击技能命中后100%令对手失明，自身属性技能命中后100%令对手失神，上述效果附加异常状态前，若对手处于异常状态且自身所使用技能PP值为满，则上述效果均改为将对手所处异常状态转化为睡眠 每回合结束后恢复自身350点体力，若自身体力低于最大体力的1/2则额外使下回合自身所有技能先制+1，若自身体力高于最大体力的1/2则额外使下回合自身使用技能时附加350点固定伤害 (boss无效) 精灵资料：赛尔号华光之翼&middot;杰洛恩进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onDamageDealt",
-          "bossGate": true,
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -83681,11 +84890,32 @@
               "target": "opponent",
               "chance": 100
             }
-          ]
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "hook": "onMoveUsed",
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "daze",
+              "target": "opponent",
+              "chance": 100
+            }
+          ],
+          "guard": {
+            "actor": "self",
+            "cat": 1
+          }
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -83702,7 +84932,6 @@
               "denominator": 2
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -86378,6 +87607,21 @@
               "target": "self",
               "scope": "ailment",
               "effect": "paralysis"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "prio_up",
+              "target": "self",
+              "params": {
+                "add": 1
+              },
+              "turns": 1
             }
           ]
         }
