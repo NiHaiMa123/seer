@@ -13,7 +13,10 @@ export const rules = [
   { id: "batch-e5f-04a", re: new RegExp(`^(?:所有|自身)?(?:攻击|攻击技能|技能|所有技能)先制(?:加|提升|提高|增加)([+-]?)${NUM}$`), go: (m) => { const v = num(m[2]); return { flags: { priority: m[1] === "-" ? -v : v } }; } },
   { id: "batch-e5f-04", re: new RegExp(`^(?:所有|自身)?(?:攻击|攻击技能|技能|所有技能)先制([+-]?)${NUM}$`), go: (m) => { const v = num(m[2]); return { flags: { priority: m[1] === "-" ? -v : v } }; } },
   { id: "batch-e5f-05", re: new RegExp(`^对方下${NUM}次攻击技能将${NUM}%被己方闪避$|^(?:对手|对方|敌方)下${NUM}次攻击${NUM}%被闪避$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { effects: [{ op: "apply_status", name: "must_miss", target: "self", chance: ns[1] }] }; } },
-  { id: "batch-e5f-06", re: /^使用技能不受PP值限制$|^不受PP值限制$|^技能不消耗PP$/, go: () => ({ effects: [{ op: "apply_status", name: "pp_free", target: "self" }] }) },
+  // 「使用技能不受PP值限制」→ pp_free 常驻窗。
+  // 另收魂印里的两种写法：「选择使用技能不受pp限制」（多「选择」二字，PP 小写）与
+  // 「不受pp限制」（省「值」）。语义与原句相同——使用技能不消耗 PP。
+  { id: "batch-e5f-06", re: /^使用技能不受PP值限制$|^不受PP值限制$|^技能不消耗PP$|^选择使用技能不受PP值?限制$/i, go: () => ({ effects: [{ op: "apply_status", name: "pp_free", target: "self" }] }) },
   { id: "batch-e5f-07", re: /^无视伤害限制效果$|^无视对手防御提升效果$/, go: (m) => /防御/.test(m[0]) ? ({ effects: [{ op: "apply_status", name: "pierce_stages", target: "self" }] }) : ({ effects: [{ op: "apply_status", name: "pierce_limit", target: "self", turns: 1 }] }) },
   // "下N回合必定暴击"（TURNS_PRE 之后剩"必定暴击"已覆盖；此处防 `从下回合开始` 变体）
   { id: "batch-e5f-08", re: new RegExp(`^从下回合开始必定致命(\\d+|二|两|三|四|五|六|七|八|九|十)?击$|^从下回合开始必定暴击$`), go: (m) => ({ effects: [{ op: "apply_status", name: "crit_always", target: "self", ...(m[1] !== undefined ? { params: { count: num(m[1]) } } : {}) }] }) },
