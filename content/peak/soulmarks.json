@@ -17724,6 +17724,18 @@
               "if": {
                 "foeHas": "burn"
               }
+            },
+            {
+              "op": "apply_status",
+              "name": "crit_always",
+              "target": "self",
+              "turns": 1,
+              "params": {
+                "count": 1
+              },
+              "if": {
+                "foeHas": "burn"
+              }
             }
           ]
         },
@@ -23551,6 +23563,18 @@
               "params": {
                 "add": 1
               },
+              "if": {
+                "selfHpBelow": {
+                  "numerator": 1,
+                  "denominator": 2
+                }
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self",
               "if": {
                 "selfHpBelow": {
                   "numerator": 1,
@@ -33125,6 +33149,27 @@
               3
             ]
           }
+        },
+        {
+          "hook": "onMoveUsed",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "apply_status",
+              "name": "dmg_reduce",
+              "target": "self",
+              "params": {
+                "flat": 260
+              }
+            }
+          ],
+          "guard": {
+            "actor": "foe",
+            "cat": [
+              2,
+              3
+            ]
+          }
         }
       ]
     },
@@ -36130,6 +36175,12 @@
               "op": "damage",
               "power": 100,
               "kind": "percent"
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 1,
+              "target": "self"
             },
             {
               "op": "pp_delta",
@@ -59213,6 +59264,30 @@
               "stat": "sdf",
               "delta": 1,
               "target": "self"
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "selfStageSumAtLeast": {
+              "stats": [
+                "def",
+                "sdf"
+              ],
+              "n": 6
+            }
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "kind": "fixed",
+              "power": 0
+            },
+            {
+              "op": "flat",
+              "of": "flatSelfPct",
+              "value": 30
             }
           ]
         },

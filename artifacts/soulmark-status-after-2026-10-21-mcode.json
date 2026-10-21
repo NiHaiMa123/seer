@@ -11,8 +11,8 @@
     "explicitNoTrait": 73,
     "noEntryWithResidual": 127,
     "noEntryNoResidual": 0,
-    "partial": 949,
-    "entryNoResidual": 735,
+    "partial": 945,
+    "entryNoResidual": 739,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 888,
+      "fragments": 884,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,7 +43,7 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 447
+      "distinctRecords": 443
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
@@ -147,7 +147,7 @@
     },
     {
       "reason": "move-use scope — boss gate cannot persist across the react window (deferred)",
-      "fragments": 81,
+      "fragments": 82,
       "examples": [
         {
           "creatureId": "pet-4727",
@@ -4232,19 +4232,6 @@
           "catalogKey": "pet-4599",
           "petNo": "4599",
           "clause": "对手使用威力不高于0的攻击技能时减少1层命起"
-        }
-      ],
-      "distinctRecords": 1
-    },
-    {
-      "reason": "react payload unparsed: 减少260点",
-      "fragments": 1,
-      "examples": [
-        {
-          "creatureId": "pet-3629",
-          "catalogKey": "pet-3629",
-          "petNo": "3629",
-          "clause": "若自身受到的伤害减少260点"
         }
       ],
       "distinctRecords": 1
@@ -21316,12 +21303,10 @@
         "idSource": "creature.id",
         "petNo": "3361",
         "name": "炎龙圣帝",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -22560,12 +22545,10 @@
         "idSource": "creature.id",
         "petNo": "3463",
         "name": "时空界皇",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -24367,10 +24350,9 @@
         "petNo": "3629",
         "name": "龙裳",
         "status": "partial",
-        "entries": 2,
+        "entries": 3,
         "residualFragments": 2,
         "residualReasons": [
-          "react payload unparsed: 减少260点",
           "move-use scope — boss gate cannot persist across the react window (deferred)"
         ],
         "inPackScope": true,
@@ -24889,12 +24871,10 @@
         "idSource": "creature.id",
         "petNo": "3675",
         "name": "聆风",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -28506,12 +28486,10 @@
         "idSource": "creature.id",
         "petNo": "4088",
         "name": "环·圣芒",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -48901,12 +48879,10 @@
       "idSource": "creature.id",
       "petNo": "3361",
       "name": "炎龙圣帝",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 4,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -50537,12 +50513,10 @@
       "idSource": "creature.id",
       "petNo": "3463",
       "name": "时空界皇",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 2,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -53011,10 +52985,9 @@
       "petNo": "3629",
       "name": "龙裳",
       "status": "partial",
-      "entries": 2,
+      "entries": 3,
       "residualFragments": 2,
       "residualReasons": [
-        "react payload unparsed: 减少260点",
         "move-use scope — boss gate cannot persist across the react window (deferred)"
       ],
       "inPackScope": true,
@@ -53675,12 +53648,10 @@
       "idSource": "creature.id",
       "petNo": "3675",
       "name": "聆风",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 2,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -59815,12 +59786,10 @@
       "idSource": "creature.id",
       "petNo": "4088",
       "name": "环·圣芒",
-      "status": "partial",
-      "entries": 2,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 3,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",

@@ -145,7 +145,6 @@ const normalizeClause = (s) => s.replace(/\s+/g, "，").replace(/对反/g, "对�
     .replace(/生命值/g, "体力") // 同义："已损失生命值"=已损失体力
     .replace(/固害/g, "固定伤害") // OCR："固害"→固定伤害
     .replace(/(\d+)回(?=[每免令使对攻恢增附%\d])/g, "$1回合") // 省字："5回每回"/"2回对手"→N回合
-    .replace(/(?<!然)后(?=恢复|回复)/, "") // 残头："后恢复自身体力"——承前连接字剥除（"然后恢复"豁免）
     .replace(/每次(?=恢复|回复)/g, "") // 赘词："每次恢复150"——技能内每次=本次
     .replace(/免疫常$/, "免疫异常") // 截尾："免疫常"→免疫常见异常
     .replace(/下回和(?=的|，|,|；|;)/g, "下回合") // OCR："下回和"→下回合
@@ -1681,6 +1680,10 @@ function parseEffectTextAtExit(text, opts = {}) {
         if (part === prev) break;
       }
       // PART_PRE 剥后裸"N%"补剥（"命中后50%造成X"——bcm 首遍在剥前已跑过；"命中后50%几率令"同族）
+      // 「后」残头剥除放在这里（PART_PRE_STRIP 之后）：完整词形「出手后」「命中后」「之后」等
+      // 先由 PART_PRE_STRIP 整词剥掉，剩下的才是切分残头。原先放在 text 级归一链里，会抢在
+      // PART_PRE_STRIP 前面把「出手后恢复」「之后恢复」切成「出手恢复」「之恢复」（pet-3463 / pet-3675）。
+      part = part.replace(/(?<!然)后(?=恢复|回复)/, "");
       const bcm3 = part.match(/^(\d+)%(?:的)?(?:概率|几率|机率)?(?=令|使|有|造成|附加|将|受|对|自|提|增|恢|回|降|减|改|吸(?!血)|反(?!馈)|容|易|本|命|攻|免|随|强)/);
       if (bcm3 !== null && num(bcm3[1]) <= 100) { dynChance = num(bcm3[1]); bcmConsumed = bcm3[0]; part = part.slice(bcm3[0].length); }
       // "回合结束时X" ≡ "每回合X"（tick 化）：改写后走每回合专用规则（hot/dot/drain_dot/maxhp_tick/cleanse_down_tick）

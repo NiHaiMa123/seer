@@ -211,8 +211,10 @@ export const rules = [
     go: (m) => ({ attachDamage: { flatSelfFrac: { numerator: num(m[1]), denominator: num(m[2]) } } }),
   },
   // "令对手受到自身最大体力N%的固定伤害" → flatSelfPct 独立 damage
+  // 「最大体力值」是同一说法的两种写法（pet-4088「令对手受到自身最大体力值30%的固定伤害」），
+  // 字符类一并收，语义不变。
   { id: "e8-ft-11",
-    re: /^(?:令|使)(?:对手|对方|敌方)受到(?:自身|自己)最大体力(\d+)%(?:的)?(?:固定伤害|固伤)$/,
+    re: /^(?:令|使)(?:对手|对方|敌方)受到(?:自身|自己)最大体力(?:值)?(\d+)%(?:的)?(?:固定伤害|固伤)$/,
     go: (m) => ({ effects: [{ op: "damage", kind: "fixed", power: 0, flatSelfPct: +m[1] }] }),
   },
   // "对手受到自身已损失HP的N倍伤害" → flatSelfFrac missing ×N
