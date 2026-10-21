@@ -11,8 +11,8 @@
     "explicitNoTrait": 73,
     "noEntryWithResidual": 127,
     "noEntryNoResidual": 0,
-    "partial": 954,
-    "entryNoResidual": 730,
+    "partial": 949,
+    "entryNoResidual": 735,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 894,
+      "fragments": 888,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,7 +43,7 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 453
+      "distinctRecords": 447
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
@@ -147,7 +147,7 @@
     },
     {
       "reason": "move-use scope — boss gate cannot persist across the react window (deferred)",
-      "fragments": 80,
+      "fragments": 81,
       "examples": [
         {
           "creatureId": "pet-4727",
@@ -168,7 +168,7 @@
           "clause": "对手使用技能时若处于能力下降状态则消除对手能力提升状态"
         }
       ],
-      "distinctRecords": 75
+      "distinctRecords": 76
     },
     {
       "reason": "cond-orphan",
@@ -4652,8 +4652,8 @@
     "sourceRecordsOutsidePackWithEntries": 74,
     "directoryCounts": {
       "missing": 33,
-      "different": 383,
-      "same": 1218,
+      "different": 382,
+      "same": 1219,
       "notGenerated": 168,
       "outsidePack": 82,
       "ambiguous": 0
@@ -10247,25 +10247,6 @@
         "defaultMount": "no-current-entry",
         "expectedSoulmarkId": "sm-4072",
         "storedEffects": 2
-      },
-      {
-        "creatureId": "pet-4075",
-        "catalogKey": "pet-4075",
-        "associationId": "pet-4075",
-        "idSource": "creature.id",
-        "petNo": "4075",
-        "name": "混沌界神",
-        "status": "partial",
-        "entries": 4,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
-        "inPackScope": true,
-        "packDirectory": "different-effects",
-        "defaultMount": "mounted",
-        "expectedSoulmarkId": "sm-4075",
-        "storedEffects": 4
       },
       {
         "creatureId": "pet-4078",
@@ -26950,12 +26931,10 @@
         "idSource": "creature.id",
         "petNo": "3882",
         "name": "姗姗",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -27697,12 +27676,10 @@
         "idSource": "creature.id",
         "petNo": "3965",
         "name": "闭月之姿·貂蝉",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -28453,6 +28430,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-4074"
+      },
+      {
+        "creatureId": "pet-4075",
+        "catalogKey": "pet-4075",
+        "associationId": "pet-4075",
+        "idSource": "creature.id",
+        "petNo": "4075",
+        "name": "混沌界神",
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-4075"
       },
       {
         "creatureId": "pet-4079",
@@ -29766,12 +29759,10 @@
         "idSource": "creature.id",
         "petNo": "4248",
         "name": "辛迪拉",
-        "status": "partial",
-        "entries": 2,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "status": "entry-no-residual",
+        "entries": 3,
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -32773,12 +32764,10 @@
         "idSource": "creature.id",
         "petNo": "4587",
         "name": "蛇舞·天鸣",
-        "status": "partial",
-        "entries": 3,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "status": "entry-no-residual",
+        "entries": 4,
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -33516,10 +33505,10 @@
         "petNo": "4668",
         "name": "尚克斯",
         "status": "partial",
-        "entries": 1,
+        "entries": 2,
         "residualFragments": 1,
         "residualReasons": [
-          "no-rule"
+          "move-use scope — boss gate cannot persist across the react window (deferred)"
         ],
         "inPackScope": true,
         "packDirectory": "same-effects",
@@ -56928,12 +56917,10 @@
       "idSource": "creature.id",
       "petNo": "3882",
       "name": "姗姗",
-      "status": "partial",
-      "entries": 3,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 4,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -58206,12 +58193,10 @@
       "idSource": "creature.id",
       "petNo": "3965",
       "name": "闭月之姿·貂蝉",
-      "status": "partial",
-      "entries": 2,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 3,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -59650,14 +59635,12 @@
       "idSource": "creature.id",
       "petNo": "4075",
       "name": "混沌界神",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 4,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "different-effects",
+      "packDirectory": "same-effects",
       "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-4075"
     },
@@ -61867,12 +61850,10 @@
       "idSource": "creature.id",
       "petNo": "4248",
       "name": "辛迪拉",
-      "status": "partial",
-      "entries": 2,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 3,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -66805,12 +66786,10 @@
       "idSource": "creature.id",
       "petNo": "4587",
       "name": "蛇舞·天鸣",
-      "status": "partial",
-      "entries": 3,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 4,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -68283,10 +68262,10 @@
       "petNo": "4668",
       "name": "尚克斯",
       "status": "partial",
-      "entries": 1,
+      "entries": 2,
       "residualFragments": 1,
       "residualReasons": [
-        "no-rule"
+        "move-use scope — boss gate cannot persist across the react window (deferred)"
       ],
       "inPackScope": true,
       "packDirectory": "same-effects",

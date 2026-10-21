@@ -308,7 +308,13 @@ export const rules = [
   // "对手在回合结束时受到相当于本次伤害N/M的固定伤害" → flatSelfLastDmgPct（"本次伤害"=自身刚出伤数值——回合结束时点近似 UNVERIFIED）
   { id: "batch-e6-158", re: new RegExp(`^(?:对手|对方|敌方)?(?:在|于)?回合结束时?受到相当于本?次?伤害${NUM}\\s*/\\s*${NUM}的固定伤害$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { attachDamage: { flatSelfLastDmgPct: Math.floor((ns[0] * 100) / ns[1]) } }; } },
   // "附加所造成伤害值N%的固伤"——当次出伤百分比固伤（lastDealt 记账）
-  { id: "batch-e6-159", re: new RegExp(`^附加(?:所)?造成(?:的)?伤害(?:值)?${NUM}%的?(?:固定|固伤)?伤害$|^附加所造成伤害值${NUM}%的?固伤$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { attachDamage: { flatSelfLastDmgPct: ns[ns.length - 1] } }; } },
+  // 「伤害值 / 伤害量」是同一说法的两种写法（pet-4248「附加造成伤害量50%的固定伤害」），
+  // 字符类一并收，语义不变（仍走 flatSelfLastDmgPct）。
+  { id: "batch-e6-159", re: new RegExp(`^附加(?:所)?造成(?:的)?伤害(?:[值量])?${NUM}%的?(?:固定|固伤)?伤害$|^附加所造成伤害[值量]${NUM}%的?固伤$`), go: (m) => { const ns = m.slice(1).filter((x) => x !== undefined).map(num); return { attachDamage: { flatSelfLastDmgPct: ns[ns.length - 1] } }; } },
+  // "额外附加100%等量固伤"（pet-3882）——「N%等量固伤」= 当次出伤的 N% 作为固定伤害，
+  // 与 batch-e6-159 同读法（flatSelfLastDmgPct），只是幅值写成百分比而非"伤害值的N%"。
+  // 内容库里「%等量」仅此一处，故无歧义。
+  { id: "batch-e6-159b", re: new RegExp(`^${NUM}%等量(?:的)?(?:固定伤害|固伤)$`), go: (m) => ({ attachDamage: { flatSelfLastDmgPct: num(m[1]) } }) },
   // 承伤转移（"自身受到的固定伤害转移到对手身上"——redirect 域未建模）
   { id: "batch-e6-160", re: /^(?:自身|自己)?受到的(?:固定|百分比)?伤害转移(?:到|给)(?:对手|对方|敌方)/, go: () => ({ unparsedReason: "damage redirect — taken-damage reroute unmodeled (deferred)" }) },
   // 跨引用公式（"500*该比例"/"pp值总和*10点护罩"/"每因此损失5点PP值"/"每有1点PP获得1种"——算术链引用未建模）
@@ -419,6 +425,9 @@ export const rules = [
   { id: "batch-e6-205", re: new RegExp(`^(?:对手|对方|敌方)(?:${NUM}回合内?)?(?:攻击技能|攻击|技能)?无法造成(?:攻击)?伤害$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_weaken", target: "opponent", turns: m[1] !== undefined ? num(m[1]) : 1, params: { n: 0, d: 1 } }] }) },
   // "解除并附加给对手自身所处的异常状态"→cleanse 自身异常 + transfer_ailments push
   { id: "batch-e6-206", re: /^解除并附加给对手自身所处的异常状态$|^解除并附加给(?:对手|对方)(?:的)?自身(?:所处)?的?异常状态$/, go: () => ({ effects: [{ op: "cleanse", target: "self", scope: "ailment" }, { op: "transfer_ailments", direction: "push", target: "opponent" }] }) },
+  // "附加给对手自身所处的所有异常状态"（pet-4668）——只「附加」不「解除」：
+  // transfer_ailments push 本身就是整体迁移（自身异常移到对手），无需再叠 cleanse。
+  { id: "batch-e6-206b", re: /^附加给(?:对手|对方|敌方)(?:的)?自身(?:所处)?的?(?:所有|全部)?(?:异常状态)$/, go: () => ({ effects: [{ op: "transfer_ailments", direction: "push", target: "opponent" }] }) },
   { id: "batch-e6-207", re: /^解除$/, go: () => ({ effects: [] }) }, // "解除"裸残片（"解除成功则"切分后剥离）
   { id: "batch-e6-208", re: /^(?:吸收|无视|触发|解除|反转|翻转)成功[则，,]?$/, go: () => ({ orphanCond: { prevApplied: true } }) },
   // "反转/翻转自身能力下降状态"→invert_stages；"吸取并反转对手能力提升状态"→steal + invert 双侧

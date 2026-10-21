@@ -159,7 +159,7 @@ export const rules = [
   { id: "attach-damage-79", re: /^无视自身能力下降状态$|^无视(?:自身|自己)的能力下降(?:状态)?$/, go: () => ({ effects: [{ op: "apply_status", name: "ignore_self_down", target: "self" }] }) },
   // 双方能力提升同消（"消除双方能力上升"）
   { id: "attach-damage-80", re: /^消除双方能力(?:上升|提升|强化)(?:状态|效果)?$|^消除敌我双方能力(?:提升|强化)(?:状态|效果)?$/, go: () => ({ effects: [{ op: "clear_stages", target: "self", sign: "up" }, { op: "clear_stages", target: "opponent", sign: "up" }] }) },
-  { id: "attach-damage-81", re: /^消除对手能力提升状态及回合类效果$|^消除(?:对手|对方)能力提升和回合类效果$/, go: () => ({ effects: [{ op: "clear_stages", target: "opponent", sign: "up" }, { op: "cleanse", target: "opponent", scope: "timed" }] }) },
+  { id: "attach-damage-81", re: /^消除对手能力提升状态及回合类效果$|^消除(?:对手|对方)能力提升和回合类效果$|^(?:100%)?消除(?:对手|对方|敌方)回合类效果和能力提升状态$/, go: () => ({ effects: [{ op: "clear_stages", target: "opponent", sign: "up" }, { op: "cleanse", target: "opponent", scope: "timed" }] }) },
   { id: "attach-damage-82", re: /^(?:使)?(?:自身|自己)的?能力下降(?:状态|效果)?反转(?:成|为)(?:能力)?提升(?:效果|状态)?$/, go: () => ({ effects: [{ op: "invert_stages", sign: "down", target: "self" }] }) },
   { id: "attach-damage-83", re: new RegExp(`^(?:对手|对方|敌方)无法通过自身技能恢复体力$|^(?:使|令)?(?:对手|对方|敌方)${NUM}回合内?无法通过自身技能恢复体力$|^${NUM}回合内?(?:对手|对方|敌方)无法通过自身技能恢复体力$`), go: (m) => ({ effects: [{ op: "apply_status", name: "heal_block", target: "opponent", ...(m[1] ?? m[2] ? { turns: num(m[1] ?? m[2]) } : {}) }] }) },
   { id: "attach-damage-84", re: new RegExp(`^每回合(?:所受)?的?伤害减少(\\d+)(?:点)?$|^每回合(?:自身)?受到的伤害减少(\\d+)(?:点)?$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_reduce", target: "self", params: { flat: num(m[1] ?? m[2]) } }] }) },

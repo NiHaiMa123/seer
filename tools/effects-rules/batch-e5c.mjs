@@ -12,7 +12,7 @@ export const rules = [
   { id: "batch-e5c-01", re: new RegExp(`^(?:(\\d+)(?:%的?)?(?:概率|几率|机率)?)?(?:令|使|让)(?:对手|对方|敌方)所有攻击(?:必定)?(?:MISS|Miss|miss|未命中)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "must_miss", target: "self", ...(m[1] !== undefined ? { chance: num(m[1]) } : {}) }] }) },
   { id: "batch-e5c-02", re: /^不受伤害$|^自身不受伤害$/, go: () => ({ effects: [{ op: "apply_status", name: "dmg_immune", target: "self" }] }) },
   { id: "batch-e5c-03", re: /^若对手先手技能则(\d+)%?(.+)$|^若对手使用先手技能则(\d+)%?(.+)$/, go: (m) => reactWrap(3, { prioMin: 1, chance: num(m[1] ?? m[3]) }, `对手${(m[2] ?? m[4]).trim()}`) },
-  { id: "batch-e5c-04", re: /^将自身相应的能力提升赋予给对手相应的能力下降$|^将自身的能力提升赋予给对手的能力下降$/, go: () => ({ effects: [{ op: "transfer_stages", direction: "upToDown" }] }) },
+  { id: "batch-e5c-04", re: /^将自身相应的能力提升(?:状态)?赋予给对手相应的能力下降(?:状态)?$|^将自身的能力提升赋予给对手的能力下降$/, go: () => ({ effects: [{ op: "transfer_stages", direction: "upToDown" }] }) },
   { id: "batch-e5c-05", re: new RegExp(`^每回合被攻击所收(?:到|受)的伤害不超过(\\d+)$|^每回合被攻击所受伤害不超过(\\d+)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_cap", target: "self", params: { cap: num(m[1] ?? m[2]) } }] }) },
   { id: "batch-e5c-06", re: /^技能无效时[，,]?(.+)$/, go: (m) => { const sub = parseEffectText(m[1]); if (sub.effects.length === 0) return { unparsedReason: `nullify payload unparsed: ${m[1]}` }; return { effects: sub.effects.map((e) => ({ ...e, nullifyOnly: true })), ...(sub.unparsed.length > 0 ? { unparsed: sub.unparsed } : {}) }; } },
   { id: "batch-e5c-07", re: /^技能无效时$/, go: () => ({ unparsedReason: "nullify-trigger orphan" }) },

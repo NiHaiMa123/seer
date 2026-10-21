@@ -871,6 +871,10 @@ const TRIGGERS = [
   { re: /^(?:双方|敌我双方)出手后[，,、]?/, hook: "onTurnEnd" },
   // "对手攻击技能命中自身时X"/"对手技能命中时X" —— 受击钩（cat 未声明按全类）
   { re: /^对手(?:每次)?(?:使用|释放)?的?(?:攻击技能|技能|攻击)?命中(?:自身|自己)?(?:时|后|则|，|,)/, hook: "onDamaged" },
+  // "对手攻击时X"（pet-4587「奇数回合对手攻击时70%闪避对手的攻击」）——对手发动攻击＝我方受击，
+  // 与上一条同钩（onDamaged）。**只认「对手攻击时」这一形态**：带「使用攻击技能时」的是纯用技
+  // 反应窗（onMoveUsed actor:foe），不能改挂 onDamaged，否则触发时机整体前移。
+  { re: /^(?:对手|对方|敌方)(?:每次)?攻击时[，,、]?/, hook: "onDamaged" },
   // ── 条件窗（standalone "若P则X" → onTurnEnd+guard+turns:1 刷新窗）──
   // "若回合开始/结束时P则X"（触发词内嵌 cond——精确钩子 + guard；"若回合结束时自身满体力则恢复1/4"）
   { mk: (g) => { const t = g.match(/^若(?:每|当)?回合(开始|结束)[时后](?:，|,|、|\s)*(.{2,24}?)(?:，|,|、|\s)*则(.+)$/); if (t === null) return undefined; const c = smCondOf(t[2].replace(/^处于/, "自身处于")); if (c === undefined) return { hook: t[1] === "开始" ? "onTurnStart" : "onTurnEnd", extra: { guardDropped: t[2] }, body: t[3] }; const subs = c.and ?? [c]; if (subs.some((x) => x.order !== undefined)) return undefined; return { hook: t[1] === "开始" ? "onTurnStart" : "onTurnEnd", extra: { guard: c }, body: t[3] }; } },
@@ -2535,7 +2539,9 @@ export function parseSoulmarkText(text, petName) {
         // "回合开始时若P则当回合自身攻击技能X"：「当回合」后紧跟出招触发词时剥掉，让内层触发定钩子（否则 X 在回合开始就结算）
         if (depth === 0) body = body.replace(/^当回合(?=(?:自身|自己)?(?:攻击|属性)技能(?:有?\d+%|令|使|消除|附加|造成|恢复|吸取))/, "");
         // react 载荷头（受击/对手行动类）与裸几率前缀不是钩子重挂——留给 inner reactWrap/dynChance 通道（"登场3回合内受到攻击则X"/"回合开始时50%令X"——op 级 chance 是 chanceMulIf 挂载宿主）
-        if (/^(?:若|当)?(?:[受到收]到|被(?=(?:对手|对方|敌方)?攻击)|遭受|对手(?:每次)?(?:攻击|使用(?:攻击|属性)?技能|攻击技能|属性技能))/.test(body) || /^有?\d+%/.test(body)) break;
+        // 「对手攻击时」是**受击事件点**（不是 react 载荷头），要放行让二次匹配把它挂到 onDamaged
+        // （pet-4587「奇数回合对手攻击时70%闪避对手的攻击」）；「对手攻击技能命中自身时」仍由上一条触发词先收。
+        if (/^(?:若|当)?(?:[受到收]到|被(?=(?:对手|对方|敌方)?攻击)|遭受|对手(?:每次)?(?:攻击(?!时)|使用(?:攻击|属性)?技能|攻击技能|属性技能))/.test(body) || /^有?\d+%/.test(body)) break;
         let nbody = null, nextra, nhook, weak = false;
         for (const t of TRIGGERS) {
           if (t.headOnly === true) continue; // 组首专用 mk（裸"P则X"等）——body 内的 P则 属 op.if 通道，不在此重挂守卫
