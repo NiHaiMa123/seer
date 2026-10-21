@@ -15,17 +15,31 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { parseSoulmarkText } from "../../../tools/soulmark-parse.mjs";
 
-const cat = JSON.parse(readFileSync("content/creatures/creatures.json", "utf8"));
-const marks = JSON.parse(readFileSync("content/peak/soulmarks.json", "utf8")).soulmarks;
-const units = JSON.parse(readFileSync("content/peak/units.json", "utf8")).units;
+interface Creature {
+  id?: string;
+  name?: string;
+  soulMark?: { text?: string };
+}
 
-const creature = (id: string) => {
+const cat = JSON.parse(readFileSync("content/creatures/creatures.json", "utf8")) as {
+  creatures: Record<string, Creature>;
+};
+const marks = JSON.parse(readFileSync("content/peak/soulmarks.json", "utf8")).soulmarks as Record<
+  string,
+  { id: string; name: string; desc: string; effects: unknown[] }
+>;
+const units = JSON.parse(readFileSync("content/peak/units.json", "utf8")).units as {
+  id: string;
+  soulMark?: string;
+}[];
+
+const creature = (id: string): Creature | undefined => {
   for (const [key, c] of Object.entries(cat.creatures)) if ((c.id ?? key) === id) return c;
   return undefined;
 };
 
 /** 与 sync-soulmarks.mjs 的 compile() 同口径。 */
-const compile = (c: { id?: string; name?: string; soulMark?: { text?: string } }) => {
+const compile = (c: Creature) => {
   const text = String(c.soulMark?.text ?? "").trim();
   if (text === "") return null;
   const sm = parseSoulmarkText(text, c.name);

@@ -1523,6 +1523,12 @@
                 "n": 20,
                 "d": 100
               }
+            },
+            {
+              "op": "apply_status",
+              "name": "sleep",
+              "target": "opponent",
+              "chance": 15
             }
           ]
         }

@@ -11,8 +11,8 @@
     "explicitNoTrait": 73,
     "noEntryWithResidual": 128,
     "noEntryNoResidual": 0,
-    "partial": 960,
-    "entryNoResidual": 723,
+    "partial": 959,
+    "entryNoResidual": 724,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 908,
+      "fragments": 907,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,7 +43,7 @@
           "clause": "每回合获得等同于溢出量的护罩"
         }
       ],
-      "distinctRecords": 464
+      "distinctRecords": 463
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
@@ -18402,12 +18402,10 @@
         "idSource": "creature.id",
         "petNo": "2695",
         "name": "圣瞳·天蛇太祖",
-        "status": "partial",
+        "status": "entry-no-residual",
         "entries": 1,
-        "residualFragments": 1,
-        "residualReasons": [
-          "no-rule"
-        ],
+        "residualFragments": 0,
+        "residualReasons": [],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -42058,12 +42056,10 @@
       "idSource": "creature.id",
       "petNo": "2695",
       "name": "圣瞳·天蛇太祖",
-      "status": "partial",
+      "status": "entry-no-residual",
       "entries": 1,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",

@@ -22,6 +22,9 @@ export const rules = [
   // 每次攻击概率自强（"每次攻击都有N%的几率令自身攻击+1"→react trigger12，chance 注入 payload）
   { id: "batch-e5-12", re: new RegExp(`^每次攻击都有?(\\d+)%(?:的?(?:概|几)?率)?(?:令|使|让)自身(.+)$|^每次攻击有?(\\d+)%(?:的?(?:概|几)?率)?(?:令|使|让)自身(.+)$`), go: (m) => { const r = reactWrap(12, {}, `自身${(m[2] ?? m[4]).trim().replace(/^自身/, "")}`); if (r.effects?.[0]?.payload !== undefined) for (const p of r.effects[0].payload) p.chance = num(m[1] ?? m[3]); return r; } },
   { id: "batch-e5-13", re: new RegExp(`^(\\d+)%(?:的?(?:概|几)?率)?另(?:对手|对方|敌方)(.+)$`), go: (m) => { const a = AILMENTS[m[2].replace(/状态$/, "")]; return a === undefined ? { unparsedReason: `ailment unparsed: ${m[2]}` } : { effects: [{ op: "apply_status", name: a, target: "opponent", chance: num(m[1]) }] }; } },
+  // "附带N%几率令对手<异常>"（"造成伤害的20%恢复自身体力并附带15%几率令对手睡眠"——同句里的附加效果）
+  // 只多一个「附带」前缀，语义与 batch-e5-13 的「N%令对手<异常>」相同：N% 概率施加该异常。
+  { id: "batch-e5-13b", re: new RegExp(`^附带(\\d+)%(?:的?(?:概|几)?率)?(?:另|令|使|让)(?:对手|对方|敌方)(.+)$`), go: (m) => { const a = AILMENTS[m[2].replace(/状态$/, "")]; return a === undefined ? { unparsedReason: `ailment unparsed: ${m[2]}` } : { effects: [{ op: "apply_status", name: a, target: "opponent", chance: num(m[1]) }] }; } },
   // 每回合攻击附加自身双防总和 N% 固伤 → dmg_flat 窗口 defSumPct
   { id: "batch-e5-14", re: new RegExp(`^每回合(?:攻击|攻击技能)?附加(?:自身|自己)双防(?:值)?总和?${NUM}%的(?:固定|固定伤害|固伤)$`), go: (m) => ({ effects: [{ op: "apply_status", name: "dmg_flat", target: "self", params: { defSumPct: num(m[1]) } }] }) },
   // 若Miss则回血（self-miss trigger6）
