@@ -20,3 +20,11 @@ scratch/
 /nul
 /.r-probe/
 /--*/
+
+# 覆盖率转储：解析器的实时输出（tools/effects-parse.mjs / tools/soulmark-parse.mjs 生成），
+# 单个 30MB+，可随时重新生成，不进版本库。真正的门禁基线是
+# content/claims/_coverage-baseline.json（0.1KB，那个才要提交）。
+# ratchet 默认读 _effects-coverage.json：新克隆后先跑 `npm run test:effects-coverage`
+# 生成，或用 `node tools/effects-ratchet.ts --live`。
+content/claims/_effects-coverage.json
+content/claims/_soulmark-coverage.json
