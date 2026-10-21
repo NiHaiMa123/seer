@@ -1414,6 +1414,10 @@ export function parseSoulmarkText(text, petName) {
   const recordOuterResidual = (clause, reason) => {
     const text = clause.trim();
     if (text === "") return;
+    // 纯噪声片段（图鉴页尾 / 裸主语 / 编号残渣）不记残文——它们承载不了任何效果。
+    // 但只在**本记录已产出条目**时丢：一条什么都没解析出来的记录若把残文也丢了，
+    // 就成了「无输出且无残文」的空记录（审计会记成异常，真内容被静默吞掉）。
+    if (isNoiseFragment(text) && entries.length > 0) return;
     unparsed.push({ clause: text, reason });
     clauseTotal++;
     fragmentsOnResidual++;
@@ -2765,8 +2769,13 @@ export function parseSoulmarkText(text, petName) {
           }
           if (hit) { if (probe3.orphanCond === undefined && pendingCond !== undefined) { pendingCond = undefined; pendingCondSrc = undefined; } pendingEmpty = undefined; segParsed = true; continue; }
         }
-        if (probe3.unparsed.length > 0 && probe3.unparsed.every((u) => u.reason !== "no-rule")) for (const u of probe3.unparsed) unparsed.push(u);
-        else if (!isNoiseFragment(gtext)) unparsed.push({ clause: gtext, reason: "no-trigger-prefix" });
+        // 注意花括号：else 必须绑到外层 if（写成 `if (A) for (…) if (B) …; else …;`
+        // 会让 else 挂到内层 if 上，外层为假时整段 gtext 残文就不推了——真内容被静默丢掉）。
+        if (probe3.unparsed.length > 0 && probe3.unparsed.every((u) => u.reason !== "no-rule")) {
+          for (const u of probe3.unparsed) if (!isNoiseFragment(u.clause) || entries.length === 0) unparsed.push(u);
+        } else if (!isNoiseFragment(gtext) || entries.length === 0) {
+          unparsed.push({ clause: gtext, reason: "no-trigger-prefix" });
+        }
         pendingEmpty = undefined; continue;
       }
       if (!inherited) { const { dupActor: _dd, guardDropped: _gd2, ...extraKeep } = extra; lastHook = { hook, extra: extraKeep }; }
@@ -3227,7 +3236,9 @@ export function parseSoulmarkText(text, petName) {
           liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
           if (sub.effects.length > 0) { elsePending.push({ guard: extra.guard.not !== undefined ? extra.guard.not : { not: extra.guard }, ops: sub.effects, hook, extra }); for (const su of sub.unparsed) unparsed.push(su); continue; }
         }
-        unparsed.push(typeof u === "string" ? { clause: u } : u);
+        // 内层残文传播：纯噪声片段（图鉴页尾 / 裸主语 / 编号残渣）同样不记残文。
+        if (typeof u === "string") { if (!isNoiseFragment(u) || entries.length === 0) unparsed.push({ clause: u }); }
+        else if (!isNoiseFragment(u.clause) || entries.length === 0) unparsed.push(u);
       }
       // inner 自消化幻影旗：effects 非空时 inner 不发 marker，powerMul/scaleIf{2/1} 只是占位——本层补真正的"效果翻倍"挂载
       if (effDoubleFlag !== undefined && flags?.attachDamage?.[effDoubleFlag] !== undefined) {
@@ -3409,7 +3420,7 @@ export function parseSoulmarkText(text, petName) {
         else unparsed.push({ clause: gtext, reason: "shield-count scaling — pct-window host absent (deferred)" });
       }
       for (const k of Object.keys(flags)) unparsed.push({ clause: k === "attachDamage" && typeof flags.attachDamage === "object" ? `attachDamage:${Object.keys(flags.attachDamage).join("+")}` : `${k}`, reason: "move-flag" });
-      if (effects.length === 0) { if (inner.length === 0 && pendingCondSrc !== gtext && !mountedPrev && pendingBenchCtx === undefined && pendingAilTurn === undefined && pendingHpDiffCtx === undefined && pendingShieldCtx === undefined && !isNoiseFragment(gtext)) unparsed.push({ clause: gtext, reason: "no-op" }); continue; } // pendingCond/pendingBenchCtx/缩放语境本组新设时语境已结转——不算孤儿
+      if (effects.length === 0) { if (inner.length === 0 && pendingCondSrc !== gtext && !mountedPrev && pendingBenchCtx === undefined && pendingAilTurn === undefined && pendingHpDiffCtx === undefined && pendingShieldCtx === undefined && (!isNoiseFragment(gtext) || entries.length === 0)) unparsed.push({ clause: gtext, reason: "no-op" }); continue; } // pendingCond/pendingBenchCtx/缩放语境本组新设时语境已结转——不算孤儿
       if (hasMoveCtx(effects)) { unparsed.push({ clause: gtext, reason: "move-power-ref" }); continue; }
       // flatPerAlive：存活计数缩放（"己方每有一只精灵存活则恢复N点"——heal.flat→floor(alive/1)×flat）
       if (extra.flatPerAlive === true) for (const o of effects) { if (o.op === "heal" && o.flat !== undefined) { o.flatPerAlive = { per: 1, add: o.flat }; delete o.flat; } else if (o.op === "apply_status" && (o.name === "shield" || o.name === "ward") && typeof o.params?.flat === "number" && o.params.flatPerBench === undefined) { o.params.flatPerBench = o.params.flat; o.params.flat = 0; } }
@@ -3554,7 +3565,7 @@ export function parseSoulmarkText(text, petName) {
     if (clauseCap !== undefined) for (let i = clauseEntryStart; i < entries.length; i++) for (const o of entries[i].ops ?? []) if (o.op === "heal" && o.cap === undefined) o.cap = clauseCap;
     if (clauseCapFrac !== undefined) for (let i = clauseEntryStart; i < entries.length; i++) for (const o of entries[i].ops ?? []) if (o.op === "heal" && o.capFracN === undefined) { o.capFracN = clauseCapFrac.n; o.capFracD = clauseCapFrac.d; }
     if (growTail !== undefined) {
-      if (guardQuarantine) unparsed.push({ clause: gm[0].trim(), reason: guardQuarantineReason });
+      if (guardQuarantine) { if (!isNoiseFragment(gm[0].trim()) || entries.length === 0) unparsed.push({ clause: gm[0].trim(), reason: guardQuarantineReason }); }
       else if (!attachGrow()) unparsed.push({ clause: gm[0].trim(), reason: "grow-tail-orphan" });
     }
     if (segParsed) clausesParsed++;

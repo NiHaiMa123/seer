@@ -1834,13 +1834,11 @@ function parseEffectTextAtExit(text, opts = {}) {
       if (hit === null) {
         const oc = condOf(part);
         if (oc !== undefined) { mergeDynCond(oc); continue; }
-        // 纯噪声片段不记残文：裸主语代词（"自身"——切分后剩下的主语，承载不了任何效果）
-        // 与图鉴页尾巴（"精灵资料：" / ">>>" / 编号残渣）。它们不是「未实现的规则」，
-        // 留在残文里会让整条记录永远算不上完成。
-        if (!isNoiseFragment((bcmConsumed ?? "") + part)) {
-          unparsed.push({ clause: (bcmConsumed ?? "") + part, reason: "no-rule" });
-        }
-        continue;
+        // 噪声片段照常记残文——**不在这一层滤**：
+        // 魂印层靠「内层是否报过 no-rule」决定整组要不要整段留档（见 soulmark-parse 的
+        // probe3.unparsed.every(u => u.reason !== "no-rule")）。内层少报一条，
+        // 那条整组留档就会消失——把真内容静默丢掉。过滤统一放在魂印层做。
+        unparsed.push({ clause: (bcmConsumed ?? "") + part, reason: "no-rule" }); continue;
       }
       if (hit.unparsedReason) { unparsed.push({ clause: (bcmConsumed ?? "") + part, reason: hit.unparsedReason }); continue; }
       // 规则级半解析残留（reactWrap/prevApplied 载荷内部未解析子句）——逐条计入残留

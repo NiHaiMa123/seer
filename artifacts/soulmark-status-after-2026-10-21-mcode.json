@@ -11,8 +11,8 @@
     "explicitNoTrait": 73,
     "noEntryWithResidual": 127,
     "noEntryNoResidual": 0,
-    "partial": 952,
-    "entryNoResidual": 732,
+    "partial": 954,
+    "entryNoResidual": 730,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 893,
+      "fragments": 895,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,11 +43,11 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 451
+      "distinctRecords": 453
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
-      "fragments": 470,
+      "fragments": 441,
       "examples": [
         {
           "creatureId": "pet-4732",
@@ -72,7 +72,7 @@
     },
     {
       "reason": "no-trigger-prefix",
-      "fragments": 204,
+      "fragments": 205,
       "examples": [
         {
           "creatureId": "pet-4717",
@@ -93,11 +93,11 @@
           "clause": "设自身1~4号位技能的PP值为一个2阶矩阵"
         }
       ],
-      "distinctRecords": 166
+      "distinctRecords": 167
     },
     {
       "reason": "prevApplied prerequisite — no same-event fallback host (deferred)",
-      "fragments": 191,
+      "fragments": 173,
       "examples": [
         {
           "creatureId": "pet-4743",
@@ -122,7 +122,7 @@
     },
     {
       "reason": "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
-      "fragments": 113,
+      "fragments": 98,
       "examples": [
         {
           "creatureId": "pet-4736",
@@ -247,7 +247,7 @@
     },
     {
       "reason": "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
-      "fragments": 54,
+      "fragments": 42,
       "examples": [
         {
           "creatureId": "pet-4880",
@@ -296,31 +296,6 @@
       "distinctRecords": 25
     },
     {
-      "reason": "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
-      "fragments": 34,
-      "examples": [
-        {
-          "creatureId": "pet-4736",
-          "catalogKey": "pet-4736",
-          "petNo": "4736",
-          "clause": "未触发则此效果改为回合开始时触发"
-        },
-        {
-          "creatureId": "pet-4873",
-          "catalogKey": "pet-4873",
-          "petNo": "4873",
-          "clause": "未触发则附加216点固定伤害"
-        },
-        {
-          "creatureId": "pet-3164",
-          "catalogKey": "pet-3164",
-          "petNo": "3164",
-          "clause": "未触发害怕则附加300点固定伤害"
-        }
-      ],
-      "distinctRecords": 26
-    },
-    {
       "reason": "revive/checkpoint — hook not modeled (deferred)",
       "fragments": 31,
       "examples": [
@@ -344,6 +319,31 @@
         }
       ],
       "distinctRecords": 21
+    },
+    {
+      "reason": "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
+      "fragments": 29,
+      "examples": [
+        {
+          "creatureId": "pet-4736",
+          "catalogKey": "pet-4736",
+          "petNo": "4736",
+          "clause": "未触发则此效果改为回合开始时触发"
+        },
+        {
+          "creatureId": "pet-4873",
+          "catalogKey": "pet-4873",
+          "petNo": "4873",
+          "clause": "未触发则附加216点固定伤害"
+        },
+        {
+          "creatureId": "pet-3164",
+          "catalogKey": "pet-3164",
+          "petNo": "3164",
+          "clause": "未触发害怕则附加300点固定伤害"
+        }
+      ],
+      "distinctRecords": 26
     },
     {
       "reason": "empty-body",
@@ -372,7 +372,7 @@
     },
     {
       "reason": "party-scope — off-field/next-ally target unmodeled (deferred)",
-      "fragments": 26,
+      "fragments": 25,
       "examples": [
         {
           "creatureId": "pet-4713",
@@ -419,31 +419,6 @@
         }
       ],
       "distinctRecords": 19
-    },
-    {
-      "reason": "named-domain definition — field/state-machine effects unmodeled (deferred)",
-      "fragments": 21,
-      "examples": [
-        {
-          "creatureId": "pet-4765",
-          "catalogKey": "pet-4765",
-          "petNo": "4765",
-          "clause": "觉醒状态：自身免疫受到的异常状态与能力下降状态、所有技能先制+1、无视对手先制等级、必定打出致命一击、造成的技能伤害额外恢复至自身体力、使用技能不受PP值限制、技能必定命中且命中效果强制生效"
-        },
-        {
-          "creatureId": "pet-4765",
-          "catalogKey": "pet-4765",
-          "petNo": "4765",
-          "clause": "效果结束时重置自身的雷辰进度"
-        },
-        {
-          "creatureId": "pet-4765",
-          "catalogKey": "pet-4765",
-          "petNo": "4765",
-          "clause": "精灵资料：赛尔号怒雷神裁·"
-        }
-      ],
-      "distinctRecords": 10
     },
     {
       "reason": "cap-tail-orphan",
@@ -546,8 +521,33 @@
       "distinctRecords": 7
     },
     {
+      "reason": "named-domain definition — field/state-machine effects unmodeled (deferred)",
+      "fragments": 18,
+      "examples": [
+        {
+          "creatureId": "pet-4765",
+          "catalogKey": "pet-4765",
+          "petNo": "4765",
+          "clause": "觉醒状态：自身免疫受到的异常状态与能力下降状态、所有技能先制+1、无视对手先制等级、必定打出致命一击、造成的技能伤害额外恢复至自身体力、使用技能不受PP值限制、技能必定命中且命中效果强制生效"
+        },
+        {
+          "creatureId": "pet-4765",
+          "catalogKey": "pet-4765",
+          "petNo": "4765",
+          "clause": "效果结束时重置自身的雷辰进度"
+        },
+        {
+          "creatureId": "pet-4765",
+          "catalogKey": "pet-4765",
+          "petNo": "4765",
+          "clause": "精灵资料：赛尔号怒雷神裁·"
+        }
+      ],
+      "distinctRecords": 10
+    },
+    {
       "reason": "nested trigger timing — turn-scope condition cannot guard later move event (deferred)",
-      "fragments": 17,
+      "fragments": 15,
       "examples": [
         {
           "creatureId": "pet-3356",
@@ -896,31 +896,6 @@
       "distinctRecords": 9
     },
     {
-      "reason": "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)",
-      "fragments": 9,
-      "examples": [
-        {
-          "creatureId": "pet-4718",
-          "catalogKey": "pet-4718",
-          "petNo": "4718",
-          "clause": "使用技能时50%令对手害怕，之后本次在场该概率提升5%"
-        },
-        {
-          "creatureId": "pet-3461",
-          "catalogKey": "pet-3461",
-          "petNo": "3461",
-          "clause": "对手使用属性技能则自身免疫下1次受到的异常状态"
-        },
-        {
-          "creatureId": "pet-3791",
-          "catalogKey": "pet-3791",
-          "petNo": "3791",
-          "clause": "使用属性技能使自身下回合造成的伤害提升50%"
-        }
-      ],
-      "distinctRecords": 9
-    },
-    {
       "reason": "party-scope",
       "fragments": 9,
       "examples": [
@@ -946,8 +921,33 @@
       "distinctRecords": 9
     },
     {
+      "reason": "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)",
+      "fragments": 8,
+      "examples": [
+        {
+          "creatureId": "pet-4718",
+          "catalogKey": "pet-4718",
+          "petNo": "4718",
+          "clause": "使用技能时50%令对手害怕，之后本次在场该概率提升5%"
+        },
+        {
+          "creatureId": "pet-3461",
+          "catalogKey": "pet-3461",
+          "petNo": "3461",
+          "clause": "对手使用属性技能则自身免疫下1次受到的异常状态"
+        },
+        {
+          "creatureId": "pet-3791",
+          "catalogKey": "pet-3791",
+          "petNo": "3791",
+          "clause": "使用属性技能使自身下回合造成的伤害提升50%"
+        }
+      ],
+      "distinctRecords": 8
+    },
+    {
       "reason": "prevApplied prerequisite — no same-event successful host (deferred)",
-      "fragments": 9,
+      "fragments": 8,
       "examples": [
         {
           "creatureId": "pet-4744",
@@ -1371,31 +1371,6 @@
       "distinctRecords": 5
     },
     {
-      "reason": "damage-result branch — hit outcome/amount cannot be represented by the current hook window (deferred)",
-      "fragments": 5,
-      "examples": [
-        {
-          "creatureId": "pet-4903",
-          "catalogKey": "pet-4903",
-          "petNo": "4903",
-          "clause": "自身体力低于最大体力的1/2时，自身所有技能先制+1，攻击技能威力提升100%且造成的攻击伤害为0时吸取对手100%的体力 自身造成的攻击伤害高于300时，吸取对手最大体力的1/3，自身未造成高于300的攻击伤害的回合，战斗阶段结束时自身特攻、速度+1"
-        },
-        {
-          "creatureId": "pet-4903",
-          "catalogKey": "pet-4903",
-          "petNo": "4903",
-          "clause": "精灵资料："
-        },
-        {
-          "creatureId": "pet-3792",
-          "catalogKey": "pet-3792",
-          "petNo": "3792",
-          "clause": "攻击造成伤害高于300则吸取对手最大体力1/3，造成伤害低于300则特攻、速度+1"
-        }
-      ],
-      "distinctRecords": 3
-    },
-    {
       "reason": "fractional cap tail — cap dimension unmodeled",
       "fragments": 5,
       "examples": [
@@ -1719,6 +1694,31 @@
         }
       ],
       "distinctRecords": 4
+    },
+    {
+      "reason": "damage-result branch — hit outcome/amount cannot be represented by the current hook window (deferred)",
+      "fragments": 4,
+      "examples": [
+        {
+          "creatureId": "pet-4903",
+          "catalogKey": "pet-4903",
+          "petNo": "4903",
+          "clause": "自身体力低于最大体力的1/2时，自身所有技能先制+1，攻击技能威力提升100%且造成的攻击伤害为0时吸取对手100%的体力 自身造成的攻击伤害高于300时，吸取对手最大体力的1/3，自身未造成高于300的攻击伤害的回合，战斗阶段结束时自身特攻、速度+1"
+        },
+        {
+          "creatureId": "pet-3792",
+          "catalogKey": "pet-3792",
+          "petNo": "3792",
+          "clause": "攻击造成伤害高于300则吸取对手最大体力1/3，造成伤害低于300则特攻、速度+1"
+        },
+        {
+          "creatureId": "pet-3924",
+          "catalogKey": "pet-3924",
+          "petNo": "3924",
+          "clause": "寂 1、自身攻击技能造成的伤害为0则吸取对手最大体力的1/3且下回合所有技能先制+1"
+        }
+      ],
+      "distinctRecords": 3
     },
     {
       "reason": "excess/reflect tail — deferred",
@@ -2858,25 +2858,6 @@
       "distinctRecords": 2
     },
     {
-      "reason": "prevApplied branch payload unmodeled — linked tail withheld (deferred)",
-      "fragments": 2,
-      "examples": [
-        {
-          "creatureId": "pet-4080",
-          "catalogKey": "pet-4080",
-          "petNo": "4080",
-          "clause": "当回合对手攻击命中则回合结束时恢复自身最大体力的1/3 3、"
-        },
-        {
-          "creatureId": "pet-4080",
-          "catalogKey": "pet-4080",
-          "petNo": "4080",
-          "clause": "精灵资料："
-        }
-      ],
-      "distinctRecords": 1
-    },
-    {
       "reason": "prevApplied fallback payload partially unmodeled — linked tail withheld (deferred)",
       "fragments": 2,
       "examples": [
@@ -2894,25 +2875,6 @@
         }
       ],
       "distinctRecords": 2
-    },
-    {
-      "reason": "prevApplied prerequisite — linked payload has no supported effect (deferred)",
-      "fragments": 2,
-      "examples": [
-        {
-          "creatureId": "pet-3844",
-          "catalogKey": "pet-3844",
-          "petNo": "3844",
-          "clause": "反转成功则当回合攻击50%的几率打出致命一击"
-        },
-        {
-          "creatureId": "pet-3844",
-          "catalogKey": "pet-3844",
-          "petNo": "3844",
-          "clause": "2、"
-        }
-      ],
-      "distinctRecords": 1
     },
     {
       "reason": "prio-cap — priority ceiling unmodeled (deferred)",
@@ -4001,6 +3963,19 @@
       "distinctRecords": 1
     },
     {
+      "reason": "prevApplied branch payload unmodeled — linked tail withheld (deferred)",
+      "fragments": 1,
+      "examples": [
+        {
+          "creatureId": "pet-4080",
+          "catalogKey": "pet-4080",
+          "petNo": "4080",
+          "clause": "当回合对手攻击命中则回合结束时恢复自身最大体力的1/3 3、"
+        }
+      ],
+      "distinctRecords": 1
+    },
+    {
       "reason": "prevApplied payload unparsed: 附加对手1/3体力固伤",
       "fragments": 1,
       "examples": [
@@ -4009,6 +3984,19 @@
           "catalogKey": "pet-3279",
           "petNo": "3279",
           "clause": "反弹成功则附加对手1/3体力固伤"
+        }
+      ],
+      "distinctRecords": 1
+    },
+    {
+      "reason": "prevApplied prerequisite — linked payload has no supported effect (deferred)",
+      "fragments": 1,
+      "examples": [
+        {
+          "creatureId": "pet-3844",
+          "catalogKey": "pet-3844",
+          "petNo": "3844",
+          "clause": "反转成功则当回合攻击50%的几率打出致命一击"
         }
       ],
       "distinctRecords": 1
@@ -4711,7 +4699,7 @@
         "name": "赫蒂洛斯",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "next-apply window — single-use mounting not modeled (deferred)",
           "guard unmodeled — effect withheld (deferred)"
@@ -4748,7 +4736,7 @@
         "name": "康迪亚克",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 7,
+        "residualFragments": 6,
         "residualReasons": [
           "no-trigger-prefix",
           "guard unmodeled — effect withheld (deferred)"
@@ -4985,7 +4973,7 @@
         "name": "邪影梦魇",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 8,
+        "residualFragments": 5,
         "residualReasons": [
           "no-trigger-prefix",
           "guard unmodeled — effect withheld (deferred)"
@@ -5025,7 +5013,7 @@
         "name": "瓦普特",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 9,
+        "residualFragments": 8,
         "residualReasons": [
           "no-trigger-prefix",
           "no-rule",
@@ -5236,7 +5224,7 @@
         "name": "鲸沫",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 7,
+        "residualFragments": 6,
         "residualReasons": [
           "no-rule",
           "persist-on-switch — buff retention across switch-out unmodeled (deferred)",
@@ -5785,7 +5773,7 @@
         "name": "娜诺",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 8,
+        "residualFragments": 7,
         "residualReasons": [
           "gender-cond — foe-gender predicate not modeled (deferred)",
           "attr-domain — typechart mutation unmodeled (deferred)",
@@ -6279,7 +6267,7 @@
         "name": "帝录天锋",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 6,
+        "residualFragments": 5,
         "residualReasons": [
           "entry-count dispatch — per-entry selector unmodeled (deferred)",
           "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
@@ -7776,7 +7764,7 @@
         "name": "金银魔神",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "no-rule",
           "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -7796,7 +7784,7 @@
         "name": "异天霸君",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "no-trigger-prefix",
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
@@ -7876,7 +7864,7 @@
         "name": "大梵天王",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-rule",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -8086,7 +8074,7 @@
         "name": "格劳恩斯",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
         ],
@@ -8478,7 +8466,7 @@
         "name": "圣瞳缪斯",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -9127,7 +9115,7 @@
         "name": "燃魂巨兽",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
           "move-use scope — boss gate cannot persist across the react window (deferred)"
@@ -9265,7 +9253,7 @@
         "name": "安妮尔",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
           "no-rule",
@@ -9494,7 +9482,7 @@
         "name": "鬼蚀豹尊",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)"
         ],
@@ -9552,7 +9540,7 @@
         "name": "重盾·杰西卡",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 6,
+        "residualFragments": 4,
         "residualReasons": [
           "stat-cap raise — stage ceiling unmodeled (deferred)",
           "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -9782,7 +9770,7 @@
         "name": "波西利亚",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)"
         ],
@@ -9801,7 +9789,7 @@
         "name": "圣焰·菲格罗亚",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "revive/checkpoint — hook not modeled (deferred)",
           "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -10098,7 +10086,7 @@
         "name": "邪魂大祭司",
         "status": "partial",
         "entries": 4,
-        "residualFragments": 4,
+        "residualFragments": 2,
         "residualReasons": [
           "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
           "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
@@ -10295,7 +10283,7 @@
         "name": "八岐大蛇",
         "status": "partial",
         "entries": 5,
-        "residualFragments": 4,
+        "residualFragments": 2,
         "residualReasons": [
           "reactive trigger — E4",
           "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -10372,7 +10360,7 @@
         "name": "遨天魔煞",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)",
           "no-rule"
@@ -10532,7 +10520,7 @@
         "name": "伊芙莉莎",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — linked payload has no supported effect (deferred)"
         ],
@@ -10571,7 +10559,7 @@
         "name": "时空幻零",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -10590,7 +10578,7 @@
         "name": "撼地巨龙",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)"
         ],
@@ -10647,7 +10635,7 @@
         "name": "卡迪亚",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "revive/checkpoint — hook not modeled (deferred)",
           "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -10684,7 +10672,7 @@
         "name": "月照星魂",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "battle-limit-count — per-battle trigger count >1 unmodeled (deferred)",
           "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)"
@@ -10723,7 +10711,7 @@
         "name": "亚伦德",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-rule",
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
@@ -10822,7 +10810,7 @@
         "name": "凌波清芙",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
           "named-domain definition — field/state-machine effects unmodeled (deferred)"
@@ -11045,7 +11033,7 @@
         "name": "云晔",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)",
           "next-apply window — single-use mounting not modeled (deferred)",
@@ -11083,7 +11071,7 @@
         "name": "屠戮毁灭魔神",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)"
         ],
@@ -11140,7 +11128,7 @@
         "name": "余罪魔女",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 7,
+        "residualFragments": 5,
         "residualReasons": [
           "move-flag",
           "no-op",
@@ -11240,7 +11228,7 @@
         "name": "飒雷喵佐",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 6,
+        "residualFragments": 4,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -11494,7 +11482,7 @@
         "name": "无上·万魔天尊",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 7,
+        "residualFragments": 6,
         "residualReasons": [
           "no-trigger-prefix",
           "source-filter — named-origin immunity unmodeled (deferred)",
@@ -11904,7 +11892,7 @@
         "name": "魏武帝·曹操",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 8,
+        "residualFragments": 7,
         "residualReasons": [
           "mark-declare body unparsed: 对手使用攻击则回合结束时10%直接死亡",
           "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -11945,7 +11933,7 @@
         "name": "法莉",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-rule",
           "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -12025,7 +12013,7 @@
         "name": "缥缈幽芙",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 5,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
           "party-scope — off-field/next-ally target unmodeled (deferred)",
@@ -12256,7 +12244,7 @@
         "name": "沉睡之眼",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
         ],
@@ -12313,7 +12301,7 @@
         "name": "忘忧",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)"
         ],
@@ -12388,7 +12376,7 @@
         "name": "木莲·花信",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -12546,7 +12534,7 @@
         "name": "夜使库帕帕",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 6,
+        "residualFragments": 5,
         "residualReasons": [
           "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
           "reactive on foe action choice — E4",
@@ -12587,7 +12575,7 @@
         "name": "月冕",
         "status": "partial",
         "entries": 4,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -12690,7 +12678,7 @@
         "name": "逆魂·佩特菲德",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)",
           "no-rule"
@@ -12854,7 +12842,7 @@
         "name": "凌雪·樱",
         "status": "partial",
         "entries": 4,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
           "no-rule"
@@ -13365,7 +13353,7 @@
         "entries": 3,
         "residualFragments": 1,
         "residualReasons": [
-          "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
+          "no-rule"
         ],
         "inPackScope": true,
         "packDirectory": "different-effects",
@@ -13600,7 +13588,7 @@
         "name": "宛白",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-rule",
           "guard unmodeled — effect withheld (deferred)"
@@ -13620,7 +13608,7 @@
         "name": "风魔之骸",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
         ],
@@ -13639,7 +13627,7 @@
         "name": "玛提斯特",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -13675,7 +13663,7 @@
         "name": "沙狱使者",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
         ],
@@ -13889,7 +13877,7 @@
         "name": "沃罗科",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-rule",
           "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -14126,7 +14114,7 @@
         "name": "缔笙",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 9,
+        "residualFragments": 8,
         "residualReasons": [
           "no-trigger-prefix",
           "no-rule",
@@ -14166,7 +14154,7 @@
         "name": "沙娅",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 6,
+        "residualFragments": 5,
         "residualReasons": [
           "no-rule",
           "party-scope — off-field/next-ally target unmodeled (deferred)",
@@ -14206,7 +14194,7 @@
         "name": "疾翼先锋",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)",
           "nested trigger timing — turn-scope condition cannot guard later move event (deferred)"
@@ -14389,7 +14377,7 @@
         "name": "格斯塔丝",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
         ],
@@ -14430,7 +14418,7 @@
         "name": "桃桃丸",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
         ],
@@ -14502,7 +14490,7 @@
         "name": "冥霞",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "no-rule",
           "guard unmodeled — effect withheld (deferred)"
@@ -14581,7 +14569,7 @@
         "name": "凯丝",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "no-trigger-prefix",
           "guard unmodeled — effect withheld (deferred)",
@@ -14659,7 +14647,7 @@
         "name": "库坦",
         "status": "partial",
         "entries": 4,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)"
         ],
@@ -14900,7 +14888,7 @@
         "name": "提米",
         "status": "partial",
         "entries": 4,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — no same-event successful host (deferred)"
         ],
@@ -14981,7 +14969,7 @@
         "name": "血刎剑姬",
         "status": "partial",
         "entries": 5,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -15148,7 +15136,7 @@
         "name": "伏尔格安",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 10,
+        "residualFragments": 9,
         "residualReasons": [
           "no-rule",
           "cond-orphan",
@@ -15907,7 +15895,7 @@
         "name": "命运玛酷索",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "no-rule",
           "guard unmodeled — effect withheld (deferred)"
@@ -26005,7 +25993,7 @@
         "name": "鬼面幽蝶",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "prevApplied prerequisite — no same-event fallback host (deferred)",
           "no-rule",
@@ -26809,7 +26797,7 @@
         "name": "扫荡之锋",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 1,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -27700,7 +27688,7 @@
         "name": "扫荡魔锋",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -28733,7 +28721,7 @@
         "name": "双琬",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -29678,7 +29666,7 @@
         "name": "迦曼吉",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "no-trigger-prefix",
           "hit-window — move-landed second-phase trigger unmodeled (deferred)",
@@ -29995,7 +29983,7 @@
         "name": "魅妖辛克斯",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
         ],
@@ -30111,10 +30099,12 @@
         "idSource": "creature.id",
         "petNo": "4157",
         "name": "鳗鳗军团",
-        "status": "entry-no-residual",
+        "status": "partial",
         "entries": 1,
-        "residualFragments": 0,
-        "residualReasons": [],
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-rule"
+        ],
         "inPackScope": true,
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
@@ -30606,7 +30596,7 @@
         "name": "桑谷",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -31054,7 +31044,7 @@
         "name": "布蕾里克",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "no-rule",
           "power-threshold predicate — unmodeled (deferred)",
@@ -31423,7 +31413,7 @@
         "name": "尤莉米特",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 7,
+        "residualFragments": 6,
         "residualReasons": [
           "no-rule",
           "hit-window — move-landed second-phase trigger unmodeled (deferred)",
@@ -31519,7 +31509,7 @@
         "name": "光灵巨像",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "nested trigger timing — turn-scope condition cannot guard later move event (deferred)"
         ],
@@ -31588,7 +31578,7 @@
         "name": "玖莉娜",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)",
           "no-rule"
@@ -31793,7 +31783,7 @@
         "name": "赤虹仙凤",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 2,
+        "residualFragments": 1,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -31982,7 +31972,7 @@
         "name": "极光仙子",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 4,
+        "residualFragments": 3,
         "residualReasons": [
           "nested trigger timing — turn-scope condition cannot guard later move event (deferred)",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
@@ -32002,7 +31992,7 @@
         "name": "谧娜",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-trigger-prefix",
           "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)"
@@ -32591,7 +32581,7 @@
         "name": "孙悟空",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 8,
+        "residualFragments": 7,
         "residualReasons": [
           "no-trigger-prefix",
           "no-rule",
@@ -32795,7 +32785,7 @@
         "name": "尘息游龙",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -33105,7 +33095,7 @@
         "name": "茵茵",
         "status": "partial",
         "entries": 3,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "no-rule",
           "guard unmodeled — effect withheld (deferred)"
@@ -33304,7 +33294,7 @@
         "name": "渊枭",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -33631,7 +33621,7 @@
         "name": "锚点相座",
         "status": "partial",
         "entries": 1,
-        "residualFragments": 5,
+        "residualFragments": 4,
         "residualReasons": [
           "no-rule",
           "ailment-duration mutation — post-hoc remainingTurns change unmodeled (deferred)",
@@ -35085,10 +35075,12 @@
         "idSource": "creature.id",
         "petNo": "3867",
         "name": "暗岩·格莱奥丹",
-        "status": "entry-no-residual",
+        "status": "partial",
         "entries": 3,
-        "residualFragments": 0,
-        "residualReasons": [],
+        "residualFragments": 1,
+        "residualReasons": [
+          "no-trigger-prefix"
+        ],
         "inPackScope": false,
         "packDirectory": "outside-pack",
         "defaultMount": "outside-pack",
@@ -35103,7 +35095,7 @@
         "name": "伽玛·悍刀",
         "status": "partial",
         "entries": 2,
-        "residualFragments": 3,
+        "residualFragments": 2,
         "residualReasons": [
           "guard unmodeled — effect withheld (deferred)"
         ],
@@ -35330,7 +35322,7 @@
           "name": "赫蒂洛斯",
           "status": "partial",
           "entries": 2,
-          "residualFragments": 3,
+          "residualFragments": 2,
           "residualReasons": [
             "next-apply window — single-use mounting not modeled (deferred)",
             "guard unmodeled — effect withheld (deferred)"
@@ -35367,7 +35359,7 @@
           "name": "康迪亚克",
           "status": "partial",
           "entries": 1,
-          "residualFragments": 7,
+          "residualFragments": 6,
           "residualReasons": [
             "no-trigger-prefix",
             "guard unmodeled — effect withheld (deferred)"
@@ -35604,7 +35596,7 @@
           "name": "邪影梦魇",
           "status": "partial",
           "entries": 1,
-          "residualFragments": 8,
+          "residualFragments": 5,
           "residualReasons": [
             "no-trigger-prefix",
             "guard unmodeled — effect withheld (deferred)"
@@ -35644,7 +35636,7 @@
           "name": "瓦普特",
           "status": "partial",
           "entries": 1,
-          "residualFragments": 9,
+          "residualFragments": 8,
           "residualReasons": [
             "no-trigger-prefix",
             "no-rule",
@@ -35855,7 +35847,7 @@
           "name": "鲸沫",
           "status": "partial",
           "entries": 1,
-          "residualFragments": 7,
+          "residualFragments": 6,
           "residualReasons": [
             "no-rule",
             "persist-on-switch — buff retention across switch-out unmodeled (deferred)",
@@ -36874,7 +36866,7 @@
       "name": "命运玛酷索",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "no-rule",
         "guard unmodeled — effect withheld (deferred)"
@@ -36946,7 +36938,7 @@
       "name": "赫蒂洛斯",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "next-apply window — single-use mounting not modeled (deferred)",
         "guard unmodeled — effect withheld (deferred)"
@@ -37925,7 +37917,7 @@
       "name": "娜诺",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 8,
+      "residualFragments": 7,
       "residualReasons": [
         "gender-cond — foe-gender predicate not modeled (deferred)",
         "attr-domain — typechart mutation unmodeled (deferred)",
@@ -38940,7 +38932,7 @@
       "name": "康迪亚克",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 7,
+      "residualFragments": 6,
       "residualReasons": [
         "no-trigger-prefix",
         "guard unmodeled — effect withheld (deferred)"
@@ -39558,7 +39550,7 @@
       "name": "帝录天锋",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 6,
+      "residualFragments": 5,
       "residualReasons": [
         "entry-count dispatch — per-entry selector unmodeled (deferred)",
         "cross-entry ref — aggregate effect/probability reference unmodeled (deferred)",
@@ -48922,7 +48914,7 @@
       "name": "金银魔神",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "no-rule",
         "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -48941,7 +48933,7 @@
       "name": "异天霸君",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "no-trigger-prefix",
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
@@ -49285,7 +49277,7 @@
       "name": "大梵天王",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-rule",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -49813,7 +49805,7 @@
       "name": "格劳恩斯",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
       ],
@@ -50757,7 +50749,7 @@
       "name": "圣瞳缪斯",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -52605,7 +52597,7 @@
       "name": "燃魂巨兽",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
         "move-use scope — boss gate cannot persist across the react window (deferred)"
@@ -52976,7 +52968,7 @@
       "name": "安妮尔",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
         "no-rule",
@@ -53156,7 +53148,7 @@
       "name": "鬼面幽蝶",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)",
         "no-rule",
@@ -53928,7 +53920,7 @@
       "name": "鬼蚀豹尊",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
@@ -54089,7 +54081,7 @@
       "name": "重盾·杰西卡",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 6,
+      "residualFragments": 4,
       "residualReasons": [
         "stat-cap raise — stage ceiling unmodeled (deferred)",
         "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -54230,7 +54222,7 @@
       "name": "扫荡之锋",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 1,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -54906,7 +54898,7 @@
       "name": "波西利亚",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
@@ -54940,7 +54932,7 @@
       "name": "圣焰·菲格罗亚",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "revive/checkpoint — hook not modeled (deferred)",
         "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -55581,7 +55573,7 @@
       "name": "邪魂大祭司",
       "status": "partial",
       "entries": 4,
-      "residualFragments": 4,
+      "residualFragments": 2,
       "residualReasons": [
         "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
         "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
@@ -55832,7 +55824,7 @@
       "name": "扫荡魔锋",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -56029,7 +56021,7 @@
       "name": "八岐大蛇",
       "status": "partial",
       "entries": 5,
-      "residualFragments": 4,
+      "residualFragments": 2,
       "residualReasons": [
         "reactive trigger — E4",
         "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -56157,7 +56149,7 @@
       "name": "遨天魔煞",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)",
         "no-rule"
@@ -56525,7 +56517,7 @@
       "name": "伊芙莉莎",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — linked payload has no supported effect (deferred)"
       ],
@@ -56596,7 +56588,7 @@
       "name": "时空幻零",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -56614,7 +56606,7 @@
       "name": "撼地巨龙",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
@@ -56702,7 +56694,7 @@
       "name": "卡迪亚",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "revive/checkpoint — hook not modeled (deferred)",
         "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -56866,7 +56858,7 @@
       "name": "月照星魂",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "battle-limit-count — per-battle trigger count >1 unmodeled (deferred)",
         "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)"
@@ -56883,10 +56875,12 @@
       "idSource": "creature.id",
       "petNo": "3867",
       "name": "暗岩·格莱奥丹",
-      "status": "entry-no-residual",
+      "status": "partial",
       "entries": 3,
-      "residualFragments": 0,
-      "residualReasons": [],
+      "residualFragments": 1,
+      "residualReasons": [
+        "no-trigger-prefix"
+      ],
       "inPackScope": false,
       "packDirectory": "outside-pack",
       "defaultMount": "outside-pack",
@@ -56969,7 +56963,7 @@
       "name": "亚伦德",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-rule",
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
@@ -57007,7 +57001,7 @@
       "name": "伽玛·悍刀",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -57206,7 +57200,7 @@
       "name": "凌波清芙",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
         "named-domain definition — field/state-machine effects unmodeled (deferred)"
@@ -57780,7 +57774,7 @@
       "name": "双琬",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -57898,7 +57892,7 @@
       "name": "云晔",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)",
         "next-apply window — single-use mounting not modeled (deferred)",
@@ -58036,7 +58030,7 @@
       "name": "屠戮毁灭魔神",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
@@ -58109,7 +58103,7 @@
       "name": "余罪魔女",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 7,
+      "residualFragments": 5,
       "residualReasons": [
         "move-flag",
         "no-op",
@@ -58268,7 +58262,7 @@
       "name": "飒雷喵佐",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 6,
+      "residualFragments": 4,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -58832,7 +58826,7 @@
       "name": "无上·万魔天尊",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 7,
+      "residualFragments": 6,
       "residualReasons": [
         "no-trigger-prefix",
         "source-filter — named-origin immunity unmodeled (deferred)",
@@ -59327,7 +59321,7 @@
       "name": "邪影梦魇",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 8,
+      "residualFragments": 5,
       "residualReasons": [
         "no-trigger-prefix",
         "guard unmodeled — effect withheld (deferred)"
@@ -59575,7 +59569,7 @@
       "name": "魏武帝·曹操",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 8,
+      "residualFragments": 7,
       "residualReasons": [
         "mark-declare body unparsed: 对手使用攻击则回合结束时10%直接死亡",
         "prevApplied prerequisite — no same-event fallback host (deferred)",
@@ -59614,7 +59608,7 @@
       "name": "法莉",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-rule",
         "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -59724,7 +59718,7 @@
       "name": "缥缈幽芙",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 5,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
         "party-scope — off-field/next-ally target unmodeled (deferred)",
@@ -59872,7 +59866,7 @@
       "name": "迦曼吉",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "no-trigger-prefix",
         "hit-window — move-landed second-phase trigger unmodeled (deferred)",
@@ -60176,7 +60170,7 @@
       "name": "沉睡之眼",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
       ],
@@ -60246,7 +60240,7 @@
       "name": "忘忧",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
@@ -60439,7 +60433,7 @@
       "name": "木莲·花信",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -60516,7 +60510,7 @@
       "name": "魅妖辛克斯",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
       ],
@@ -60659,7 +60653,7 @@
       "name": "夜使库帕帕",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 6,
+      "residualFragments": 5,
       "residualReasons": [
         "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)",
         "reactive on foe action choice — E4",
@@ -60751,7 +60745,7 @@
       "name": "月冕",
       "status": "partial",
       "entries": 4,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
@@ -60881,10 +60875,12 @@
       "idSource": "creature.id",
       "petNo": "4157",
       "name": "鳗鳗军团",
-      "status": "entry-no-residual",
+      "status": "partial",
       "entries": 1,
-      "residualFragments": 0,
-      "residualReasons": [],
+      "residualFragments": 1,
+      "residualReasons": [
+        "no-rule"
+      ],
       "inPackScope": true,
       "packDirectory": "same-effects",
       "defaultMount": "mounted",
@@ -60989,7 +60985,7 @@
       "name": "逆魂·佩特菲德",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)",
         "no-rule"
@@ -61376,7 +61372,7 @@
       "name": "凌雪·樱",
       "status": "partial",
       "entries": 4,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
         "no-rule"
@@ -61906,7 +61902,7 @@
       "name": "桑谷",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -62399,7 +62395,7 @@
       "entries": 3,
       "residualFragments": 1,
       "residualReasons": [
-        "move-use scope — delayed or later-action effect is outside this immediate react window (deferred)"
+        "no-rule"
       ],
       "inPackScope": true,
       "packDirectory": "different-effects",
@@ -62786,7 +62782,7 @@
       "name": "宛白",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-rule",
         "guard unmodeled — effect withheld (deferred)"
@@ -62805,7 +62801,7 @@
       "name": "风魔之骸",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
       ],
@@ -62912,7 +62908,7 @@
       "name": "玛提斯特",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -62946,7 +62942,7 @@
       "name": "沙狱使者",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
       ],
@@ -62980,7 +62976,7 @@
       "name": "布蕾里克",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "no-rule",
         "power-threshold predicate — unmodeled (deferred)",
@@ -63463,7 +63459,7 @@
       "name": "沃罗科",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-rule",
         "prevApplied prerequisite — no same-event fallback host (deferred)"
@@ -63687,7 +63683,7 @@
       "name": "尤莉米特",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 7,
+      "residualFragments": 6,
       "residualReasons": [
         "no-rule",
         "hit-window — move-landed second-phase trigger unmodeled (deferred)",
@@ -63969,7 +63965,7 @@
       "name": "光灵巨像",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "nested trigger timing — turn-scope condition cannot guard later move event (deferred)"
       ],
@@ -63987,7 +63983,7 @@
       "name": "缔笙",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 9,
+      "residualFragments": 8,
       "residualReasons": [
         "no-trigger-prefix",
         "no-rule",
@@ -64058,7 +64054,7 @@
       "name": "玖莉娜",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)",
         "no-rule"
@@ -64281,7 +64277,7 @@
       "name": "赤虹仙凤",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -64333,7 +64329,7 @@
       "name": "沙娅",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 6,
+      "residualFragments": 5,
       "residualReasons": [
         "no-rule",
         "party-scope — off-field/next-ally target unmodeled (deferred)",
@@ -64403,7 +64399,7 @@
       "name": "瓦普特",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 9,
+      "residualFragments": 8,
       "residualReasons": [
         "no-trigger-prefix",
         "no-rule",
@@ -64425,7 +64421,7 @@
       "name": "疾翼先锋",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)",
         "nested trigger timing — turn-scope condition cannot guard later move event (deferred)"
@@ -64628,7 +64624,7 @@
       "name": "极光仙子",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "nested trigger timing — turn-scope condition cannot guard later move event (deferred)",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)",
@@ -64667,7 +64663,7 @@
       "name": "谧娜",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-trigger-prefix",
         "prevApplied prerequisite — linked fallback payload has no supported effect (deferred)"
@@ -65036,7 +65032,7 @@
       "name": "格斯塔丝",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
       ],
@@ -65129,7 +65125,7 @@
       "name": "桃桃丸",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "prevApplied prerequisite — fallback crosses trigger boundary (deferred)"
       ],
@@ -65288,7 +65284,7 @@
       "name": "冥霞",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 4,
+      "residualFragments": 3,
       "residualReasons": [
         "no-rule",
         "guard unmodeled — effect withheld (deferred)"
@@ -65438,7 +65434,7 @@
       "name": "凯丝",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "no-trigger-prefix",
         "guard unmodeled — effect withheld (deferred)",
@@ -65665,7 +65661,7 @@
       "name": "库坦",
       "status": "partial",
       "entries": 4,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event fallback host (deferred)"
       ],
@@ -65976,7 +65972,7 @@
       "name": "孙悟空",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 8,
+      "residualFragments": 7,
       "residualReasons": [
         "no-trigger-prefix",
         "no-rule",
@@ -66417,7 +66413,7 @@
       "name": "尘息游龙",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -66507,7 +66503,7 @@
       "name": "提米",
       "status": "partial",
       "entries": 4,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "prevApplied prerequisite — no same-event successful host (deferred)"
       ],
@@ -66954,7 +66950,7 @@
       "name": "茵茵",
       "status": "partial",
       "entries": 3,
-      "residualFragments": 3,
+      "residualFragments": 2,
       "residualReasons": [
         "no-rule",
         "guard unmodeled — effect withheld (deferred)"
@@ -67042,7 +67038,7 @@
       "name": "血刎剑姬",
       "status": "partial",
       "entries": 5,
-      "residualFragments": 2,
+      "residualFragments": 1,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -67404,7 +67400,7 @@
       "name": "渊枭",
       "status": "partial",
       "entries": 2,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "guard unmodeled — effect withheld (deferred)"
       ],
@@ -67703,7 +67699,7 @@
       "name": "伏尔格安",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 10,
+      "residualFragments": 9,
       "residualReasons": [
         "no-rule",
         "cond-orphan",
@@ -68189,7 +68185,7 @@
       "name": "鲸沫",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 7,
+      "residualFragments": 6,
       "residualReasons": [
         "no-rule",
         "persist-on-switch — buff retention across switch-out unmodeled (deferred)",
@@ -68247,7 +68243,7 @@
       "name": "锚点相座",
       "status": "partial",
       "entries": 1,
-      "residualFragments": 5,
+      "residualFragments": 4,
       "residualReasons": [
         "no-rule",
         "ailment-duration mutation — post-hoc remainingTurns change unmodeled (deferred)",

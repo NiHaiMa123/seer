@@ -48,9 +48,11 @@ describe("纯噪声片段不记残文", () => {
     expect(r.unparsed.some((u) => u.clause.includes("伤害不超过"))).toBe(true);
   });
 
-  it("效果层：裸代词 part 不再报 no-rule", () => {
-    const r = parseEffectText("自身受到攻击时50%令对手冰封") as { effects: unknown[]; unparsed: { clause?: string }[] };
-    expect(r.unparsed.some((u) => u.clause === "自身")).toBe(false);
-    expect(r.effects.length).toBeGreaterThan(0);
+  it("效果层：内层仍照常报 no-rule（过滤在魂印层做）", () => {
+    // 噪声过滤**不在**效果层做：魂印层靠「内层是否报过 no-rule」决定整组要不要整段留档
+    // （probe3.unparsed.every(u => u.reason !== "no-rule")）。内层少报一条，那条整组留档
+    // 就会消失——把真内容静默丢掉。所以内层照常报，由魂印层决定丢不丢。
+    const r = parseEffectText("自身") as { effects: unknown[]; unparsed: { clause?: string }[] };
+    expect(r.unparsed.some((u) => u.clause === "自身")).toBe(true);
   });
 });
