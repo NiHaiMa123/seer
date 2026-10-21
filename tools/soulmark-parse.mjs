@@ -1371,6 +1371,7 @@ export function parseSoulmarkText(text, petName) {
 
   let lastHook; // 触发器继承：无前缀子句沿用同一文本内前句的 hook
   let guardQuarantine = false; // 未知守卫后的关联语句暂不解析，直到显式、可解析的触发前缀重新建立边界
+  let condHold = false; // 上一组是未建模的**条件**（"自身克制对手时"）——它的效果组必须被扣下，不能因自带触发词就无条件执行
   const guardUnmodeledReason = "guard unmodeled — effect withheld (deferred)";
   let guardQuarantineReason = guardUnmodeledReason;
   let namedDomainQuarantine = false;
@@ -1662,7 +1663,16 @@ export function parseSoulmarkText(text, petName) {
       if (unsup.quarantine === true) {
         recordOuterResidual(clause, unsup.reason);
         guardQuarantine = true; guardQuarantineReason = unsup.reason; lastHook = undefined;
-      } else unparsed.push({ clause, reason: unsup.reason });
+      } else {
+        // 条件类族（typechart 相性 / 性别）以**裸条件**形态出现时（"自身克制对手时"），
+        // 条件本身没建模 → 它后面的效果（"战斗阶段结束时…反转对手能力提升状态"）
+        // 不能无条件执行。挂起标记：下一组即使自带触发词也要被扣下，
+        // 否则等于把带条件的效果改成无条件跑（pet-4814 娜诺就是这种）。
+        const condFamily = unsup.reason.startsWith("attr-domain") || unsup.reason.startsWith("gender-cond");
+        const bareCond = condFamily && /(?:时|则)[，,、]?$/.test(clause.trim());
+        if (bareCond) { condHold = true; guardQuarantine = true; guardQuarantineReason = unsup.reason; lastHook = undefined; }
+        unparsed.push({ clause, reason: unsup.reason });
+      }
       continue;
     }
     const clauseEntryStart = entries.length;
@@ -1878,12 +1888,16 @@ export function parseSoulmarkText(text, petName) {
       // Quarantine before any tail handler can mutate the previous entry (dynamic chance,
       // grow, attach-all, caps, and other cross-group mounts all share this boundary).
       if (guardQuarantine) {
-        if (startsWithSupportedTrigger(gtext) && !linkedContinuation) {
+        if (startsWithSupportedTrigger(gtext) && !linkedContinuation && !condHold) {
           guardQuarantine = false;
           guardQuarantineReason = guardUnmodeledReason;
           lastHook = undefined;
         } else {
-          quarantineGroup(gtext, guardQuarantineReason);
+          // condHold：上一组是**未建模的条件**（"自身克制对手时"）。本组是它的效果，
+          // 即使自带触发词也不能无条件执行——扣下，条件残文留在前一条。
+          const holdReason = condHold ? guardQuarantineReason : guardQuarantineReason;
+          condHold = false;
+          quarantineGroup(gtext, holdReason);
           continue;
         }
       }
@@ -2366,6 +2380,17 @@ export function parseSoulmarkText(text, petName) {
       const unsup2 = UNSUPPORTED_TRIGGERS.find((u) => u.re.test(gtext) && !u.reason.endsWith("FALLTHROUGH")); // 同上：FALLTHROUGH 行不拦"组内已经能解"的余文
       if (unsup2 !== undefined) {
         const deferredText = pendingCondSrc !== undefined && pendingCond !== undefined ? pendingCondSrc : gtext;
+        // 条件类族（typechart 相性 / 性别）以**裸条件**形态出现时（"自身克制对手时"），
+        // 条件本身没建模 → 它后面的效果（"战斗阶段结束时…反转对手能力提升状态"）
+        // 不能无条件执行。挂起标记：下一组即使自带触发词也要被扣下，
+        // 否则等于把带条件的效果改成无条件跑（pet-4814 娜诺就是这种）。
+        const condFamily = unsup2.reason.startsWith("attr-domain") || unsup2.reason.startsWith("gender-cond");
+        if (condFamily && /(?:时|则)[，,、]?$/.test(gtext.trim())) {
+          condHold = true;
+          guardQuarantine = true;
+          guardQuarantineReason = unsup2.reason;
+          lastHook = undefined;
+        }
         if (unsup2.quarantine === true) quarantineGroup(gtext, unsup2.reason);
         else {
           unparsed.push({ clause: deferredText, reason: unsup2.reason });

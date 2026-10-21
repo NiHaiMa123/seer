@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 895,
+      "fragments": 894,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -246,6 +246,31 @@
       "distinctRecords": 35
     },
     {
+      "reason": "attr-domain — typechart mutation unmodeled (deferred)",
+      "fragments": 40,
+      "examples": [
+        {
+          "creatureId": "pet-4749",
+          "catalogKey": "pet-4749",
+          "petNo": "4749",
+          "clause": "自身克制对手时"
+        },
+        {
+          "creatureId": "pet-4749",
+          "catalogKey": "pet-4749",
+          "petNo": "4749",
+          "clause": "战斗阶段结束吸取对手所有技能1点PP值并恢复最大体力的1/3"
+        },
+        {
+          "creatureId": "pet-4749",
+          "catalogKey": "pet-4749",
+          "petNo": "4749",
+          "clause": "对手对自身微弱时，自身攻击造成的伤害额外除以对手对自身的克制倍数"
+        }
+      ],
+      "distinctRecords": 25
+    },
+    {
       "reason": "prevApplied prerequisite — fallback crosses trigger boundary (deferred)",
       "fragments": 40,
       "examples": [
@@ -269,31 +294,6 @@
         }
       ],
       "distinctRecords": 33
-    },
-    {
-      "reason": "attr-domain — typechart mutation unmodeled (deferred)",
-      "fragments": 38,
-      "examples": [
-        {
-          "creatureId": "pet-4749",
-          "catalogKey": "pet-4749",
-          "petNo": "4749",
-          "clause": "自身克制对手时"
-        },
-        {
-          "creatureId": "pet-4749",
-          "catalogKey": "pet-4749",
-          "petNo": "4749",
-          "clause": "自身攻击造成的伤害额外除以对手对自身的克制倍数"
-        },
-        {
-          "creatureId": "pet-4814",
-          "catalogKey": "pet-4814",
-          "petNo": "4814",
-          "clause": "自身微弱对手时"
-        }
-      ],
-      "distinctRecords": 25
     },
     {
       "reason": "revive/checkpoint — hook not modeled (deferred)",
@@ -5574,12 +5574,12 @@
         "petNo": "4749",
         "name": "对神兵器肯扎特",
         "status": "partial",
-        "entries": 2,
+        "entries": 1,
         "residualFragments": 6,
         "residualReasons": [
           "attr-domain — typechart mutation unmodeled (deferred)",
-          "no-rule",
           "guard unmodeled — effect withheld (deferred)",
+          "no-rule",
           "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
         ],
         "inPackScope": true,
@@ -5739,8 +5739,8 @@
         "petNo": "4814",
         "name": "娜诺",
         "status": "partial",
-        "entries": 3,
-        "residualFragments": 7,
+        "entries": 2,
+        "residualFragments": 8,
         "residualReasons": [
           "gender-cond — foe-gender predicate not modeled (deferred)",
           "attr-domain — typechart mutation unmodeled (deferred)",
@@ -36732,12 +36732,12 @@
       "petNo": "4749",
       "name": "对神兵器肯扎特",
       "status": "partial",
-      "entries": 2,
+      "entries": 1,
       "residualFragments": 6,
       "residualReasons": [
         "attr-domain — typechart mutation unmodeled (deferred)",
-        "no-rule",
         "guard unmodeled — effect withheld (deferred)",
+        "no-rule",
         "prevApplied branch continuation — linked tail cannot be detached safely (deferred)"
       ],
       "inPackScope": true,
@@ -37842,8 +37842,8 @@
       "petNo": "4814",
       "name": "娜诺",
       "status": "partial",
-      "entries": 3,
-      "residualFragments": 7,
+      "entries": 2,
+      "residualFragments": 8,
       "residualReasons": [
         "gender-cond — foe-gender predicate not modeled (deferred)",
         "attr-domain — typechart mutation unmodeled (deferred)",
