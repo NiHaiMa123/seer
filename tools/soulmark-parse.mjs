@@ -2529,8 +2529,12 @@ export function parseSoulmarkText(text, petName) {
           probe.effects.push({ op: "apply_status", name: "must_hit", target: "self" });
         }
         // drain 裸句（"造成攻击伤害的30%恢复至体力"——袋子或单独一条 rider 折算 drain_atk 常驻窗）
+        // 判据是「本组里没有伤害宿主」，不是「本组只剩它一条」：吸血 rider 挂的是伤害，
+        // 没有伤害可挂时它就是独立吸血窗（drain_atk）。同组还有别的常驻状态时
+        // （"自身特攻必定命中且造成伤害50%恢复自身体力"）两条都要留下，不能只留一条。
         {
-          const flagDrain = probe.effects.length === 0 ? probe.flags?.attachDamage?.drain : undefined;
+          const noDmgHost = !probe.effects.some((o) => o.op === "damage");
+          const flagDrain = noDmgHost ? probe.flags?.attachDamage?.drain : undefined;
           const lone = probe.effects.length === 1 && probe.effects[0].op === "applyDrainRider" ? probe.effects[0] : undefined;
           const dr = flagDrain ?? (lone !== undefined && Object.keys(lone).every((k) => k === "op" || k === "drain") ? lone.drain : undefined);
           if (dr !== undefined) {
@@ -2538,7 +2542,10 @@ export function parseSoulmarkText(text, petName) {
               delete probe.flags.attachDamage.drain;
               if (Object.keys(probe.flags.attachDamage).length === 0) delete probe.flags.attachDamage;
             }
-            probe.effects = [{ op: "apply_status", name: "drain_atk", target: "self", params: { n: dr.numerator, d: dr.denominator } }];
+            const drainOp = { op: "apply_status", name: "drain_atk", target: "self", params: { n: dr.numerator, d: dr.denominator } };
+            probe.effects = probe.effects.length === 0
+              ? [drainOp]
+              : [...probe.effects.filter((o) => o.op !== "applyDrainRider"), drainOp];
           }
         }
         // powerMul 裸句折算（"对手异常时自身攻击威力翻倍"——attachDamage.powerMul → power_mul 常驻倍率窗）
