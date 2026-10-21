@@ -1816,7 +1816,8 @@ export function parseSoulmarkText(text, petName) {
       lastGrowMount = undefined; elsePending.length = 0;
     };
     const quarantineGroup = (text, reason) => {
-      unparsed.push({ clause: text, reason });
+      // 纯噪声片段（图鉴页尾 / 裸主语 / 编号残渣）不记残文——同 recordOuterResidual 的口径。
+      if (!isNoiseFragment(text) || entries.length === 0) unparsed.push({ clause: text, reason });
       enterQuarantine(reason);
     };
     const prevAppliedHost = () => {
