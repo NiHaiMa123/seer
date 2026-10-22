@@ -23215,7 +23215,8 @@
               "op": "damage",
               "kind": "fixed",
               "power": 1,
-              "target": "opponent"
+              "target": "opponent",
+              "chance": 50
             },
             {
               "op": "flat",
@@ -23223,32 +23224,6 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3,
-                "base": "max"
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onDamageDealt",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "flat",
-              "of": "flatSelfFrac",
-              "value": {
-                "numerator": 50,
-                "denominator": 100,
                 "base": "max"
               }
             }
@@ -25023,7 +24998,8 @@
             {
               "op": "damage",
               "kind": "percent",
-              "target": "opponent"
+              "target": "opponent",
+              "chance": 50
             },
             {
               "op": "formula",
@@ -29857,7 +29833,8 @@
               "op": "damage",
               "kind": "fixed",
               "power": 1,
-              "target": "opponent"
+              "target": "opponent",
+              "chance": 50
             },
             {
               "op": "flat",
@@ -33545,7 +33522,8 @@
               "op": "damage",
               "kind": "fixed",
               "power": 1,
-              "target": "opponent"
+              "target": "opponent",
+              "chance": 50
             },
             {
               "op": "flat",
@@ -68075,13 +68053,14 @@
       "desc": "琉：自身攻击技能命中后50%的几率附加自身最大体力1/3的固定伤害，未触发则下回合自身攻击必定打出致命一击；自身攻击技能未命中则100%令对手随机1个攻击技能PP值归零（boss无效）",
       "effects": [
         {
-          "hook": "onDamageDealt",
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "damage",
               "kind": "fixed",
               "power": 1,
-              "target": "opponent"
+              "target": "opponent",
+              "chance": 50
             },
             {
               "op": "flat",
@@ -68089,25 +68068,6 @@
               "value": {
                 "numerator": 1,
                 "denominator": 3
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onMoveUsed",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "crit_always",
-              "target": "self",
-              "turns": 1,
-              "params": {
-                "count": 1
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
               }
             }
           ],

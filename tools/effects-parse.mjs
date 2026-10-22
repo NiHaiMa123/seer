@@ -1997,6 +1997,11 @@ function parseEffectTextAtExit(text, opts = {}) {
         if (dynChance !== undefined) {
           ad = { ...ad };
           if (ad.flatBonus !== undefined || ad.flatRange !== undefined || ad.flatSelfSpdFrac !== undefined) { ad.flatChance ??= dynChance; }
+          // 分数型固伤（flatSelfFrac/flatFoeFrac/flatSelfPct）同样是「附加固伤」——N% 概率要罩住它，
+          // 否则「50%几率附加对手体力1/3的固伤」的概率整段丢失（该 50% 变成 100%）。
+          // 只在**魂印语境**开（opts.fracFlatChance）：技能侧的 flatChance 由引擎按 flatBonus 语义读，
+          // 分数型固伤的门控语义要另行设计（见 artifacts 工作清单「分数型固伤的概率门控」）。
+          if (opts.fracFlatChance === true && (ad.flatSelfFrac !== undefined || ad.flatFoeFrac !== undefined || ad.flatSelfPct !== undefined)) { ad.flatChance ??= dynChance; }
           if (ad.mul !== undefined) { ad = { ...ad, mulChance: { chance: dynChance, ...ad.mul } }; delete ad.mul; }
           if (ad.powerMul !== undefined) { ad = { ...ad, mulChance: { chance: dynChance, ...ad.powerMul } }; delete ad.powerMul; }
           if (ad.crit === true) { ad.critChance = dynChance; delete ad.crit; }

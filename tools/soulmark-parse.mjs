@@ -2293,7 +2293,7 @@ export function parseSoulmarkText(text, petName) {
         const pos = !/未触发/.test(okm[0]);
         const g2 = pos ? { prevApplied: true } : { not: { prevApplied: true } };
         const rest = okm[1].trim();
-        const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true });
+        const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true, fracFlatChance: true });
         liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
         const host = prevAppliedHost();
         // An immunity window describes protection offered by a status, not
@@ -2346,7 +2346,7 @@ export function parseSoulmarkText(text, petName) {
           continue;
         }
         if (rest !== "") {
-          const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true });
+          const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true, fracFlatChance: true });
           liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
           if (sub.effects.length > 0) {
             if (host.chance !== undefined) {
@@ -2369,7 +2369,7 @@ export function parseSoulmarkText(text, petName) {
         const g0 = prev?.guard;
         const rest = notM[1].trim();
         if (prev !== undefined && g0 !== undefined && rest !== "") {
-          const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true });
+          const sub = parseEffectText(normalizeSoulBody(rest), { keepDrainKeys: true, fracFlatChance: true });
           liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
           if (sub.effects.length > 0) {
             const ng = g0.not !== undefined ? g0.not : { not: g0 };
@@ -2383,7 +2383,7 @@ export function parseSoulmarkText(text, petName) {
       const hasCondMark = /^(?:当|若)/.test(gtext) || /时$/.test(gtext.trim());
       const bareCond = gtext.replace(/^(?:当|若)/, "").replace(/[，,、\s]*时$/, "").trim();
       const condCand = bareCond !== "" && bareCond.length <= 24 ? smCondOf(bareCond.replace(/^处于/, "自身处于")) : undefined;
-      const condProbe = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true });
+      const condProbe = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true, fracFlatChance: true });
       liftDrainRiders(condProbe.effects, condProbe.flags, { lone: "keep" });
       if (condCand !== undefined && (hasCondMark || condProbe.effects.length === 0)
         && !TRIGGERS.some((t) => (t.re !== undefined && t.re.test(gtext)) || (t.mk !== undefined && t.mk(gtext) !== undefined))
@@ -2623,7 +2623,7 @@ export function parseSoulmarkText(text, petName) {
       // standalone 全 stat_stage/常驻 apply_status 子句（"自身80%全属性+1"/"自身所有技能额外先制+1"——无触发词的常驻变动；
       // 限 apply_stat_stage 与无 turns/count 限制的 apply_status——时限/次数窗的裸句缺触发语境，仍走 no-trigger-prefix）
       if (hook === undefined) {
-        const probe = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true });
+        const probe = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true, fracFlatChance: true });
         // 必中裸句（"必中"——flags.accuracy 折算 must_hit 常驻窗）
         // 类别限定读原文：「自身攻击技能必定命中」说的是**攻击招式**必定命中，
         // 不是所有招式——原折算一律给 must_hit（无 cat），把属性技能也带上了。
@@ -2757,7 +2757,7 @@ export function parseSoulmarkText(text, petName) {
       }
       // 条件+无触发效果（"克制对手时吸取对手最大体力1/4"——pendingCond 已暂存但无钩子）→ 回合末条件刷新窗（与条件被动同管线，UNVERIFIED 近似）
       if (hook === undefined && pendingCond !== undefined) {
-        const probe2 = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true });
+        const probe2 = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true, fracFlatChance: true });
         const probe2Key = probe2.effDoubleFlag;
         const probe2Val = probe2Key !== undefined ? probe2.flags?.attachDamage?.[probe2Key] : undefined;
         if (probe2Val !== undefined) dropBagKey(probe2.flags, probe2Key);
@@ -2798,7 +2798,7 @@ export function parseSoulmarkText(text, petName) {
         }
       }
       if (hook === undefined) { // inner 延迟/修饰原因透传——比裸 no-trigger-prefix 更诚实（"伤害减免提高到80%"→set-override deferred）
-        const probe3 = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true });
+        const probe3 = parseEffectText(normalizeSoulBody(gtext), { keepDrainKeys: true, fracFlatChance: true });
         liftDrainRiders(probe3.effects, probe3.flags, { lone: "keep" });
         // 无钩修饰 token + 组内孤儿谓词（"若P时减免效果翻倍"——probe3 的 orphanCond 转挂载条件）
         const modTok = probe3.unparsed.find((u) => typeof u === "object" && /^<attachAll (takenDownDouble|drainDouble|dmgDouble|healDouble|flatDouble|chanceDouble)>$/.test(u.clause));
@@ -2938,7 +2938,7 @@ export function parseSoulmarkText(text, petName) {
         hbOp = { op: "apply_status", name: "heal_boost", target: "self", params: { pct: hbm[1] !== undefined ? +hbm[1] : 100 } };
         body = body.slice(hbm[0].length).replace(/^[，,、\s]+/, "");
       }
-      const { effects, flags, unparsed: inner, effDoubleFlag, orphanCond, turnsTail } = parseEffectText(body === "" ? body : normalizeSoulBody(body), { keepDrainKeys: true });
+      const { effects, flags, unparsed: inner, effDoubleFlag, orphanCond, turnsTail } = parseEffectText(body === "" ? body : normalizeSoulBody(body), { keepDrainKeys: true, fracFlatChance: true });
       if (pbHeal !== undefined) effects.unshift(pbHeal);
       if (hbOp !== undefined) effects.unshift(hbOp);
       if (rtkOp !== undefined) effects.unshift(rtkOp);
@@ -3295,7 +3295,7 @@ export function parseSoulmarkText(text, petName) {
         // "不相同时X"/"不同时X" inner else 支路（逗号碎进 inner 循环——守卫在待建条目 extra.guard）→ 克隆条目 + not 守卫
         const notIn = (typeof u === "string" ? u : (u.clause ?? "")).match(/^(?:不|非|反之|否则)?(?:相同|一样|同)(?:的|时|，|,)+(.+)$/);
         if (notIn !== null && extra.guard !== undefined) {
-          const sub = parseEffectText(normalizeSoulBody(notIn[1]), { keepDrainKeys: true });
+          const sub = parseEffectText(normalizeSoulBody(notIn[1]), { keepDrainKeys: true, fracFlatChance: true });
           liftDrainRiders(sub.effects, sub.flags, { lone: "drain" });
           if (sub.effects.length > 0) { elsePending.push({ guard: extra.guard.not !== undefined ? extra.guard.not : { not: extra.guard }, ops: sub.effects, hook, extra }); for (const su of sub.unparsed) unparsed.push(su); continue; }
         }
@@ -3312,17 +3312,20 @@ export function parseSoulmarkText(text, petName) {
       if (flags.attachDamage !== undefined && typeof flags.attachDamage === "object") {
         const ad = flags.attachDamage;
         if (ad.flatBonus !== undefined) { effects.push({ op: "damage", kind: "fixed", power: ad.flatBonus, ...(ad.flatChance !== undefined ? { chance: ad.flatChance } : {}), target: "opponent" }); delete ad.flatBonus; }
+        // 分数型固伤的触发概率（"50%几率附加对手体力1/3的固伤"）——概率挂 damage op 上（op 级 chance＝未过则整 op 跳过）。
+        // 漏挂＝该 50% 变成 100%（效果每次都结算）。
+        const flatCh = ad.flatChance !== undefined ? { chance: ad.flatChance } : {};
         if (ad.flatFoeFrac !== undefined) {
           const f = ad.flatFoeFrac;
-          effects.push(f.base === "current" ? { op: "damage", kind: "percent", frac: { numerator: f.numerator, denominator: f.denominator }, percentBase: "current", target: "opponent" }
-            : f.base === "missing" ? { op: "damage", kind: "fixed", power: 1, flatFoeFrac: f, target: "opponent" }
-            : { op: "damage", kind: "percent", frac: { numerator: f.numerator, denominator: f.denominator }, target: "opponent" });
+          effects.push(f.base === "current" ? { op: "damage", kind: "percent", frac: { numerator: f.numerator, denominator: f.denominator }, percentBase: "current", target: "opponent", ...flatCh }
+            : f.base === "missing" ? { op: "damage", kind: "fixed", power: 1, flatFoeFrac: f, target: "opponent", ...flatCh }
+            : { op: "damage", kind: "percent", frac: { numerator: f.numerator, denominator: f.denominator }, target: "opponent", ...flatCh });
           delete ad.flatFoeFrac;
         }
-        if (ad.flatSelfFrac !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: ad.flatSelfFrac, target: "opponent" }); delete ad.flatSelfFrac; }
-        if (ad.flatSelfFracIf !== undefined) { const { when, ...f } = ad.flatSelfFracIf; effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: f, target: "opponent", if: when }); delete ad.flatSelfFracIf; }
-        if (ad.flatFoeFracIf !== undefined) { const { when, ...f } = ad.flatFoeFracIf; effects.push({ op: "damage", kind: "fixed", power: 1, flatFoeFrac: f, target: "opponent", if: when }); delete ad.flatFoeFracIf; }
-        if (ad.flatSelfPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: { numerator: ad.flatSelfPct, denominator: 100, base: "max" }, target: "opponent" }); delete ad.flatSelfPct; }
+        if (ad.flatSelfFrac !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: ad.flatSelfFrac, target: "opponent", ...flatCh }); delete ad.flatSelfFrac; }
+        if (ad.flatSelfFracIf !== undefined) { const { when, ...f } = ad.flatSelfFracIf; effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: f, target: "opponent", if: when, ...flatCh }); delete ad.flatSelfFracIf; }
+        if (ad.flatFoeFracIf !== undefined) { const { when, ...f } = ad.flatFoeFracIf; effects.push({ op: "damage", kind: "fixed", power: 1, flatFoeFrac: f, target: "opponent", if: when, ...flatCh }); delete ad.flatFoeFracIf; }
+        if (ad.flatSelfPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: { numerator: ad.flatSelfPct, denominator: 100, base: "max" }, target: "opponent", ...flatCh }); delete ad.flatSelfPct; }
         // flatSelfStatPct/flatFoeStatPct（"附加自身攻击值25%的百分比伤害"/"吸取对手自身速度值30%的体力"）→ damage op + 随附 drain 全吸（须在 ad.drain 通用转换之前消费，防 drain_atk 常驻窗语义漂移）
         if (ad.flatSelfStatPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 0, flatSelfStatPct: ad.flatSelfStatPct, ...(ad.drain !== undefined ? { drain: ad.drain } : {}), target: "opponent" }); delete ad.flatSelfStatPct; delete ad.drain; }
         if (ad.flatFoeStatPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 0, flatFoeStatPct: ad.flatFoeStatPct, ...(ad.drain !== undefined ? { drain: ad.drain } : {}), target: "opponent" }); delete ad.flatFoeStatPct; delete ad.drain; }
