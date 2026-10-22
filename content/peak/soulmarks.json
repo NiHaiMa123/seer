@@ -1844,26 +1844,31 @@
       "desc": "蝎:每次使用攻击技能都有50%概率使对手在回合结束时减少1/5最大HP",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "foe_dot",
+              "name": "react",
               "target": "self",
               "params": {
-                "n": 1,
-                "d": 5
+                "trigger": 11,
+                "cat": 4
               },
-              "chance": 50
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "foe_dot",
+                  "target": "self",
+                  "params": {
+                    "n": 1,
+                    "d": 5
+                  },
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         }
       ]
     },
@@ -2648,23 +2653,28 @@
       "desc": "璨:每次使用攻击技能使对手随机一项能力值-1，自身对应的能力值+1；若对手处于失明状态则造成的伤害提升50%(boss无效)",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "apply_stat_stage",
-              "stat": "random",
-              "randomCount": 1,
-              "delta": -1,
-              "target": "opponent"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_stat_stage",
+                  "stat": "random",
+                  "randomCount": 1,
+                  "delta": -1,
+                  "target": "opponent"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -2841,23 +2851,28 @@
       "desc": "翼:每次使用攻击技能都能使自身随机属性+1",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "apply_stat_stage",
-              "stat": "random",
-              "randomCount": 1,
-              "delta": 1,
-              "target": "self"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_stat_stage",
+                  "stat": "random",
+                  "randomCount": 1,
+                  "delta": 1,
+                  "target": "self"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         }
       ]
     },
@@ -3351,23 +3366,27 @@
       "desc": "魔:每次使用攻击技能都有40%的几率使对手害怕，受到致命伤害时有1次机会残留1点体力(boss免疫)",
       "effects": [
         {
-          "hook": "onMoveUsed",
-          "bossGate": true,
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "fear",
-              "target": "opponent",
-              "chance": 40
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "fear",
+                  "target": "opponent",
+                  "chance": 40
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "op": "endure",
@@ -3518,22 +3537,27 @@
       "desc": "翅:每次使用攻击技能都有30%概率使对手麻痹；每回合降低对手所有技能1点PP(boss无效)",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "paralysis",
-              "target": "opponent",
-              "chance": 30
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "paralysis",
+                  "target": "opponent",
+                  "chance": 30
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -3789,21 +3813,26 @@
       "desc": "炓:每次使用攻击技能都会使对手烧伤,若对手未烧伤则自身攻击+2",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "burn",
-              "target": "opponent"
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "burn",
+                  "target": "opponent"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -6073,18 +6102,26 @@
           }
         },
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "heal",
-              "flat": 200,
-              "target": "self"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "heal",
+                  "flat": 200,
+                  "target": "self"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": 1
-          }
+          ]
         }
       ]
     },
@@ -6430,16 +6467,24 @@
       "desc": "沌：使用技能时将自身相应的能力提升赋予给对手相应的能力下降（技能生效后触发），若未触发效果则减少对手1/4最大HP",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "transfer_stages",
-              "direction": "upToDown"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "transfer_stages",
+                  "direction": "upToDown"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self"
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -6509,22 +6554,27 @@
       "desc": "鬼：每次使用攻击技能有50%几率使对手烧伤，有30%几率使对手麻痹；若对手处于异常状态则威力翻倍",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "burn",
-              "target": "opponent",
-              "chance": 50
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "burn",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -7398,22 +7448,27 @@
       "desc": "云：每次使用攻击技能都有20%概率使对手麻痹，当出手时自身体力少于1/2时，概率提升为30%",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "paralysis",
-              "target": "opponent",
-              "chance": 20
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "paralysis",
+                  "target": "opponent",
+                  "chance": 20
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         }
       ]
     },
@@ -7724,22 +7779,27 @@
       "desc": "莱：每次使用攻击技能都有50%几率使对手害怕；击败对手则免疫对手下一次攻击伤害",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "fear",
-              "target": "opponent",
-              "chance": 50
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "fear",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnEnd",
@@ -15606,21 +15666,26 @@
       "desc": "瓦：自身使用攻击技能则清除对手回合类效果；自身使用属性技能则下2回合自身先制+1（BOSS无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "cleanse",
-              "target": "opponent",
-              "scope": "timed"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "cleanse",
+                  "target": "opponent",
+                  "scope": "timed"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -16010,22 +16075,27 @@
       "desc": "淡：自身使用攻击技能时50%令对方烧伤，50%令对方冻伤；自身受到攻击时50%令对手冰封，未触发则消除对手回合类效果（BOSS无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "burn",
-              "target": "opponent",
-              "chance": 50
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "burn",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -29497,21 +29567,26 @@
       "desc": "炓：每次使用攻击技能都会使对手烧伤；自身使用攻击技能时若对手处于烧伤则50%使对手焚烬，未触发焚烬则消除对手回合类效果且自身下2回合攻击必定致命一击（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "burn",
-              "target": "opponent"
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "burn",
+                  "target": "opponent"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -29780,26 +29855,31 @@
       "desc": "玛：使用攻击技能50%几率打出致命一击（boss有效）；若打出致命一击则使对手随机1个技能PP值归零，若没有打出致命一击则下1次攻击必定打出致命一击（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "crit_up",
+              "name": "react",
               "target": "self",
-              "turns": 1,
               "params": {
-                "n": 50,
-                "d": 100
-              }
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "crit_up",
+                  "target": "self",
+                  "turns": 1,
+                  "params": {
+                    "n": 50,
+                    "d": 100
+                  }
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onDamageDealt",
@@ -33020,21 +33100,26 @@
       "desc": "独：自身使用攻击技能则消除对手回合类效果；若对手先出手则本回合免疫异常状态且受到攻击伤害减少50%，若自身先出手则本回合免疫能力下降状态且对手受到的伤害提升50%（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "cleanse",
-              "target": "opponent",
-              "scope": "timed"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "cleanse",
+                  "target": "opponent",
+                  "scope": "timed"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -36430,40 +36515,31 @@
       "desc": "问：赛尔号鬼蚀豹尊魂印是什么？赛尔号鬼蚀豹尊专属特性是什么？ 答：赛尔号鬼蚀豹尊的魂印是：蚀 1、自身使用攻击技能有30%的几率造成2-4倍伤害，未触发则下1次攻击技能先制+1且翻倍几率额外提升20%； 2、攻击造成的伤害高于300则恢复自身最大体力的1/3并造成等量固伤，造成的伤害低于300则吸取对手最大体力的1/3； 3、（boss无效） 精灵资料：赛尔号鬼蚀豹尊进化图种族值技能表 >>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "dmg_boost",
+              "name": "react",
               "target": "self",
               "params": {
-                "pctMin": 100,
-                "pctMax": 300
+                "trigger": 11,
+                "cat": 4
               },
-              "chance": 30
-            },
-            {
-              "op": "apply_status",
-              "name": "prio_count",
-              "target": "self",
-              "params": {
-                "count": 1,
-                "add": 1
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "dmg_boost",
+                  "target": "self",
+                  "params": {
+                    "pctMin": 100,
+                    "pctMax": 300
+                  },
+                  "chance": 30
                 }
-              }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onDamageDealt",
@@ -37002,53 +37078,27 @@
       "desc": "迦：使用攻击技能有50%几率使对手麻痹，未触发则随机附加200-300点固定伤害；受到攻击时50%令对手烧伤，未触发则50%令对手焚烬（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "paralysis",
-              "target": "opponent",
-              "chance": 50
-            }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
-        },
-        {
-          "hook": "onMoveUsed",
-          "ops": [
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "paralysis",
+                  "target": "opponent",
+                  "chance": 50
                 }
-              }
-            },
-            {
-              "op": "flat",
-              "of": "flatRange",
-              "value": {
-                "min": 200,
-                "max": 300
-              }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onDamaged",
@@ -39124,29 +39174,34 @@
       "desc": "问：赛尔号厄尔泰拉格魂印是什么？赛尔号厄尔泰拉格专属特性是什么？ 答：赛尔号厄尔泰拉格的魂印是：厄 1、使用攻击技能令对手随机进入烧伤、冻伤、中毒中的一种异常状态； 2、回合开始时，若对手处于烧伤状态下则当回合所有技能先制-1，若对手处于冻伤状态下则回合结束时附加300点固定伤害，若对手处于中毒状态下则当回合自身攻击必定打出致命一击； 3、（boss无效） 精灵资料：赛尔号厄尔泰拉格进化图种族值技能表 >>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "random",
-              "random": {
-                "list": [
-                  "burn",
-                  "frostbite",
-                  "poison"
-                ],
-                "count": 1
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
               },
-              "target": "opponent"
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "random",
+                  "random": {
+                    "list": [
+                      "burn",
+                      "frostbite",
+                      "poison"
+                    ],
+                    "count": 1
+                  },
+                  "target": "opponent"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onTurnStart",
@@ -62342,22 +62397,27 @@
       "desc": "吉：金吉娜熟练运用双枪,自身使用攻击技能则使对手2回合无法通过自身技能恢复体力,自身使用属性技能则对手下2回合受到的伤害提高100%;击败对手则减少对手下只出场精灵最大体力的1/3且100%令对手烧伤(boss无效)",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "heal_block",
-              "target": "opponent",
-              "turns": 2
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "heal_block",
+                  "target": "opponent",
+                  "turns": 2
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -74467,22 +74527,27 @@
       "desc": "达：自身使用攻击技能时附加250点固定伤害，自身受到攻击时减少250点攻击伤害；每月22日，阿尔达拉将会触发沐月之羽：天生所有能力+50、免疫所有异常状态、所有技能先制+1（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 250,
-              "target": "opponent"
+              "op": "apply_status",
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "damage",
+                  "kind": "fixed",
+                  "power": 250,
+                  "target": "opponent"
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
+          ]
         },
         {
           "hook": "onDamaged",
@@ -82480,19 +82545,27 @@
       "desc": "问：赛尔号圣血猎者&middot;赫布洛是什么？圣血猎者&middot;赫布洛专属特性是什么？ 答：赛尔号伏尔格安是： 自身每次使用属性技能时令自身流血3回合;自身处于流血状态时免疫受到的异常状态且每回合开始获得300点护盾;对手处于流血状态时，自身使用攻击技能后额外吸取对手等同于造成伤害值100%的体力(boss无效) 精灵资料：赛尔号圣血猎者&middot;赫布洛进化图种族值技能表>>>",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "bleed",
+              "name": "react",
               "target": "self",
-              "turns": 3
+              "params": {
+                "trigger": 11,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "bleed",
+                  "target": "self",
+                  "turns": 3
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": 1
-          }
+          ]
         },
         {
           "hook": "onMoveUsed",
@@ -83473,19 +83546,27 @@
       "desc": "自身的攻击技能50%先制+1，自身使用属性技能50%不消耗PP值，回合开始若自身体力低于对手则概率翻倍；回合开始时，若对手不处于能力提升状态，则当回合受到的攻击伤害减少40%且回合结束后恢复已损失体力值的40%（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "pp_free",
+              "name": "react",
               "target": "self",
-              "chance": 50
+              "params": {
+                "trigger": 11,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "pp_free",
+                  "target": "self",
+                  "chance": 50
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": 1
-          }
+          ]
         },
         {
           "hook": "onTurnStart",
@@ -90655,19 +90736,27 @@
           }
         },
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "dmg_immune",
+              "name": "react",
               "target": "self",
-              "turns": 1
+              "params": {
+                "trigger": 11,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "dmg_immune",
+                  "target": "self",
+                  "turns": 1
+                }
+              ]
             }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": 1
-          }
+          ]
         }
       ]
     },

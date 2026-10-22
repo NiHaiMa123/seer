@@ -95,6 +95,17 @@ clause 级加 `condHold` 分支整句留档、扣留由 clause 边界收口。
 **新增的第三条纪律**：**宁可多留残文，不可无条件执行**——
 「效果缺失且有残文记录」可以后续补；「无条件执行」是静默的行为错误，账面看不出问题。
 
+第十一轮又挖出**第二类**无条件执行（`cond-orphan`）：**可建模**条件被整组扔掉
+（`prevDamageAboveAbs` / `not prevApplied` / `selfHas` / `everyNTurns`），
+**连残文都不留**——解析器声称解析成功，只是把条件扔了，审计台账完全看不出来。
+复现已缩到最小：「前面有别的 clause + 同一 clause 内两个条件分支」→ 条件丢；
+定位在 `soulmark-parse.mjs:3616`（clause 结束时 `pendingCond` 未被消费）。
+本轮未硬修（条件作用域是历史上两次撤回过的族），已写进工作清单作为下一轮首个目标。
+
+本轮同时回填了 24 条 react 化漂移（`onMoveUsed` → `onBattleStart react{trigger:11}`，
+引擎侧 `engine.ts:452` 确认 `trigger:11` = 持有者自己声明行动、`cat:4` = 非属性招 ≡ 旧 `cat:[2,3]`），
+内容包 same-effects 1249 → **1273**、different 382 → **358**。
+
 ## 基线与原则
 
 基线见 `artifacts/soulmark-audit-2026-10-20.md`：按现有构建调用，1811 条实际魂印记录中，930 条有输出且无残留，801 条部分解析，77 条无输出，3 条正文被静默跳过。解析无残留不等于行为验收完成。
