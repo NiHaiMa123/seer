@@ -42,11 +42,11 @@ describe("魂印 differ 分类保留全部差异", () => {
     expect(analyzeConditionLoss([{ ...entry, guard: { prevCrit: true } }], [{ ...entry, ops: [{ ...heal, if: { prevCrit: true } }] }]).lost).toEqual([]);
     // 条目数变了 → 整条改写，另判
     expect(analyzeConditionLoss([entry], [entry, entry]).sameCount).toBe(false);
-    // 全库：pet-4751 的 prevCrit 条件在包里、当前解析没有
+    // 全库：pet-4743 的 not-prevApplied 条件在包里、当前解析没有
     const catalog = JSON.parse(readFileSync("content/creatures/creatures.json", "utf8"));
     const marks = JSON.parse(readFileSync("content/peak/soulmarks.json", "utf8")).soulmarks;
-    const report = analyzeSoulmarkDiffs(catalog, marks, new Set(["pet-4751"]));
-    expect(report.condLost.map((r: { id: string }) => r.id)).toEqual(["pet-4751"]);
-    expect(report.condLost[0]!.lost.some((x: string) => x.includes("prevCrit"))).toBe(true);
+    const report = analyzeSoulmarkDiffs(catalog, marks, new Set(["pet-4743"]));
+    expect(report.condLost.map((r: { id: string }) => r.id)).toEqual(["pet-4743"]);
+    expect(report.condLost[0]!.lost.some((x: string) => x.includes("prevApplied"))).toBe(true);
   });
 });

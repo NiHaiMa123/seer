@@ -296,8 +296,33 @@ function splitLocalBossScopes(raw) {
     const scopeText = prefix.slice(scanStart, trigger.index);
     const guards = [...scopeText.matchAll(/(?:若|当)/g)];
     const guard = guards.at(-1);
-    // If a condition introduces this timing clause, retain its prefix with the event.
-    if (guard !== undefined) start = scanStart + guard.index;
+    if (guard !== undefined) {
+      // 「若/当」守卫：只有当**切点落在它自己的子句内部**时才回退作用域起点——
+      //   条件短语内部（"若自身体力低于**回合开始时**则…"）：切开会把条件短语劈开 → 必须回退；
+      //   载荷段内部（"若P则每回合**结束时**X"）：切开会拆散条件与负载 → 必须回退；
+      //   而切点若在**别的子句**（pet-4751："…若体力上限不大于100则消耗自身全部体力并令对手失明，
+      //   且本场战斗中己方所有精灵**登场时**…"）：回退会把中间整段划出 boss 门的作用域，
+      //   触发词与它的载荷分属两段 → 条件成 cond-orphan 孤儿、负载被无条件执行 → 不得回退。
+      const guardIdx = scanStart + guard.index;
+      // 该「若」的子句 = 条件短语 + 载荷段；切点落在子句内 → 切分会劈开条件与负载 → 必须回退；
+      // 切点在其后的**别的子句** → 回退会把中间整段划出 boss 门的作用域（pet-4751）→ 不得回退。
+      const ze = prefix.indexOf("则", guardIdx);
+      const hasZe = ze >= 0 && ze < trigger.index;
+      // 载荷段起点：有「则」在其后；无「则」时看触发词是否还在条件短语里
+      let payloadStart;
+      let triggerInPhrase = false;
+      if (hasZe) payloadStart = ze + 1;
+      else {
+        const c0 = prefix.slice(guardIdx).search(/[，,]/);
+        const firstComma = c0 >= 0 ? guardIdx + c0 : -1;
+        if (firstComma < 0 || trigger.index < firstComma) { payloadStart = guardIdx; triggerInPhrase = true; }
+        else payloadStart = firstComma + 1;
+      }
+      const cut = prefix.slice(payloadStart).search(/[，,、]/);
+      const clauseEnd = cut >= 0 ? payloadStart + cut : prefix.length;
+      // If a condition introduces this timing clause, retain its prefix with the event.
+      if (triggerInPhrase || trigger.index < clauseEnd) start = guardIdx;
+    }
     // 结果分支标记（"未触发则回合结束时X"）与"若/当"守卫同理：它是负载的前置作用域，
     // 切分不得把它甩在前一段——否则条件成孤儿（cond-orphan），负载被无条件执行。
     const outcomeTail = scopeText.match(OUTCOME_BRANCH_TAIL);
