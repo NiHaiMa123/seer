@@ -114,8 +114,11 @@ export const rules = [
     go: (m) => ({ effects: [{ op: "damage", kind: "fixed", power: 0, flatFoeFrac: { base: "missing", numerator: num(m[1]), denominator: num(m[2]) }, drain: frac(1, 1) }] }),
   },
   // "(吸取|吸收)对手N/M最大体力" → 吸收动词变体
+  // 「最大HP / 最大生命值」是「最大体力」的另两种写法（pet-2929「每2回合吸收对手1/3最大HP」）。
+  // 注意这条必须留在 batch-e8：**不要**把「吸收」放进更靠前的 batch-e6-121——
+  // 那条产出 heal missing（以已损失体力为基线），语义与本条不同，抢先匹配会退化。
   { id: "e8-hl-07",
-    re: new RegExp(`^吸收(?:对手|对方|敌方)${NUM}\\s*/\\s*${NUM}最大体力$`),
+    re: new RegExp(`^吸收(?:对手|对方|敌方)${NUM}\\s*/\\s*${NUM}最大(?:体力|HP|生命值)$`),
     go: (m) => ({ effects: [{ op: "damage", power: 1, kind: "percent", frac: frac(num(m[1]), num(m[2])) }, { op: "heal", numerator: num(m[1]), denominator: num(m[2]), target: "self" }] }),
   },
   // "吸取对手伤害值N%的体力" → 出伤分流（attachDamage.drain——常驻 drain_atk 折算）

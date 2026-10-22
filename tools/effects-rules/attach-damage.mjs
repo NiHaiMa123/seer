@@ -19,7 +19,7 @@ export const rules = [
   // 翻倍族 attachAll（作用于句内已产出的同型 op）
   { id: "attach-damage-08", re: /^强化状态翻倍$|^强化效果翻倍$|^能力提升效果翻倍$|^强化翻倍$|^提升效果翻倍$|^自身强化状态翻倍$|^自身强化翻倍$/, go: () => ({ attachAll: { stageDouble: true } }) },
   { id: "attach-damage-09", re: /^(?:造成|令|使)?(?:的)?弱化效果翻倍$|^能力下降效果翻倍$|^弱化翻倍$|^降低效果翻倍$/, go: () => ({ attachAll: { stageDownDouble: true } }) },
-  { id: "attach-damage-10", re: /^吸取效果翻倍$|^吸取量翻倍$|^吸血效果翻倍$|^吸取体力效果翻倍$/, go: () => ({ attachAll: { drainDouble: true } }) },
+  { id: "attach-damage-10", re: /^吸取效果翻倍$|^吸收效果翻倍$|^吸取量翻倍$|^吸血效果翻倍$|^吸取体力效果翻倍$/, go: () => ({ attachAll: { drainDouble: true } }) },
   { id: "attach-damage-11", re: new RegExp(`^自身体力低于${NUM}\\s*/\\s*${NUM}(?:时)?变为吸取对手最大体力的${NUM}\\s*/\\s*${NUM}$|^变为吸取对手最大体力的${NUM}\\s*/\\s*${NUM}$`), go: (m) => {
     // 两组：前置条件 (m[1]/m[2]) + 目标分数 (m[3]/m[4])；无条件变体只有 (m[5]/m[6])
     if (m[3] !== undefined) return { attachAll: { drainSwapIf: { when: { selfHpBelow: frac(m[1], m[2]) }, numerator: num(m[3]), denominator: num(m[4]) } } };

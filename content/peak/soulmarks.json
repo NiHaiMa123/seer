@@ -93307,6 +93307,40 @@
           ]
         }
       ]
+    },
+    "sm-2929": {
+      "id": "sm-2929",
+      "name": "奥德迪尔魂印",
+      "desc": "语：每2回合吸收对手1/3最大HP",
+      "effects": [
+        {
+          "hook": "onTurnEnd",
+          "guard": {
+            "everyNTurns": 2
+          },
+          "ops": [
+            {
+              "op": "damage",
+              "power": 1,
+              "kind": "percent"
+            },
+            {
+              "op": "formula",
+              "of": "frac",
+              "value": {
+                "numerator": 1,
+                "denominator": 3
+              }
+            },
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
+            }
+          ]
+        }
+      ]
     }
   }
 }

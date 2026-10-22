@@ -9,10 +9,10 @@
   },
   "statusCounts": {
     "explicitNoTrait": 73,
-    "noEntryWithResidual": 127,
+    "noEntryWithResidual": 126,
     "noEntryNoResidual": 0,
     "partial": 945,
-    "entryNoResidual": 739,
+    "entryNoResidual": 740,
     "parserError": 0
   },
   "implementationCandidates": 1811,
@@ -22,7 +22,7 @@
   "residualReasons": [
     {
       "reason": "no-rule",
-      "fragments": 884,
+      "fragments": 883,
       "examples": [
         {
           "creatureId": "pet-4714",
@@ -43,7 +43,7 @@
           "clause": "赛尔"
         }
       ],
-      "distinctRecords": 443
+      "distinctRecords": 442
     },
     {
       "reason": "guard unmodeled — effect withheld (deferred)",
@@ -4635,13 +4635,13 @@
   },
   "pack": {
     "unitCount": 2239,
-    "soulmarkDirectoryCount": 1601,
+    "soulmarkDirectoryCount": 1602,
     "sourceRecordsOutsidePackWithEntries": 74,
     "directoryCounts": {
       "missing": 33,
       "different": 382,
-      "same": 1219,
-      "notGenerated": 168,
+      "same": 1220,
+      "notGenerated": 167,
       "outsidePack": 82,
       "ambiguous": 0
     },
@@ -17169,6 +17169,22 @@
         "packDirectory": "same-effects",
         "defaultMount": "mounted",
         "expectedSoulmarkId": "sm-2933"
+      },
+      {
+        "creatureId": "pet-2929",
+        "catalogKey": "pet-2929",
+        "associationId": "pet-2929",
+        "idSource": "creature.id",
+        "petNo": "2929",
+        "name": "奥德迪尔",
+        "status": "entry-no-residual",
+        "entries": 1,
+        "residualFragments": 0,
+        "residualReasons": [],
+        "inPackScope": true,
+        "packDirectory": "same-effects",
+        "defaultMount": "mounted",
+        "expectedSoulmarkId": "sm-2929"
       },
       {
         "creatureId": "pet-2936",
@@ -35092,8 +35108,8 @@
       }
     ],
     "defaultMount": {
-      "eligibleInPack": 1610,
-      "mounted": 1566,
+      "eligibleInPack": 1611,
+      "mounted": 1567,
       "unmounted": 33,
       "eligibleManualPeakUnmounted": 11,
       "differentReference": 0,
@@ -43728,15 +43744,13 @@
       "idSource": "creature.id",
       "petNo": "2929",
       "name": "奥德迪尔",
-      "status": "no-entry-with-residual",
-      "entries": 0,
-      "residualFragments": 1,
-      "residualReasons": [
-        "no-rule"
-      ],
+      "status": "entry-no-residual",
+      "entries": 1,
+      "residualFragments": 0,
+      "residualReasons": [],
       "inPackScope": true,
-      "packDirectory": "not-generated",
-      "defaultMount": "no-current-entry",
+      "packDirectory": "same-effects",
+      "defaultMount": "mounted",
       "expectedSoulmarkId": "sm-2929"
     },
     {
