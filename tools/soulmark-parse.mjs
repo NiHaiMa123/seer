@@ -1491,6 +1491,17 @@ export function parseSoulmarkText(text, petName) {
       continue;
     }
     if (guardQuarantine && clause !== "") {
+      if (condHold) {
+        // 上一 clause 末尾是**未建模的条件**（"自身微弱对手时"）——本 clause 是它的负载，
+        // 整句留档、不能无条件执行（pet-4814 娜诺：两个未建模条件 + 一个负载组）。
+        // 扣留到此结束：条件作用域覆盖到本 clause 末，后面的是独立子句。
+        recordOuterResidual(clause, guardQuarantineReason);
+        condHold = false;
+        guardQuarantine = false;
+        guardQuarantineReason = guardUnmodeledReason;
+        lastHook = undefined;
+        continue;
+      }
       if (startsWithSupportedTrigger(clause)) {
         guardQuarantine = false;
         guardQuarantineReason = guardUnmodeledReason;
@@ -1905,9 +1916,13 @@ export function parseSoulmarkText(text, petName) {
         } else {
           // condHold：上一组是**未建模的条件**（"自身克制对手时"）。本组是它的效果，
           // 即使自带触发词也不能无条件执行——扣下，条件残文留在前一条。
-          const holdReason = condHold ? guardQuarantineReason : guardQuarantineReason;
-          condHold = false;
-          quarantineGroup(gtext, holdReason);
+          //
+          // 这里**不改** condHold：被扣下的这组可能是
+          //   ① 又一个未建模条件（"自身微弱对手时 自身克制对手时，负载"）→ 扣留要继续传递；
+          //   ② 该条件的负载 → 扣留由 clause 边界收口（line 1493 的 condHold 分支）。
+          // 提前清掉 condHold 会让下一个组通过 line 1901 的解除条件，负载变成无条件执行
+          // ——pet-4814 娜诺正是这个形状。
+          quarantineGroup(gtext, guardQuarantineReason);
           continue;
         }
       }
