@@ -26,19 +26,19 @@
  * ── 分桶（--scan / --bucket）────────────────────────────────────────────
  * 「包里没有/不一样」必须分桶，不能一把 `--all-different` 全灌：
  *   same    逐字相同
- *   equiv   语义等价（只差形状：guard↔op.if、react 窗迁移）
- *   more    当前解析**纯新增**（旧签名全在）—— 回填不删任何效果，安全
+ *   equiv   完整有序 IR 相同（仅键序或 undefined 字段不同）
+ *   more    当前解析仅在有序条目间新增——仍需逐条验证业务语义
  *   fewer   当前解析效果**更少** —— 回填=删除，逐条判
  *   differ  有交集但不完全相同（读法改写）—— 逐条判
  *   missing 包内无条目但当前解析有 —— 该新建
  *   stale   包内有条目但当前解析无 —— 该删（逐条判）
- * 签名口径与 tools/sync-moves.mjs（技能侧）一致：`hook|op(去 if)|条件集合(条目 guard + op.if)`。
+ * 两个同步工具共用完整 IR 比较，不把 guard/op.if 改写或时序迁移认作语义等价。
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseSoulmarkText } from "./soulmark-parse.mjs";
-import { stable } from "./pet-roster-shared.ts";
+import { stable, classifyEffects } from "./pet-roster-shared.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PACK = join(ROOT, "content/peak");
@@ -70,34 +70,6 @@ const allDifferent = argv.includes("--all-different");
 const scan = argv.includes("--scan");
 const bucketOpt = (() => { const i = argv.indexOf("--bucket"); return i >= 0 ? argv[i + 1] : undefined; })();
 const ids = argv.filter((a) => !a.startsWith("--") && argv[argv.indexOf(a) - 1] !== "--bucket");
-
-/**
- * 条目的语义签名：展开成「hook | op（去 if） | 条件集合」的集合。
- * 条件集合把**条目 guard** 与 **op 级 if** 合并——「条件在 guard 上」与「条件在 op.if 上」
- * 两种写法被抹平，而「条件真的没了」仍看得出来。
- */
-const signature = (entries) =>
-  (entries ?? []).flatMap((h) => {
-    const entryCond = h?.guard === undefined ? [] : [stable(h.guard)];
-    return (h?.ops ?? []).map((op) => {
-      const { op: _o, if: _i, ...rest } = op ?? {};
-      const conds = [...entryCond, ...(_i === undefined ? [] : [stable(_i)])];
-      return `${h?.hook}|${stable(rest)}|${conds.sort().join("&")}`;
-    });
-  }).sort();
-
-/** 集合关系分桶：more=纯新增 / fewer=效果减少 / differ=改写 / equiv=只差形状 */
-const classify = (oldEffects, newEffects) => {
-  const a = signature(oldEffects);
-  const b = signature(newEffects);
-  if (stable(a) === stable(b)) return "equiv";
-  const sa = new Set(a), sb = new Set(b);
-  const onlyOld = a.filter((x) => !sb.has(x));
-  const onlyNew = b.filter((x) => !sa.has(x));
-  if (onlyOld.length === 0) return "more";   // 纯新增
-  if (onlyNew.length === 0) return "fewer"; // 效果减少（回填=删除）
-  return "differ";                          // 读法改写
-};
 
 const cat = JSON.parse(readFileSync(CAT, "utf8"));
 const unitsDoc = JSON.parse(readFileSync(join(PACK, "units.json"), "utf8"));
@@ -141,7 +113,7 @@ if (scan || allDifferent || bucketOpt !== undefined) {
     if (compiled === null) bucket = stored === undefined ? "same" : "stale";
     else if (stored === undefined) bucket = "missing";
     else if (stable(stored.effects) === stable(compiled.entry.effects)) bucket = "same";
-    else bucket = classify(stored.effects, compiled.entry.effects);
+    else bucket = classifyEffects(stored.effects, compiled.entry.effects);
     buckets[bucket].push({ id, c, compiled, key });
   }
   if (bucketOpt !== undefined) {
@@ -205,6 +177,8 @@ let changedMounts = 0;
 for (const t of targets) {
   const stored = marks[t.key];
   const next = t.compiled?.entry;
+  // 无活动条目也可能有大量未实现子句，不能把 null 编译结果显示成「残文0」。
+  const residual = t.compiled?.residual ?? parseSoulmarkText(String(t.c.soulMark?.text ?? ""), t.c.name).unparsed.length;
   const same = t.compiled === null
     ? stored === undefined
     : stored !== undefined
@@ -215,10 +189,10 @@ for (const t of targets) {
   const wantMount = t.compiled !== null && !PEAK_ROSTER.has(t.id) && !NO_MOUNT.has(t.id);
   const hasMount = unit?.soulMark === t.key;
   const mountDiff = wantMount !== hasMount;
-  if (same && !mountDiff) { console.log(`= ${t.id} ${t.c.name}：已是最新（条目 ${t.compiled === null ? 0 : t.compiled.entry.effects.length}，残文 ${t.compiled?.residual ?? 0}）`); continue; }
+  if (same && !mountDiff) { console.log(`= ${t.id} ${t.c.name}：已是最新（条目 ${t.compiled === null ? 0 : t.compiled.entry.effects.length}，残文 ${residual}）`); continue; }
   changedMarks += same ? 0 : 1;
   changedMounts += mountDiff ? 1 : 0;
-  console.log(`${same ? "!" : "*"} ${t.id} ${t.c.name}：${same ? "条目一致" : `条目 ${stored === undefined ? "缺失" : "不同"} → ${t.compiled === null ? "删除" : `${t.compiled.entry.effects.length} 条目/残文 ${t.compiled.residual}`}`}${mountDiff ? `；挂载 ${hasMount ? "有" : "无"} → ${wantMount ? "挂" : "不挂"}` : ""}`);
+  console.log(`${same ? "!" : "*"} ${t.id} ${t.c.name}：${same ? "条目一致" : `条目 ${stored === undefined ? "缺失" : "不同"} → ${t.compiled === null ? `删除/残文 ${residual}` : `${t.compiled.entry.effects.length} 条目/残文 ${residual}`}`}${mountDiff ? `；挂载 ${hasMount ? "有" : "无"} → ${wantMount ? "挂" : "不挂"}` : ""}`);
   if (write) {
     // NO_MOUNT 的魂印条目也不落（验收测试断言 sm-<id> 条目为 undefined）
     if (t.compiled === null || NO_MOUNT.has(t.id)) delete marks[t.key];

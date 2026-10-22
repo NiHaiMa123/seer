@@ -48,15 +48,14 @@ describe("boss 注记作用域：结果分支标记与负载同域", () => {
     expect(residual(r).some((x) => x.includes("未触发则回合结束时令对手损失250点体力"))).toBe(true);
   });
 
-  it("pet-3517 霍夫曼：else 负载回到宿主事件并带上 not-prevApplied 条件", () => {
+  it("pet-3517 霍夫曼：跨事件 else 留档，不在受击时提前吸取", () => {
     const r = parseSoulmarkText(
       "轰：首次登场使对手下一次攻击伤害降低50%，下一回合所有技能先制-2；受到攻击50%使对手害怕，未触发回合结束时吸取对手最大体力1/3（BOSS无效）",
       "霍夫曼",
     );
-    const elseEntry = r.entries.find((e) => (e.ops ?? []).some((o) => (o as { if?: unknown }).if !== undefined));
-    expect(elseEntry).toBeDefined();
-    expect(elseEntry!.hook).toBe("onDamaged");
-    expect((elseEntry!.ops ?? []).every((o) => (o as { if?: unknown }).if !== undefined)).toBe(true);
+    expect(r.entries.some((e) => (e.ops ?? []).some((o) => o.op === "damage" || o.op === "hp_delta" || o.op === "heal"))).toBe(false);
+    expect(r.entries.some((e) => e.hook === "onDamaged" && e.ops?.some((o) => o.name === "fear"))).toBe(true);
+    expect(r.unparsed.some((u) => u.clause.includes("未触发回合结束时吸取") && u.reason?.includes("cross-event"))).toBe(true);
   });
 
   it("无 boss 注记时行为不变（同一句去掉括注）", () => {

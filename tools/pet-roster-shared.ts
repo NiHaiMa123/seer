@@ -86,28 +86,34 @@ export interface CompileReport {
   guessCategory?: { petNo: number | string; skill: string; kind: string }[];
   fifthNotAttack?: number;
   droppedAccCrt?: number;
+  orphanHitRiders?: { moveId: string; ops: string[] }[];
   [k: string]: unknown;
 }
 
 /**
  * 编译一个技能条目（moves.json 里的一条）。
- * 与 build-pet-roster.mjs 原实现逐行一致——`report` 只用于累加 droppedAccCrt 计数。
+ * 整库构建与定点同步共用此入口；report 记录被跳过的等级域和孤儿命中修饰。
  */
 export function assemble(id: string, ownType: string, skill: SkillRow, fifth?: boolean, report: CompileReport = { droppedAccCrt: 0 }): CompiledMove {
   if (skill.pp == null) throw new Error(`${id} ${skill.name} has no pp`);
   const { flags, effects } = parseEffectText((skill.effect ?? "").trim(), { hasDamage: (skill.power ?? 0) > 0 });
+  const typed = kindOf(skill.kind, ownType);
   const effs = structuredClone(effects) as Record<string, unknown>[];
   const ad = flags.attachDamage;
   let dmg = effs.find((e) => e.op === "damage" && (e.kind === undefined || e.kind === "standard" || e.kind === "true"));
-  // 合成宿主的两种情形：
-  //   ① 有威力的招 → power 用原威力；
-  //   ② 属性招却带了命中 rider（applyDrainRider / flat{of:…} 等）→ rider 必须有
-  //      damage 宿主，否则装载期被 groupHitRiders 判孤儿、整包拒载。
-  //      这类句子语义是「命中后附加」，宿主就是那一击本身，power:0 表示不额外造伤。
+  // power:0 仍会进入伤害公式、保底和攻击类判定，不能用它承载属性技里缺少宿主的修饰语。
+  // 已明确标为物理/特殊攻击的缺威力旧语料维持原收法；本处只修属性技被伪造攻击的问题。
   const hasRider = effs.some((e) => isHitRider(e.op as string));
-  if (dmg === undefined && ((skill.power ?? 0) > 0 || hasRider)) {
+  if (dmg === undefined && ((skill.power ?? 0) > 0 || (typed.category !== undefined && hasRider))) {
     dmg = { op: "damage", power: skill.power ?? 0 };
     effs.unshift(dmg);
+  }
+  if (!effs.some((e) => e.op === "damage")) {
+    const orphan = effs.filter((e) => isHitRider(e.op as string));
+    if (orphan.length > 0) {
+      (report.orphanHitRiders ??= []).push({ moveId: id, ops: orphan.map((e) => String(e.op)) });
+      for (let i = effs.length - 1; i >= 0; i--) if (isHitRider(effs[i]!.op as string)) effs.splice(i, 1);
+    }
   }
   if (ad !== undefined) {
     const bad = unknownAttachDamageKeys(ad as Record<string, unknown>);
@@ -124,7 +130,6 @@ export function assemble(id: string, ownType: string, skill: SkillRow, fifth?: b
     if (st === "crt") effs.splice(i, 1);
   }
   report.droppedAccCrt = (report.droppedAccCrt ?? 0) + (before - effs.length);
-  const typed = kindOf(skill.kind, ownType);
   if (scaled && typed.category === undefined) {
     // 威力有伤害 op 但类别认不出：按 spa/atk 大小兜底太像编数——用物理（普攻族惯例），报告里标注
     typed.category = "physical";
@@ -155,6 +160,35 @@ export const stable = (v: unknown): string => {
   const obj = v as Record<string, unknown>;
   return `{${Object.keys(obj).sort().filter((k) => obj[k] !== undefined).map((k) => `${JSON.stringify(k)}:${stable(obj[k])}`).join(",")}}`;
 };
+
+/** 保留手工装备技的完整身份；3788-b 是独立形态，不能归到 3788。 */
+export function isKeptMoveId(id: string, peakRoster: ReadonlySet<string>): boolean {
+  const mm = /^mv-(\d+)-/.exec(id);
+  return mm === null || (peakRoster.has(`pet-${mm[1]}`) && /^mv-\d+-(?:[0-3]|f)$/.test(id));
+}
+
+/**
+ * 保守比较完整、有序 IR；op、概率、boss 门控、else 和条目边界都参与比较。
+ * more/fewer 只表示有序增删，不能证明新增效果的业务语义正确。
+ */
+export function classifyEffects(oldEffects: readonly unknown[], newEffects: readonly unknown[]): "equiv" | "more" | "fewer" | "differ" {
+  const a = oldEffects.map(stable), b = newEffects.map(stable);
+  const subsequence = (small: string[], large: string[]) => {
+    let i = 0;
+    for (const item of large) if (item === small[i]) i++;
+    return i === small.length;
+  };
+  if (stable(a) === stable(b)) return "equiv";
+  if (subsequence(a, b)) return "more";
+  if (subsequence(b, a)) return "fewer";
+  return "differ";
+}
+
+export function classifyMoves(oldMove: CompiledMove, newMove: CompiledMove): ReturnType<typeof classifyEffects> {
+  const { effects: oldEffects, ...oldMeta } = oldMove;
+  const { effects: newEffects, ...newMeta } = newMove;
+  return stable(oldMeta) === stable(newMeta) ? classifyEffects(oldEffects, newEffects) : "differ";
+}
 
 /** 同名技能 pp 回填表（全库口径：同名且 pp 唯一才可信）。 */
 export function buildPpFill(cat: { creatures: Record<string, CreatureRow> }): (name: string) => number | null {

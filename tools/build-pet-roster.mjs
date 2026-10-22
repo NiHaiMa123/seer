@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseSoulmarkText } from "./soulmark-parse.mjs";
 // 编译口径与 tools/sync-moves.mjs（定点同步）**共用同一份**——改这里两边同时生效。
-import { ROOT, typeOf, kindOf, assemble, buildPpFill, compilePetSkills, buildablePets } from "./pet-roster-shared.ts";
+import { ROOT, typeOf, kindOf, assemble, buildPpFill, compilePetSkills, buildablePets, isKeptMoveId } from "./pet-roster-shared.ts";
 
 // 输出目录：默认写 content/peak；PET_ROSTER_OUT 可指到别处（用于「重建到临时目录再对比」的
 // 漂移盘点——不污染工作区，也不必整库覆盖现网包）。
@@ -36,11 +36,7 @@ const PEAK_ROSTER = new Set([
 const existingUnits = JSON.parse(readFileSync(join(OUT, "units.json"), "utf8")).units;
 const existingMoves = JSON.parse(readFileSync(join(OUT, "moves.json"), "utf8")).moves;
 const peakUnits = existingUnits.filter((u) => PEAK_ROSTER.has(u.id));
-const keptMoves = existingMoves.filter((m) => {
-  const mm = /^mv-(\d+)-/.exec(m.id);
-  if (mm === null) return true;
-  return PEAK_ROSTER.has(`pet-${mm[1]}`) && !/^mv-\d+-s\d+$/.test(m.id);
-});
+const keptMoves = existingMoves.filter((m) => isKeptMoveId(m.id, PEAK_ROSTER));
 const keptMoveIds = new Set(keptMoves.map((m) => m.id));
 
 // 同名技能 pp 回填表（全库口径：同名且 pp 唯一才可信）——口径与 sync-moves.mjs 共用

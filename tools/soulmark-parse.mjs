@@ -976,7 +976,13 @@ const TRIGGERS = [
   // 「出手后」整组匹配不上触发词，回血那半句被丢掉、只留「并造成等量固定伤害」。
   { re: /^(?:当|若)?(?:自身|自己)?(?:每次|每次出手|出手)(?:时|后|，|,)[，,、]?(?=若|当|造成|使|令|附加|恢复|消除|清除|\d|有|自身体力|自身HP|对手|自身|使)/, hook: "onMoveUsed", extra: { actor: "self" } },
   { re: /^(?:当|每次)?(?:自身)?(?:主动)?(?:换下|离场|下场|撤退|被换下|切换下场)(?:时|后)/, hook: "onSwitchOut" },
-  { re: /^(?:每次)?(?:自身)?(?:直接)?攻击(?:技能)?(?:时|后)(?=有?\d+%|使|令|附加|恢复|造成)/, hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] } },
+  { mk: (g) => {
+    const m = g.match(/^(?:每次)?(?:自身)?(?:直接)?攻击(?:技能)?(?:(?:时|后)(?=有?\d+%|使|令|附加|恢复|造成)|(?=有(?:自身|自己)(?:当前)?(?:体力|HP)百分比))/);
+    if (m === null) return undefined;
+    // 动态概率家族需保留「攻击有」前缀给 inner；钩子仍必须是每次攻击而非开战。
+    const dynamic = /有(?:自身|自己)(?:当前)?(?:体力|HP)百分比/.test(g);
+    return { hook: "onMoveUsed", extra: { actor: "self", cat: [2, 3] }, body: dynamic ? g : g.slice(m[0].length) };
+  } },
   // "第N回合X"——回合序数窗（onTurnStart+turnEq guard）
   { mk: (g) => { const t = g.match(/^第(\d+)回合(?:，|,|，|时)?/); if (t === null) return undefined; return { hook: "onTurnStart", extra: { guard: { turnEq: +t[1] } }, body: g.slice(t[0].length) }; } },
   // "结束时X"/"战斗阶段结束时X"（"回合结束时"截断/变体——仅当余文以效果动词起首才接管，防吞"战斗结束时"；阶段=回合近似 UNVERIFIED）
@@ -1392,6 +1398,7 @@ export function parseSoulmarkText(text, petName) {
   let lastHook; // 触发器继承：无前缀子句沿用同一文本内前句的 hook
   let guardQuarantine = false; // 未知守卫后的关联语句暂不解析，直到显式、可解析的触发前缀重新建立边界
   let condHold = false; // 上一组是未建模的**条件**（"自身克制对手时"）——它的效果组必须被扣下，不能因自带触发词就无条件执行
+  let condHoldHasPayload = false; // 同一分号子句内已扣留完整负载；不能再吞下一个独立时序子句
   const guardUnmodeledReason = "guard unmodeled — effect withheld (deferred)";
   let guardQuarantineReason = guardUnmodeledReason;
   let namedDomainQuarantine = false;
@@ -1399,6 +1406,8 @@ export function parseSoulmarkText(text, petName) {
   const isGuardElse = (s) => /^(?:若)?(?:未触发|未命中|未击败|没有触发|均未触发|皆未触发|反转失败|触发失败|免疫成功|触发成功)(?:令|使|恢复|回复|吸取|造成|附加|消除|清除|解除|下|回合|自身|对手|对方|敌方|则)/.test(s);
   const startsWithSupportedTrigger = (s) => {
     if (isGuardElse(s)) return false;
+    // 「先出手时效果翻倍」仍指向前面的宿主，不能释放未知条件的隔离。
+    if (/效果(?:翻倍|加倍)$/.test(s)) return false;
     // A typed incoming-attack react is an explicit event boundary, even though
     // its existing IR is encoded as a battle-start `react` window rather than
     // one of the ordinary hook prefixes below.
@@ -1500,6 +1509,7 @@ export function parseSoulmarkText(text, petName) {
       guardQuarantine = true; guardQuarantineReason = reason; lastHook = undefined;
       continue;
     }
+    if (condHold && condHoldHasPayload) { condHold = false; condHoldHasPayload = false; }
     if (guardQuarantine && clause !== "") {
       if (condHold) {
         // 上一 clause 末尾是**未建模的条件**（"自身微弱对手时"）——本 clause 是它的负载，
@@ -1507,12 +1517,17 @@ export function parseSoulmarkText(text, petName) {
         // 扣留到此结束：条件作用域覆盖到本 clause 末，后面的是独立子句。
         recordOuterResidual(clause, guardQuarantineReason);
         condHold = false;
+        condHoldHasPayload = false;
         guardQuarantine = false;
         guardQuarantineReason = guardUnmodeledReason;
         lastHook = undefined;
         continue;
       }
-      if (startsWithSupportedTrigger(clause)) {
+      // 新子句自己带未建模条件时，让正常守卫路径接管整句；不能跳过条件去找后面的触发词。
+      const head = clause.split(/[，,]/)[0].trim();
+      const newBareGuard = /(?:时|则)$/.test(head) && UNSUPPORTED_TRIGGERS.some((u) =>
+        /^(?:attr-domain|gender-cond)/.test(u.reason) && u.re.test(head));
+      if (newBareGuard || startsWithSupportedTrigger(clause)) {
         guardQuarantine = false;
         guardQuarantineReason = guardUnmodeledReason;
         lastHook = undefined;
@@ -1701,7 +1716,7 @@ export function parseSoulmarkText(text, petName) {
         // 否则等于把带条件的效果改成无条件跑（pet-4814 娜诺就是这种）。
         const condFamily = unsup.reason.startsWith("attr-domain") || unsup.reason.startsWith("gender-cond");
         const bareCond = condFamily && /(?:时|则)[，,、]?$/.test(clause.trim());
-        if (bareCond) { condHold = true; guardQuarantine = true; guardQuarantineReason = unsup.reason; lastHook = undefined; }
+        if (bareCond) { condHold = true; condHoldHasPayload = false; guardQuarantine = true; guardQuarantineReason = unsup.reason; lastHook = undefined; }
         unparsed.push({ clause, reason: unsup.reason });
       }
       continue;
@@ -1796,7 +1811,12 @@ export function parseSoulmarkText(text, petName) {
       if (qi > 0) {
         const head = cs.slice(0, qi).trim();
         const hasOutcome = outcomeMarker.test(head) || cur.some((x) => outcomeMarker.test(x));
-        if (cur.length > 0 && !hasOutcome && segBoundary(head)) { groups.push(cur); cur = [head]; }
+        const bareEvent = cur.length === 1 && TRIGGERS.some((t) => {
+          if (t.re !== undefined) { const m = cur[0].match(t.re); return m !== null && m[0].length === cur[0].length; }
+          const r = t.mk?.(cur[0]);
+          return r !== undefined && r.body === "";
+        });
+        if (cur.length > 0 && !hasOutcome && !bareEvent && segBoundary(head)) { groups.push(cur); cur = [head]; }
         else cur.push(head);
         groups.push(cur);
         cur = [cs.slice(qi + 1).trim()]; cur.linkedContinuation = true; continue;
@@ -1885,6 +1905,10 @@ export function parseSoulmarkText(text, petName) {
         quarantineGroup(gtext, "prevApplied branch continuation — linked tail cannot be detached safely (deferred)");
         continue;
       }
+      if (/^(?:若)?(?:未触发|未命中|未击败|没有触发|均未触发|皆未触发|触发成功|触发失败|免疫成功|免疫失败)(?:则)?(?:在)?回合(?:开始|结束)(?:时|后)/.test(gtext)) {
+        quarantineGroup(gtext, "cross-event outcome — previous trigger result cannot guard a later turn event (deferred)");
+        continue;
+      }
       const linkedOutcomeScope = /(?:免疫成功|触发成功|施加成功|反转成功|未触发|未命中|未击败|免疫失败|触发失败|反转失败)/.test(gtext);
       if (namedDefinitionQuarantine) { recordOuterResidual(gtext, "named-domain definition — field/state-machine effects unmodeled (deferred)"); continue; }
       if (NAMED_DOMAIN_LABEL_RE.test(gtext) || isIntroducedDomainLabel(gtext)) {
@@ -1932,6 +1956,11 @@ export function parseSoulmarkText(text, petName) {
           //   ② 该条件的负载 → 扣留由 clause 边界收口（line 1493 的 condHold 分支）。
           // 提前清掉 condHold 会让下一个组通过 line 1901 的解除条件，负载变成无条件执行
           // ——pet-4814 娜诺正是这个形状。
+          if (condHold) {
+            const bareGuard = UNSUPPORTED_TRIGGERS.some((u) =>
+              /^(?:attr-domain|gender-cond)/.test(u.reason) && u.re.test(gtext) && /(?:时|则)[，,、]?$/.test(gtext.trim()));
+            if (!bareGuard) condHoldHasPayload = true;
+          }
           quarantineGroup(gtext, guardQuarantineReason);
           continue;
         }
@@ -2422,6 +2451,7 @@ export function parseSoulmarkText(text, petName) {
         const condFamily = unsup2.reason.startsWith("attr-domain") || unsup2.reason.startsWith("gender-cond");
         if (condFamily && /(?:时|则)[，,、]?$/.test(gtext.trim())) {
           condHold = true;
+          condHoldHasPayload = false;
           guardQuarantine = true;
           guardQuarantineReason = unsup2.reason;
           lastHook = undefined;
@@ -3351,6 +3381,16 @@ export function parseSoulmarkText(text, petName) {
         if (ad.mulChance !== undefined) { const pct = Math.round((ad.mulChance.numerator * 100) / ad.mulChance.denominator) - 100; if (pct !== 0) { effects.push({ op: "apply_status", name: "dmg_boost", target: "self", params: { pct } }); if (extra.chance === undefined) extra = { ...extra, chance: ad.mulChance.chance }; } delete ad.mulChance; }
         // stageOnHit（"命中后自身攻击+1"）→ apply_stat_stage
         if (ad.stageOnHit !== undefined) { for (const s of ad.stageOnHit) effects.push({ op: "apply_stat_stage", stat: s.stat, delta: s.delta, target: s.target ?? "self" }); delete ad.stageOnHit; }
+        // 同组已有自身回复时，「等量」指实际回复量，复用 heal.foeEcho；
+        // 不读 onMoveUsed 中不存在的 lastDamage，也不复用上次回复快照。
+        if (ad.flatEcho !== undefined && ad.flatEcho.pct === undefined) {
+          const heal = [...effects].reverse().find((o) => o.op === "heal" && (o.target ?? "self") === "self");
+          if (heal !== undefined) {
+            heal.foeEcho = true;
+            if (ad.flatEcho.when !== undefined && JSON.stringify(ad.flatEcho.when) !== JSON.stringify(heal.if)) heal.foeEchoIf = { when: ad.flatEcho.when };
+            delete ad.flatEcho;
+          }
+        }
         // flatEcho（"附加自身造成的伤害N%的固伤"）→ lastDmgFrac（ctx.lastDamage 分数固伤；无 pct=全额）
         if (ad.flatEcho !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, lastDmgFrac: { numerator: ad.flatEcho.pct ?? 100, denominator: 100 }, ...(ad.flatEcho.when !== undefined ? { if: ad.flatEcho.when } : {}), target: "opponent" }); delete ad.flatEcho; }
         // flatIf（条件固伤 {when,flat|range}）/ flatRangeIf → damage op + if
@@ -3567,6 +3607,12 @@ export function parseSoulmarkText(text, petName) {
       }
       if (effects.length === 0 && maxHpAbsorb.found) continue;
       const newEntry = { hook, ...restExtra, ...growFields, ...(localAtCap !== undefined ? { growStep: localAtCap.step, growCap: localAtCap.cap } : {}), ...(pendingPromoteChance !== undefined ? { chance: pendingPromoteChance } : {}), ...(bossGate ? { bossGate: true } : {}), ...(bodyDyn !== undefined ? { chanceDyn: bodyDyn } : {}), ops: effects };
+      if (plainUseCandidate && hook === "onMoveUsed" && restExtra.actor === "foe"
+        && effects.some((o) => o.op === "apply_status" && o.name === "dmg_taken_down")
+        && !/(?:下[一1]?次|下回合|下一回合)/.test(gtext)) {
+        quarantineGroup(gtext, "incoming attack modifier — conditional current-hit window unmodeled (deferred)");
+        continue;
+      }
       const plainUseHeadIsImmediate = plainUseCandidate
         && plainUseMatchedHead !== ""
         && /(?:使用|释放)/.test(plainUseMatchedHead)

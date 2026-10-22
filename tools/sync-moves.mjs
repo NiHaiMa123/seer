@@ -24,33 +24,7 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT, OUT, buildPpFill, compilePetSkills, buildablePets, stable } from "./pet-roster-shared.ts";
-
-// ── 稳定序列化见 pet-roster-shared.stable（undefined 键必须跳过，否则会误判差异）──
-/**
- * 条目的语义签名：把 effects 展开成「op（去 if）+ 条件」的集合。
- * 条件合并：move 的 effects 没有条目级 guard，条件只在 op.if 上。
- */
-const signature = (effects) =>
-  (effects ?? [])
-    .map((op) => {
-      const { op: _o, if: _i, ...rest } = op ?? {};
-      return `${stable(rest)}|${_i === undefined ? "" : stable(_i)}`;
-    })
-    .sort();
-
-/** 集合关系：新增 / 减少 / 改写 */
-const classify = (oldEffects, newEffects) => {
-  const a = signature(oldEffects);
-  const b = signature(newEffects);
-  if (stable(a) === stable(b)) return "equiv";
-  const sa = new Set(a), sb = new Set(b);
-  const onlyOld = a.filter((x) => !sb.has(x));
-  const onlyNew = b.filter((x) => !sa.has(x));
-  if (onlyOld.length === 0) return "more";     // 纯新增
-  if (onlyNew.length === 0) return "fewer";   // 效果减少（回填=删除）
-  return "differ";                            // 改写
-};
+import { ROOT, OUT, buildPpFill, compilePetSkills, buildablePets, stable, classifyMoves, isKeptMoveId } from "./pet-roster-shared.ts";
 
 const PEAK_ROSTER = new Set([
   "pet-5000", "pet-3550", "pet-3577", "pet-3291", "pet-3673", "pet-4169",
@@ -69,11 +43,7 @@ const packById = new Map(pack.map((m) => [m.id, m]));
 
 // 巅峰 12 只的装备技：原样保留，不重编译
 const keptMoveIds = new Set(
-  pack.filter((m) => {
-    const mm = /^mv-(\d+)-/.exec(m.id);
-    if (mm === null) return true;
-    return PEAK_ROSTER.has(`pet-${mm[1]}`) && !/^mv-\d+-s\d+$/.test(m.id);
-  }).map((m) => m.id),
+  pack.filter((m) => isKeptMoveId(m.id, PEAK_ROSTER)).map((m) => m.id),
 );
 
 const ppFill = buildPpFill(cat);
@@ -99,10 +69,12 @@ if (ids.length > 0) {
     if (hit !== undefined) { wanted.add(raw); continue; }
     const petId = raw.startsWith("pet-") ? raw : `pet-${raw}`;
     const compiled = petOf.get(petId);
-    if (compiled === undefined) { console.error(`未找到：${raw}`); continue; }
+    if (compiled === undefined || compiled.entries.length === 0) { console.error(`未找到可同步目标：${raw}`); process.exitCode = 1; continue; }
     for (const se of compiled.entries) wanted.add(se.moveId);
   }
 }
+
+if (process.exitCode) process.exit(process.exitCode);
 
 // ── 分桶 ──
 const buckets = { same: [], equiv: [], more: [], fewer: [], differ: [], missing: [] };
@@ -110,7 +82,7 @@ for (const [mid, info] of compiledById) {
   const old = packById.get(mid);
   if (old === undefined) { buckets.missing.push(mid); continue; }
   if (stable(old) === stable(info.move)) { buckets.same.push(mid); continue; }
-  buckets[classify(old.effects, info.move.effects)].push(mid);
+  buckets[classifyMoves(old, info.move)].push(mid);
 }
 
 // ── 输出 ──
@@ -142,7 +114,7 @@ if (flag("--dry-run")) {
     }
     targets = buckets[bucketName];
   } else {
-    targets = wanted.size > 0 ? [...wanted] : Object.values(buckets).flat();
+    targets = ids.length > 0 ? [...wanted] : Object.values(buckets).flat();
   }
   const list = targets.filter((m) => !buckets.same.includes(m));
   console.log(`dry-run：目标 ${targets.length} 条，其中 ${list.length} 条有差异\n`);

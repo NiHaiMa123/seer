@@ -70,7 +70,7 @@ describe("魂印归一修复：「后」残头剥字移到 part 级", () => {
       "时空界皇",
     );
     expect(r.unparsed).toHaveLength(0);
-    expect(r.entries[0]?.ops).toContainEqual({ op: "heal", numerator: 1, denominator: 3, target: "self", if: { selfHpBelow: { numerator: 1, denominator: 2 } } });
+    expect(r.entries[0]?.ops).toContainEqual(expect.objectContaining({ op: "heal", numerator: 1, denominator: 3, target: "self", foeEcho: true, if: { selfHpBelow: { numerator: 1, denominator: 2 } } }));
   });
 
   it("pet-3675：之后恢复自身所有体力", () => {

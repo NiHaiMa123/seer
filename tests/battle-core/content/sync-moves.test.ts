@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT, OUT, stable, buildPpFill, compilePetSkills, buildablePets } from "../../../tools/pet-roster-shared.ts";
+import { ROOT, OUT, stable, buildPpFill, compilePetSkills, buildablePets, assemble, classifyEffects, classifyMoves, isKeptMoveId } from "../../../tools/pet-roster-shared.ts";
 import type { CreatureRow, CompiledMove } from "../../../tools/pet-roster-shared.ts";
 
 /**
@@ -24,11 +24,7 @@ const PEAK_ROSTER = new Set([
   "pet-2987", "pet-3986", "pet-4275", "pet-3033", "pet-3788", "pet-4321",
 ]);
 const keptMoveIds = new Set<string>(
-  packMoves.filter((m) => {
-    const mm = /^mv-(\d+)-/.exec(m.id);
-    if (mm === null) return true;
-    return PEAK_ROSTER.has(`pet-${mm[1]}`) && !/^mv-\d+-s\d+$/.test(m.id);
-  }).map((m) => m.id),
+  packMoves.filter((m) => isKeptMoveId(m.id, PEAK_ROSTER)).map((m) => m.id),
 );
 const ppFill = buildPpFill(cat);
 
@@ -50,6 +46,18 @@ describe("stable()：undefined 键与缺失键等价", () => {
 });
 
 describe("技能 moveId 映射", () => {
+  it("完整变体不被基形手工装备技规则吞掉", () => {
+    expect(isKeptMoveId("mv-3788-f", PEAK_ROSTER)).toBe(true);
+    expect(isKeptMoveId("mv-3788-0", PEAK_ROSTER)).toBe(true);
+    expect(isKeptMoveId("mv-3788-b-f", PEAK_ROSTER)).toBe(false);
+    expect(isKeptMoveId("mv-3788-b-s6", PEAK_ROSTER)).toBe(false);
+    const entries = compilePet("pet-3788-b").entries;
+    expect(entries).toHaveLength(17);
+    const hit = entries.find((e) => e.moveId === "mv-3788-b-s6");
+    expect(hit?.move.effects).toContainEqual({ op: "apply_stat_stage", stat: "acc", delta: 2, target: "self" });
+    expect(packById.get("mv-3788-b-s6")).toEqual(hit?.move);
+  });
+
   it("非第五技能走 mv-<suffix>-s<下标>", () => {
     const compiled = compilePet("pet-3323");
     const ids = compiled.entries.map((e) => e.moveId);
@@ -75,6 +83,44 @@ describe("技能 moveId 映射", () => {
     const compiled = compilePet("pet-5000");
     const ids = compiled.entries.map((e) => e.moveId);
     expect(ids.some((i) => /^mv-5000-[0-3]$/.test(i))).toBe(false);
+  });
+});
+
+describe("同步分桶保留完整执行语义", () => {
+  const heal = { op: "heal", flat: 100, target: "self" };
+  const damage = { op: "hp_delta", flat: 100, target: "self" };
+  it("回复和损失不能判为等价", () => {
+    expect(classifyEffects([heal], [damage])).toBe("differ");
+    expect(classifyEffects([{ hook: "onTurnEnd", ops: [heal] }], [{ hook: "onTurnEnd", ops: [damage] }])).toBe("differ");
+  });
+  it("概率、boss门控、else以及条目边界都参与比较", () => {
+    const entry = { hook: "onDamaged", ops: [heal] };
+    for (const changed of [{ ...entry, chance: { base: 50 } }, { ...entry, bossGate: true }, { ...entry, elseOps: [damage] }]) {
+      expect(classifyEffects([entry], [changed])).toBe("differ");
+    }
+    expect(classifyEffects([{ ...entry, ops: [heal, damage] }], [entry, { ...entry, ops: [damage] }])).toBe("differ");
+  });
+  it("操作顺序和重复次数不能被集合去重掩盖", () => {
+    expect(classifyEffects([heal, damage], [damage, heal])).toBe("differ");
+    expect(classifyEffects([heal, heal], [heal])).toBe("fewer");
+    expect(classifyEffects([heal], [heal, heal])).toBe("more");
+    expect(classifyEffects([heal], [{ target: "self", flat: 100, op: "heal", chance: undefined }])).toBe("equiv");
+  });
+  it("技能先制和类别变化也不能被算作仅形状等价", () => {
+    const move = { id: "mv-test", name: "测试", pp: 5, priority: 0, type: "普通", effects: [heal] };
+    expect(classifyMoves(move, { ...move, priority: 1 })).toBe("differ");
+    expect(classifyMoves(move, { ...move, category: "physical" })).toBe("differ");
+  });
+});
+
+describe("属性技不能合成攻击宿主", () => {
+  it("孤儿伤害修饰留在报告，不生成 power:0 的物理攻击", () => {
+    const report = { orphanHitRiders: [] as { moveId: string; ops: string[] }[] };
+    const move = assemble("mv-status-floor", "普通", { name: "属性地板", kind: "属性", pp: 5, power: null, effect: "造成的伤害不少于200；自身攻击+1" }, false, report);
+    expect(move.category).toBeUndefined();
+    expect(move.effects.some((e) => e.op === "damage" || e.op === "cap")).toBe(false);
+    expect(move.effects).toContainEqual({ op: "apply_stat_stage", stat: "atk", delta: 1, target: "self" });
+    expect(report.orphanHitRiders).toEqual([{ moveId: "mv-status-floor", ops: ["cap"] }]);
   });
 });
 

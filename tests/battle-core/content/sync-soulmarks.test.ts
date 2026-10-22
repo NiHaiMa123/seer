@@ -49,6 +49,14 @@ const compile = (c: Creature) => {
 };
 
 describe("魂印定点同步工具", () => {
+  it("没有活动条目的魂印仍如实报告未实现子句", () => {
+    const c = creature("pet-4035")!;
+    const residual = parseSoulmarkText(c.soulMark!.text!, c.name).unparsed.length;
+    expect(residual).toBeGreaterThan(0);
+    const out = execFileSync("node", ["tools/sync-soulmarks.mjs", "--dry-run", "pet-4035"], { encoding: "utf8" });
+    expect(out).toContain(`条目 0，残文 ${residual}`);
+  });
+
   it("编译口径与生成器一致：条目 id/name/desc 与 parseSoulmarkText 同源", () => {
     const c = creature("pet-3398");
     expect(c).toBeDefined();

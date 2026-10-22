@@ -1,11 +1,11 @@
 /**
- * 「若为攻击技能则造成的伤害不少于N」→ minDamage 地板。
+ * 「若为攻击技能则造成的伤害不少于N」不能偷挂到当前属性招上。
  *
  * 语料 2 处（决囚钢骨/十里枯监、炎龙铠甲/降魔印）：
  *   下1次技能无效时令对手瘫痪，若为攻击技能则造成的伤害不少于200
  *
  * 两个半句分别处理：
- *   "若为攻击技能则造成的伤害不少于N" → cap{of:minDamage}（宿主是本招，条件恒真）
+ *   "若为攻击技能则造成的伤害不少于N" → 条件指代未建模，留档。
  *   "下N次技能无效时令对手X" → 引擎 trigger 19（招式被 move_null 拦下时派发），
  *     规则在 batch-e35 的 e35-null15。**已实现**（原先留档，见 git 历史）。
  */
@@ -19,16 +19,16 @@ const minDamageOp = (r: { effects: unknown[] }, n: number) =>
   });
 
 describe("若为攻击技能则造成的伤害不少于 N", () => {
-  it("落成 cap/minDamage 200", () => {
+  it("不把未知指代的攻击条件当成恒真", () => {
     const r = parseEffectText("若为攻击技能则造成的伤害不少于200", { hasDamage: true });
-    expect(r.unparsed).toEqual([]);
-    expect(minDamageOp(r, 200)).toBe(true);
+    expect(r.unparsed.some((u) => u.reason?.includes("attack-category reference"))).toBe(true);
+    expect(minDamageOp(r, 200)).toBe(false);
   });
 
-  it("400 也认", () => {
+  it("属性宿主不获得最低伤害 400", () => {
     const r = parseEffectText("若为攻击技能则造成的伤害不少于400", { hasDamage: true });
-    expect(r.unparsed).toEqual([]);
-    expect(minDamageOp(r, 400)).toBe(true);
+    expect(r.unparsed).not.toEqual([]);
+    expect(minDamageOp(r, 400)).toBe(false);
   });
 
   it("不带条件的原有形态不回归", () => {
@@ -36,11 +36,13 @@ describe("若为攻击技能则造成的伤害不少于 N", () => {
     expect(minDamageOp(r, 300)).toBe(true);
   });
 
-  it("真实整句：炎龙铠甲 降魔印 里该子句不再留档", () => {
+  it("真实整句：炎龙铠甲保留无效反应，只把未建模地板留档", () => {
     const full =
       "必中；全属性+1，对手不处于能力提升状态时强化效果翻倍；4回合内每回合使用技能吸取对手最大体力的1/3；下2次技能无效时令对手烧伤，若为攻击技能则造成的伤害不少于400";
     const r = parseEffectText(full, { hasDamage: true });
-    expect(r.unparsed.map((u) => String(u.clause))).not.toContain("若为攻击技能则造成的伤害不少于400");
+    expect(r.unparsed.map((u) => String(u.clause))).toContain("若为攻击技能则造成的伤害不少于400");
+    expect(minDamageOp(r, 400)).toBe(false);
+    expect(r.effects.some((o) => o.name === "react" && (o.params as Record<string, unknown> | undefined)?.trigger === 19)).toBe(true);
   });
 });
 

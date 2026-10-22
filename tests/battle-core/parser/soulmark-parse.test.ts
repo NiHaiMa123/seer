@@ -1393,11 +1393,9 @@ describe("streak（连续使用攻击/属性技能）", () => {
       hook: "onMoveUsed", guard: { actor: "self", cat: 1, streak: "status" },
       ops: [{ op: "cleanse", target: "opponent", scope: "timed" }],
     });
-    // 等量 ≈ 上一击伤害（lastDmgFrac），不是回复量快照。体解析器既有形状，本桶不改。
+    // 等量指本次实际回复量；不能读取上一击伤害。
     expect(parseSoulmarkText("连续使用属性技能时，恢复自身最大体力1/3并造成等量固定伤害").entries[0]?.ops).toEqual([
-      { op: "heal", numerator: 1, denominator: 3, target: "self" },
-      { op: "damage", kind: "fixed", power: 1, target: "opponent" },
-      { op: "flat", of: "lastDmgFrac", value: { numerator: 100, denominator: 100 } },
+      { op: "heal", numerator: 1, denominator: 3, target: "self", foeEcho: true },
     ]);
     expect(parseSoulmarkText("对手连续使用属性技能时造成25点固定伤害").entries[0]).toMatchObject({
       hook: "onMoveUsed", guard: { actor: "foe", cat: 1, streak: "status" },

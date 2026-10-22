@@ -6299,24 +6299,8 @@
               "target": "self",
               "if": {
                 "order": "last"
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "if": {
-                "order": "last"
               },
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "foeEcho": true
             }
           ],
           "guard": {
@@ -10552,21 +10536,8 @@
               "numerator": 1,
               "denominator": 1,
               "target": "self",
-              "chance": 50
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "chance": 50,
+              "foeEcho": true
             }
           ]
         }
@@ -11089,24 +11060,8 @@
               "target": "self",
               "if": {
                 "order": "first"
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "if": {
-                "order": "first"
               },
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "foeEcho": true
             }
           ],
           "guard": {
@@ -12422,21 +12377,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -13378,21 +13320,8 @@
             {
               "op": "heal",
               "flat": 250,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -14341,21 +14270,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -14452,21 +14368,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -14963,21 +14866,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -15596,21 +15486,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -16931,21 +16808,8 @@
             {
               "op": "heal",
               "flat": 200,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -17591,24 +17455,8 @@
               "target": "self",
               "if": {
                 "order": "last"
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "if": {
-                "order": "last"
               },
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "foeEcho": true
             }
           ],
           "guard": {
@@ -18160,24 +18008,8 @@
               "target": "self",
               "if": {
                 "moveDiffPrev": true
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "if": {
-                "moveDiffPrev": true
               },
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "foeEcho": true
             }
           ]
         }
@@ -19620,21 +19452,8 @@
             {
               "op": "heal",
               "flat": 200,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -19700,21 +19519,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -20297,21 +20103,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -20626,25 +20419,9 @@
               "numerator": 1,
               "denominator": 3,
               "target": "self",
+              "foeEcho": true,
               "if": {
                 "selfStageUp": true
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent",
-              "if": {
-                "selfStageUp": true
-              }
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
               }
             }
           ]
@@ -21111,21 +20888,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 4,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -22249,21 +22013,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ],
           "guard": {
@@ -22311,31 +22062,12 @@
               "numerator": 1,
               "denominator": 3,
               "target": "self",
+              "foeEcho": true,
               "if": {
                 "selfHpBelow": {
                   "numerator": 1,
                   "denominator": 2
                 }
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent",
-              "if": {
-                "selfHpBelow": {
-                  "numerator": 1,
-                  "denominator": 2
-                }
-              }
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
               }
             }
           ],
@@ -23524,27 +23256,8 @@
                   "numerator": 1,
                   "denominator": 2
                 }
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "if": {
-                "selfHpBelow": {
-                  "numerator": 1,
-                  "denominator": 2
-                }
               },
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "foeEcho": true
             }
           ]
         },
@@ -23758,7 +23471,8 @@
             {
               "op": "heal",
               "flat": 150,
-              "target": "self"
+              "target": "self",
+              "foeEcho": true
             },
             {
               "op": "apply_stat_stage",
@@ -23776,20 +23490,6 @@
               "target": "self",
               "if": {
                 "selfHpFull": true
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
               }
             }
           ]
@@ -24018,7 +23718,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
+              "target": "self",
+              "foeEcho": true
             },
             {
               "op": "apply_status",
@@ -24026,20 +23727,6 @@
               "target": "self",
               "params": {
                 "count": 1
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
               }
             }
           ]
@@ -24247,21 +23934,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -25547,21 +25221,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -26994,53 +26655,12 @@
         },
         {
           "hook": "onDamaged",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
               "name": "fear",
               "target": "opponent",
               "chance": 50
-            }
-          ]
-        },
-        {
-          "hook": "onDamaged",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -27279,21 +26899,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -28600,21 +28207,8 @@
                 "per": 1,
                 "n": 1,
                 "d": 10
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              },
+              "foeEcho": true
             }
           ]
         }
@@ -30706,7 +30300,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 2,
-              "target": "self"
+              "target": "self",
+              "foeEcho": true
             },
             {
               "op": "clear_stages",
@@ -30716,20 +30311,6 @@
               "op": "cleanse",
               "target": "opponent",
               "scope": "timed"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
             }
           ]
         }
@@ -31620,21 +31201,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -36302,21 +35870,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -37454,21 +37009,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -38710,21 +38252,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -40227,21 +39756,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -41483,21 +40999,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -45387,21 +44890,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 1,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ],
           "chance": {
@@ -47372,21 +46862,8 @@
               "numerator": 1,
               "denominator": 3,
               "target": "self",
-              "chance": 50
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "chance": 50,
+              "foeEcho": true
             },
             {
               "op": "pp_delta",
@@ -49912,21 +49389,8 @@
             {
               "op": "heal",
               "flat": 300,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -50675,21 +50139,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -50709,21 +50160,8 @@
               "numerator": 50,
               "denominator": 100,
               "missing": true,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -50760,21 +50198,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -52047,20 +51472,6 @@
               "name": "bind",
               "target": "opponent",
               "chance": 25
-            },
-            {
-              "op": "apply_status",
-              "name": "foe_dot",
-              "target": "self",
-              "params": {
-                "n": 1,
-                "d": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ],
           "guard": {
@@ -52245,21 +51656,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -54521,21 +53919,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -55073,21 +54458,8 @@
             {
               "op": "heal",
               "flat": 200,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -55878,24 +55250,8 @@
               "target": "self",
               "if": {
                 "order": "last"
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "if": {
-                "order": "last"
               },
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "foeEcho": true
             }
           ],
           "guard": {
@@ -56561,34 +55917,6 @@
       "name": "克里斯托魂印",
       "desc": "问：赛尔号克里斯托魂印是什么？赛尔号克里斯托专属特性是什么？ 答： 赛尔号克里斯托的魂印是：晶 1、自身首次登场受到的伤害高于200则下回合50%令对手攻击技能无效，未触发回合结束时附加对手最大体力1/3的固定伤害，之后每次登场首回合受到的伤害判断值转变为300； 2、自身攻击命中后附加已损失体力值100%的固定伤害，回合开始时若自身体力低于最大体力的1/2则当回合攻击技能先制+1 3、（boss无效） 精灵资料：赛尔号克里斯托进化图种族值技能表>>>",
       "effects": [
-        {
-          "hook": "onDamageDealt",
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            }
-          ]
-        },
         {
           "hook": "onDamageDealt",
           "bossGate": true,
@@ -59550,21 +58878,8 @@
             {
               "op": "heal",
               "flat": 200,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -59810,21 +59125,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -60879,21 +60181,8 @@
                     "n": 2
                   }
                 }
-              }
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              },
+              "foeEcho": true
             }
           ]
         }
@@ -64781,21 +64070,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         }
@@ -65377,21 +64653,8 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
-            },
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent"
-            },
-            {
-              "op": "flat",
-              "of": "lastDmgFrac",
-              "value": {
-                "numerator": 100,
-                "denominator": 100
-              }
+              "target": "self",
+              "foeEcho": true
             }
           ]
         },
@@ -89083,128 +88346,6 @@
         }
       ]
     },
-    "sm-4820": {
-      "id": "sm-4820",
-      "name": "贝尔恩克魂印",
-      "desc": "对手使用攻击技能时，若对手不处于异常状态则受到伤害减少20%且受到攻击后令对手烧伤，若对手处于烧伤状态则受到攻击后50%令对手害怕，未触发则恢复300点体力，自身处于烧伤状态时改为抵挡本次攻击且受到攻击后令对手害怕",
-      "effects": [
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "not": {
-              "foeStatused": true
-            }
-          },
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_taken_down",
-              "target": "self",
-              "params": {
-                "pct": 20
-              },
-              "turns": 1
-            }
-          ]
-        },
-        {
-          "hook": "onDamaged",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "burn",
-              "target": "opponent"
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "foeHas": "burn"
-          },
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "react",
-              "target": "self",
-              "params": {
-                "trigger": 1
-              },
-              "payload": [
-                {
-                  "op": "apply_status",
-                  "name": "fear",
-                  "target": "opponent",
-                  "chance": 50
-                }
-              ],
-              "turns": 1
-            }
-          ]
-        }
-      ]
-    },
-    "sm-4821": {
-      "id": "sm-4821",
-      "name": "巴姆魂印",
-      "desc": "对手使用攻击技能时，若对手不处于异常状态则受到伤害减少20%且受到攻击后令对手烧伤，若对手处于烧伤状态则受到攻击后50%令对手害怕，未触发则恢复300点体力，自身处于烧伤状态时改为抵挡本次攻击且受到攻击后令对手害怕",
-      "effects": [
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "not": {
-              "foeStatused": true
-            }
-          },
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_taken_down",
-              "target": "self",
-              "params": {
-                "pct": 20
-              },
-              "turns": 1
-            }
-          ]
-        },
-        {
-          "hook": "onDamaged",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "burn",
-              "target": "opponent"
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "foeHas": "burn"
-          },
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "react",
-              "target": "self",
-              "params": {
-                "trigger": 1
-              },
-              "payload": [
-                {
-                  "op": "apply_status",
-                  "name": "fear",
-                  "target": "opponent",
-                  "chance": 50
-                }
-              ],
-              "turns": 1
-            }
-          ]
-        }
-      ]
-    },
     "sm-4822": {
       "id": "sm-4822",
       "name": "星光·里奥斯魂印",
@@ -93259,7 +92400,7 @@
       "desc": "弑：攻击有自身当前体力百分比的概率使对手烧伤，若回合开始时对手已烧伤，则当回合自身攻击先制+1且有自身当前体力百分比的一半概率使对手害怕（BOSS无效）",
       "effects": [
         {
-          "hook": "onBattleStart",
+          "hook": "onMoveUsed",
           "ops": [
             {
               "op": "apply_status",
@@ -93267,6 +92408,13 @@
               "target": "opponent"
             }
           ],
+          "guard": {
+            "actor": "self",
+            "cat": [
+              2,
+              3
+            ]
+          },
           "chance": {
             "dyn": "selfHpPct"
           }
@@ -93444,78 +92592,6 @@
               }
             }
           ]
-        }
-      ]
-    },
-    "sm-4035": {
-      "id": "sm-4035",
-      "name": "邪影梦魇魂印",
-      "desc": "问：赛尔号邪影梦魇魂印是什么？赛尔号邪影梦魇专属特性是什么？ 答： 赛尔号邪影梦魇的魂印是：魇 1、自身状态每次发生转变时下回合攻击先制+1; 2、使用攻击时，若自身为圣念状态则造成伤害的50%恢复自身体力，先出手时效果翻倍，若自身为邪念状态则50%打出致命一击，先出手时效果翻倍; 3、自身死亡时若为圣念状态则令自身下只出场精灵获得梦魇的力量：攻击技能威力提升50%且50%令对手疲惫，持续3回合; 4、自身死亡时若为邪念状态则令对手受到梦魇的恐吓：下回合起对手无法通过自身技能恢复体力且受到自身最大体力值25%的固定伤害，持续3回合; 5、(每场战斗仅触发1次，boss无效) 精灵资料：赛尔号邪影梦魇进化图种族值技能表>>>",
-      "effects": [
-        {
-          "hook": "onMoveUsed",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_boost",
-              "target": "self",
-              "if": {
-                "and": [
-                  {
-                    "order": "first"
-                  },
-                  {
-                    "and": [
-                      {
-                        "order": "first"
-                      },
-                      {
-                        "order": "first"
-                      }
-                    ]
-                  }
-                ]
-              },
-              "params": {
-                "pct": 100
-              }
-            },
-            {
-              "op": "apply_status",
-              "name": "dmg_boost",
-              "target": "self",
-              "if": {
-                "and": [
-                  {
-                    "order": "first"
-                  },
-                  {
-                    "and": [
-                      {
-                        "order": "first"
-                      },
-                      {
-                        "and": [
-                          {
-                            "order": "first"
-                          },
-                          {
-                            "order": "first"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              },
-              "params": {
-                "pct": 100
-              }
-            }
-          ],
-          "guard": {
-            "actor": "self"
-          }
         }
       ]
     },
@@ -93965,33 +93041,6 @@
               3
             ]
           }
-        }
-      ]
-    },
-    "sm-4662": {
-      "id": "sm-4662",
-      "name": "雷瀑飞雪·桑多姆魂印",
-      "desc": "问：赛尔号雷瀑飞雪&middot;桑多姆是什么？雷瀑飞雪&middot;桑多姆专属特性是什么？ 答：赛尔号雷瀑飞雪&middot;桑多姆是： 若当回合自身攻击打出了致命一击，则下回合攻击必定打出致命一击且回合开始时解除所处的异常状态，若当回合对手攻击未打出致命一击，则下回合开始时令对手冻伤2回合，未触发则凝滞2回合 自身使用攻击技能时，若对手处于异常状态，则本次攻击不会造成攻击伤害并在使用后附加威力值2倍的真实伤害，若对手不处于异常状态则本次攻击造成的伤害提升50%，本次攻击微弱对手时效果翻倍 (boss无效) 精灵资料：赛尔号雷瀑飞雪&middot;桑多姆进化图种族值技能表>>>",
-      "effects": [
-        {
-          "hook": "onTurnEnd",
-          "guard": {
-            "not": {
-              "foeStatused": true
-            }
-          },
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "dmg_boost",
-              "target": "self",
-              "params": {
-                "pct": 50
-              },
-              "turns": 1
-            }
-          ]
         }
       ]
     },

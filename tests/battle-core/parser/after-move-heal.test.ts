@@ -22,9 +22,7 @@ describe("逐只处理 pet-3398 馨幻：「出手后」触发词", () => {
     expect(r.unparsed).toEqual([]);
     expect(r.entries[0]?.hook).toBe("onMoveUsed");
     expect(r.entries[0]?.ops).toEqual([
-      { op: "heal", numerator: 1, denominator: 3, target: "self" },
-      { op: "damage", kind: "fixed", power: 1, target: "opponent" },
-      { op: "flat", of: "lastDmgFrac", value: { numerator: 100, denominator: 100 } },
+      { op: "heal", numerator: 1, denominator: 3, target: "self", foeEcho: true },
     ]);
   });
 
