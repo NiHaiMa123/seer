@@ -305,6 +305,20 @@ function splitLocalBossScopes(raw) {
       const oStart = scanStart + outcomeTail.index;
       if (guard === undefined || oStart < start) start = oStart;
     }
+    // 切点前若以「条件 + 则」收尾（"…自身受到攻击伤害高于400则"），该条件与切点后的负载同属一句——
+    // 切分不得把条件甩在前一段：条件成 cond-orphan 孤儿，负载被无条件执行（pet-3767 加梵迪）。
+    const lastComma = Math.max(scopeText.lastIndexOf("，"), scopeText.lastIndexOf(","), scopeText.lastIndexOf("、"));
+    if (lastComma >= 0) {
+      const tail = scopeText.slice(lastComma + 1).trim();
+      if (tail.length >= 3 && tail.length <= 26 && /则$/.test(tail)) {
+        const cStart = scanStart + lastComma + 1;
+        if (cStart < start) start = cStart;
+      }
+    } else if (guard === undefined) {
+      // 条件在句首（scopeText 整段就是条件）：同样不得被切开
+      const scopeTrimmed = scopeText.trim();
+      if (scopeTrimmed.length >= 3 && scopeTrimmed.length <= 26 && /则$/.test(scopeTrimmed) && scanStart < start) start = scanStart;
+    }
     // Coordinated effects ("X，同时Y") share one semantic scope; a trailing boss note
     // applies to the full linked group rather than just its final timing clause.
     const between = previous === undefined ? "" : prefix.slice(previous.index + previous[0].length, trigger.index);

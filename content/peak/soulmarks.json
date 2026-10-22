@@ -42956,10 +42956,7 @@
               "name": "bind",
               "target": "opponent",
               "chance": 100,
-              "turns": 1,
-              "if": {
-                "selfHpBelowFoe": true
-              }
+              "turns": 1
             }
           ]
         }
@@ -50579,6 +50576,11 @@
         },
         {
           "hook": "onTurnEnd",
+          "guard": {
+            "not": {
+              "prevApplied": true
+            }
+          },
           "bossGate": true,
           "ops": [
             {
@@ -54313,7 +54315,6 @@
       "effects": [
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "heal",
@@ -54980,7 +54981,6 @@
       "effects": [
         {
           "hook": "onDamageDealt",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -54999,7 +54999,6 @@
           "guard": {
             "prevCrit": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -57012,7 +57011,6 @@
           "guard": {
             "foeHas": "frostbite"
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -57567,8 +57565,8 @@
             {
               "op": "heal",
               "flatPerStage": {
-                "who": "foe",
-                "sign": "down",
+                "who": "self",
+                "sign": "up",
                 "per": 1,
                 "flat": 60
               },
@@ -57577,7 +57575,7 @@
           ]
         },
         {
-          "hook": "onTurnEnd",
+          "hook": "onTurnStart",
           "bossGate": true,
           "ops": [
             {
@@ -57585,7 +57583,9 @@
               "name": "foe_dot",
               "target": "opponent",
               "params": {
-                "flat": 60
+                "flatPerStageFlat": 60,
+                "flatPerStagePer": 1,
+                "flatPerStageDown": 1
               }
             }
           ]
@@ -59081,7 +59081,6 @@
               "denominator": 3
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -67676,6 +67675,12 @@
         },
         {
           "hook": "onTurnEnd",
+          "guard": {
+            "takenAboveHpFrac": {
+              "numerator": 1,
+              "denominator": 3
+            }
+          },
           "bossGate": true,
           "ops": [
             {
