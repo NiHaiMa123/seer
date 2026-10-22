@@ -68,7 +68,8 @@
     "def",
     "spa",
     "sdf",
-    "spd"
+    "spd",
+    "acc"
   ],
   "statStageRange": [
     -6,

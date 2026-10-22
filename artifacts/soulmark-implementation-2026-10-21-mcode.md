@@ -403,5 +403,94 @@ pet-2929 奥德迪尔此前**在包内是 unit 但从未挂上魂印**（解析�
 新增测试文件 `tests/battle-core/parser/soulmark-absorb-alias.test.ts`（8 项断言，
 含「护盾语义不被当成吸血」「状态被吸取不被当成吸血」「吸取读法不退化」三道护栏）。
 
+## 第八轮：技能侧定点同步 + 清掉 3349 条内容包漂移（2026-10-22 08:2x–09:2x）
+
+### 目标
+
+上一轮发现「技能侧内容包长期漂移」后，本轮把它做掉——但**不整库重建**。
+
+### 第一步：抽共享编译口径（`tools/pet-roster-shared.ts`）
+
+定点同步最怕「口径漂移」：定点工具自己写一份 `assemble`，产出的条目就会跟整库重建不一致，
+两套口径互相覆盖时谁赢说不清。
+
+所以把 `typeOf` / `kindOf` / `assemble` / moveId 映射 / 可装配判定全抽到
+`tools/pet-roster-shared.ts`，`build-pet-roster.mjs`（整库）与新工具 `tools/sync-moves.mjs`
+（定点）**共用同一份实现**。
+
+`build-pet-roster.mjs` 的编译逻辑**一字不改**，只把定义搬走。**验证方式**：重构前后
+整库重建的产物必须逐字相同——实测 `41524 条 / 逐字相同 38182 / 不同 3342`，重构后完全一致。
+
+顺带发现 `.mjs` 被 `.ts` import 时 TS 报 TS7016（`allowJs` 没开，`.mjs` 必须先进程序）。
+因为仓库 `engines.node` 已经是 `24.18.0`（Node 24 原生支持 import .ts，且 `package.json`
+的 scripts 已经在跑 `node tools/content-validate.ts`），所以把共享模块**直接写成 `.ts`**，
+两全其美：运行时（.mjs import .ts）与类型（.ts 完整类型）都成立。
+
+### 第二步：`tools/sync-moves.mjs`
+
+`--scan` 全库分桶 / `--dry-run` 定点看差异 / `--write` 定点写回（`--bucket` 可按桶批量）。
+
+分桶口径：把条目的 effects 展开成「op（去 if）+ 条件」的签名集合，再比较集合关系——
+`more`=纯新增（旧签名全在）、`fewer`=效果减少、`differ`=有交集但不完全相同。
+
+**写回前先量漂移**：41524 条技能里 **3349 条**与当前解析器不一致
+（3252 条 more + 97 条 differ + 0 条 fewer + 0 条 missing）。
+**fewer 为 0** —— 回填不会删任何效果。
+
+### 第三步：逐形态复核 49 种 differ + 抽样 more
+
+differ 的 49 种形态全部过了一遍，**没有一条是「旧包更准」**：
+
+| 形态 | 条数 | 旧包的问题 |
+|---|---:|---|
+| `dodge` 补 `cat:4` | ~55 | 旧包闪避不限类别，对属性技也生效（过宽）——`cat:4` = 任意**非属性招**（`ops/effects.ts` 的 missChance 判定：`c === 4 ? cat !== 1 : c === cat`） |
+| `hot n:2` → `hot n:1` + `heal_boost{when:selfHpBelow}` | 9 | 旧包是**无条件**翻倍，漏了「自身体力低于1/2时」这个条件 |
+| `reflect_dmg` 比例修正 | 7 | 旧包 100% 反弹，原文是「反弹造成伤害值50%」 |
+| `hit_fx_null` 补 `params:null` | 7 | 纯形状，无语义 |
+
+more 桶抽样 12 条 + 900 偏移再抽 8 条，全是「命中等级（acc）维度」的补齐，语义正确。
+
+### 第四步：content-validate 抓出「规则包不允许」——本轮最重要的发现
+
+回填 3252 条 more 之后，`content:validate` 报了几千条：
+
+```
+SCHEMA content/peak/moves.json: move "mv-2500-s1" references unknown stat "acc"
+```
+
+查下去发现：**这不是包滞后，是规则包不允许**。
+
+- 引擎的 `StageStatKey = Exclude<StatKey,"hp"> | "acc" | "crt"` —— **含 acc**
+- `ops/shared.ts:80` 的命中判定真的读 `unit.stages.acc` —— **真的生效**
+- `moves.schema.json` 的 stat 枚举**含 acc**
+- 但 `content/rulesets/peak-v1.json` 的 `stats` 白名单只有六维 —— **不含 acc**
+
+> **「100%改变自身命中等级+1」这类效果在现网从未生效过**——3203 条技能一直在包里缺这一维度，
+> 而且因为规则包不允许，它们连「包滞后」都算不上，是**根本装不进去**。
+
+修法：给规则包 `stats` 补 `"acc"`（`ruleset.schema.json` 的 stats 是 `items:{type:"string"}`，允许）。
+这是一次**行为变更**（3203 条技能第一次真正获得命中等级效果），但方向与原文一致。
+
+### 一个自造的 bug：`stable()` 把 undefined 键渲染成 null
+
+分桶用的 `stable()` 最初写成 `JSON.stringify(v) ?? "null"`——而 `JSON.stringify(undefined)`
+返回 `undefined`，于是「键存在但值为 undefined」被渲染成 `"params":null`，
+与「键不存在」判成不同 → **误判 7 条技能条目**（`hit_fx_null` 多一个 `params` 键）。
+
+JSON.stringify 本身会省略 undefined 值的键，所以这两者在**字节层面完全等价**。
+修法：`stable()` 跳过 undefined 值的键（现已提到 `pet-roster-shared.ts` 并有测试锁住）。
+
+### 第八轮结果
+
+| 指标 | 第七轮后 | 第八轮后 |
+|---|---:|---:|
+| 技能内容包与整库重建的差异 | 3349 | **0**（41524 条逐字一致） |
+| 规则包 stats 含 acc | 否 | **是** |
+| 已知未完成下界（魂印） | 1071 | 1071（本轮不动魂印解析） |
+| 全量 Vitest | 181 文件 / 2478 项 | **182 文件 / 2485 项** |
+
+魂印侧还有 382 条同类漂移（审计的 different-effects 桶）+ 57 条 unit 挂载差异，
+下一轮用同一套分桶方法处理 `content/peak/soulmarks.json`。
+
 
 
