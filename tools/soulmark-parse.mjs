@@ -1061,8 +1061,10 @@ const TRIGGERS = [
   { re: /^对手(?:每次)?使用攻击技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: [2, 3] }, useTime: true },
   // "对手使用攻击技能命中率降低N%" → onMoveUsed foe + dodge（foe 命中率降幅≈自身闪避窗）
   { mk: (g) => { const t = g.match(/^对手(?:每次)?使用(?:攻击|属性)?技能命中率?(?:降低|下降|减少)(\d+)%/); if (t === null) return undefined; return { hook: "onMoveUsed", extra: { actor: "foe" }, body: `<acc_down ${t[1]}>` + g.slice(t[0].length) }; } },
-  { re: /^(?:当|每次)?(?:自身|我方|己方|本方)?(?:每次)?使用(?:属性|工具)技能(?:时|后|则|，|,|(?=有|都|增加|使|令|附加|恢复|回复|吸取|减少|降低|提升|造成|消除|清除|额外|对|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
+  { re: /^(?:当|每次)?(?:自身|我方|己方|本方)?(?:当回合|本回合)?(?:每次)?使用(?:属性|工具)技能(?:时|后|则|，|,|(?=有|都|增加|使|令|附加|恢复|回复|吸取|减少|降低|提升|造成|消除|清除|额外|对|\d))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
   { re: /^对手(?:每次)?使用属性技能(?:时|后|则|，|,|(?=有|都))/, hook: "onMoveUsed", extra: { actor: "foe", cat: 1 }, useTime: true },
+  // 「自身当回合使用属性技能」与攻击技能规则同形（:1060 允许「当回合|本回合」中缀）——
+  // 少了这一段，属性分支会落成 onBattleStart，并与同一子句里的攻击分支并成一条（pet-4272 卜云）。
   { re: /^(?:当|每次|若)?(?:自身|自己|我方|己方|本方)?使用属性技能(?:时|后|则|，|,|(?=有|都|恢复|回复|使|令|附加|吸取|造成))/, hook: "onMoveUsed", extra: { actor: "self", cat: 1 }, useTime: true },
   // "使用物理攻击时"/"使用特殊攻击时"（cat 精确：2=物理 3=特殊）
   { re: /^(?:当|每次|若)?(?:自身|自己)?(?:每次)?使用物理攻击(?:技能)?(?:时|后|则|，|,)/, hook: "onMoveUsed", extra: { actor: "self", cat: 2 } },
