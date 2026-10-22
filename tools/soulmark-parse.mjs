@@ -348,8 +348,14 @@ function splitLocalBossScopes(raw) {
     // applies to the full linked group rather than just its final timing clause.
     const between = previous === undefined ? "" : prefix.slice(previous.index + previous[0].length, trigger.index);
     if (previous !== undefined && /(?:同时|并且|且)\s*$/.test(between)) start = eventStarts[i - 1];
-    eventStarts.push(start);
-    scopeStart = start;
+    // 时点词落在**名词位置**（快照引用）时不是时序锚点："与回合开始时差值""战斗开始时所记录数值"
+    //   —— 在那里切分会把尾注所属的子句劈成两半，注记随切分一起丢失：
+    //   原文写了 boss无效，现网却让该效果照常生效（pet-4877 锢魂铁犀 / pet-4921 天堂极龙兽）。
+    const afterTrigger = prefix[trigger.index + trigger[0].length] ?? "";
+    const isSnapshotRef = /[的所差值之]/.test(afterTrigger);
+    const opensScope = !isSnapshotRef;
+    eventStarts.push(opensScope ? start : scopeStart);
+    if (opensScope) scopeStart = start;
   }
   return [
     ...splitLocalBossScopes(prefix.slice(0, scopeStart)),
