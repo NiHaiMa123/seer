@@ -17169,7 +17169,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -30617,7 +30616,6 @@
           "guard": {
             "selfHpBelowFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -34435,7 +34433,6 @@
           "guard": {
             "selfHpAboveFoe": true
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -37343,7 +37340,6 @@
               "foeStageDown": true
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
