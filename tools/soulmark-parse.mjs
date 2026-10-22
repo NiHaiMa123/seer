@@ -263,6 +263,8 @@ const TEXT_BOSS_RE = /以上(?:效果|特效)(?:对)?[BbＢ][OoＯ][SsＳ][SsＳ
 // 子句级 boss 门控（"（boss无效）"/"（下场后重置，BOSS无效）"/"（除…外的所有效果boss无效）"前/后置）。
 const CLAUSE_BOSS_RE = /[（(][^（）()]*?[BbＢ][OoＯ][SsＳ][SsＳ]?(?:无效|中无效|免疫)[^（）()]*?[）)]/;
 const BOSS_SCOPE_TRIGGER_RE = /(?:战斗开始|战斗结束|(?<!上)回合开始|(?<!上)回合结束|自身登场|登场|出场|受到致命伤害|受到(?:攻击|技能|伤害)|自身使用(?:攻击|属性|物理|特殊)?技能)(?:时|后)/g;
+// 结果分支标记尾（"…未触发则"）——boss 注记作用域切分的锚点之一。
+const OUTCOME_BRANCH_TAIL = /(?:免疫成功|触发成功|施加成功|反转成功|未触发|未命中|未击败|没有触发|均未触发|皆未触发|免疫失败|触发失败|反转失败)(?:则|，|,)*$/;
 function splitLocalBossScopes(raw) {
   const invalidatedSkill = raw.match(/(?:若|当)?(?:(?:己方|我方|对手|对方|敌方|自身|自己)[^，,；;。]{0,8})?技能(?:效果)?无效时/);
   const nextEntry = raw.match(/(?:自身|自己)?下回合(?:登场|出场)时/);
@@ -291,10 +293,18 @@ function splitLocalBossScopes(raw) {
     let start = trigger.index;
     const previous = i > 0 ? timingTriggers[i - 1] : undefined;
     const scanStart = previous === undefined ? 0 : previous.index + previous[0].length;
-    const guards = [...prefix.slice(scanStart, trigger.index).matchAll(/(?:若|当)/g)];
+    const scopeText = prefix.slice(scanStart, trigger.index);
+    const guards = [...scopeText.matchAll(/(?:若|当)/g)];
     const guard = guards.at(-1);
     // If a condition introduces this timing clause, retain its prefix with the event.
     if (guard !== undefined) start = scanStart + guard.index;
+    // 结果分支标记（"未触发则回合结束时X"）与"若/当"守卫同理：它是负载的前置作用域，
+    // 切分不得把它甩在前一段——否则条件成孤儿（cond-orphan），负载被无条件执行。
+    const outcomeTail = scopeText.match(OUTCOME_BRANCH_TAIL);
+    if (outcomeTail !== null) {
+      const oStart = scanStart + outcomeTail.index;
+      if (guard === undefined || oStart < start) start = oStart;
+    }
     // Coordinated effects ("X，同时Y") share one semantic scope; a trailing boss note
     // applies to the full linked group rather than just its final timing clause.
     const between = previous === undefined ? "" : prefix.slice(previous.index + previous[0].length, trigger.index);

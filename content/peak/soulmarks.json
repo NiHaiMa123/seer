@@ -16628,42 +16628,6 @@
           "guard": {
             "actor": "self"
           }
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_stat_stage",
-              "stat": "atk",
-              "delta": 1,
-              "target": "self"
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "def",
-              "delta": 1,
-              "target": "self"
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "spa",
-              "delta": 1,
-              "target": "self"
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "sdf",
-              "delta": 1,
-              "target": "self"
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "spd",
-              "delta": 1,
-              "target": "self"
-            }
-          ]
         }
       ]
     },
@@ -17561,61 +17525,15 @@
           ]
         },
         {
-          "hook": "onTurnEnd",
-          "ops": [
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            }
-          ]
-        },
-        {
           "hook": "onDamaged",
           "guard": {
             "prevDamageBelowAbs": 250
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
               "name": "fear",
               "target": "opponent"
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -18259,25 +18177,6 @@
               "value": {
                 "numerator": 100,
                 "denominator": 100
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent"
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
               }
             }
           ]
@@ -25152,7 +25051,6 @@
         },
         {
           "hook": "onDamaged",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -25162,46 +25060,6 @@
                 "flat": 250
               },
               "chance": 50
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -28023,67 +27881,6 @@
           "chance": {
             "once": true
           }
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_stat_stage",
-              "stat": "atk",
-              "delta": -1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "def",
-              "delta": -1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "spa",
-              "delta": -1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "sdf",
-              "delta": -1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "apply_stat_stage",
-              "stat": "spd",
-              "delta": -1,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            }
-          ]
         }
       ]
     },
@@ -33443,76 +33240,52 @@
       "desc": "恩：自身使用攻击技能50%打出致命一击，未触发则回合结束时减少对手最大体力1/3；自身使用属性技能50%令对手冰封，未触发则回合结束时恢复自身最大体力1/3（boss无效）",
       "effects": [
         {
-          "hook": "onMoveUsed",
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "crit_up",
+              "name": "react",
               "target": "self",
-              "turns": 1,
               "params": {
-                "n": 50,
-                "d": 100
-              }
-            }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
-        },
-        {
-          "hook": "onTurnEnd",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "max_hp_down",
-              "target": "opponent",
-              "params": {
-                "n": 1,
-                "d": 3
+                "trigger": 11,
+                "cat": 4
               },
-              "if": {
-                "not": {
-                  "prevApplied": true
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "crit_up",
+                  "target": "self",
+                  "turns": 1,
+                  "params": {
+                    "n": 50,
+                    "d": 100
+                  }
                 }
-              }
+              ]
             }
           ]
         },
         {
-          "hook": "onMoveUsed",
-          "bossGate": true,
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "freeze",
-              "target": "opponent",
-              "chance": 50
-            }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": 1
-          }
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
+              "name": "react",
               "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
+              "params": {
+                "trigger": 11,
+                "cat": 1
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "freeze",
+                  "target": "opponent",
+                  "chance": 50
                 }
-              }
+              ]
             }
           ]
         }
@@ -47344,30 +47117,6 @@
         }
       ]
     },
-    "sm-3846": {
-      "id": "sm-3846",
-      "name": "花清酒魂印",
-      "desc": "杏：对手每次提升能力时触发效果：50%令对手随机2个技能PP值归零，未触发则回合结束时令对手损失250点体力（boss无效）",
-      "effects": [
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 250,
-              "target": "opponent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
     "sm-3847": {
       "id": "sm-3847",
       "name": "魂帝·天循道魂印",
@@ -49385,55 +49134,25 @@
           ]
         },
         {
-          "hook": "onMoveUsed",
-          "bossGate": true,
+          "hook": "onBattleStart",
           "ops": [
             {
               "op": "apply_status",
-              "name": "ember",
-              "target": "opponent",
-              "chance": 50
-            }
-          ],
-          "guard": {
-            "actor": "self",
-            "cat": [
-              2,
-              3
-            ]
-          }
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "kind": "fixed",
-              "power": 1,
-              "target": "opponent",
-              "if": {
-                "and": [
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  },
-                  {
-                    "not": {
-                      "prevApplied": true
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "op": "flat",
-              "of": "flatSelfFrac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              }
+              "name": "react",
+              "target": "self",
+              "params": {
+                "trigger": 11,
+                "cat": 4
+              },
+              "stack": true,
+              "payload": [
+                {
+                  "op": "apply_status",
+                  "name": "ember",
+                  "target": "opponent",
+                  "chance": 50
+                }
+              ]
             }
           ]
         }
@@ -55458,7 +55177,6 @@
         },
         {
           "hook": "onDamaged",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_stat_stage",
@@ -55494,26 +55212,6 @@
               "delta": -1,
               "target": "opponent",
               "chance": 50
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "max_hp_down",
-              "target": "opponent",
-              "params": {
-                "n": 1,
-                "d": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -57799,7 +57497,6 @@
         },
         {
           "hook": "onMoveUsed",
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
@@ -57817,32 +57514,6 @@
             "cat": 1,
             "streak": "status"
           }
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 300,
-              "kind": "fixed",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "heal",
-              "flat": 300,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            }
-          ]
         }
       ]
     },
@@ -58888,53 +58559,12 @@
           "guard": {
             "prevDamageAboveAbs": 300
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "apply_status",
               "name": "fatigue",
               "target": "opponent",
               "chance": 50
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
             }
           ]
         }
@@ -61285,46 +60915,6 @@
               "value": {
                 "numerator": 100,
                 "denominator": 100
-              }
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "damage",
-              "power": 1,
-              "kind": "percent",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "formula",
-              "of": "frac",
-              "value": {
-                "numerator": 1,
-                "denominator": 3
-              },
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
-              }
-            },
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self",
-              "if": {
-                "not": {
-                  "prevApplied": true
-                }
               }
             }
           ]
