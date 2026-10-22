@@ -15487,7 +15487,6 @@
               "order": "first"
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "cleanse",
@@ -15504,7 +15503,6 @@
               "order": "last"
             }
           },
-          "bossGate": true,
           "ops": [
             {
               "op": "damage",
@@ -70036,7 +70034,11 @@
               "op": "heal",
               "numerator": 1,
               "denominator": 3,
-              "target": "self"
+              "target": "self",
+              "foeEcho": {
+                "numerator": 100,
+                "denominator": 100
+              }
             }
           ]
         }
