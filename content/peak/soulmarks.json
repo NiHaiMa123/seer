@@ -6080,7 +6080,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -6451,42 +6451,29 @@
       "desc": "沌：使用技能时将自身相应的能力提升赋予给对手相应的能力下降（技能生效后触发），若未触发效果则减少对手1/4最大HP",
       "effects": [
         {
-          "hook": "onBattleStart",
-          "ops": [
-            {
-              "op": "apply_status",
-              "name": "react",
-              "target": "self",
-              "params": {
-                "trigger": 11
-              },
-              "stack": true,
-              "payload": [
-                {
-                  "op": "transfer_stages",
-                  "direction": "upToDown"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
+          "hook": "onMoveUsed",
           "guard": {
-            "not": {
-              "prevApplied": true
-            }
+            "actor": "self"
           },
           "ops": [
             {
-              "op": "apply_status",
-              "name": "max_hp_down",
+              "op": "transfer_stages",
+              "direction": "upToDown"
+            },
+            {
+              "op": "hp_delta",
               "target": "opponent",
-              "params": {
-                "n": 1,
-                "d": 4
+              "frac": {
+                "numerator": 1,
+                "denominator": 4,
+                "of": "max"
               },
-              "turns": 1
+              "kind": "percent",
+              "if": {
+                "not": {
+                  "prevApplied": true
+                }
+              }
             }
           ]
         }
@@ -8574,7 +8561,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -10984,7 +10971,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -11580,7 +11567,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "foeHas": "sleep"
@@ -12068,7 +12055,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -14047,7 +14034,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -14285,7 +14272,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -15521,7 +15508,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -15735,7 +15722,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "selfStageUp": true
@@ -17340,7 +17327,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -17751,7 +17738,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -18697,7 +18684,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -20608,7 +20595,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "order": "last"
@@ -20840,7 +20827,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -21021,7 +21008,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -21314,7 +21301,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "selfHpAbove": {
@@ -22140,7 +22127,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -22319,7 +22306,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -22946,7 +22933,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "chance": 50
             },
@@ -23279,7 +23266,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "selfHpAbove": {
@@ -23447,7 +23434,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "foeHas": "sleep"
@@ -24778,7 +24765,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "selfHpAboveFoe": true
@@ -27765,7 +27752,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -29426,7 +29413,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "chance": 50
             },
@@ -30146,7 +30133,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -30193,7 +30180,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -30650,7 +30637,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -32367,7 +32354,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -33089,7 +33076,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "chance": 50
             },
@@ -33333,7 +33320,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -33811,7 +33798,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -36913,7 +36900,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -37603,7 +37590,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -40766,7 +40753,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -40894,7 +40881,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -42819,7 +42806,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -47499,7 +47486,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -48309,7 +48296,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -48911,7 +48898,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -49234,7 +49221,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -50843,7 +50830,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -51383,7 +51370,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -51943,7 +51930,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -53846,7 +53833,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -54130,7 +54117,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -54905,7 +54892,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -55034,7 +55021,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -55924,7 +55911,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -57098,7 +57085,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -59616,7 +59603,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -59701,7 +59688,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -60467,7 +60454,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -65636,7 +65623,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "if": {
                 "not": {
@@ -65937,7 +65924,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -67321,7 +67308,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent",
               "chance": 50
             },
@@ -68111,7 +68098,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -68400,7 +68387,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -71333,7 +71320,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -72437,7 +72424,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -82321,7 +82308,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -90354,7 +90341,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {
@@ -91898,7 +91885,7 @@
             {
               "op": "damage",
               "kind": "fixed",
-              "power": 1,
+              "power": 0,
               "target": "opponent"
             },
             {

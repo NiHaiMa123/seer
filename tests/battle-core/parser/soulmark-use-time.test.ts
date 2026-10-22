@@ -29,6 +29,24 @@ function mustReact(id: string, index = 0): ParsedOp {
 }
 
 describe("明确纯使用技能魂印的源到IR边界", () => {
+  it("技能生效后转移强化与失败扣血属于同一个onMoveUsed条目", () => {
+    const r = parse("pet-3006");
+    expect(r.unparsed).toEqual([]);
+    expect(r.entries).toEqual([{
+      hook: "onMoveUsed", guard: { actor: "self" }, ops: [
+        { op: "transfer_stages", direction: "upToDown" },
+        { op: "hp_delta", target: "opponent", frac: { numerator: 1, denominator: 4, of: "max" }, kind: "percent", if: { not: { prevApplied: true } } },
+      ],
+    }]);
+  });
+
+  it("生效后转移家族按原文分数编译，不绑定精灵ID或固定数值", () => {
+    const r = parseSoulmarkText("使用技能时将自身相应的能力提升赋予给对手相应的能力下降（技能生效后触发），若未触发效果则减少对手2/5最大HP");
+    expect(r.entries).toHaveLength(1);
+    expect(r.entries[0]?.hook).toBe("onMoveUsed");
+    expect(r.entries[0]?.ops?.[1]).toMatchObject({ op: "hp_delta", frac: { numerator: 2, denominator: 5, of: "max" }, if: { not: { prevApplied: true } } });
+  });
+
   it("把本轮10个获批ID的即时使用语句转为独立react窗口", () => {
     const expectedReactCounts: Record<string, number> = {
       "pet-2708": 1,

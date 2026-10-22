@@ -25,6 +25,7 @@ describe("分数型附加固伤的触发概率", () => {
     const dmg = r.entries[0]?.ops?.find((o) => (o as { op?: string }).op === "damage");
     expect(dmg).toBeDefined();
     expect((dmg as { chance?: number }).chance).toBe(50);
+    expect((dmg as { power?: number }).power).toBe(0);
   });
 
   it("pet-3639 普约尔：低伤分支的「50%附加自身最大体力1/3的固伤」带上概率", () => {

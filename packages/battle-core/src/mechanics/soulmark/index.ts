@@ -26,8 +26,17 @@ import { fireTriggers, type TriggerResume } from "../../ops/trigger.ts";
 import { accTransform, type MechChance, type MechEnv } from "../../ops/mechanism.ts";
 import { readSoul, subjectOk, type SoulChance, type SoulGuard, type SoulScene } from "./read.ts";
 import { hpCapOf } from "../../ops/effects.ts";
-import type { KoCtx, Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MoveUsedCtx, OrderRollCtx, PackMechView, SwitchOutCtx, TurnEndCtx } from "../types.ts";
+import type { KoCtx, Mechanic, MechanicCompileCtx, MechanicContribution, MechanicMove, MoveUsedCtx, OrderRollCtx, PackMechView, SwitchOutCtx, TurnEndCtx, UnitState } from "../types.ts";
 import { decideFatal, restoreSnapshot } from "./fatal.ts";
+
+// 仅标记当前同步派发栈；不写入对局状态。魂印自身生成的伤害不是新的技能命中。
+const dispatchingUnits = new WeakSet<UnitState>();
+function withSoulDispatch<T>(unit: UnitState, dispatch: () => T): T {
+  const nested = dispatchingUnits.has(unit);
+  dispatchingUnits.add(unit);
+  try { return dispatch(); }
+  finally { if (!nested) dispatchingUnits.delete(unit); }
+}
 
 /** 魂印 flag op（与 content/schemas/soulmarks.schema.json soulOp 对齐）。枚举已冻住，不再加成员。 */
 export interface SoulFlagOp {
@@ -241,7 +250,7 @@ function runSoulHook(
     ...(("crit" in ctx && ctx.crit === true) ? { lastCrit: true } : {}),
   };
   const { foe: _f, target: _t, targetSide: _ts, ...octx } = octx0;
-  const out = fireTriggers<SoulOp>(octx, {
+  const out = withSoulDispatch(unit, () => fireTriggers<SoulOp>(octx, {
     list: () => mark.effects,
     match: (e) => "hook" in e && e.hook === hook && (filter === undefined || filter(e)),
     stop: () => ctx.outcome !== undefined,
@@ -265,7 +274,7 @@ function runSoulHook(
     transform: (_c, e, _i, fx, mag, atCap) =>
       "hook" in e ? accTransform(stampStreakHit(e, fx), soulMech(e).acc, mag, atCap) : fx,
     trackPrevApplied: true,
-  }, resume);
+  }, resume));
   if (out.kind === "terminal") { ctx.outcome = "terminal"; return; }
   if (out.kind === "suspend") {
     // 条目内挂起：记下断点（同回合同钩重派时从此续跑），再向上传播；
@@ -587,7 +596,7 @@ export const soulmarkMechanic: Mechanic = {
 
   onDamageDealt(ctx: TurnEndCtx & { amount: number; crit?: boolean; cat?: number; move?: MechanicMove }): void {
     // 攻击方视角结算：仅真实命中伤害（amount>0）；cat 门控未声明=不限类别。
-    if (ctx.amount <= 0) return;
+    if (ctx.amount <= 0 || dispatchingUnits.has(ctx.next.sides[ctx.side].unit)) return;
     runSoulHook(ctx, "onDamageDealt", (e) => subjectOk(readSoul(e), { checkCat: true, ...(ctx.cat !== undefined ? { cat: ctx.cat } : {}) }));
   },
 

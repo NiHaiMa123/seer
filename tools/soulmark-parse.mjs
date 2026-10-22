@@ -1350,6 +1350,17 @@ export function parseSoulmarkText(text, petName) {
   if (TEXT_BOSS_RE.test(src)) { bossGate = true; textBossGate = true; anyBossGate = true; src = src.replace(TEXT_BOSS_RE, ""); }
   src = stripNamePrefix(src).replace(BOSS_OK_RE, "");
 
+  // 技能生效后转移强化及其同次失败分支：复用 onMoveUsed 与 prevApplied，
+  // 不能迁往行动前的 react 11，也不能在回合末猜测之前是否转移成功。
+  const afterTransfer = src.match(/^(?:自身)?使用技能时将自身(?:相应的|的)?能力提升(?:状态)?赋予给对手(?:相应的|的)?能力下降(?:状态)?[（(]技能生效后触发[）)][，,]若未触发(?:效果)?则减少对手(\d+)\s*\/\s*(\d+)最大(?:体力|HP)[。.]?$/);
+  if (afterTransfer !== null && +afterTransfer[2] > 0) {
+    entries.push({ hook: "onMoveUsed", guard: { actor: "self" }, ...(textBossGate ? { bossGate: true } : {}), ops: [
+      { op: "transfer_stages", direction: "upToDown" },
+      { op: "hp_delta", target: "opponent", frac: { numerator: +afterTransfer[1], denominator: +afterTransfer[2], of: "max" }, kind: "percent", if: { not: { prevApplied: true } } },
+    ] });
+    return { entries, unparsed, bossGate: textBossGate, clauseTotal: 1, clausesParsed: 1, fragmentsOnParsed: 0, fragmentsOnResidual: 0, fragmentsOutside: 0 };
+  }
+
   // A duration-bearing state introduced earlier in the same source can define
   // a later `name：...` block even when the name itself has no generic marker
   // such as 图腾/场地/状态. Keep this relation source-local and literal: ordinary
@@ -2990,8 +3001,8 @@ export function parseSoulmarkText(text, petName) {
         else if (fk === "flatBonus") op = { op: "damage", kind: "fixed", power: fv, target: "opponent" };
         else if (fk === "flatRange") op = { op: "damage", kind: "fixed", power: 1, flatRange: fv, target: "opponent" };
         else if (fk === "flatFoeFrac") op = { op: "damage", kind: "percent", frac: { numerator: fv.numerator, denominator: fv.denominator }, target: "opponent" };
-        else if (fk === "flatSelfFrac") op = { op: "damage", kind: "fixed", power: 1, flatSelfFrac: fv, target: "opponent" };
-        else if (fk === "flatSelfPct") op = { op: "damage", kind: "fixed", power: 1, flatSelfFrac: { numerator: fv, denominator: 100, base: "max" }, target: "opponent" };
+        else if (fk === "flatSelfFrac") op = { op: "damage", kind: "fixed", power: 0, flatSelfFrac: fv, target: "opponent" };
+        else if (fk === "flatSelfPct") op = { op: "damage", kind: "fixed", power: 0, flatSelfFrac: { numerator: fv, denominator: 100, base: "max" }, target: "opponent" };
         else if (fk === "drain") op = { op: "apply_status", name: "drain_atk", target: "self", params: { n: fv.numerator, d: fv.denominator } };
         else if (fk === "flatPerStage" || fk === "flatSelfDefSumPct" || fk === "flatFoeDefPct" || fk === "flatFoeDefSumPct" || fk === "flatMaxHpDiffPct") op = { op: "damage", kind: "fixed", power: 0, [fk]: fv, target: "opponent" };
         if (op !== undefined) { op.if = g; effects.push(op); }
@@ -3348,14 +3359,14 @@ export function parseSoulmarkText(text, petName) {
         if (ad.flatFoeFrac !== undefined) {
           const f = ad.flatFoeFrac;
           effects.push(f.base === "current" ? { op: "damage", kind: "percent", frac: { numerator: f.numerator, denominator: f.denominator }, percentBase: "current", target: "opponent", ...flatCh }
-            : f.base === "missing" ? { op: "damage", kind: "fixed", power: 1, flatFoeFrac: f, target: "opponent", ...flatCh }
+            : f.base === "missing" ? { op: "damage", kind: "fixed", power: 0, flatFoeFrac: f, target: "opponent", ...flatCh }
             : { op: "damage", kind: "percent", frac: { numerator: f.numerator, denominator: f.denominator }, target: "opponent", ...flatCh });
           delete ad.flatFoeFrac;
         }
-        if (ad.flatSelfFrac !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: ad.flatSelfFrac, target: "opponent", ...flatCh }); delete ad.flatSelfFrac; }
-        if (ad.flatSelfFracIf !== undefined) { const { when, ...f } = ad.flatSelfFracIf; effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: f, target: "opponent", if: when, ...flatCh }); delete ad.flatSelfFracIf; }
-        if (ad.flatFoeFracIf !== undefined) { const { when, ...f } = ad.flatFoeFracIf; effects.push({ op: "damage", kind: "fixed", power: 1, flatFoeFrac: f, target: "opponent", if: when, ...flatCh }); delete ad.flatFoeFracIf; }
-        if (ad.flatSelfPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 1, flatSelfFrac: { numerator: ad.flatSelfPct, denominator: 100, base: "max" }, target: "opponent", ...flatCh }); delete ad.flatSelfPct; }
+        if (ad.flatSelfFrac !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 0, flatSelfFrac: ad.flatSelfFrac, target: "opponent", ...flatCh }); delete ad.flatSelfFrac; }
+        if (ad.flatSelfFracIf !== undefined) { const { when, ...f } = ad.flatSelfFracIf; effects.push({ op: "damage", kind: "fixed", power: 0, flatSelfFrac: f, target: "opponent", if: when, ...flatCh }); delete ad.flatSelfFracIf; }
+        if (ad.flatFoeFracIf !== undefined) { const { when, ...f } = ad.flatFoeFracIf; effects.push({ op: "damage", kind: "fixed", power: 0, flatFoeFrac: f, target: "opponent", if: when, ...flatCh }); delete ad.flatFoeFracIf; }
+        if (ad.flatSelfPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 0, flatSelfFrac: { numerator: ad.flatSelfPct, denominator: 100, base: "max" }, target: "opponent", ...flatCh }); delete ad.flatSelfPct; }
         // flatSelfStatPct/flatFoeStatPct（"附加自身攻击值25%的百分比伤害"/"吸取对手自身速度值30%的体力"）→ damage op + 随附 drain 全吸（须在 ad.drain 通用转换之前消费，防 drain_atk 常驻窗语义漂移）
         if (ad.flatSelfStatPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 0, flatSelfStatPct: ad.flatSelfStatPct, ...(ad.drain !== undefined ? { drain: ad.drain } : {}), target: "opponent" }); delete ad.flatSelfStatPct; delete ad.drain; }
         if (ad.flatFoeStatPct !== undefined) { effects.push({ op: "damage", kind: "fixed", power: 0, flatFoeStatPct: ad.flatFoeStatPct, ...(ad.drain !== undefined ? { drain: ad.drain } : {}), target: "opponent" }); delete ad.flatFoeStatPct; delete ad.drain; }
@@ -3614,6 +3625,7 @@ export function parseSoulmarkText(text, petName) {
         continue;
       }
       const plainUseHeadIsImmediate = plainUseCandidate
+        && !/技能生效后触发/.test(String(text))
         && plainUseMatchedHead !== ""
         && /(?:使用|释放)/.test(plainUseMatchedHead)
         && !/后\s*$/.test(plainUseMatchedHead)

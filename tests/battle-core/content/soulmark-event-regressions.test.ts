@@ -20,6 +20,71 @@ function turn(state: CoreState, move: string, pack = PACK) {
 }
 
 describe("真实内容的魂印与属性技能时序", () => {
+  it("亚尔娜的附加伤害不会再触发自身魂印，900体力的1/3恰为300", () => {
+    const moves = new Map(PACK.movesById);
+    const state = battle("pet-3457");
+    const mid = state.sides.p1.unit.moves[0]!.moveId;
+    moves.set(mid, { ...moves.get(mid)!, effects: [{ op: "damage", kind: "fixed", power: 10 }] });
+    const pack: FrozenPack = { ...PACK, movesById: moves };
+    const first = turn(state, mid, pack);
+    expect(first.events.filter((e) => e.type === "damage").map((e) => e.detail.amount)).toEqual([10, 300]);
+    expect(first.events.filter((e) => e.type === "soulmark" && e.detail.mark === "sm-3457")).toHaveLength(1);
+    expect(first.state.rng.drawCounter).toBe(1);
+    const second = turn(JSON.parse(JSON.stringify(first.state)) as CoreState, mid, pack);
+    expect(second.events.filter((e) => e.type === "soulmark" && e.detail.mark === "sm-3457")).toHaveLength(1);
+    expect(second.state.rng.drawCounter).toBe(2);
+  });
+
+  it("连击的每个独立主伤害仍各触发一次魂印", () => {
+    const moves = new Map(PACK.movesById);
+    const state = battle("pet-3457");
+    const mid = state.sides.p1.unit.moves[0]!.moveId;
+    moves.set(mid, { ...moves.get(mid)!, effects: [
+      { op: "damage", kind: "fixed", power: 10 },
+      { op: "strike", of: "hits", value: { min: 3, max: 3 } },
+    ] });
+    const result = turn(state, mid, { ...PACK, movesById: moves });
+    expect(result.events.filter((e) => e.type === "damage" && e.detail.amount === 10)).toHaveLength(3);
+    expect(result.events.filter((e) => e.type === "soulmark" && e.detail.mark === "sm-3457")).toHaveLength(3);
+  });
+
+  it("混沌界王在技能强化完成后转移能力，不执行失败分支", () => {
+    const result = turn(battle("pet-3006"), "mv-3006-s14");
+    for (const stat of ["atk", "def", "spa", "sdf", "spd"] as const) {
+      expect(result.state.sides.p1.unit.stages[stat]).toBe(0);
+      expect(result.state.sides.p2.unit.stages[stat]).toBe(-1);
+    }
+    const transfer = result.events.findIndex((e) => e.type === "stages-transferred");
+    const lastStage = result.events.reduce((n, e, i) => e.type === "stat-stage" && e.detail.side === "p1" ? i : n, -1);
+    expect(transfer).toBeGreaterThan(lastStage);
+    expect(result.state.sides.p2.unit.currentHp).toBe(5000);
+    expect(result.state.sides.p2.unit.effects.some((e) => e.label === "max_hp_down")).toBe(false);
+  });
+
+  it("混沌界王转移已有强化成功时也不会追加失败扣血", () => {
+    const state = battle("pet-3006");
+    state.sides.p1.unit.stages.atk = 1;
+    const result = turn(state, "mv-3006-s12");
+    expect(result.state.sides.p2.unit.stages.atk).toBe(-1);
+    expect(result.state.sides.p2.unit.currentHp).toBe(5000);
+    expect(result.state.sides.p2.unit.effects.some((e) => e.label === "max_hp_down")).toBe(false);
+  });
+
+  it("混沌界王仅在同次技能转移失败时扣除对手最大体力的1/4", () => {
+    const result = turn(battle("pet-3006"), "mv-3006-s12");
+    expect(result.state.sides.p2.unit.currentHp).toBe(3750);
+    expect(result.events.filter((e) => e.type === "damage" && e.detail.side === "p2").map((e) => e.detail.amount)).toEqual([1250]);
+    expect(result.state.sides.p2.unit.effects.some((e) => e.label === "max_hp_down")).toBe(false);
+  });
+
+  it("混沌界王无法使用技能时，不产生失败扣血或体力上限削减", () => {
+    const state = battle("pet-3006");
+    for (const move of state.sides.p1.unit.moves) move.pp = 0;
+    const result = turn(state, "mv-3006-s12");
+    expect(result.state.sides.p2.unit.currentHp).toBe(5000);
+    expect(result.state.sides.p2.unit.effects.some((e) => e.label === "max_hp_down")).toBe(false);
+  });
+
   it("十里枯监保持属性技能，使用时不额外扣除对手200体力", () => {
     const state = battle("pet-4939");
     const result = turn(state, "mv-4939-s12");
