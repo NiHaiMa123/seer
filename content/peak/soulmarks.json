@@ -14067,7 +14067,8 @@
               "name": "dodge",
               "target": "self",
               "params": {
-                "pct": 50
+                "pct": 50,
+                "cat": 4
               },
               "turns": 1
             }
@@ -15749,7 +15750,7 @@
       "desc": "问：赛尔号茉蕊儿魂印是什么？赛尔号茉蕊儿专属特性是什么？ 答：赛尔号茉蕊儿是草系精灵王，她的魂印是蕊 ：若对手使用攻击技能则造成的攻击伤害不超过自身最大体力的一半，若对手使用属性技能则当回合免疫异常且回合结束后解除自身能力下降状态（BOSS无效）；自身死亡后则下只登场精灵获得500点护盾且免疫1次异常状态。 精灵资料：赛尔号小茉 蕊儿 茉蕊儿进化图种族值技能表 >>>",
       "effects": [
         {
-          "hook": "onTurnEnd",
+          "hook": "onMoveUsed",
           "bossGate": true,
           "ops": [
             {
@@ -15758,7 +15759,11 @@
               "target": "self",
               "turns": 1
             }
-          ]
+          ],
+          "guard": {
+            "actor": "foe",
+            "cat": 1
+          }
         },
         {
           "hook": "onTurnEnd",
@@ -38687,18 +38692,6 @@
         },
         {
           "hook": "onTurnEnd",
-          "bossGate": true,
-          "ops": [
-            {
-              "op": "heal",
-              "numerator": 1,
-              "denominator": 3,
-              "target": "self"
-            }
-          ]
-        },
-        {
-          "hook": "onTurnEnd",
           "guard": {
             "selfHas": "poison"
           },
@@ -38712,6 +38705,18 @@
                 "pct": 50
               },
               "turns": 1
+            }
+          ]
+        },
+        {
+          "hook": "onTurnEnd",
+          "bossGate": true,
+          "ops": [
+            {
+              "op": "heal",
+              "numerator": 1,
+              "denominator": 3,
+              "target": "self"
             }
           ]
         }

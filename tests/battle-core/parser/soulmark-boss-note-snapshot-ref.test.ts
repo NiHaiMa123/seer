@@ -48,7 +48,7 @@ describe("boss 注记作用域：快照引用里的时点词不开启新作用�
       guard: { hpBelowTurnStartFrac: { numerator: 50, denominator: 100 } },
     });
     // 「等量固伤」按本次实际回复量结算
-    expect((r.entries[0].ops ?? []).some((o) => (o as { foeEcho?: boolean }).foeEcho === true)).toBe(true);
+    expect((r.entries[0]?.ops ?? []).some((o) => (o as { foeEcho?: boolean }).foeEcho === true)).toBe(true);
   });
 
   it("状语位置的时点词仍照旧切分（pet-2832：回合结束时的载荷不能并回用技触发）", () => {

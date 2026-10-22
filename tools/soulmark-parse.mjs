@@ -321,7 +321,25 @@ function splitLocalBossScopes(raw) {
       const cut = prefix.slice(payloadStart).search(/[，,、]/);
       const clauseEnd = cut >= 0 ? payloadStart + cut : prefix.length;
       // If a condition introduces this timing clause, retain its prefix with the event.
-      if (triggerInPhrase || trigger.index < clauseEnd) start = guardIdx;
+      if (triggerInPhrase || trigger.index < clauseEnd) {
+        // 「当回合」的「当」是**时点词**（本回合），不是守卫：回退目标不能是它——
+        //   那会把守卫短语（「…自身体力低于对手则」）切到前一段，负载失去守卫 → **无条件执行**
+        //   （pet-3422 / pet-3446 蒂亚斯）。
+        const isTurnTimeWord = scopeText.slice(guard.index + 1).startsWith("回合");
+        if (!isTurnTimeWord) { start = guardIdx; }
+        else {
+          const beforeWord = scopeText.slice(0, guard.index);
+          const beforeTrigger = prefix.slice(0, previous === undefined ? 0 : previous.index);
+          // a) 「则」引出的载荷里（"…低于对手则当回合…"）：条件、载荷、触发词同属一个子句
+          //    → 回退到**触发词起点**（整句保持在同一作用域，条件不丢）。
+          // b) 「若」子句把触发词包在里面（"若回合开始时自身满体力则当回合…"）：该条件含快照时点、
+          //    不可建模，负载必须跟着条件一起被扣下 → 维持原回退点（负载仍被扣，不无条件执行）。
+          // c) 其余（"…令对手害怕，当回合未受到攻击则…"）→ 维持原回退点。
+          const inZePayload = /则$/.test(beforeWord);
+          const condOwnsTrigger = /若/.test(beforeTrigger);
+          start = inZePayload && !condOwnsTrigger ? (previous === undefined ? 0 : previous.index) : guardIdx;
+        }
+      }
     }
     // 结果分支标记（"未触发则回合结束时X"）与"若/当"守卫同理：它是负载的前置作用域，
     // 切分不得把它甩在前一段——否则条件成孤儿（cond-orphan），负载被无条件执行。
