@@ -148,6 +148,41 @@ const smCondOf = (p) => {
   return condOf(p);
 };
 
+// 「A且回合结束时B」切开后，B 丢掉了 A 里「若/处于…则」的条件。
+// 只把能认成谓词的那段（或「使用属性/攻击技能则」这种出招门）带回 B。
+// 认不出的不带回——带回会把 B 整段扣成残文。
+const sharedCondPrefix = (head) => {
+  const ze = head.lastIndexOf("则");
+  if (ze < 2) return undefined;
+  const before = head.slice(0, ze);
+  const ruo = before.lastIndexOf("若");
+  const at = before.search(/(?:我方|己方|自身|自己|对手|对方|敌方)?处于/);
+  const start = ruo >= 0 ? ruo : at;
+  if (start < 0) return undefined;
+  const phrase = head.slice(start, ze + 1);
+  if (phrase.length < 3 || phrase.length > 36) return undefined;
+  const condText = phrase.slice(0, -1).replace(/^若/, "");
+  if (smCondOf(condText) !== undefined) return phrase;
+  if (/^(?:若)?(?:对手|对方|敌方|自身|自己|我方|己方)?使用(?:属性|攻击|物理|特殊)?技能则$/.test(phrase)) return phrase;
+  return undefined;
+};
+
+// boss 切分把「若P，若Q，若R则回合结束时」的 P 留在前一段时，R 的负载会丢掉 P。
+// P 自己没有「则」、后面只剩以「若」开头的分支，才把它抄进后一段（pet-3793）。
+const governingBossCond = (before) => {
+  const semi = Math.max(before.lastIndexOf("；"), before.lastIndexOf(";"), before.lastIndexOf("。"));
+  const sentence = before.slice(semi + 1);
+  const parts = sentence.split(/[，,]/).map((s) => s.trim()).filter(Boolean);
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    if (!/若/.test(p) || /则/.test(p)) continue;
+    if (!parts.slice(i + 1).every((q) => /^若/.test(q))) continue;
+    if (p.length < 4 || p.length > 40) return "";
+    return p;
+  }
+  return "";
+};
+
 /**
  * 魂印语境里「必定命中」的类别限定（cat 编码与全引擎一致：1=属性/2=物理/3=特殊，
  * 4=任意攻击招=物理+特殊）。
@@ -375,9 +410,14 @@ function splitLocalBossScopes(raw) {
     eventStarts.push(opensScope ? start : scopeStart);
     if (opensScope) scopeStart = start;
   }
+  let gatedText = prefix.slice(scopeStart);
+  const governor = governingBossCond(prefix.slice(0, scopeStart));
+  if (governor !== "" && /^若/.test(gatedText.trim()) && !gatedText.includes(governor)) {
+    gatedText = `${governor}，${gatedText.trim()}`;
+  }
   return [
     ...splitLocalBossScopes(prefix.slice(0, scopeStart)),
-    ...(prefix.slice(scopeStart).trim() !== "" ? [{ text: prefix.slice(scopeStart), localBossGate: true }] : []),
+    ...(gatedText.trim() !== "" ? [{ text: gatedText, localBossGate: true }] : []),
     ...splitLocalBossScopes(suffix),
   ];
 }
@@ -1895,7 +1935,11 @@ export function parseSoulmarkText(text, petName) {
         if (cur.length > 0 && !hasOutcome && !bareEvent && segBoundary(head)) { groups.push(cur); cur = [head]; }
         else cur.push(head);
         groups.push(cur);
-        cur = [cs.slice(qi + 1).trim()]; cur.linkedContinuation = true; continue;
+        cur = [cs.slice(qi + 1).trim()];
+        cur.linkedContinuation = true;
+        const shared = sharedCondPrefix(head);
+        if (shared !== undefined) cur.sharedCond = shared;
+        continue;
       }
       if (cur.length > 0 && segBoundary(cs)) { groups.push(cur); cur = [cs]; cur.linkedContinuation = linkedSegment; }
       else cur.push(cs);
@@ -1976,6 +2020,7 @@ export function parseSoulmarkText(text, petName) {
     outerG: for (const g of groups) {
       const linkedContinuation = g.linkedContinuation === true;
       const groupUnparsedStart = unparsed.length;      let gtext = g.join("，").trim().replace(/^[，,、；;：:\s]+/, "").replace(/，(?=[+-]\d)/g, ""); // "体力，+10"切分碎片回拼——逗号后紧跟有符号数属上维度增量，非子句边界
+      if (typeof g.sharedCond === "string" && g.sharedCond !== "" && !gtext.startsWith(g.sharedCond)) gtext = g.sharedCond + gtext;
       if (gtext === "") continue;
       if (g.withholdOutcomeTail === true) {
         quarantineGroup(gtext, "prevApplied branch continuation — linked tail cannot be detached safely (deferred)");
@@ -2696,6 +2741,12 @@ export function parseSoulmarkText(text, petName) {
         body = nbody.replace(/^[，,、\s]+/, "");
       }
       if (hook === "__turn__") hook = lastHook !== undefined && (lastHook.hook === "onTurnStart" || lastHook.hook === "onEntry" || lastHook.hook === "onTurnEnd") ? lastHook.hook : "onTurnEnd";
+      // 「且」带过来的出招门（对手使用属性技能）落不到回合末：主体过滤只在 onMoveUsed 上查。
+      // 留在回合末会每回合都解除。这条扣下，不无条件执行。
+      if (linkedContinuation && (extra.actor !== undefined || extra.cat !== undefined) && hook !== "onMoveUsed" && hook !== "beforeOrder") {
+        unparsed.push({ clause: gtext, reason: "linked effect — move-use condition is not visible on this hook (deferred)" });
+        continue;
+      }
       // A turn-start/entry snapshot cannot directly gate an effect that only occurs on a later move.
       // Keep that compound scope (and its else tail) residual instead of checking the condition at move time.
       if (["onTurnStart", "onTurnEnd", "onEntry"].includes(hook) && /^(?:若|当).{2,40}?(?:则|时)(?=(?:自身|自己)?使用(?:攻击|属性|物理|特殊)?技能)/.test(body)) {
@@ -3537,7 +3588,12 @@ export function parseSoulmarkText(text, petName) {
         if (Object.keys(ad).length === 0) delete flags.attachDamage;
       }
       // 招式级先制/必中窗 → 短回合 flag op（onEntry/onMoveUsed 语境近似 UNVERIFIED）
-      if (flags.priority !== undefined) { effects.push({ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: flags.priority } }); delete flags.priority; }
+      // timed-bare-05 只认「攻击技能先制」。裸「攻击先制」落到 flags.priority，不带类别会给属性技能也加先制。
+      if (flags.priority !== undefined) {
+        const attackOnly = /攻击(?:技能)?先制|攻击必定先出手/.test(`${gtext}\n${body}`);
+        effects.push({ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: flags.priority, ...(attackOnly ? { cat: 4 } : {}) } });
+        delete flags.priority;
+      }
       if (flags.priorityIf !== undefined && typeof flags.priorityIf === "object") { effects.push({ op: "apply_status", name: "prio_up", target: "self", turns: 1, params: { add: flags.priorityIf.add }, ...(flags.priorityIf.when !== undefined ? { if: flags.priorityIf.when } : {}) }); delete flags.priorityIf; }
       if (flags.accuracy === "always") { const hitCat = soulMustHitCat(gtext); effects.push(hitCat === undefined ? { op: "apply_status", name: "must_hit", target: "self", turns: 1 } : { op: "apply_status", name: "sure_hit", target: "self", turns: 1, params: { cat: hitCat } }); delete flags.accuracy; }
       // dynChance（"攻击有自身当前体力百分比的概率令对手AIL"——effects 层无法回写条级 → flags 透传，条目 chanceDyn 承接）
@@ -3682,6 +3738,19 @@ export function parseSoulmarkText(text, petName) {
         }
       }
       if (effects.length === 0 && maxHpAbsorb.found) continue;
+      // heal-42 把「造成等量百分比伤害」收成 heal.foeEcho。结算是固定伤直扣，不进百分比伤管线。
+      // 技能测试锁住那条映射；魂印不跟着发。回血留下，百分比半句留残。等量固定伤害（foeEcho 布尔）不在这句里。
+      if (/等量(?:的)?百分比伤害/.test(`${gtext}\n${body}`)) {
+        let stripped = false;
+        for (const o of effects) {
+          if (o.op === "heal" && o.foeEcho !== undefined) {
+            delete o.foeEcho;
+            delete o.foeEchoIf;
+            stripped = true;
+          }
+        }
+        if (stripped) unparsed.push({ clause: "造成等量百分比伤害", reason: "percent echo settles as fixed damage — deferred" });
+      }
       const newEntry = { hook, ...restExtra, ...growFields, ...(localAtCap !== undefined ? { growStep: localAtCap.step, growCap: localAtCap.cap } : {}), ...(pendingPromoteChance !== undefined ? { chance: pendingPromoteChance } : {}), ...(bossGate ? { bossGate: true } : {}), ...(bodyDyn !== undefined ? { chanceDyn: bodyDyn } : {}), ops: effects };
       if (plainUseCandidate && hook === "onMoveUsed" && restExtra.actor === "foe"
         && effects.some((o) => o.op === "apply_status" && o.name === "dmg_taken_down")

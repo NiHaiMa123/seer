@@ -2219,8 +2219,8 @@
       "name": "克律莎"
     }
   ],
-  "smAttached": 1606,
-  "smResidual": 917,
+  "smAttached": 1604,
+  "smResidual": 911,
   "units": 2239,
   "moves": 41524,
   "droppedAccCrt": 3,
@@ -9175,6 +9175,6 @@
     }
   ],
   "fifthNotAttack": 29,
-  "soulmarks": 1606,
+  "soulmarks": 1604,
   "newUnits": 2227
 }

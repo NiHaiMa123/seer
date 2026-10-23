@@ -137,6 +137,19 @@ if (scan || allDifferent || bucketOpt !== undefined) {
   }
 }
 
+/**
+ * 条目签名（--scan 的差异明细用）：hook + op 本体 + 条件集合（条目 guard 与 op 级 if 合并）。
+ * 条件换位置（guard ↔ op.if）在这里会显出差异——分桶已按完整有序 IR 判过，这里只给人看。
+ */
+const signature = (effects) => (effects ?? []).flatMap((e) => {
+  const entryCond = e?.guard === undefined ? [] : [stable(e.guard)];
+  return (e?.ops ?? []).map((op) => {
+    const { op: _o, if: _i, ...rest } = op ?? {};
+    const conds = [...entryCond, ...(_i === undefined ? [] : [stable(_i)])];
+    return `${e?.hook}|${stable(rest)}|${conds.sort().join("&")}`;
+  });
+});
+
 if (scan) {
   console.log("魂印内容包分桶（包内精灵）：\n");
   for (const [k, v] of Object.entries(buckets)) console.log(`  ${k}: ${v.length}`);
